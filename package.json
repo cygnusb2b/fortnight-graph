@@ -21,7 +21,8 @@
     "graphql-import": "^0.4.1",
     "graphql-tools": "^2.18.0",
     "helmet": "^3.9.0",
-    "mongoose": "^5.0.1"
+    "mongoose": "^5.0.1",
+    "shortid": "^2.2.8"
   },
   "devDependencies": {
     "eslint": "^4.16.0",

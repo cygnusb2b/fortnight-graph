@@ -1,3 +1,22 @@
 type Query {
   ping: String!
+  requestAds(input: AdRequestInput!): [AdResponse]
 }
+
+type AdResponse {
+  name: String
+  html: String!
+}
+
+input CustomKeyValueInput {
+  key: String!
+  value: String
+}
+
+input AdRequestInput {
+  pid: String!
+  limit: Int
+  vars: [CustomKeyValueInput]
+}
+
+

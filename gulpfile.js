@@ -3,7 +3,8 @@ var
   spawn = require('child_process').spawn,
   node,
   watchedPaths = [
-    'src/**/*.js'
+    'src/**/*.js',
+    'src/**/*.graphql',
   ]
 ;
 
@@ -28,7 +29,7 @@ gulp.task('watch', function () {
 })
 
 gulp.task('lint', function (cb) {
-  lint = spawn('./node_modules/.bin/eslint', watchedPaths, { stdio: 'inherit' });
+  lint = spawn('./node_modules/.bin/eslint', ['src/**/*.js'], { stdio: 'inherit' });
   lint.on('close', function (code) {
     if (code === 8) {
       cb(code);
