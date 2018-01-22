@@ -6,10 +6,9 @@ module.exports = {
    */
   Query: {
     ping: () => 'pong',
-    requestAds: async (root, { input }) => {
+    requestAds: (root, { input }) => {
       const { pid, limit } = input;
-      const ads = AdRepo.findFor({ pid, limit });
-      return ads;
+      return AdRepo.findFor({ pid, limit });
     },
   },
 };
