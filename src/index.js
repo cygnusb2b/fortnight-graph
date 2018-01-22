@@ -3,6 +3,7 @@ const helmet = require('helmet');
 const bluebird = require('bluebird');
 const mongoose = require('mongoose');
 const pkg = require('../package.json');
+const loadRouters = require('./routers');
 
 const app = express();
 const port = process.env.PORT || 8100;
@@ -18,9 +19,7 @@ mongoose.connect(dsn, {
 // Global middlewares.
 app.use(helmet());
 
-app.get('/ping', (req, res) => {
-  res.json({ pong: true });
-});
+loadRouters(app);
 
 app.listen(port);
 process.stdout.write(`Express app '${pkg.name}' listening on port ${port}\n`);
