@@ -1,0 +1,24 @@
+{
+  "name": "fortnight-graph",
+  "version": "0.1.0",
+  "main": "src/index.js",
+  "repository": "https://github.com/cygnusb2b/fortnight-graph.git",
+  "author": "Jacob Bare <jacob@limit0.io>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "./node_modules/.bin/gulp",
+    "start": "./node_modules/.bin/gulp serve"
+  },
+  "dependencies": {
+    "express": "^4.16.2",
+    "helmet": "^3.9.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.16.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "gulp": "^3.9.1"
+  }
+}
