@@ -8,4 +8,7 @@ module.exports = new Schema({
     required: true,
     trim: true,
   },
+  userIds: {
+    type: [Schema.Types.ObjectId],
+  },
 });

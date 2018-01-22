@@ -1,6 +1,58 @@
 type Query {
   ping: String!
   requestAds(input: AdRequestInput!): [AdResponse]
+  currentUser: User
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): User
+  loginUser(input: LoginInput!): Authentication
+  deleteSession: String
+}
+
+input NewUserPayloadInput {
+  email: String!
+  password: String!
+  givenName: String!
+  familyName: String!
+}
+
+input CreateUserInput {
+  # captcha: String
+  payload: NewUserPayloadInput
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Session {
+  id: String!
+  uid: String!
+  cre: Int!
+  exp: Int!
+  token: String!
+}
+
+type Authentication {
+  user: User!
+  session: Session!
+}
+
+type User {
+  id: String!
+  email: String!
+  givenName: String
+  familyName: String
+  logins: Int
+
+}
+
+type Account {
+  id: String!
+  name: String!
+  users: [User]
 }
 
 type AdResponse {
