@@ -68,8 +68,6 @@ const schema = new Schema({
     type: Schema.Types.ObjectId,
   },
 }, {
-  // @todo Shouldn't be used in production!
-  autoIndex: true,
   timestamps: true,
 });
 

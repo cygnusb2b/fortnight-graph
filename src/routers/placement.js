@@ -32,6 +32,7 @@ const parseVariables = (vars = {}) => {
 };
 
 router.get('/:pid.:ext', (req, res) => {
+  const url = `${req.protocol}://${req.get('host')}`;
   const { pid, ext } = req.params;
   const { limit, cv, mv } = req.query;
 
@@ -39,6 +40,7 @@ router.get('/:pid.:ext', (req, res) => {
     const custom = parseVariables(cv);
     const merge = parseVariables(mv);
     AdRepo.findFor({
+      url,
       pid,
       limit,
       custom,
