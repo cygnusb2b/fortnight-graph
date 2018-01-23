@@ -2,6 +2,7 @@ const User = require('../models/user');
 const AccountRepo = require('../repositories/account');
 const UserRepo = require('../repositories/user');
 const SessionRepo = require('../repositories/session');
+const ImageRepo = require('../repositories/image');
 
 module.exports = {
   /**
@@ -40,6 +41,12 @@ module.exports = {
         await SessionRepo.delete(auth.session);
       }
       return 'ok';
+    },
+    signImageUpload: (root, { input }) => {
+      const { name } = input;
+      // @todo Put restrictions on what can be uploaded.
+      // For now, allow anything (naughty!)
+      return ImageRepo.signUpload(name);
     },
   },
   User: {

@@ -9,7 +9,20 @@ type Mutation {
   createUser(input: CreateUserInput!): User
   createAccount(input: CreateAccountInput!): Account
   loginUser(input: LoginInput!): Authentication
+  signImageUpload(input: ImageUploadInput!): SignedImageLocation!
   deleteSession: String
+}
+
+type SignedImageLocation {
+  url: String!
+  key: String!
+  expires: Int!
+}
+
+input ImageUploadInput {
+  name: String!
+  size: Int!
+  type: String!
 }
 
 input NewAccountPayloadInput {
