@@ -1,4 +1,3 @@
-const AdRepo = require('../repositories/ad');
 const User = require('../models/user');
 const UserRepo = require('../repositories/user');
 const SessionRepo = require('../repositories/session');
@@ -9,10 +8,6 @@ module.exports = {
    */
   Query: {
     ping: () => 'pong',
-    requestAds: (root, { input }) => {
-      const { pid, limit } = input;
-      return AdRepo.findFor({ pid, limit });
-    },
     currentUser: (root, args, { auth }) => (auth.isValid() ? auth.user : null),
   },
   Mutation: {

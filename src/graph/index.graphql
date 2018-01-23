@@ -1,6 +1,5 @@
 type Query {
   ping: String!
-  requestAds(input: AdRequestInput!): [AdResponse]
   currentUser: User
 }
 
@@ -53,22 +52,6 @@ type Account {
   id: String!
   name: String!
   users: [User]
-}
-
-type AdResponse {
-  name: String
-  html: String!
-}
-
-input CustomKeyValueInput {
-  key: String!
-  value: String
-}
-
-input AdRequestInput {
-  pid: String!
-  limit: Int
-  vars: [CustomKeyValueInput]
 }
 
 
