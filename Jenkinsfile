@@ -1,8 +1,6 @@
 node {
   def nodeBuilder = docker.image("node:8-alpine")
-  docker.withRegistry('https://registry.hub.docker.com', 'docker-registry-login') {
-    nodeBuilder.pull()
-  }
+  nodeBuilder.pull()
 
   try {
     stage('Checkout') {
