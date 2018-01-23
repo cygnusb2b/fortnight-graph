@@ -3,7 +3,7 @@ const helmet = require('helmet');
 const bluebird = require('bluebird');
 const mongoose = require('mongoose');
 const passport = require('passport');
-const bearerAuth = require('./auth-strategies/bearer');
+const authStrategies = require('./auth-strategies');
 const redis = require('./redis');
 const pkg = require('../package.json');
 const loadRouters = require('./routers');
@@ -26,7 +26,7 @@ redis.use('session', { url: redisDSN, prefix: `${pkg.name}:session:` });
 app.use(helmet());
 
 // Set the auth strategies
-passport.use(bearerAuth);
+passport.use(authStrategies.bearer);
 
 // Initialize passport auth.
 app.use(passport.initialize());
