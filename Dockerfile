@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . /app
 
 # Ensure working binary deps are brought in
-RUN npm rebuild
+RUN npm rebuild --update-binary
 
 EXPOSE 8100
 ENTRYPOINT ["npm", "run", "start"]
