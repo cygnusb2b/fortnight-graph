@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:8
+FROM limit0/node-build:latest
 
 WORKDIR /app
 COPY . /app
