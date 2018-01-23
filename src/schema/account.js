@@ -1,8 +1,15 @@
 const mongoose = require('mongoose');
+const shortid = require('shortid');
 
 const { Schema } = mongoose;
 
-module.exports = new Schema({
+const schema = new Schema({
+  uid: {
+    type: String,
+    required: true,
+    unique: true,
+    default: shortid.generate,
+  },
   name: {
     type: String,
     required: true,
@@ -11,4 +18,16 @@ module.exports = new Schema({
   userIds: {
     type: [Schema.Types.ObjectId],
   },
+  photoURL: {
+    type: String,
+  }
 });
+
+schema.pre('save', function setPhotoURL(next) {
+  if (!this.photoURL) {
+    this.photoURL = `https://robohash.org/${this.id}?set=set3&bgset=bg2`;
+    next();
+  }
+})
+
+module.exports = schema;

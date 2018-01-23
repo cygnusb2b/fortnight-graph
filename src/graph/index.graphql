@@ -2,12 +2,23 @@ type Query {
   ping: String!
   currentUser: User
   checkSession(input: SessionTokenInput!): Authentication
+  userAccounts: [Account]
 }
 
 type Mutation {
   createUser(input: CreateUserInput!): User
+  createAccount(input: CreateAccountInput!): Account
   loginUser(input: LoginInput!): Authentication
   deleteSession: String
+}
+
+input NewAccountPayloadInput {
+  name: String!
+}
+
+input CreateAccountInput {
+  # captcha: String
+  payload: NewAccountPayloadInput
 }
 
 input NewUserPayloadInput {
@@ -51,13 +62,15 @@ type User {
   familyName: String
   logins: Int
   photoURL: String
-
+  activeAccount: Account
+  accounts: [Account]
 }
 
 type Account {
   id: String!
   name: String!
   users: [User]
+  photoURL: String
 }
 
 

@@ -63,7 +63,10 @@ const schema = new Schema({
   },
   photoURL: {
     type: String,
-  }
+  },
+  activeAccountId: {
+    type: Schema.Types.ObjectId,
+  },
 }, {
   // @todo Shouldn't be used in production!
   autoIndex: true,
