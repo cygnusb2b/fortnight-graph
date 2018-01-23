@@ -11,6 +11,7 @@ node {
     stage('Yarn') {
       nodeBuilder.inside("-v ${env.WORKSPACE}:/var/www/html -u 0:0") {
         sh 'npm install -g yarn && yarn'
+        sh 'npm rebuild'
       }
     }
     stage('Test') {
