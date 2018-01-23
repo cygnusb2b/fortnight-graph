@@ -1,6 +1,7 @@
 type Query {
   ping: String!
   currentUser: User
+  checkSession(input: SessionTokenInput!): Authentication
 }
 
 type Mutation {
@@ -19,6 +20,10 @@ input NewUserPayloadInput {
 input CreateUserInput {
   # captcha: String
   payload: NewUserPayloadInput
+}
+
+input SessionTokenInput {
+  token: String!
 }
 
 input LoginInput {
@@ -45,6 +50,7 @@ type User {
   givenName: String
   familyName: String
   logins: Int
+  photoURL: String
 
 }
 

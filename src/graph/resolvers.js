@@ -9,6 +9,11 @@ module.exports = {
   Query: {
     ping: () => 'pong',
     currentUser: (root, args, { auth }) => (auth.isValid() ? auth.user : null),
+    checkSession: async (root, { input }) => {
+      const { token } = input;
+      const { user, session } = await UserRepo.retrieveSession(token);
+      return { user, session };
+    },
   },
   Mutation: {
     createUser: (root, { input }) => {
