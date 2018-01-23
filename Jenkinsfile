@@ -1,5 +1,5 @@
 node {
-  def nodeBuilder = docker.image("mhart/alpine-node:8")
+  def nodeBuilder = docker.image("node:8-alpine")
   docker.withRegistry('https://registry.hub.docker.com', 'docker-registry-login') {
     nodeBuilder.pull()
   }
@@ -11,7 +11,7 @@ node {
     stage('Yarn') {
       nodeBuilder.inside("-v ${env.WORKSPACE}:/var/www/html -u 0:0") {
         sh 'npm install -g yarn && yarn'
-        sh 'npm rebuild'
+        sh 'npm rebuild --update-binary'
       }
     }
     stage('Test') {
