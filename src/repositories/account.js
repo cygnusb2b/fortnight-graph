@@ -1,5 +1,3 @@
-const bcrypt = require('bcrypt');
-const sessionRepo = require('./session');
 const Account = require('../models/account');
 
 module.exports = {

@@ -20,7 +20,7 @@ const schema = new Schema({
   },
   photoURL: {
     type: String,
-  }
+  },
 });
 
 schema.pre('save', function setPhotoURL(next) {
@@ -28,6 +28,6 @@ schema.pre('save', function setPhotoURL(next) {
     this.photoURL = `https://robohash.org/${this.id}?set=set3&bgset=bg2`;
     next();
   }
-})
+});
 
 module.exports = schema;

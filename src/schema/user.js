@@ -97,6 +97,6 @@ schema.pre('save', function setPhotoURL(next) {
     this.photoURL = `https://www.gravatar.com/avatar/${hash}`;
     next();
   }
-})
+});
 
 module.exports = schema;
