@@ -34,13 +34,14 @@ type Query {
   ping: String!
   currentUser: User
   checkSession(input: SessionTokenInput!): Authentication
-  userAccounts: [Account]
   signImageUpload(input: ImageUploadInput!): SignedImageLocation!
+  advertiser(input: ModelIdInput!): Advertiser!
+  allAdvertisers(pagination: PaginationInput): [Advertiser]
 }
 
 type Mutation {
   createUser(input: CreateUserInput!): User
-  createAccount(input: CreateAccountInput!): Account
+  createAdvertiser(input: CreateAdvertiserInput!): Advertiser
   loginUser(input: LoginInput!): Authentication
   deleteSession: String
 }
