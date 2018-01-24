@@ -49,7 +49,6 @@ module.exports = {
       const request = new Request({ cid, pid });
       reqs.push(request);
 
-      // reqs.push({ _id: id, cid, d: new Date() });
       const correlator = this.createCorrelator(url, request.get('id'));
       const html = placement.template
         .replace(/{{ id }}/g, campaign.get('id'))
@@ -60,7 +59,7 @@ module.exports = {
       ads.push({ name: campaign.name, html: `${html}\n${correlator}` });
     });
     if (reqs.length) {
-      await Request.insertMany(reqs);
+      await Request.collection.insertMany(reqs);
     }
     return ads;
   },
