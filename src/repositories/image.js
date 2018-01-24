@@ -2,7 +2,9 @@ const AWS = require('aws-sdk');
 const Promise = require('bluebird');
 const uuidv4 = require('uuid/v4');
 
-const S3 = new AWS.S3();
+const S3 = new AWS.S3({
+  signatureVersion: 'v4',
+});
 
 module.exports = {
   /**
