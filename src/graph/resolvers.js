@@ -20,6 +20,14 @@ module.exports = {
       ? AccountRepo.findByUserId(auth.user.id)
       : []
     ),
+    signImageUpload: (root, { input }) => {
+      const accept = ['image/jpeg', 'image/png', 'image/webm', 'image/gif'];
+      const { name, type } = input;
+      if (!accept.includes(type)) {
+        throw new Error(`The requested file type '${type}' is not supported.`);
+      }
+      return ImageRepo.signUpload(name);
+    },
   },
   Mutation: {
     createAccount: (root, { input }, { auth }) => {
@@ -41,12 +49,6 @@ module.exports = {
         await SessionRepo.delete(auth.session);
       }
       return 'ok';
-    },
-    signImageUpload: (root, { input }) => {
-      const { name } = input;
-      // @todo Put restrictions on what can be uploaded.
-      // For now, allow anything (naughty!)
-      return ImageRepo.signUpload(name);
     },
   },
   User: {

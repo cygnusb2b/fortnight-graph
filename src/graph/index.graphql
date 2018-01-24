@@ -3,13 +3,13 @@ type Query {
   currentUser: User
   checkSession(input: SessionTokenInput!): Authentication
   userAccounts: [Account]
+  signImageUpload(input: ImageUploadInput!): SignedImageLocation!
 }
 
 type Mutation {
   createUser(input: CreateUserInput!): User
   createAccount(input: CreateAccountInput!): Account
   loginUser(input: LoginInput!): Authentication
-  signImageUpload(input: ImageUploadInput!): SignedImageLocation!
   deleteSession: String
 }
 
