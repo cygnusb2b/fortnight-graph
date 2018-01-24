@@ -33,7 +33,7 @@ module.exports = {
      * the template's merge variables. Also, replace any custom merge variables. For now, simulate.
      */
     const l = limit > 0 ? parseInt(limit, 10) : 1;
-    if (l > 20) throw createError(400, 'You cannot return more than 20 ads in one request.');
+    if (l > 10) throw createError(400, 'You cannot return more than 10 ads in one request.');
     const campaigns = await Campaign.find().limit(l);
 
     const ads = [];
