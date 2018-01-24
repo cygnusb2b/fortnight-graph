@@ -1,5 +1,3 @@
-const User = require('../models/user');
-const AccountRepo = require('../repositories/account');
 const UserRepo = require('../repositories/user');
 const SessionRepo = require('../repositories/session');
 const ImageRepo = require('../repositories/image');
@@ -16,10 +14,6 @@ module.exports = {
       const { user, session } = await UserRepo.retrieveSession(token);
       return { user, session };
     },
-    userAccounts: (root, args, { auth }) => (auth.isValid()
-      ? AccountRepo.findByUserId(auth.user.id)
-      : []
-    ),
     signImageUpload: (root, { input }) => {
       const accept = ['image/jpeg', 'image/png', 'image/webm', 'image/gif'];
       const { name, type } = input;
@@ -30,12 +24,6 @@ module.exports = {
     },
   },
   Mutation: {
-    createAccount: (root, { input }, { auth }) => {
-      if (!auth.isValid()) throw new Error('Authentication is required.');
-      const { payload } = input;
-      payload.userIds = [auth.user.id];
-      return AccountRepo.create(payload);
-    },
     createUser: (root, { input }) => {
       const { payload } = input;
       return UserRepo.create(payload);
@@ -53,21 +41,5 @@ module.exports = {
   },
   User: {
     id: user => user.get('uid'),
-    accounts: (user) => {
-      const id = user.get('id');
-      return AccountRepo.findByUserId(id);
-    },
-    activeAccount: (user) => {
-      const id = user.get('activeAccountId');
-      return AccountRepo.findByInternalId(id);
-    },
-  },
-  Account: {
-    id: account => account.get('uid'),
-    users: (account) => {
-      const userIds = account.get('userIds');
-      if (!userIds.length) return [];
-      return User.find({ _id: { $in: userIds } });
-    },
   },
 };

@@ -2,13 +2,11 @@ type Query {
   ping: String!
   currentUser: User
   checkSession(input: SessionTokenInput!): Authentication
-  userAccounts: [Account]
   signImageUpload(input: ImageUploadInput!): SignedImageLocation!
 }
 
 type Mutation {
   createUser(input: CreateUserInput!): User
-  createAccount(input: CreateAccountInput!): Account
   loginUser(input: LoginInput!): Authentication
   deleteSession: String
 }
@@ -23,15 +21,6 @@ input ImageUploadInput {
   name: String!
   size: Int!
   type: String!
-}
-
-input NewAccountPayloadInput {
-  name: String!
-}
-
-input CreateAccountInput {
-  # captcha: String
-  payload: NewAccountPayloadInput
 }
 
 input NewUserPayloadInput {
@@ -74,15 +63,6 @@ type User {
   givenName: String
   familyName: String
   logins: Int
-  photoURL: String
-  activeAccount: Account
-  accounts: [Account]
-}
-
-type Account {
-  id: String!
-  name: String!
-  users: [User]
   photoURL: String
 }
 
