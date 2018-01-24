@@ -53,13 +53,13 @@ Requests for an ad placement, or placements, can be made to `GET /placement/{pid
 
 The available request parameters (as query string values) are as follows, and are _all optional_:
 
-*`limit`*
-Specifies the number of campaigns that should be returned.  The default value is `1` and cannot exceed `10`. The CSA will do its best to return the number requested, but is not guaranteed due to inventory conditions. For example, `limit=2` or `limit=5`.
+**`limit`**
+Specifies the number of campaigns that should be returned.  The default value is `1` and cannot exceed `10`. The CSA will do its best to return the number requested, but is not guaranteed, based on inventory conditions. For example, `limit=2` or `limit=5`.
 
-*`cv`*
+**`cv`**
 The custom variables to send with the request. Can be sent as either object-notated key/values, or as a URL encoded query string. For example, as an object: `cv[foo]=bar&cv[key]=value`, or as URL encoded string: `cv=foo%3Dbar%26key%3Dvalue`
 
-*`mv`*
+**`mv`**
 The custom merge values to be used inside the placement's template. Will only be applied if the variable exists within the template. Can be sent as either object-notated key/values, or as a URL encoded query string. For example, as an object: `mv[foo]=bar&mv[key]=value`, or as URL encoded string: `mv=foo%3Dbar%26key%3Dvalue`
 
 ## Additional Resources
