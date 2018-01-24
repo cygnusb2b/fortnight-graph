@@ -15,6 +15,7 @@ const { PORT, MONGO_DSN, REDIS_DSN } = process.env;
 // Initialize DB
 mongoose.Promise = bluebird;
 mongoose.connect(MONGO_DSN, {
+  // autoIndex: process.env.NODE_ENV !== 'production',
   ignoreUndefined: true,
   promiseLibrary: bluebird,
 }).then(() => process.stdout.write(`Mongoose connected to '${MONGO_DSN}'\n`));

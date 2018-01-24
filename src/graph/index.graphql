@@ -1,20 +1,39 @@
+scalar Date
+
 type Query {
   ping: String!
   currentUser: User
   checkSession(input: SessionTokenInput!): Authentication
   signImageUpload(input: ImageUploadInput!): SignedImageLocation!
+  advertiser(input: ModelIdInput!): Advertiser!
+  allAdvertisers(pagination: PaginationInput): [Advertiser]
 }
 
 type Mutation {
   createUser(input: CreateUserInput!): User
+  createAdvertiser(input: CreateAdvertiserInput!): Advertiser
   loginUser(input: LoginInput!): Authentication
   deleteSession: String
+}
+
+input PaginationInput {
+  size: Int
+  page: Int
+  sort: String
 }
 
 type SignedImageLocation {
   url: String!
   key: String!
   expires: Int!
+}
+
+input CreateAdvertiserInput {
+  name: String!
+}
+
+input ModelIdInput {
+  id: String!
 }
 
 input ImageUploadInput {
@@ -66,4 +85,27 @@ type User {
   photoURL: String
 }
 
+type Advertiser {
+  id: String!
+  name: String!
+  createdAt: Date
+  updatedAt: Date
+}
+
+type Campaign {
+  id: String!
+  name: String!
+  advertiser: Advertiser!
+}
+
+type Placement {
+  id: String!
+  template: String!
+  publisher: Publisher!
+}
+
+type Publisher {
+  id: String!
+  name: String!
+}
 

@@ -19,4 +19,8 @@ module.exports = new Schema({
     type: String,
     required: true,
   },
+  publisherId: {
+    type: Schema.Types.ObjectId,
+    required: true,
+  },
 });
