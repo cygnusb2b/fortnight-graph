@@ -12,8 +12,8 @@ Server backend for the Fortnight project, including the primary Graph API, as we
 This project requires Node >7.10, as `async/await` functions are utilized, though it is recommended to use the latest LTS (currently 8.9.x)
 
 ## Environment Variables
-Environment variables are *not* under version control, per [Part 3 of the 12 Factors](https://12factor.net/config)). As such, the [dotenv](https://www.npmjs.com/package/dotenv) package is used to manage your variables locally.
-1. Create a `.env` file in the project root (at the same level as the `package.json`) file
+Environment variables are *not* under version control, per [Part 3 of the 12 Factors](https://12factor.net/config). As such, the [dotenv](https://www.npmjs.com/package/dotenv) package is used to manage your variables locally.
+1. Create a `.env` file in the project root (at the same level as the `package.json` file)
 2. Set (or change) values for the following variables:
 ```ini
 NODE_ENV=development
@@ -48,7 +48,7 @@ type Mutation {
 See the `graph/index.graphql` file for complete details, or use a GraphQL compatible client (such as [Insomnia](https://insomnia.rest/)) for automatic schema detection and query autocomplete capabilities.
 
 ### Placement Delivery
-Requests for an ad placement, or placements, can be made to `GET /placement/{pid}.html` (or `.json` for JSON responses). This will trigger the Campaign-Serve-Algorithm (or CSA) and provide the best matching campaigns for the requested Placement ID (`pid`) and request options. If no campaigns can be found for the specific request and empty response will be returned.
+Requests for an ad placement, or placements, can be made to `GET /placement/{pid}.html` (or `.json` for JSON responses). This will trigger the Campaign-Serve-Algorithm (or CSA) and provide the best matching campaigns for the requested Placement ID (`pid`) and request options. If no campaigns can be found for the specific request, an empty response will be returned.
 
 The available request parameters (as query string values) are as follows, and are _all optional_:
 
