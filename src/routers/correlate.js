@@ -10,7 +10,6 @@ const events = ['l', 'v'];
 
 router.get('/:event/:uuid.gif', (req, res) => {
   res.set('Content-Type', 'image/gif');
-  // res.set('Connection', 'close');
   const { event, uuid } = req.params;
   const id = uuid.replace(/-/g, '');
 
