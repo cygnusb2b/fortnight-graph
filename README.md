@@ -1,15 +1,15 @@
 # Fortnight (GraphQL) API
 Server backend for the Fortnight project, including the primary Graph API, as well as placement and tracking endpoints.
 
+## Requirements
+This project requires [NodeJS](https://nodejs.org) >7.10, as `async/await` functions are utilized, though it is recommended to use the latest LTS (currently 8.9.x). The [Yarn](https://yarnpkg.com) package manager is also required, and is used instead of `npm`.
+
 ## Runnning
 1. Clone repository
 2. Set the appropriate development environment variables (see [Environment Variables](#environment-variables) below)
 2. In the project root, run `yarn install`
-3. Run the dev server `npm run start:dev`
+3. Run the dev server `yarn run start:dev`
 4. The server is now accessible on `localhost:8100` (or whatever port you configure)
-
-## Requirements
-This project requires Node >7.10, as `async/await` functions are utilized, though it is recommended to use the latest LTS (currently 8.9.x)
 
 ## Environment Variables
 Environment variables are *not* under version control, per [Part 3 of the 12 Factors](https://12factor.net/config). As such, the [dotenv](https://www.npmjs.com/package/dotenv) package is used to manage your variables locally.
