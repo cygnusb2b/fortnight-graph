@@ -2,7 +2,9 @@ const UserRepo = require('../repositories/user');
 const SessionRepo = require('../repositories/session');
 const ImageRepo = require('../repositories/image');
 const AdvertiserRepo = require('../repositories/advertiser');
+const CampaignRepo = require('../repositories/campaign');
 const Advertiser = require('../models/advertiser');
+const Campaign = require('../models/campaign');
 const Publisher = require('../models/publisher');
 const { GraphQLScalarType } = require('graphql');
 const { Kind } = require('graphql/language');
@@ -34,6 +36,11 @@ const findModelById = async ({ input, finder }, auth) => {
 const createModel = ({ input, creator }, auth) => {
   checkAuth(auth);
   return creator(input);
+};
+
+const updateModel = ({ input, updator }, auth) => {
+  checkAuth(auth);
+  return updator(input);
 };
 
 module.exports = {
@@ -101,6 +108,20 @@ module.exports = {
       const finder = Advertiser.find.bind(Advertiser);
       return findModels(pagination, finder, auth);
     },
+    /**
+     *
+     */
+    allCampaigns: (root, { pagination }, { auth }) => {
+      const finder = Campaign.find.bind(Campaign);
+      return findModels(pagination, finder, auth);
+    },
+    /**
+     *
+     */
+    campaign: (root, { input }, { auth }) => {
+      const finder = CampaignRepo.findById;
+      return findModelById({ input, finder }, auth);
+    },
   },
   /**
    *
@@ -112,6 +133,27 @@ module.exports = {
     createAdvertiser: (root, { input }, { auth }) => {
       const creator = AdvertiserRepo.create;
       return createModel({ input, creator }, auth);
+    },
+    /**
+     *
+     */
+    updateAdvertiser: (root, { input }, { auth }) => {
+      const updator = AdvertiserRepo.update;
+      return updateModel({ input, updator }, auth);
+    },
+    /**
+     *
+     */
+    createCampaign: (root, { input }, { auth }) => {
+      const creator = CampaignRepo.create;
+      return createModel({ input, creator }, auth);
+    },
+    /**
+     *
+     */
+    updateCampaign: (root, { input }, { auth }) => {
+      const updator = CampaignRepo.update;
+      return updateModel({ input, updator }, auth);
     },
     /**
      *
@@ -136,6 +178,10 @@ module.exports = {
       }
       return 'ok';
     },
+  },
+  Advertiser: {
+    campaigns: advertiser => Campaign.find({ advertiserId: advertiser.get('id') }),
+    campaignCount: advertiser => Campaign.count({ advertiserId: advertiser.get('id') }),
   },
   /**
    *

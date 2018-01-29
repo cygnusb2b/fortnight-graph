@@ -4,6 +4,34 @@ const Campaign = require('../models/campaign');
 const Request = require('../models/request');
 
 module.exports = {
+  create(payload) {
+    const campaign = new Campaign(payload);
+    return campaign.save();
+  },
+
+  /**
+   *
+   * @param {string} id
+   * @param {string} name
+   * @return {Promise}
+   */
+  update({ id, name, advertiserId }) {
+    const criteria = { cid: id };
+    const update = { $set : { name } };
+    const options = { new: true };
+    if (advertiserId) {
+      update['$set'].advertiserId = advertiserId;
+    }
+    return Campaign.findOneAndUpdate(criteria, update, options);
+  },
+  /**
+   *
+   * @param {string} cid
+   * @return {Promise}
+   */
+  findById(cid) {
+    return Campaign.findOne({ cid });
+  },
   /**
    *
    * @param {object} params

@@ -7,11 +7,16 @@ type Query {
   signImageUpload(input: ImageUploadInput!): SignedImageLocation!
   advertiser(input: ModelIdInput!): Advertiser!
   allAdvertisers(pagination: PaginationInput): [Advertiser]
+  allCampaigns(pagination: PaginationInput): [Campaign]
+  campaign(input: ModelIdInput!): Campaign!
 }
 
 type Mutation {
   createUser(input: CreateUserInput!): User
   createAdvertiser(input: CreateAdvertiserInput!): Advertiser
+  updateAdvertiser(input: UpdateAdvertiserInput!): Advertiser
+  createCampaign(input: CreateCampaignInput!): Campaign
+  updateCampaign(input: UpdateCampaignInput!): Campaign
   loginUser(input: LoginInput!): Authentication
   deleteSession: String
 }
@@ -30,6 +35,22 @@ type SignedImageLocation {
 
 input CreateAdvertiserInput {
   name: String!
+}
+
+input UpdateAdvertiserInput {
+  id: String!
+  name: String!
+}
+
+input CreateCampaignInput {
+  name: String!
+  advertiserId: String!
+}
+
+input UpdateCampaignInput {
+  id: String!
+  name: String!
+  advertiserId: String
 }
 
 input ModelIdInput {
@@ -90,6 +111,8 @@ type Advertiser {
   name: String!
   createdAt: Date
   updatedAt: Date
+  campaigns: [Advertiser]
+  campaignCount: Int
 }
 
 type Campaign {
