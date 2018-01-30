@@ -7,23 +7,10 @@ const CampaignRepo = require('../repositories/campaign');
 const Advertiser = require('../models/advertiser');
 const Campaign = require('../models/campaign');
 const Publisher = require('../models/publisher');
-const { GraphQLScalarType } = require('graphql');
-const { Kind } = require('graphql/language');
+const Pagination = require('../classes/pagination');
 
 const checkAuth = (auth) => {
   if (!auth.isValid()) throw auth.getError();
-};
-
-const findModels = async ({
-  page = 1,
-  size = 20,
-  sort = '',
-} = {}, finder, auth) => {
-  checkAuth(auth);
-  const pg = page > 1 ? page : 1;
-  const limit = size >= 1 && size <= 200 ? size : 20;
-  const skip = (pg - 1) * limit;
-  return finder({}, null, { limit, skip, sort });
 };
 
 const findModelById = async ({ input, finder }, auth) => {
@@ -92,23 +79,16 @@ module.exports = {
     /**
      *
      */
-    allAdvertisers: (root, { pagination }, { auth }) => {
-      const finder = Advertiser.find.bind(Advertiser);
-      return findModels(pagination, finder, auth);
+    allAdvertisers: (root, { pagination, sort }, { auth }) => {
+      checkAuth(auth);
+      return new Pagination(Advertiser, { pagination, sort });
     },
     /**
      *
      */
-    allCampaigns: (root, { pagination }, { auth }) => {
-      const finder = Campaign.find.bind(Campaign);
-      return findModels(pagination, finder, auth);
-    },
-    /**
-     *
-     */
-    campaign: (root, { input }, { auth }) => {
-      const finder = CampaignRepo.findById;
-      return findModelById({ input, finder }, auth);
+    allCampaigns: (root, { pagination, sort }, { auth }) => {
+      checkAuth(auth);
+      return new Pagination(Campaign, { pagination, sort });
     },
   },
   /**
@@ -176,7 +156,6 @@ module.exports = {
    */
   Campaign: {
     id: campaign => campaign.get('cid'),
-    // @todo Project the query based the advertiser fields requested
     advertiser: campaign => Advertiser.findOne({ _id: campaign.get('advertiserId') }),
   },
   /**
@@ -192,4 +171,33 @@ module.exports = {
   User: {
     id: user => user.get('uid'),
   },
+
+  AdvertiserConnection: {
+    totalCount: paginated => paginated.getTotalCount(),
+    edges: paginated => paginated.getEdges(),
+    pageInfo: paginated => ({
+      hasNextPage: () => paginated.hasNextPage(),
+      endCursor: () => paginated.getEndCursor(),
+    }),
+  },
+
+  AdvertiserEdge: {
+    node: document => document,
+    cursor: document => document.get('id'),
+  },
+
+  CampaignConnection: {
+    totalCount: paginated => paginated.getTotalCount(),
+    edges: paginated => paginated.getEdges(),
+    pageInfo: paginated => ({
+      hasNextPage: () => paginated.hasNextPage(),
+      endCursor: () => paginated.getEndCursor(),
+    }),
+  },
+
+  CampaignEdge: {
+    node: document => document,
+    cursor: document => document.get('id'),
+  },
 };
+
