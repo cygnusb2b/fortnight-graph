@@ -178,6 +178,27 @@ module.exports = {
       }
       return 'ok';
     },
+    /**
+     *
+     */
+    addCampaignCreative: async (root, args, { auth }) => {
+      checkAuth(auth);
+      return CampaignRepo.addCreative(args);
+    },
+    /**
+     *
+     */
+    // updateCampaignCreative: async (root, args, { auth }) => {
+    //   checkAuth(auth);
+    //   return CampaignRepo.updateCreative(args);
+    // },
+    /**
+     *
+     */
+    removeCampaignCreative: async (root, args, { auth }) => {
+      checkAuth(auth);
+      return CampaignRepo.removeCreative(args);
+    },
   },
   Advertiser: {
     campaigns: advertiser => Campaign.find({ advertiserId: advertiser.get('id') }),

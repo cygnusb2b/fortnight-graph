@@ -8,7 +8,23 @@ module.exports = {
     const campaign = new Campaign(payload);
     return campaign.save();
   },
-
+  /**
+   *
+   */
+  async addCreative({ input: { cid } }) {
+    const model = await Campaign.findOne({ cid });
+    model.creatives.push({});
+    await model.save();
+    return model.creatives[model.creatives.length - 1];
+  },
+  /**
+   *
+   */
+  async removeCreative({ input: { id, cid } }) {
+    const model = await Campaign.findOne({ cid });
+    model.creatives.id(id).remove();
+    return model.save();
+  },
   /**
    *
    * @param {string} id

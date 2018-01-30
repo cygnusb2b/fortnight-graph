@@ -19,6 +19,9 @@ type Mutation {
   updateCampaign(input: UpdateCampaignInput!): Campaign
   loginUser(input: LoginInput!): Authentication
   deleteSession: String
+  addCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative
+  # updateCampaignCreative(input: UpdateCampaignCreativeInput!): CampaignCreative
+  removeCampaignCreative(input: RemoveCampaignCreativeInput!): CampaignCreative
 }
 
 input PaginationInput {
@@ -52,6 +55,25 @@ input UpdateCampaignInput {
   name: String!
   advertiserId: String
 }
+
+input AddCampaignCreativeInput {
+  cid: String!
+}
+
+input RemoveCampaignCreativeInput {
+  id: String!
+  cid: String!
+}
+
+# input UpdateCampaignCreativeInput {
+#   id: String!
+#   cid: String!
+#   name: String
+#   title: String
+#   teaser: String
+#   url: String
+#   image: String
+# }
 
 input ModelIdInput {
   id: String!
@@ -111,7 +133,7 @@ type Advertiser {
   name: String!
   createdAt: Date
   updatedAt: Date
-  campaigns: [Advertiser]
+  campaigns: [Campaign]
   campaignCount: Int
 }
 
@@ -122,13 +144,13 @@ type Campaign {
   deleted: Boolean
   draft: Boolean
   paused: Boolean
-  creatives: [CampaignCreative]
+  creatives: [CampaignCreative]!
 }
 
 type CampaignCreative {
   id: String!
-  name: String!
-  url: String!
+  name: String
+  url: String
   title: String
   teaser: String
   image: String
