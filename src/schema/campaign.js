@@ -35,19 +35,14 @@ module.exports = new Schema({
     default: false
   },
   creatives: [{
-    id: {
-      type: String,
-      required: true,
-      default: shortid.generate,
-    },
     name: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
     },
     url: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
     },
     title: {
