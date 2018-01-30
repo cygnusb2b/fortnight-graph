@@ -1,0 +1,69 @@
+# import * from 'advertiser.graphql'
+# import * from 'campaign.graphql'
+# import * from 'user.graphql'
+
+scalar Date
+scalar Cursor
+
+type Query {
+  ping: String!
+  currentUser: User
+  checkSession(input: SessionTokenInput!): Authentication
+  signImageUpload(input: ImageUploadInput!): SignedImageLocation!
+  advertiser(input: ModelIdInput!): Advertiser!
+  allAdvertisers(pagination: PaginationInput = {}, sort: AdvertiserSortInput = {}): AdvertiserConnection!
+  allCampaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
+  campaign(input: ModelIdInput!): Campaign!
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): User
+  createAdvertiser(input: CreateAdvertiserInput!): Advertiser
+  updateAdvertiser(input: UpdateAdvertiserInput!): Advertiser
+  createCampaign(input: CreateCampaignInput!): Campaign
+  updateCampaign(input: UpdateCampaignInput!): Campaign
+  loginUser(input: LoginInput!): Authentication
+  deleteSession: String
+  addCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative
+  # updateCampaignCreative(input: UpdateCampaignCreativeInput!): CampaignCreative
+  removeCampaignCreative(input: RemoveCampaignCreativeInput!): CampaignCreative
+}
+
+type Placement {
+  id: String!
+  template: String!
+  publisher: Publisher!
+}
+
+type Publisher {
+  id: String!
+  name: String!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  endCursor: Cursor
+  # hasPreviousPage: Boolean!
+  # startCursor: Cursor
+}
+
+type SignedImageLocation {
+  url: String!
+  key: String!
+  expires: Int!
+}
+
+input PaginationInput {
+  first: Int! = 25
+  after: Cursor
+}
+
+input ModelIdInput {
+  id: String!
+}
+
+input ImageUploadInput {
+  name: String!
+  size: Int!
+  type: String!
+}

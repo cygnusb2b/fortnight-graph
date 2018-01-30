@@ -1,0 +1,70 @@
+enum CampaignSortField {
+  name
+  createdAt
+  updatedAt
+}
+
+type Campaign {
+  id: String!
+  name: String!
+  advertiser: Advertiser!
+  deleted: Boolean
+  draft: Boolean
+  paused: Boolean
+  creatives: [CampaignCreative]!
+}
+
+type CampaignCreative {
+  id: String!
+  name: String
+  url: String
+  title: String
+  teaser: String
+  image: String
+}
+
+type CampaignConnection {
+  totalCount: Int!
+  edges: [CampaignEdge]!
+  pageInfo: PageInfo!
+}
+
+
+type CampaignEdge {
+  node: Campaign!
+  cursor: Cursor!
+}
+
+input CampaignSortInput {
+  field: CampaignSortField! = createdAt
+  order: Int! = -1
+}
+
+input CreateCampaignInput {
+  name: String!
+  advertiserId: String!
+}
+
+input UpdateCampaignInput {
+  id: String!
+  name: String!
+}
+
+input AddCampaignCreativeInput {
+  cid: String!
+}
+
+input RemoveCampaignCreativeInput {
+  id: String!
+  cid: String!
+}
+
+# input UpdateCampaignCreativeInput {
+#   id: String!
+#   cid: String!
+#   name: String
+#   title: String
+#   teaser: String
+#   url: String
+#   image: String
+# }

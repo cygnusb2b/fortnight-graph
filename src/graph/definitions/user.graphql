@@ -1,0 +1,42 @@
+type Session {
+  id: String!
+  uid: String!
+  cre: Int!
+  exp: Int!
+  token: String!
+}
+
+type Authentication {
+  user: User!
+  session: Session!
+}
+
+type User {
+  id: String!
+  email: String!
+  givenName: String
+  familyName: String
+  logins: Int
+  photoURL: String
+}
+
+input NewUserPayloadInput {
+  email: String!
+  password: String!
+  givenName: String!
+  familyName: String!
+}
+
+input CreateUserInput {
+  # captcha: String
+  payload: NewUserPayloadInput
+}
+
+input SessionTokenInput {
+  token: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
