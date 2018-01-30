@@ -19,7 +19,7 @@ module.exports = {
    */
   update({ id, name }) {
     const criteria = { _id: id };
-    const update = { $set : { name } };
+    const update = { $set: { name } };
     const options = { new: true };
     return Advertiser.findOneAndUpdate(criteria, update, options);
   },

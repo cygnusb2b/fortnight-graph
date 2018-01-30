@@ -33,10 +33,10 @@ module.exports = {
    */
   update({ id, name, advertiserId }) {
     const criteria = { cid: id };
-    const update = { $set : { name } };
+    const update = { $set: { name } };
     const options = { new: true };
     if (advertiserId) {
-      update['$set'].advertiserId = advertiserId;
+      update.$set.advertiserId = advertiserId;
     }
     return Campaign.findOneAndUpdate(criteria, update, options);
   },
