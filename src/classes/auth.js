@@ -25,6 +25,10 @@ class Auth {
   isAdmin() {
     return this.hasRole('Admin');
   }
+
+  check() {
+    if (!this.isValid()) throw this.getError();
+  }
 }
 
 module.exports = Auth;
