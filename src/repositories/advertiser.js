@@ -30,6 +30,9 @@ module.exports = {
    * @return {Promise}
    */
   findById(id) {
-    return Advertiser.findOne({ _id: id });
+    return Advertiser.findOne({ _id: id }).then((document) => {
+      if (!document) throw new Error(`No advertiser found for id '${id}'`);
+      return document;
+    });
   },
 };

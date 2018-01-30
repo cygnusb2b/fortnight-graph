@@ -11,7 +11,7 @@ module.exports = {
   /**
    *
    */
-  async addCreative({ input: { cid } }) {
+  async addCreative({ cid }) {
     const model = await Campaign.findOne({ cid });
     model.creatives.push({});
     await model.save();
@@ -20,7 +20,7 @@ module.exports = {
   /**
    *
    */
-  async removeCreative({ input: { id, cid } }) {
+  async removeCreative({ id, cid }) {
     const model = await Campaign.findOne({ cid });
     model.creatives.id(id).remove();
     return model.save();
