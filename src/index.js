@@ -10,9 +10,15 @@ const pkg = require('../package.json');
 const loadRouters = require('./routers');
 
 const app = express();
-const { PORT, MONGO_DSN, REDIS_DSN } = process.env;
+const {
+  PORT,
+  MONGO_DSN,
+  REDIS_DSN,
+  MONGOOSE_DEBUG,
+} = process.env;
 
 // Initialize DB
+mongoose.set('debug', Boolean(MONGOOSE_DEBUG));
 mongoose.Promise = bluebird;
 mongoose.connect(MONGO_DSN, {
   // autoIndex: process.env.NODE_ENV !== 'production',
