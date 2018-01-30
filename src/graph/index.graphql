@@ -1,4 +1,5 @@
 scalar Date
+scalar Cursor
 
 type Query {
   ping: String!
@@ -6,8 +7,8 @@ type Query {
   checkSession(input: SessionTokenInput!): Authentication
   signImageUpload(input: ImageUploadInput!): SignedImageLocation!
   advertiser(input: ModelIdInput!): Advertiser!
-  allAdvertisers(pagination: PaginationInput): [Advertiser]
-  allCampaigns(pagination: PaginationInput): [Campaign]
+  allAdvertisers(pagination: PaginationInput = {}, sort: AdvertiserSortInput = {}): AdvertiserConnection!
+  allCampaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
   campaign(input: ModelIdInput!): Campaign!
 }
 
@@ -25,9 +26,59 @@ type Mutation {
 }
 
 input PaginationInput {
-  size: Int
-  page: Int
-  sort: String
+  first: Int! = 25
+  after: Cursor
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  endCursor: Cursor
+  # hasPreviousPage: Boolean!
+  # startCursor: Cursor
+}
+
+type AdvertiserConnection {
+  totalCount: Int!
+  edges: [AdvertiserEdge]!
+  pageInfo: PageInfo!
+}
+
+type AdvertiserEdge {
+  node: Advertiser!
+  cursor: Cursor!
+}
+
+input AdvertiserSortInput {
+  field: AdvertiserSortField! = createdAt
+  order: Int! = -1
+}
+
+enum AdvertiserSortField {
+  name
+  createdAt
+  updatedAt
+}
+
+type CampaignConnection {
+  totalCount: Int!
+  edges: [CampaignEdge]!
+  pageInfo: PageInfo!
+}
+
+type CampaignEdge {
+  node: Campaign!
+  cursor: Cursor!
+}
+
+input CampaignSortInput {
+  field: CampaignSortField! = createdAt
+  order: Int! = -1
+}
+
+enum CampaignSortField {
+  name
+  createdAt
+  updatedAt
 }
 
 type SignedImageLocation {

@@ -22,17 +22,17 @@ module.exports = new Schema({
   deleted: {
     type: Boolean,
     required: true,
-    default: false
+    default: false,
   },
   draft: {
     type: Boolean,
     required: true,
-    default: true
+    default: true,
   },
   paused: {
     type: Boolean,
     required: true,
-    default: false
+    default: false,
   },
   creatives: [{
     name: {
@@ -60,5 +60,5 @@ module.exports = new Schema({
       required: false,
       trim: true,
     },
-  }]
+  }],
 }, { timestamps: true });
