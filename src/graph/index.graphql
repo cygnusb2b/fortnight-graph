@@ -1,4 +1,5 @@
 scalar Date
+scalar Cursor
 
 type Query {
   ping: String!
