@@ -119,6 +119,19 @@ type Campaign {
   id: String!
   name: String!
   advertiser: Advertiser!
+  deleted: Boolean
+  draft: Boolean
+  paused: Boolean
+  creatives: [CampaignCreative]
+}
+
+type CampaignCreative {
+  id: String!
+  name: String!
+  url: String!
+  title: String
+  teaser: String
+  image: String
 }
 
 type Placement {
