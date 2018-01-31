@@ -4,15 +4,20 @@ enum CampaignSortField {
   updatedAt
 }
 
+enum CampaignStatus {
+  active
+  paused
+  draft
+  deleted
+}
+
 type Campaign {
   id: String!
   name: String!
   createdAt: Date
   updatedAt: Date
   advertiser: Advertiser!
-  deleted: Boolean
-  draft: Boolean
-  paused: Boolean
+  status: CampaignStatus!
   creatives: [CampaignCreative]!
 }
 
@@ -30,7 +35,6 @@ type CampaignConnection {
   edges: [CampaignEdge]!
   pageInfo: PageInfo!
 }
-
 
 type CampaignEdge {
   node: Campaign!

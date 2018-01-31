@@ -19,20 +19,10 @@ module.exports = new Schema({
     type: Schema.Types.ObjectId,
     required: true,
   },
-  deleted: {
-    type: Boolean,
+  status: {
+    type: String,
     required: true,
-    default: false,
-  },
-  draft: {
-    type: Boolean,
-    required: true,
-    default: true,
-  },
-  paused: {
-    type: Boolean,
-    required: true,
-    default: false,
+    default: 'draft',
   },
   creatives: [{
     name: {
