@@ -63,6 +63,13 @@ The custom variables to send with the request. Can be sent as either object-nota
 **`mv`**
 The custom merge values to be used inside the placement's template. Will only be applied if the variable exists within the template. Can be sent as either object-notated key/values, or as a URL encoded query string. For example, as an object: `mv[foo]=bar&mv[key]=value`, or as URL encoded string: `mv=foo%3Dbar%26key%3Dvalue`
 
+## Development
+### Running/Writing Tests
+[Mocha](https://mochajs.org/) and [Chai](http://chaijs.com/) are used for unit testing. All tests are found in the `/test` folder, and must contain `.spec.js` in the name in order for the file to be recognized. You can run tests via the `yarn run test` command. Preferably, the folder and file structure should mimic the `/src` directory. For example, the  file `/src/classes/auth.js` should have a corresponding test file located at `/test/classes/auth.spec.js`. While the BDD assertion style is preferred (e.g. `expect` or `should`), feel free to use the TDD `assert` style if that's more comfortable. **Note:** the test command will also execute the `lint:hard` command. In other words, if lint errors are found, the tests will also fail!
+
+### Code Coverage
+Test coverage is handled by [Instanbul/nyc](https://istanbul.js.org/). To view a coverage report, execute `yarn run coverage` at the root of the project. When adding/modifying code, the coverage should preferably stay the same (meaning new tests were added) - or get better!
+
 ## Additional Resources
 This application uses many popular, open source NodeJS packages. Please visit the following links if you'd like to learn more.
 - [Express](https://expressjs.com/) - "Fast, unopinionated, minimalist web framework for Node.js"
