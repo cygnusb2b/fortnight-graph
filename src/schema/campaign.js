@@ -3,7 +3,7 @@ const shortid = require('shortid');
 
 const { Schema } = mongoose;
 
-module.exports = new Schema({
+const schema = new Schema({
   name: {
     type: String,
     required: true,
@@ -19,20 +19,16 @@ module.exports = new Schema({
     type: Schema.Types.ObjectId,
     required: true,
   },
-  deleted: {
-    type: Boolean,
+  status: {
+    type: String,
     required: true,
-    default: false,
-  },
-  draft: {
-    type: Boolean,
-    required: true,
-    default: true,
-  },
-  paused: {
-    type: Boolean,
-    required: true,
-    default: false,
+    default: 'Draft',
+    enum: [
+      'Active',
+      'Paused',
+      'Draft',
+      'Deleted',
+    ],
   },
   creatives: [{
     name: {
@@ -62,3 +58,10 @@ module.exports = new Schema({
     },
   }],
 }, { timestamps: true });
+
+schema.index({ name: 1, _id: 1 }, { unique: true });
+schema.index({ name: -1, _id: -1 }, { unique: true });
+schema.index({ updatedAt: 1, _id: 1 }, { unique: true });
+schema.index({ updatedAt: -1, _id: -1 }, { unique: true });
+
+module.exports = schema;
