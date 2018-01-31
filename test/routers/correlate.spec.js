@@ -6,7 +6,13 @@ const router = require('../../src/routers/correlate');
 const emptyGif = Buffer.from('R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==', 'base64');
 
 const testImageResponse = (res) => {
-  expect(res.get('content-type'), 'image/gif');
+  const headers = [
+    { key: 'content-type', value: 'image/gif' },
+    { key: 'cache-control', value:'no-store, no-cache, must-revalidate, proxy-revalidate' },
+    { key: 'expires', value: '0' },
+    { key: 'pragma', value: 'no-cache' },
+  ];
+  headers.forEach(header => expect(res.get(header.key)).to.equal(header.value));
   expect(res.body.toString()).to.equal(emptyGif.toString());
 };
 
