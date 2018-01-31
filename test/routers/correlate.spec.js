@@ -1,6 +1,7 @@
 const expect = require('chai').expect;
 const request = require('supertest');
 const app = require('../../src/app');
+const router = require('../../src/routers/correlate');
 
 const emptyGif = Buffer.from('R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==', 'base64');
 
@@ -10,6 +11,10 @@ const testImageResponse = (res) => {
 };
 
 describe('routers/correlate', function() {
+  it('should export a router function.', function(done) {
+    expect(router).to.be.a('function');
+    done();
+  });
   it('should respond to the view event.', function(done) {
     request(app)
       .get('/c/v/eb820a26-a7c7-4a1c-bc0f-c6975658f03f.gif')
