@@ -1,6 +1,5 @@
 const expect = require('chai').expect;
 const loadRouters = require('../../src/routers');
-const { Router } = require('express');
 
 describe('routers/index', function() {
   it('should be a function.', function(done) {
@@ -23,6 +22,7 @@ describe('routers/index', function() {
       expect(router).to.be.an('object');
       expect(expectedPaths.includes(router.path)).to.be.true;
       expect(router.router).to.be.a('function');
+      expect(router.router).itself.to.respondTo('use');
     });
     done();
   });
