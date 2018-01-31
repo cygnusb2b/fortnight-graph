@@ -30,6 +30,15 @@ module.exports = {
     /**
      *
      */
+    campaign: (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      return CampaignRepo.findById(id);
+    },
+
+    /**
+     *
+     */
     allCampaigns: (root, { pagination, sort }, { auth }) => {
       auth.check();
       return new Pagination(Campaign, { pagination, sort });
