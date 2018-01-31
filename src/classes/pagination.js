@@ -21,7 +21,7 @@ class Pagination {
     const { field, order } = this.sort;
 
     // @todo Should likely do a deep assign?
-    this.filter = assign({}, this.criteria);
+    const filter = assign({}, this.criteria);
     const limits = {};
     const ors = [];
 
@@ -29,7 +29,7 @@ class Pagination {
       const op = order === 1 ? '$gt' : '$lt';
       if (field === '_id') {
         // Sort by ID only.
-        this.filter._id = { [op]: this.after };
+        filter._id = { [op]: this.after };
       } else {
         const model = await this.Model.findOne({ _id: this.after })
           .select({ [field]: 1 })
@@ -39,9 +39,10 @@ class Pagination {
           [field]: model[field],
           _id: { [op]: this.after },
         });
-        this.filter.$or = [{ [field]: limits }, ...ors];
+        filter.$or = [{ [field]: limits }, ...ors];
       }
     }
+    this.filter = filter;
     return this.filter;
   }
 
