@@ -5,10 +5,10 @@ enum CampaignSortField {
 }
 
 enum CampaignStatus {
-  active
-  paused
-  draft
-  deleted
+  Active
+  Paused
+  Draft
+  Deleted
 }
 
 type Campaign {

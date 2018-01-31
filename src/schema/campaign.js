@@ -22,7 +22,13 @@ const schema = new Schema({
   status: {
     type: String,
     required: true,
-    default: 'draft',
+    default: 'Draft',
+    enum: [
+      'Active',
+      'Paused',
+      'Draft',
+      'Deleted',
+    ],
   },
   creatives: [{
     name: {
