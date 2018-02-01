@@ -6,15 +6,30 @@ describe('fixtures/generators/publisher', function() {
     expect(Generate).to.be.a('function');
     done();
   });
-  it('should return a generated object.', function(done) {
-    const obj = Generate();
+  const fields = [
+    { key: 'name', cb: v => expect(v).be.a('string') },
+    { key: 'url', cb: v => expect(v).be.a('string') },
+    { key: 'title', cb: v => expect(v).be.a('string') },
+    { key: 'teaser', cb: v => expect(v).be.a('string') },
+    { key: 'image', cb: v => expect(v).be.a('string') },
+  ];
+
+  const obj = Generate();
+
+  it('should be an object', function(done) {
     expect(obj).to.be.an('object');
-    expect(obj).to.have.keys(['name', 'url', 'title', 'teaser', 'image']);
-    expect(obj).to.have.property('name').and.be.a('string');
-    expect(obj).to.have.property('url').and.be.a('string');
-    expect(obj).to.have.property('title').and.be.a('string');
-    expect(obj).to.have.property('teaser').and.be.a('string');
-    expect(obj).to.have.property('image').and.be.a('string');
     done();
+  });
+  it('should only contain valid field keys.', function(done) {
+    const keys = fields.map(field => field.key);
+    expect(obj).to.have.keys(keys);
+    done();
+  });
+  fields.forEach((field) => {
+    it(`should only have the ${field.key} property of the appropriate type.`, function(done) {
+      expect(obj).to.have.property(field.key);
+      field.cb(obj[field.key]);
+      done();
+    });
   });
 });

@@ -10,17 +10,33 @@ describe('fixtures/generators/placement', function() {
     expect(Generate).to.throw(TypeError)
     done();
   });
-  it('should return a generated object.', function(done) {
-    const publisherId = () => '1234';
-    const obj = Generate({ publisherId });
+
+  const fields = [
+    { key: 'name', cb: v => expect(v).be.a('string') },
+    { key: 'pid', cb: v => expect(v).be.a('string') },
+    { key: 'template', cb: v => expect(v).be.a('string') },
+    { key: 'createdAt', cb: v => expect(v).be.a('number').gt(0) },
+    { key: 'updatedAt', cb: v => expect(v).be.a('number').gt(0) },
+    { key: 'publisherId', cb: v => expect(v).to.equal('1234') },
+  ];
+
+  const publisherId = () => '1234';
+  const obj = Generate({ publisherId });
+
+  it('should be an object', function(done) {
     expect(obj).to.be.an('object');
-    expect(obj).to.have.keys(['name', 'pid', 'template', 'createdAt', 'updatedAt', 'publisherId']);
-    expect(obj).to.have.property('name').and.be.a('string');
-    expect(obj).to.have.property('pid').and.be.a('string');
-    expect(obj).to.have.property('template').and.be.a('string');
-    expect(obj).to.have.property('createdAt').and.be.a('number').gt(0);
-    expect(obj).to.have.property('updatedAt').and.be.a('number').gt(0);
-    expect(obj).to.have.property('publisherId').and.equal('1234');
     done();
+  });
+  it('should only contain valid field keys.', function(done) {
+    const keys = fields.map(field => field.key);
+    expect(obj).to.have.keys(keys);
+    done();
+  });
+  fields.forEach((field) => {
+    it(`should only have the ${field.key} property of the appropriate type.`, function(done) {
+      expect(obj).to.have.property(field.key);
+      field.cb(obj[field.key]);
+      done();
+    });
   });
 });
