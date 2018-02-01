@@ -7,7 +7,7 @@ node {
       checkout scm
     }
     stage('Test') {
-      sh 'yarn run test'
+      sh 'yarn run coverage'
       step([$class: 'ArtifactArchiver', artifacts: 'test-results.xml'])
       step([$class: 'ArtifactArchiver', artifacts: 'coverage/cobertura-coverage.xml'])
     }
