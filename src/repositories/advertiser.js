@@ -14,8 +14,9 @@ module.exports = {
 
   /**
    *
-   * @param {string} id
-   * @param {string} name
+   * @param {object} params
+   * @param {string} params.id
+   * @param {string} params.name
    * @return {Promise}
    */
   update({ id, name }) {
