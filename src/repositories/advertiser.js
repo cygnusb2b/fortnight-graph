@@ -1,4 +1,5 @@
 const Advertiser = require('../models/advertiser');
+const Pagination = require('../classes/pagination');
 
 module.exports = {
   /**
@@ -34,5 +35,17 @@ module.exports = {
       if (!document) throw new Error(`No advertiser found for id '${id}'`);
       return document;
     });
+  },
+
+  /**
+   * Paginates all Advertiser models.
+   *
+   * @param {object} params
+   * @param {object.object} params.pagination The pagination parameters.
+   * @param {object.object} params.sort The sort parameters.
+   * @return {Pagination}
+   */
+  paginate({ pagination, sort } = {}) {
+    return new Pagination(Advertiser, { pagination, sort });
   },
 };

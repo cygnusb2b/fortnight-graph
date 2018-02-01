@@ -8,6 +8,17 @@ module.exports = {
     const campaign = new Campaign(payload);
     return campaign.save();
   },
+
+  /**
+   * Finds Campaigns for the provided Advertiser ID.
+   *
+   * @param {string} id
+   * @return {Promise}
+   */
+  findForAdvertiser(id) {
+    return Campaign.find({ advertiserId: id });
+  },
+
   /**
    *
    */
