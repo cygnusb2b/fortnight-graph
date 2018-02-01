@@ -17,8 +17,5 @@ services:
     image: redis:alpine
   mongo:
     image: mongo:3.4
-    volumes:
-      - test_mongodb:/data/db
 volumes:
   test_node_modules: {}
-  test_mongodb: {}
