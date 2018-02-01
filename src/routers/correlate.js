@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const { noCache } = require('helmet');
+const uuidUtil = require('../utils/uuid');
 
-const regex = new RegExp('[a-f0-9]{32}');
 const emptyGif = Buffer.from('R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==', 'base64');
 const router = Router();
 router.use(noCache());
@@ -11,9 +11,9 @@ const events = ['l', 'v'];
 router.get('/:event/:uuid.gif', (req, res) => {
   res.set('Content-Type', 'image/gif');
   const { event, uuid } = req.params;
-  const id = uuid.replace(/-/g, '');
+  const id = uuidUtil.normalize(uuid);
 
-  if (events.includes(event) && regex.test(id)) {
+  if (events.includes(event) && uuidUtil.is(id)) {
     res.status(200);
     /**
      * @todo
