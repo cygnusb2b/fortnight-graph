@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test:no-lint": "NODE_ENV=test ./node_modules/.bin/mocha --recursive ./test/**/*.spec.js",
+    "test:no-lint": "NODE_ENV=test ./node_modules/.bin/mocha \"test/**/*.spec.js\" --recursive",
     "test": "npm run lint:hard && npm run test:no-lint",
     "coverage": "./node_modules/.bin/nyc --reporter=text --all npm run test",
     "start:dev": "./node_modules/.bin/gulp",
