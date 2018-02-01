@@ -7,6 +7,7 @@ const Promise = require('bluebird');
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
+const sandbox = sinon.createSandbox();
 
 describe('repositories/advertiser', function() {
   it('should export an object.', function(done) {
@@ -14,24 +15,32 @@ describe('repositories/advertiser', function() {
     done();
   });
   describe('#findById', function() {
+    beforeEach(function() {
+      sandbox.stub(Model, 'findOne').callsFake(({ _id }) => {
+        const val = _id === '1234' ? { _id } : null;
+        return Promise.resolve(val);
+      });
+
+    });
+    afterEach(function() {
+      sinon.assert.calledOnce(Model.findOne);
+      sandbox.restore();
+    });
+
     it('should return an advertiser document.', async () => {
-      const findOne = sinon.stub(Model, 'findOne');
-      findOne.callsFake(({ _id }) => Promise.resolve({ _id }));
+      const _id = '1234';
       await expect(Repo.findById('1234'))
         .to.be.fulfilled
-        .and.eventually.have.property('_id').equal('1234')
+        .and.eventually.have.property('_id').equal(_id)
       ;
-      findOne.restore();
+      sinon.assert.calledWith(Model.findOne, { _id });
     });
     it('should error when the advertiser is not found.', async () => {
-      const findOne = sinon.stub(Model, 'findOne');
-      findOne.callsFake(({ _id }) => Promise.resolve(null));
-
-      const id = '1234';
+      const id = '12345';
       await expect(Repo.findById(id))
         .to.be.rejectedWith(Error, `No advertiser found for id '${id}'`)
       ;
-      findOne.restore();
+      sinon.assert.calledWith(Model.findOne, { _id: id });
     });
   });
 });
