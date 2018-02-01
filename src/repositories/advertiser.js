@@ -7,7 +7,7 @@ module.exports = {
    * @param {object} payload
    * @return {Promise}
    */
-  create(payload) {
+  create(payload = {}) {
     const advertiser = new Advertiser(payload);
     return advertiser.save();
   },
@@ -23,7 +23,10 @@ module.exports = {
     const criteria = { _id: id };
     const update = { $set: { name } };
     const options = { new: true };
-    return Advertiser.findOneAndUpdate(criteria, update, options);
+    return Advertiser.findOneAndUpdate(criteria, update, options).then((document) => {
+      if (!document) throw new Error(`No advertiser found for id '${id}'`);
+      return document;
+    });
   },
 
   /**
