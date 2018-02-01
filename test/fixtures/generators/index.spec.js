@@ -7,8 +7,12 @@ describe('fixtures/generators', function() {
     done();
   });
   const cases = [
-    'publisher', 'placement',
+    'publisher', 'placement', 'advertiser', 'campaign'
   ];
+  it(`should only contain the ${cases.join(', ')} properties`, function(done) {
+    expect(generators).to.have.keys(cases);
+    done();
+  });
   cases.forEach((name) => {
     it(`should contain the '${name}' generator function.`, function(done) {
       expect(generators).to.have.property(name).and.be.a('function');

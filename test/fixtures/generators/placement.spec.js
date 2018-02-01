@@ -14,11 +14,12 @@ describe('fixtures/generators/placement', function() {
     const publisherId = () => '1234';
     const obj = Generate({ publisherId });
     expect(obj).to.be.an('object');
+    expect(obj).to.have.keys(['name', 'pid', 'template', 'createdAt', 'updatedAt', 'publisherId']);
     expect(obj).to.have.property('name').and.be.a('string');
     expect(obj).to.have.property('pid').and.be.a('string');
     expect(obj).to.have.property('template').and.be.a('string');
-    expect(obj).to.have.property('createdAt').and.be.a('number');
-    expect(obj).to.have.property('updatedAt').and.be.a('number');
+    expect(obj).to.have.property('createdAt').and.be.a('number').gt(0);
+    expect(obj).to.have.property('updatedAt').and.be.a('number').gt(0);
     expect(obj).to.have.property('publisherId').and.equal('1234');
     done();
   });
