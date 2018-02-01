@@ -1,5 +1,5 @@
 node {
-  def nodeBuilder = docker.image("node:8-alpine")
+  def nodeBuilder = docker.image("node:8")
   nodeBuilder.pull()
 
   try {
@@ -8,14 +8,15 @@ node {
     }
     stage('Yarn') {
       nodeBuilder.inside("-v ${env.WORKSPACE}:/var/www/html -u 0:0") {
-        sh 'npm install -g yarn && yarn'
-        sh 'npm rebuild --update-binary'
+        sh 'yarn'
       }
     }
     stage('Test') {
       nodeBuilder.inside("-v ${env.WORKSPACE}:/var/www/html -u 0:0") {
-        sh 'npm run test'
+        sh 'yarn run docker:test'
       }
+      step([$class: 'ArtifactArchiver', artifacts: 'test-results.xml'])
+      step([$class: 'ArtifactArchiver', artifacts: 'coverage/cobertura-coverage.xml'])
     }
   } catch (e) {
     slackSend color: 'bad', channel: '#codebot', message: "Failed testing ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|View>)"
