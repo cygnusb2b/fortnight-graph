@@ -17,5 +17,6 @@ module.exports = () => ({
   },
   add(model) {
     this.models.push(model);
+    return this;
   },
 });

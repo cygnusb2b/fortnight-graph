@@ -6,7 +6,7 @@ const template = `
 <p>{{ teaser }} - {{ c.customVar }}</p>
 `;
 
-module.exports = ({ publisherId }) => ({
+module.exports = ({ publisherId } = {}) => ({
   name: faker.random.words(),
   pid: shortid.generate(),
   template,
