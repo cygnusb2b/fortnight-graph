@@ -1,20 +1,21 @@
 node {
-  def nodeBuilder = docker.image("node:8-alpine")
+  def nodeBuilder = docker.image("node:8")
   nodeBuilder.pull()
 
   try {
     stage('Checkout') {
       checkout scm
     }
-    stage('Yarn') {
-      nodeBuilder.inside("-v ${env.WORKSPACE}:/var/www/html -u 0:0") {
-        sh 'npm install -g yarn && yarn'
-        sh 'npm rebuild --update-binary'
-      }
-    }
     stage('Test') {
-      nodeBuilder.inside("-v ${env.WORKSPACE}:/var/www/html -u 0:0") {
-        sh 'npm run test'
+      try {
+        sh 'yarn run coverage'
+        junit 'test-results.xml'
+        cobertura autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'coverage/cobertura-coverage.xml', conditionalCoverageTargets: '70, 0, 0', failUnhealthy: false, failUnstable: false, lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false
+      } catch (e) {
+        junit 'test-results.xml'
+        cobertura autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'coverage/cobertura-coverage.xml', conditionalCoverageTargets: '70, 0, 0', failUnhealthy: false, failUnstable: false, lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false
+        slackSend color: 'bad', channel: '#codebot', message: "Failed testing ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|View>)"
+        throw e
       }
     }
   } catch (e) {

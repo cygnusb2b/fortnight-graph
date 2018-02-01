@@ -2,21 +2,30 @@
 Server backend for the Fortnight project, including the primary Graph API, as well as placement and tracking endpoints.
 
 ## Requirements
-This project requires [NodeJS](https://nodejs.org) >7.10, as `async/await` functions are utilized, though it is recommended to use the latest LTS (currently 8.9.x). The [Yarn](https://yarnpkg.com) package manager is also required, and is used instead of `npm`.
+This project requires [Docker Compose](https://docs.docker.com/compose/overview/) to develop and test. The [Yarn](https://yarnpkg.com) package manager is also required, and is used instead of `npm`.
 
 ## Runnning
 1. Clone repository
-2. Set the appropriate development environment variables (see [Environment Variables](#environment-variables) below)
-2. In the project root, run `yarn install`
-3. Run the dev server `yarn run start:dev`
+2. Override any applicable development environment variables (see [Environment Variables](#environment-variables) below)
+3. In the project root, run `yarn run start`
 4. The server is now accessible on `localhost:8100` (or whatever port you configure)
 
 ## Environment Variables
-Environment variables are *not* under version control, per [Part 3 of the 12 Factors](https://12factor.net/config). As such, the [dotenv](https://www.npmjs.com/package/dotenv) package is used to manage your variables locally.
+Production environment variables are *not* under version control, per [Part 3 of the 12 Factors](https://12factor.net/config). As such, the [dotenv](https://www.npmjs.com/package/dotenv) package is used to manage your variables locally.
 1. Create a `.env` file in the project root (at the same level as the `package.json` file)
 2. Set (or change) values for the following variables:
 ```ini
-NODE_ENV=development
+GRAPH_APP_PORT=8100
+GRAPH_DB_PORT=8101
+
+DEBUG=express:*
+MONGOOSE_DEBUG=1
+```
+
+### Production Environment Variables
+The following environment variables must be set at run-time for the production deployment of this application. The development and test environments set appropriate values for those environments within the `docker-compose.yml` configuration files.
+```
+NODE_ENV=production
 PORT=8100
 
 AWS_ACCESS_KEY_ID=
@@ -64,6 +73,21 @@ The custom variables to send with the request. Can be sent as either object-nota
 The custom merge values to be used inside the placement's template. Will only be applied if the variable exists within the template. Can be sent as either object-notated key/values, or as a URL encoded query string. For example, as an object: `mv[foo]=bar&mv[key]=value`, or as URL encoded string: `mv=foo%3Dbar%26key%3Dvalue`
 
 ## Development
+### Docker Compose
+The development and testing environments are now set up using Docker Compose. Changes to environments (such as database version or new environment variables) should be made within the relevant `docker-compose.yml` file.
+
+#### Development
+To start up the development environment, execute `yarn run start` from the project root. This will initialize the docker environment for this project and boot up your application and any dependant containers (such as mongo or redis.) The first execution will take some time to download and configure docker images. To stop your environment, press `CTRL+C` in your terminal. If your environment does not shut down cleanly, you can execute `yarn run stop` to clean up and shutdown the environment.
+
+You can optionally execute `yarn run start &` to cause your terminal to return to the prompt immediately (logs will continue to display) to allow you to execute additional commands. To stop your environment, execute `yarn run stop`.
+
+To re-initialize your entire environment, execute `yarn run stop` to shutdown. Then run `docker volume rm fortnightgraph_node_modules` to remove the cached dependancies. If you want to remove MongoDB data, run `docker volume rm fortnightgraph_mongodb`. Finally, execute `docker-compose -p fortnightgraph rebuild` to force rebuilding the application from the project `Dockerfile` (Typically only needed when making changes to the `docker-compose.yml` configuration.) Executing `yarn run start` again will re-initialize and start up the environment from scratch.
+
+#### Testing
+The testing framework runs within a second Docker Compose environment defined in `test/docker-compose.yml`. Primarily the only difference between dev and test is that the containers shut down after execution rather than watch for changes, and the databases are not retained between test runs -- necessitating that fixtures run to create test data.
+
+The test environment can be booted and run by executing `yarn run test` or `yarn run coverage`, or manually via `docker-compose -p fortnightgraphtest -f test/docker-compose.yml run --entrypoint "yarn run test" test`.
+
 ### Running/Writing Tests
 [Mocha](https://mochajs.org/) and [Chai](http://chaijs.com/) are used for unit testing. All tests are found in the `/test` folder, and must contain `.spec.js` in the name in order for the file to be recognized. You can run tests via the `yarn run test` command. Preferably, the folder and file structure should mimic the `/src` directory. For example, the  file `/src/classes/auth.js` should have a corresponding test file located at `/test/classes/auth.spec.js`. While the BDD assertion style is preferred (e.g. `expect` or `should`), feel free to use the TDD `assert` style if that's more comfortable. **Note:** the test command will also execute the `lint:hard` command. In other words, if lint errors are found, the tests will also fail!
 

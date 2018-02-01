@@ -1,0 +1,22 @@
+version: '3'
+services:
+  test:
+    build: ../
+    volumes:
+      - ../:/app
+      - test_node_modules:/app/node_modules
+    depends_on:
+      - redis
+      - mongo
+    entrypoint: yarn run test:run
+    environment:
+      NODE_ENV: test
+      MONGO_DSN: mongodb://mongo:27017/fortnight
+      REDIS_DSN: redis://redis:6379/0
+      PORT: 8100
+  redis:
+    image: redis:alpine
+  mongo:
+    image: mongo:3.4
+volumes:
+  test_node_modules: {}
