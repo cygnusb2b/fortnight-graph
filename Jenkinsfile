@@ -7,9 +7,7 @@ node {
       checkout scm
     }
     stage('Test') {
-      nodeBuilder.inside("-v ${env.WORKSPACE}:/var/www/html -u 0:0") {
-        sh 'yarn run test'
-      }
+      sh 'yarn run test'
       step([$class: 'ArtifactArchiver', artifacts: 'test-results.xml'])
       step([$class: 'ArtifactArchiver', artifacts: 'coverage/cobertura-coverage.xml'])
     }
