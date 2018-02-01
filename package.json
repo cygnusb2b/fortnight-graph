@@ -7,19 +7,27 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test:no-lint": "NODE_ENV=test ./node_modules/.bin/mocha \"test/**/*.spec.js\" --recursive",
-    "test": "npm run lint:hard && npm run test:no-lint",
-    "coverage": "./node_modules/.bin/nyc --reporter=text --all npm run test",
-    "ci:coverage": "./node_modules/.bin/nyc --reporter=cobertura --all npm run ci:test",
-    "ci:test": "./node_modules/.bin/mocha --recursive --reporter mocha-junit-reporter test/**/*.spec.js",
-    "start:dev": "./node_modules/.bin/gulp",
-    "docker:start": "docker-compose run --no-deps --entrypoint yarn app && docker-compose up",
-    "docker:stop": "docker-compose down",
-    "docker:test": "docker-compose -p graph_test -f test/docker-compose.yml run --no-deps --entrypoint yarn test && docker-compose -p graph_test -f test/docker-compose.yml run test",
-    "docker:reset": "docker-compose down && docker volume rm graph_node_modules",
-    "start": "./node_modules/.bin/gulp serve",
-    "lint": "./node_modules/.bin/eslint \"src/**/*.js\"; exit 0",
-    "lint:hard": "./node_modules/.bin/eslint \"src/**/*.js\""
+
+    "start": "$npm_package_docker_dev_install && $npm_package_docker_dev_up",
+    "stop": "$npm_package_docker_dev_down",
+    "test": "$npm_package_docker_test_install && $npm_package_docker_test_test && $npm_package_docker_test_down",
+    "coverage": "$npm_package_docker_test_install && $npm_package_docker_test_coverage && $npm_package_docker_test_down",
+
+    "test:run": "./node_modules/.bin/eslint src/**/*.js && ./node_modules/.bin/mocha",
+    "coverage:run": "./node_modules/.bin/nyc npm run test:run"
+  },
+  "docker": {
+    "dev": {
+      "install":  "docker-compose -p fortnight_graph run --no-deps --entrypoint yarn app",
+      "up":       "docker-compose -p fortnight_graph up",
+      "down":     "docker-compose -p fortnight_graph down"
+    },
+    "test": {
+      "install" : "docker-compose -p fortnight_graph_test -f test/docker-compose.yml run --no-deps --entrypoint yarn test",
+      "test" :    "docker-compose -p fortnight_graph_test -f test/docker-compose.yml run test",
+      "coverage": "docker-compose -p fortnight_graph_test -f test/docker-compose.yml run --entrypoint \"yarn run coverage:run\" test",
+      "down" :    "docker-compose -p fortnight_graph_test -f test/docker-compose.yml down"
+    }
   },
   "dependencies": {
     "apollo-server-express": "^1.3.2",
@@ -38,7 +46,6 @@
     "helmet": "^3.9.0",
     "http-errors": "^1.6.2",
     "jsonwebtoken": "^8.1.1",
-    "mocha-junit-reporter": "^1.17.0",
     "mongoose": "^5.0.1",
     "passport": "^0.4.0",
     "passport-http-bearer": "^1.0.1",
@@ -56,10 +63,19 @@
     "eslint-plugin-import": "^2.8.0",
     "gulp": "^3.9.1",
     "mocha": "^5.0.0",
+    "mocha-junit-reporter": "^1.17.0",
     "nyc": "^11.4.1",
     "supertest": "^3.0.0"
   },
   "nyc": {
+    "check-coverage": false,
+    "per-file": true,
+    "reporter": [
+      "text",
+      "cobertura"
+    ],
+    "all": true,
+    "cache": false,
     "include": [
       "src/**/*.js"
     ]

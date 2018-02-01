@@ -3,7 +3,7 @@ services:
   app:
     build: .
     ports:
-      - "8100:8100"
+      - "${GRAPH_APP_PORT-8100}:8100"
     volumes:
       - .:/app
       - node_modules:/app/node_modules
@@ -11,12 +11,14 @@ services:
       - redis
       - mongo
     restart: on-failure
-    entrypoint: yarn run start:dev
+    entrypoint: node_modules/.bin/gulp
     environment:
+      NODE_ENV: development
       MONGO_DSN: mongodb://mongo:27017/fortnight
       REDIS_DSN: redis://redis:6379/0
-      PORT: 8100
-      MONGOOSE_DEBUG: 1
+      PORT: ${GRAPH_APP_PORT-8100}
+      MONGOOSE_DEBUG: ${MONGOOSE_DEBUG}
+      DEBUG: ${DEBUG}
   redis:
     image: redis:alpine
   mongo:
@@ -24,7 +26,7 @@ services:
     volumes:
       - mongodb:/data/db
     ports:
-      - "8101:27017"
+      - "${GRAPH_DB_PORT-8101}:27017"
 volumes:
   node_modules: {}
   mongodb: {}

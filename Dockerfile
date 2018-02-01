@@ -4,4 +4,6 @@ WORKDIR /app
 COPY . /app
 
 EXPOSE 8100
-ENTRYPOINT ["npm", "run", "start"]
+
+ENV NODE_ENV production
+ENTRYPOINT ["node", "src/index.js"]
