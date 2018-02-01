@@ -67,7 +67,7 @@ describe('classes/auth', function() {
       const auth = new Auth();
       errs.forEach((err) => {
         auth.err = err;
-        expect(auth.isValid()).to.be.true;
+        expect(auth.isValid()).to.be.false;
       });
       auth.err = '';
 
