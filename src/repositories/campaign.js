@@ -2,12 +2,24 @@ const createError = require('http-errors');
 const Placement = require('../models/placement');
 const Campaign = require('../models/campaign');
 const Request = require('../models/request');
+const Pagination = require('../classes/pagination');
 
 module.exports = {
   create(payload) {
     const campaign = new Campaign(payload);
     return campaign.save();
   },
+
+  /**
+   * Finds Campaigns for the provided Advertiser ID.
+   *
+   * @param {string} id
+   * @return {Promise}
+   */
+  findForAdvertiser(id) {
+    return Campaign.find({ advertiserId: id });
+  },
+
   /**
    *
    */
@@ -48,6 +60,19 @@ module.exports = {
   findById(cid) {
     return Campaign.findOne({ cid });
   },
+
+  /**
+   * Paginates all Campaign models.
+   *
+   * @param {object} params
+   * @param {object.object} params.pagination The pagination parameters.
+   * @param {object.object} params.sort The sort parameters.
+   * @return {Pagination}
+   */
+  paginate({ pagination, sort } = {}) {
+    return new Pagination(Campaign, { pagination, sort });
+  },
+
   /**
    *
    * @param {object} params

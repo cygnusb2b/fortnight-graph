@@ -10,11 +10,12 @@
 
     "start": "$npm_package_docker_dev_install && $npm_package_docker_dev_up",
     "stop": "$npm_package_docker_dev_down",
-    "test": "$npm_package_docker_test_install && $npm_package_docker_test_test && $npm_package_docker_test_down && $npm_package_docker_test_clean",
-    "coverage": "$npm_package_docker_test_install && $npm_package_docker_test_coverage && $npm_package_docker_test_down && $npm_package_docker_test_clean",
+    "test": "$npm_package_docker_test_install && $npm_package_docker_test_test && $npm_package_docker_test_down",
+    "coverage": "$npm_package_docker_test_install && $npm_package_docker_test_coverage && $npm_package_docker_test_down",
 
-    "test:run": "./node_modules/.bin/eslint src/**/*.js && ./node_modules/.bin/mocha",
-    "coverage:run": "./node_modules/.bin/nyc npm run test:run"
+    "test:ci": "./node_modules/.bin/eslint \"src/**/*.js\" && ./node_modules/.bin/mocha \"test/**/*.spec.js\" --reporter mocha-junit-reporter",
+    "test:run": "./node_modules/.bin/eslint \"src/**/*.js\" && ./node_modules/.bin/mocha \"test/**/*.spec.js\" --reporter spec",
+    "coverage:run": "./node_modules/.bin/nyc yarn run test:ci"
   },
   "docker": {
     "dev": {
@@ -26,8 +27,7 @@
       "install" : "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run --no-deps --entrypoint yarn test",
       "test" :    "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run test",
       "coverage": "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run --entrypoint yarn test run coverage:run",
-      "down" :    "docker-compose -p fortnightgraphtest -f test/docker-compose.yml down",
-      "clean":    "docker volume rm fortnightgraphtest_test_node_modules"
+      "down" :    "docker-compose -p fortnightgraphtest -f test/docker-compose.yml down"
     }
   },
   "dependencies": {
@@ -66,6 +66,7 @@
     "mocha": "^5.0.0",
     "mocha-junit-reporter": "^1.17.0",
     "nyc": "^11.4.1",
+    "sinon": "^4.2.2",
     "supertest": "^3.0.0"
   },
   "nyc": {

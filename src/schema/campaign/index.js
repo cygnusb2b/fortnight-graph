@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const shortid = require('shortid');
+const CreativeSchema = require('./creative');
 
 const { Schema } = mongoose;
 
@@ -30,33 +31,7 @@ const schema = new Schema({
       'Deleted',
     ],
   },
-  creatives: [{
-    name: {
-      type: String,
-      required: false,
-      trim: true,
-    },
-    url: {
-      type: String,
-      required: false,
-      trim: true,
-    },
-    title: {
-      type: String,
-      required: false,
-      trim: true,
-    },
-    teaser: {
-      type: String,
-      required: false,
-      trim: true,
-    },
-    image: {
-      type: String,
-      required: false,
-      trim: true,
-    },
-  }],
+  creatives: [CreativeSchema],
 }, { timestamps: true });
 
 schema.index({ name: 1, _id: 1 }, { unique: true });

@@ -1,8 +1,6 @@
 const paginationResolvers = require('./pagination');
-const Advertiser = require('../../models/advertiser');
-const Campaign = require('../../models/campaign');
+const AdvertiserRepo = require('../../repositories/advertiser');
 const CampaignRepo = require('../../repositories/campaign');
-const Pagination = require('../../classes/pagination');
 
 module.exports = {
   /**
@@ -10,7 +8,7 @@ module.exports = {
    */
   Campaign: {
     id: campaign => campaign.get('cid'),
-    advertiser: campaign => Advertiser.findOne({ _id: campaign.get('advertiserId') }),
+    advertiser: campaign => AdvertiserRepo.findById(campaign.get('advertiserId')),
   },
 
   /**
@@ -41,7 +39,7 @@ module.exports = {
      */
     allCampaigns: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return new Pagination(Campaign, { pagination, sort });
+      return CampaignRepo.paginate({ pagination, sort });
     },
   },
 

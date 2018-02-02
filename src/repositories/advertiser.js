@@ -1,4 +1,5 @@
 const Advertiser = require('../models/advertiser');
+const Pagination = require('../classes/pagination');
 
 module.exports = {
   /**
@@ -6,22 +7,26 @@ module.exports = {
    * @param {object} payload
    * @return {Promise}
    */
-  create(payload) {
+  create(payload = {}) {
     const advertiser = new Advertiser(payload);
     return advertiser.save();
   },
 
   /**
    *
-   * @param {string} id
-   * @param {string} name
+   * @param {object} params
+   * @param {string} params.id
+   * @param {string} params.name
    * @return {Promise}
    */
   update({ id, name }) {
     const criteria = { _id: id };
     const update = { $set: { name } };
     const options = { new: true };
-    return Advertiser.findOneAndUpdate(criteria, update, options);
+    return Advertiser.findOneAndUpdate(criteria, update, options).then((document) => {
+      if (!document) throw new Error(`No advertiser found for id '${id}'`);
+      return document;
+    });
   },
 
   /**
@@ -34,5 +39,17 @@ module.exports = {
       if (!document) throw new Error(`No advertiser found for id '${id}'`);
       return document;
     });
+  },
+
+  /**
+   * Paginates all Advertiser models.
+   *
+   * @param {object} params
+   * @param {object.object} params.pagination The pagination parameters.
+   * @param {object.object} params.sort The sort parameters.
+   * @return {Pagination}
+   */
+  paginate({ pagination, sort } = {}) {
+    return new Pagination(Advertiser, { pagination, sort });
   },
 };
