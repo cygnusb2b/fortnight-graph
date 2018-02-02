@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const ImageSchema = require('./image');
 
 const { Schema } = mongoose;
 
@@ -23,9 +24,5 @@ module.exports = new Schema({
     required: false,
     trim: true,
   },
-  image: {
-    type: String,
-    required: false,
-    trim: true,
-  },
+  image: ImageSchema,
 });
