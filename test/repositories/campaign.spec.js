@@ -10,7 +10,7 @@ chai.use(chaiAsPromised);
 const expect = chai.expect;
 const sandbox = sinon.createSandbox();
 
-describe('repositories/advertiser', function() {
+describe('repositories/campaign', function() {
   it('should export an object.', function(done) {
     expect(Repo).to.be.an('object');
     done();
