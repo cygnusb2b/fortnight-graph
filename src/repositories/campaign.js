@@ -2,6 +2,7 @@ const createError = require('http-errors');
 const Placement = require('../models/placement');
 const Campaign = require('../models/campaign');
 const Request = require('../models/request');
+const Pagination = require('../classes/pagination');
 
 module.exports = {
   create(payload) {
@@ -59,6 +60,19 @@ module.exports = {
   findById(cid) {
     return Campaign.findOne({ cid });
   },
+
+  /**
+   * Paginates all Campaign models.
+   *
+   * @param {object} params
+   * @param {object.object} params.pagination The pagination parameters.
+   * @param {object.object} params.sort The sort parameters.
+   * @return {Pagination}
+   */
+  paginate({ pagination, sort } = {}) {
+    return new Pagination(Campaign, { pagination, sort });
+  },
+
   /**
    *
    * @param {object} params
