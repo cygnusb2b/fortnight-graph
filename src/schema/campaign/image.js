@@ -23,7 +23,7 @@ module.exports = new Schema({
   },
   height: {
     type: Number,
-    min: 0
+    min: 0,
   },
   focalPoint: {
     x: {
