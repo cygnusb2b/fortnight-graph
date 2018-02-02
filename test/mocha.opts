@@ -1,2 +1,2 @@
 --recursive
---reporter mocha-junit-reporter
+--reporter mocha-junit-reporter --reporter spec
