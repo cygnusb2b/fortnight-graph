@@ -13,7 +13,7 @@
     "test": "$npm_package_docker_test_install && $npm_package_docker_test_test && $npm_package_docker_test_down",
     "coverage": "$npm_package_docker_test_install && $npm_package_docker_test_coverage && $npm_package_docker_test_down",
 
-    "test:run": "./node_modules/.bin/eslint src/**/*.js && ./node_modules/.bin/mocha",
+    "test:run": "./node_modules/.bin/eslint \"src/**/*.js\" && ./node_modules/.bin/mocha \"test/**/*.spec.js\"",
     "coverage:run": "./node_modules/.bin/nyc npm run test:run"
   },
   "docker": {
