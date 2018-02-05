@@ -10,7 +10,7 @@ module.exports = {
     if (clients[name]) {
       throw new Error(`Redis client ${name} already exists!`);
     }
-    clients[name] = client(options);
+    clients[name] = client.create(options);
     return this;
   },
   get(name) {

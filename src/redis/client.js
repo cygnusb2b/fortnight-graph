@@ -1,12 +1,20 @@
-const bluebird = require('bluebird');
+const Promise = require('bluebird');
 const redis = require('redis');
 
-bluebird.promisifyAll(redis.RedisClient.prototype);
+Promise.promisifyAll(redis.RedisClient.prototype);
 
-module.exports = (options) => {
+const create = options => new Promise((resolve, reject) => {
   const client = redis.createClient(options);
   client.on('connect', () => {
+    resolve(client);
     process.stdout.write(`Successful Redis connection with options '${JSON.stringify(options)}'\n`);
   });
-  return client;
+  client.on('error', (err) => {
+    client.end(true);
+    reject(err);
+  });
+});
+
+module.exports = {
+  create,
 };
