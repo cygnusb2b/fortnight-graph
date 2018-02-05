@@ -7,27 +7,28 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-
     "start": "$npm_package_docker_dev_install && $npm_package_docker_dev_up",
     "stop": "$npm_package_docker_dev_down",
     "test": "$npm_package_docker_test_install && $npm_package_docker_test_test && $npm_package_docker_test_down",
+    "lint": "$npm_package_docker_test_install && $npm_package_docker_test_lint && $npm_package_docker_test_down",
     "coverage": "$npm_package_docker_test_install && $npm_package_docker_test_coverage && $npm_package_docker_test_down",
-
-    "test:ci": "./node_modules/.bin/eslint \"src/**/*.js\" && ./node_modules/.bin/mocha \"test/**/*.spec.js\" --reporter mocha-junit-reporter",
-    "test:run": "./node_modules/.bin/eslint \"src/**/*.js\" && ./node_modules/.bin/mocha \"test/**/*.spec.js\" --reporter spec",
+    "test:ci": "yarn run lint:run && ./node_modules/.bin/mocha \"test/**/*.spec.js\" --reporter mocha-junit-reporter",
+    "test:run": "yarn run lint:run && ./node_modules/.bin/mocha \"test/**/*.spec.js\" --reporter spec",
+    "lint:run": "./node_modules/.bin/eslint \"src/**/*.js\"",
     "coverage:run": "./node_modules/.bin/nyc yarn run test:ci"
   },
   "docker": {
     "dev": {
-      "install":  "docker-compose -p fortnightgraph run --no-deps --entrypoint yarn app",
-      "up":       "docker-compose -p fortnightgraph up",
-      "down":     "docker-compose -p fortnightgraph down"
+      "install": "docker-compose -p fortnightgraph run --no-deps --entrypoint yarn app",
+      "up": "docker-compose -p fortnightgraph up",
+      "down": "docker-compose -p fortnightgraph down"
     },
     "test": {
-      "install" : "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run --no-deps --entrypoint yarn test",
-      "test" :    "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run test",
+      "install": "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run --no-deps --entrypoint yarn test",
+      "test": "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run test",
       "coverage": "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run --entrypoint yarn test run coverage:run",
-      "down" :    "docker-compose -p fortnightgraphtest -f test/docker-compose.yml down"
+      "lint": "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run --entrypoint yarn test run lint:run",
+      "down": "docker-compose -p fortnightgraphtest -f test/docker-compose.yml down"
     }
   },
   "dependencies": {
