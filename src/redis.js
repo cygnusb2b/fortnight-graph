@@ -9,8 +9,5 @@ const client = redis.createClient(options);
 client.on('connect', () => {
   process.stdout.write(`Successful Redis connection with options '${JSON.stringify(options)}'\n`);
 });
-client.on('error', () => {
-  client.end(true);
-});
 
 module.exports = client;

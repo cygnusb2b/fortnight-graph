@@ -5,6 +5,7 @@ const { app } = require('./server');
 
 const { PORT } = process.env;
 
-app.listen(PORT);
+const server = app.listen(PORT);
 process.stdout.write(`Express app '${pkg.name}' listening on port ${PORT}\n`);
 
+module.exports = server;
