@@ -34,6 +34,7 @@ class Pagination {
         const model = await this.Model.findOne({ _id: this.after })
           .select({ [field]: 1 })
           .comment(this.createComment('getFilter'));
+        if (!model) throw new Error('No record found for the provided `after` cursor.');
         limits[op] = model[field];
         ors.push({
           [field]: model[field],
