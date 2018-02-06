@@ -11,8 +11,8 @@ const SETTINGS = {
   saltRounds: 5, // For user secret bcrypt.
   namespace: 'b966dde2-9ca8-11e7-abc4-cec278b6b50a', // Namespace for UUIDv5.
   expires: 60 * 60, // One hour, in seconds.
-  idPrefix: 'id', // Cache prefix.
-  userPrefix: 'user', // Cache prefix.
+  idPrefix: 'session:id', // Cache prefix.
+  userPrefix: 'session:user', // Cache prefix.
 };
 
 
@@ -24,17 +24,9 @@ function createSecret({ userSecret }) {
   return `${userSecret}.${SETTINGS.globalSecret}`;
 }
 
-let client;
-
-/**
- * @todo Need to adjust how errors are handled so certain 500's stay 500's??
- */
 module.exports = {
   getClient() {
-    if (!client) {
-      client = redis.get('session');
-    }
-    return client;
+    return redis;
   },
 
   /**
