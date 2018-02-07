@@ -1,7 +1,7 @@
 const expect = require('chai').expect;
 const Generate = require('../../../../src/fixtures/generators/campaign/creative');
 
-describe('fixtures/generators/publisher', function() {
+describe('fixtures/generators/campaign/creative', function() {
   it('should return a factory function', function(done) {
     expect(Generate).to.be.a('function');
     done();
