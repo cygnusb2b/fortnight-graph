@@ -3,12 +3,13 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 module.exports = new Schema({
-  url: {
+  src: {
     type: String,
     required: true,
   },
-  filename: {
+  filePath: {
     type: String,
+    required: true,
   },
   mimeType: {
     type: String,

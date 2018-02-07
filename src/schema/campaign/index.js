@@ -31,6 +31,11 @@ const schema = new Schema({
       'Deleted',
     ],
   },
+  url: {
+    type: String,
+    trim: true,
+    required: true,
+  },
   creatives: [CreativeSchema],
 }, { timestamps: true });
 

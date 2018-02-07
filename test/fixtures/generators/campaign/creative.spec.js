@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-const Generate = require('../../../src/fixtures/generators/creative');
+const Generate = require('../../../../src/fixtures/generators/campaign/creative');
 
 describe('fixtures/generators/publisher', function() {
   it('should return a factory function', function(done) {
