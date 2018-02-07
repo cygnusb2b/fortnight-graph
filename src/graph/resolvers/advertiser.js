@@ -28,10 +28,12 @@ module.exports = {
     /**
      *
      */
-    advertiser: (root, { input }, { auth }) => {
+    advertiser: async (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      return AdvertiserRepo.findById(id);
+      const record = await AdvertiserRepo.findById(id);
+      if (!record) throw new Error(`No advertiser record found for ID ${id}.`);
+      return record;
     },
 
     /**
@@ -52,7 +54,8 @@ module.exports = {
      */
     createAdvertiser: (root, { input }, { auth }) => {
       auth.check();
-      return AdvertiserRepo.create(input);
+      const { payload } = input;
+      return AdvertiserRepo.create(payload);
     },
 
     /**
@@ -60,7 +63,8 @@ module.exports = {
      */
     updateAdvertiser: (root, { input }, { auth }) => {
       auth.check();
-      return AdvertiserRepo.update(input);
+      const { id, payload } = input;
+      return AdvertiserRepo.update(id, payload);
     },
   },
 };

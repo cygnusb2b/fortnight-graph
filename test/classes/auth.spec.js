@@ -191,7 +191,7 @@ describe('classes/auth', function() {
       badSessionsUsers.forEach((args) => {
         auth.session = args[0];
         auth.user = args[1];
-        expect(auth.check.bind(auth)).to.throw(Error, 'No user or session was found.');
+        expect(auth.check.bind(auth)).to.throw(Error, 'You must be logged-in to access this resource.');
       });
       done();
     });
@@ -200,7 +200,7 @@ describe('classes/auth', function() {
       mismatches.forEach((args) => {
         auth.session = args[0];
         auth.user = args[1];
-        expect(auth.check.bind(auth)).to.throw(Error, 'Session-user mismatch encountered.');
+        expect(auth.check.bind(auth)).to.throw(Error, 'You must be logged-in to access this resource.');
       });
       done();
     });

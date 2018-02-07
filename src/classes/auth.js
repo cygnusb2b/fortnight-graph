@@ -27,7 +27,7 @@ class Auth {
   }
 
   check() {
-    if (!this.isValid()) throw this.getError();
+    if (!this.isValid()) throw new Error('You must be logged-in to access this resource.');
   }
 }
 

@@ -29,11 +29,15 @@ input AdvertiserSortInput {
   order: Int! = -1
 }
 
-input CreateAdvertiserInput {
+input AdvertiserPayloadInput {
   name: String!
+}
+
+input CreateAdvertiserInput {
+  payload: AdvertiserPayloadInput!
 }
 
 input UpdateAdvertiserInput {
   id: String!
-  name: String!
+  payload: AdvertiserPayloadInput!
 }
