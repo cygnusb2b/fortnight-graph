@@ -9,9 +9,9 @@
   "scripts": {
     "start": "$npm_package_docker_dev_install && $npm_package_docker_dev_up",
     "stop": "$npm_package_docker_dev_down",
-    "test": "$npm_package_docker_test_install && $npm_package_docker_test_test && $npm_package_docker_test_down",
-    "lint": "$npm_package_docker_test_install && $npm_package_docker_test_lint && $npm_package_docker_test_down",
-    "coverage": "$npm_package_docker_test_install && $npm_package_docker_test_coverage && $npm_package_docker_test_down",
+    "test": "$npm_package_docker_test_install && $npm_package_docker_test_test; $npm_package_docker_test_down",
+    "lint": "$npm_package_docker_test_install && $npm_package_docker_test_lint; $npm_package_docker_test_down",
+    "coverage": "$npm_package_docker_test_install && $npm_package_docker_test_coverage; $npm_package_docker_test_down",
     "test:ci": "yarn run lint:run && ./node_modules/.bin/mocha \"test/**/*.spec.js\" --reporter mocha-junit-reporter",
     "test:run": "yarn run lint:run && ./node_modules/.bin/mocha \"test/**/*.spec.js\" --reporter spec",
     "lint:run": "./node_modules/.bin/eslint \"src/**/*.js\"",
