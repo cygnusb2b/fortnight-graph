@@ -90,8 +90,8 @@ schema.pre('save', function setPhotoURL(next) {
   if (!this.photoURL) {
     const hash = crypto.createHash('md5').update(this.email).digest('hex');
     this.photoURL = `https://www.gravatar.com/avatar/${hash}`;
-    next();
   }
+  next();
 });
 
 module.exports = schema;
