@@ -18,16 +18,31 @@ type Campaign {
   updatedAt: Date
   advertiser: Advertiser!
   status: CampaignStatus!
-  creatives: [CampaignCreative]!
+  url: String!
+  creatives: [CampaignCreative]
 }
 
 type CampaignCreative {
   id: String!
-  name: String
-  url: String
-  title: String
-  teaser: String
-  image: String
+  title: String!
+  teaser: String!
+  image: CampaignCreativeImage
+}
+
+type CampaignCreativeImage {
+  id: String!
+  src: String!
+  filePath: String!
+  mimeType: String
+  fileSize: Int
+  width: Int
+  height: Int
+  focalPoint: ImageFocalPoint
+}
+
+type ImageFocalPoint {
+  x: Float!
+  y: Float!
 }
 
 type CampaignConnection {
