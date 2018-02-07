@@ -7,7 +7,6 @@ describe('fixtures/generators/publisher', function() {
     done();
   });
   const fields = [
-    { key: 'name', cb: v => expect(v).be.a('string') },
     { key: 'url', cb: v => expect(v).be.a('string') },
     { key: 'title', cb: v => expect(v).be.a('string') },
     { key: 'teaser', cb: v => expect(v).be.a('string') },
