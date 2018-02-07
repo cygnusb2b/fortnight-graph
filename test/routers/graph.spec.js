@@ -1,19 +1,21 @@
 const expect = require('chai').expect;
 const request = require('supertest');
 const UserRepo = require('../../src/repositories/user');
-const { buildGraphQuery, testNoAuth, testBadAuth } = require('../utils');
+const { buildGraphQuery, testNoAuth, testBadAuth, expectGraphError, GRAPH_ENDPOINT } = require('../utils');
 
 const { app } = require('../../src/server');
 const router = require('../../src/routers/graph');
 
 describe('routers/graph', function() {
   let user;
-  let cleartext;
-  before(function() {
-    // Create a user.
+  let token;
+  before(async function() {
+    // Create a user and get a session token.
     user = UserRepo.generate().one();
-    cleartext = user.password;
-    return user.save();
+    const cleartext = user.password;
+    await user.save();
+    const { session } = await UserRepo.login(user.email, cleartext);
+    token = session.token;
   });
   after(function() {
     // Delete the user.
@@ -46,6 +48,21 @@ describe('routers/graph', function() {
       const variables = { input: { id: '1234' } };
       const body = buildGraphQuery(query, variables);
       testBadAuth(request, app, body, done);
+    });
+    it('should return an error when advertiser is not found.', function(done) {
+      const id = '5a7b7c91a84f4c086a70bfc5';
+      const variables = { input: { id } };
+      const body = buildGraphQuery(query, variables);
+      request(app)
+        .post(GRAPH_ENDPOINT)
+        .set('Authorization', `Bearer ${token}`)
+        .send(body)
+        .expect((res) => {
+          expectGraphError(res, `No advertiser record found for ID ${id}.`)
+        })
+        .end(done);
+      ;
+
     });
   });
 });
