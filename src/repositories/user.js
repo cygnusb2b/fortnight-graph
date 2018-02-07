@@ -1,12 +1,16 @@
 const bcrypt = require('bcrypt');
 const sessionRepo = require('./session');
 const User = require('../models/user');
+const fixtures = require('../fixtures');
 
 module.exports = {
-  create(payload) {
-    // @todo Need to send email verification email.
+  create(payload = {}) {
     const user = new User(payload);
     return user.save();
+  },
+
+  generate(count = 1) {
+    return fixtures(User, count);
   },
 
   /**
@@ -15,8 +19,11 @@ module.exports = {
    * @return {Promise}
    */
   findByEmail(email) {
-    const normalized = String(email).trim().toLowerCase();
-    return User.findOne({ email: normalized });
+    return User.findOne({ email: this.normalizeEmail(email) });
+  },
+
+  normalizeEmail(email) {
+    return String(email).trim().toLowerCase();
   },
 
   /**
@@ -35,6 +42,14 @@ module.exports = {
    */
   findByUID(uid) {
     return User.findOne({ uid });
+  },
+
+  removeByEmail(email) {
+    return this.remove({ email: this.normalizeEmail(email) });
+  },
+
+  remove(criteria) {
+    return User.remove(criteria);
   },
 
   /**
