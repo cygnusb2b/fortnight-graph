@@ -1,11 +1,25 @@
 const expect = require('chai').expect;
 const request = require('supertest');
+const UserRepo = require('../../src/repositories/user');
 const { buildGraphQuery, testNoAuth, testBadAuth } = require('../utils');
 
 const { app } = require('../../src/server');
 const router = require('../../src/routers/graph');
 
 describe('routers/graph', function() {
+  let user;
+  let cleartext;
+  before(function() {
+    // Create a user.
+    user = UserRepo.generate().one();
+    cleartext = user.password;
+    return user.save();
+  });
+  after(function() {
+    // Delete the user.
+    return UserRepo.removeByEmail(user.email);
+  });
+
   it('should export a router function.', function(done) {
     expect(router).to.be.a('function');
     expect(router).itself.to.respondTo('use');
