@@ -19,4 +19,8 @@ module.exports = () => ({
     this.models.push(model);
     return this;
   },
+  one() {
+    if (!this.length) return null;
+    return this.models.slice(0).shift();
+  },
 });

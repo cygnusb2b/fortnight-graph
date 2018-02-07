@@ -6,6 +6,7 @@ const testObjType = (result) => {
   expect(result).to.respondTo('random');
   expect(result).to.respondTo('all');
   expect(result).to.respondTo('add');
+  expect(result).to.respondTo('one');
   expect(result).to.have.property('length');
   expect(result).to.have.property('models');
   expect(result.models).to.be.an('array');
@@ -92,6 +93,22 @@ describe('fixtures/result', function() {
         let found = toAdd.find(m => m.id === model.id);
         expect(found).to.not.be.an('undefined');
       }
+      done();
+    });
+  });
+  describe('#one', function() {
+    it('should return null when the stack is empty.', function(done) {
+      const result = Result();
+      expect(result.one()).to.be.null;
+      done();
+    });
+    it('should return the first model within the stack.', function(done) {
+      const result = Result();
+      const toAdd = [
+        { id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 10 },
+      ];
+      toAdd.forEach(model => result.add(model));
+      expect(result.one()).to.deep.equal({ id: 1 });
       done();
     });
   });
