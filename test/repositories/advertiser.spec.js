@@ -94,4 +94,18 @@ describe('repositories/advertiser', function() {
       done();
     })
   });
+  describe('#generate', function() {
+    it('should return a fixture result with one record.', function(done) {
+      const results = Repo.generate();
+      expect(results).to.be.an('object');
+      expect(results.length).to.equal(1);
+      done();
+    });
+    it('should return a fixture result with the specified number of records.', function(done) {
+      const results = Repo.generate(5);
+      expect(results).to.be.an('object');
+      expect(results.length).to.equal(5);
+      done();
+    });
+  });
 });
