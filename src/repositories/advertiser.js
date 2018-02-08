@@ -1,6 +1,7 @@
 const Promise = require('bluebird');
 const Advertiser = require('../models/advertiser');
 const Pagination = require('../classes/pagination');
+const fixtures = require('../fixtures');
 
 module.exports = {
   /**
@@ -71,5 +72,9 @@ module.exports = {
    */
   paginate({ pagination, sort } = {}) {
     return new Pagination(Advertiser, { pagination, sort });
+  },
+
+  generate(count = 1) {
+    return fixtures(Advertiser, count);
   },
 };

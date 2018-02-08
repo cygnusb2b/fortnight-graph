@@ -4,7 +4,6 @@ const runAuthExpect = (res) => {
   const { body, status } = res;
   expect(status).to.equal(200);
 
-  expect(body).to.have.property('data').and.be.null;
   expect(body).to.have.property('errors').and.be.an('array');
 
   const error = body.errors.find(err => err.message === 'You must be logged-in to access this resource.');
@@ -32,11 +31,25 @@ module.exports = {
     const { body, status } = res;
     expect(status).to.equal(200);
 
-    expect(body).to.have.property('data').and.be.null;
     expect(body).to.have.property('errors').and.be.an('array');
     // @todo Make this a better error message.
     const error = body.errors.find(err => err.message === message);
     expect(error).to.be.an('object');
+  },
+
+  expectGraphSuccess(res, root, type = 'object') {
+    const { body, status } = res;
+    expect(status).to.equal(200);
+    expect(body).to.have.property('data').and.be.an('object');
+    expect(body).to.not.have.property('errors');
+    const { data } = body;
+    expect(data).to.have.property(root).and.be.a(type);
+  },
+
+  parseGraphResponse(res, root) {
+    const { body } = res;
+    const { data } = body;
+    return data[root];
   },
 
   /**
