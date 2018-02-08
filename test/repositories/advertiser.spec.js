@@ -108,4 +108,15 @@ describe('repositories/advertiser', function() {
       done();
     });
   });
+  describe('#removeById', function() {
+    it('should return a rejected promise when no ID is provided.', async function() {
+      await expect(Repo.removeById()).to.be.rejectedWith(Error, 'Unable to remove advertiser: no ID was provided.');
+    });
+    it('remove the requested advertiser.', async function() {
+      const advertiser = Repo.generate().one();
+      await advertiser.save();
+      await expect(Repo.removeById(advertiser.id)).to.be.fulfilled;
+      await expect(Repo.findById(advertiser.id)).to.be.fulfilled.and.eventually.be.null;
+    });
+  });
 });

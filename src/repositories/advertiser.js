@@ -54,6 +54,11 @@ module.exports = {
     return Advertiser.find(criteria);
   },
 
+  removeById(id) {
+    if (!id) return Promise.reject(new Error('Unable to remove advertiser: no ID was provided.'));
+    return this.remove({ _id: id });
+  },
+
   /**
    * @param {object} criteria
    * @return {Promise}
