@@ -32,9 +32,8 @@ module.exports = {
     expect(status).to.equal(200);
 
     expect(body).to.have.property('errors').and.be.an('array');
-    // @todo Make this a better error message.
-    const error = body.errors.find(err => err.message === message);
-    expect(error).to.be.an('object');
+    const messages = body.errors.map(err => err.message);
+    expect(messages).to.contain(message);
   },
 
   expectGraphSuccess(res, root, type = 'object') {
