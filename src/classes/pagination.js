@@ -1,4 +1,6 @@
 const deepAssign = require('deep-assign');
+const { CursorType } = require('../graph/custom-types');
+
 const { assign, keys } = Object;
 
 class Pagination {
@@ -16,6 +18,14 @@ class Pagination {
     this.collation = { locale: 'en_US' };
   }
 
+  async findCursorModel(id, fields) {
+    const model = await this.Model.findOne({ _id: id })
+      .select(fields)
+      .comment(this.createComment('findCursorModel'));
+    if (!model) throw new Error(`No record found for cursor '${CursorType.serialize(id)}'.`);
+    return model;
+  }
+
   async getFilter() {
     if (this.filter) return this.filter;
 
@@ -26,19 +36,18 @@ class Pagination {
     const ors = [];
 
     if (this.after) {
+      let model;
       const op = order === 1 ? '$gt' : '$lt';
       if (field === '_id') {
         // Sort by ID only.
-        filter._id = { [op]: this.after };
+        model = await this.findCursorModel(this.after, { _id: 1 });
+        filter._id = { [op]: model.id };
       } else {
-        const model = await this.Model.findOne({ _id: this.after })
-          .select({ [field]: 1 })
-          .comment(this.createComment('getFilter'));
-        if (!model) throw new Error('No record found for the provided `after` cursor.');
+        model = await this.findCursorModel(this.after, { [field]: 1 });
         limits[op] = model[field];
         ors.push({
           [field]: model[field],
-          _id: { [op]: this.after },
+          _id: { [op]: model.id },
         });
         filter.$or = [{ [field]: limits }, ...ors];
       }
