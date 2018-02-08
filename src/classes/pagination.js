@@ -1,3 +1,4 @@
+const deepAssign = require('deep-assign');
 const { assign, keys } = Object;
 
 class Pagination {
@@ -5,7 +6,7 @@ class Pagination {
     this.Model = Model;
 
     // Additional, root level query criteria.
-    this.criteria = assign({}, criteria);
+    this.criteria = deepAssign({}, criteria);
 
     const { first, after } = assign({}, pagination);
     this.first = first;
@@ -20,8 +21,7 @@ class Pagination {
 
     const { field, order } = this.sort;
 
-    // @todo Should likely do a deep assign?
-    const filter = assign({}, this.criteria);
+    const filter = deepAssign({}, this.criteria);
     const limits = {};
     const ors = [];
 
