@@ -1,78 +1,9 @@
 const createError = require('http-errors');
-const Placement = require('../models/placement');
-const Campaign = require('../models/campaign');
-const Request = require('../models/request');
-const Pagination = require('../classes/pagination');
+const Placement = require('../../models/placement');
+const Campaign = require('../../models/campaign');
+const Request = require('../../models/request');
 
 module.exports = {
-  create(payload) {
-    const campaign = new Campaign(payload);
-    return campaign.save();
-  },
-
-  /**
-   * Finds Campaigns for the provided Advertiser ID.
-   *
-   * @param {string} id
-   * @return {Promise}
-   */
-  findForAdvertiser(id) {
-    return Campaign.find({ advertiserId: id });
-  },
-
-  /**
-   *
-   */
-  async addCreative({ cid }) {
-    const model = await Campaign.findOne({ cid });
-    model.creatives.push({});
-    await model.save();
-    return model.creatives[model.creatives.length - 1];
-  },
-  /**
-   *
-   */
-  async removeCreative({ id, cid }) {
-    const model = await Campaign.findOne({ cid });
-    model.creatives.id(id).remove();
-    return model.save();
-  },
-  /**
-   *
-   * @param {string} id
-   * @param {string} name
-   * @return {Promise}
-   */
-  update({ id, name, advertiserId }) {
-    const criteria = { cid: id };
-    const update = { $set: { name } };
-    const options = { new: true };
-    if (advertiserId) {
-      update.$set.advertiserId = advertiserId;
-    }
-    return Campaign.findOneAndUpdate(criteria, update, options);
-  },
-  /**
-   *
-   * @param {string} cid
-   * @return {Promise}
-   */
-  findById(cid) {
-    return Campaign.findOne({ cid });
-  },
-
-  /**
-   * Paginates all Campaign models.
-   *
-   * @param {object} params
-   * @param {object.object} params.pagination The pagination parameters.
-   * @param {object.object} params.sort The sort parameters.
-   * @return {Pagination}
-   */
-  paginate({ pagination, sort } = {}) {
-    return new Pagination(Campaign, { pagination, sort });
-  },
-
   /**
    *
    * @param {object} params
@@ -93,7 +24,7 @@ module.exports = {
      * Or the pre-query?
      * We will need the pid for the request.
      */
-    const placement = await Placement.findOne({ pid }, { pid: 1, template: 1 });
+    const placement = await Placement.findOne({ _id: pid }, { template: 1 });
     if (!placement) throw createError(404, `No placement exists for pid '${pid}'`);
 
     /**
@@ -114,7 +45,7 @@ module.exports = {
      * Merge variables also need to be stored on the request.
      */
     campaigns.forEach((campaign) => {
-      const cid = campaign.get('cid');
+      const cid = campaign.get('id');
       const request = new Request({ cid, pid });
       reqs.push(request);
 

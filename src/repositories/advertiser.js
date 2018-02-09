@@ -25,7 +25,7 @@ module.exports = {
     if (!id) return Promise.reject(new Error('Unable to update advertiser: no ID was provided.'));
     const criteria = { _id: id };
     const update = { $set: { name } };
-    const options = { new: true };
+    const options = { new: true, runValidators: true };
     return Advertiser.findOneAndUpdate(criteria, update, options).then((document) => {
       if (!document) throw new Error(`Unable to update advertiser: no record was found for ID '${id}'`);
       return document;
@@ -54,6 +54,10 @@ module.exports = {
     return Advertiser.find(criteria);
   },
 
+  /**
+   * @param {string} id
+   * @return {Promise}
+   */
   removeById(id) {
     if (!id) return Promise.reject(new Error('Unable to remove advertiser: no ID was provided.'));
     return this.remove({ _id: id });
@@ -79,6 +83,11 @@ module.exports = {
     return new Pagination(Advertiser, { pagination, sort });
   },
 
+  /**
+   *
+   * @param {number} [count=1]
+   * @return {object}
+   */
   generate(count = 1) {
     return fixtures(Advertiser, count);
   },

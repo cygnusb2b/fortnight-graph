@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const shortid = require('shortid');
 const CreativeSchema = require('./creative');
+const Advertiser = require('../../models/advertiser');
 
 const { Schema } = mongoose;
 
@@ -10,15 +10,18 @@ const schema = new Schema({
     required: true,
     trim: true,
   },
-  cid: {
-    type: String,
-    required: true,
-    unique: true,
-    default: shortid.generate,
-  },
   advertiserId: {
     type: Schema.Types.ObjectId,
     required: true,
+    validate: {
+      async validator(v) {
+        if (!this.isModified('advertiserId')) return true;
+        const doc = await Advertiser.findOne({ _id: v });
+        if (doc) return true;
+        return false;
+      },
+      message: 'No advertiser found for ID {VALUE}',
+    },
   },
   status: {
     type: String,

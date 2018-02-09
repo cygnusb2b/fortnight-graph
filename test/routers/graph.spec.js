@@ -30,6 +30,7 @@ describe('routers/graph', function() {
     expect(router).itself.to.respondTo('use');
     done();
   });
+
   describe('query Ping', function() {
     const query = `
       query Ping {
@@ -49,6 +50,7 @@ describe('routers/graph', function() {
         .end(done);
     });
   });
+
   describe('query Advertiser($input: ModelIdInput!)', function() {
     let advertiser;
     before(function() {
@@ -108,6 +110,7 @@ describe('routers/graph', function() {
         .end(done);
     });
   });
+
   describe('query AllAdvertisers($pagination: PaginationInput, $sort: AdvertiserSortInput)', function() {
     let advertisers;
     before(async function() {
@@ -210,6 +213,7 @@ describe('routers/graph', function() {
         .end(done);
     });
   });
+
   describe('mutation CreateAdvertiser($input: CreateAdvertiserInput!)', function() {
     after(function() {
       return AdvertiserRepo.remove();
@@ -253,6 +257,7 @@ describe('routers/graph', function() {
         .end(done);
     });
   });
+
   describe('mutation UpdateAdvertiser($input: UpdateAdvertiserInput!)', function() {
     let advertiser;
     before(function() {

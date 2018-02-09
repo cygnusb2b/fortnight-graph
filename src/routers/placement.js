@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const querystring = require('querystring');
 const createError = require('http-errors');
-const CampaignRepo = require('../repositories/campaign');
+const CampaignPlacementRepo = require('../repositories/campaign/placement');
 
 const router = Router();
 
@@ -39,7 +39,7 @@ router.get('/:pid.:ext', (req, res) => {
   if (acceptable.includes(ext)) {
     const custom = parseVariables(cv);
     const merge = parseVariables(mv);
-    CampaignRepo.findFor({
+    CampaignPlacementRepo.findFor({
       url,
       pid,
       limit,

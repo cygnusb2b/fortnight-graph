@@ -24,10 +24,10 @@ module.exports = new Schema({
     default: () => new Date(),
   },
   cid: {
-    type: String,
+    type: Schema.Types.ObjectId,
   },
   pid: {
-    type: String,
+    type: Schema.Types.ObjectId,
     required: true,
   },
 });

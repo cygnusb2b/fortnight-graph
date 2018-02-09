@@ -24,8 +24,8 @@ type Campaign {
 
 type CampaignCreative {
   id: String!
-  title: String!
-  teaser: String!
+  title: String
+  teaser: String
   image: CampaignCreativeImage
 }
 
@@ -62,22 +62,30 @@ input CampaignSortInput {
 }
 
 input CreateCampaignInput {
+  payload: CreateCampaignPaylodInput!
+}
+
+input CreateCampaignPaylodInput {
   name: String!
   advertiserId: String!
 }
 
 input UpdateCampaignInput {
   id: String!
+  payload: UpdateCampaignPaylodInput!
+}
+
+input UpdateCampaignPaylodInput {
   name: String!
 }
 
 input AddCampaignCreativeInput {
-  cid: String!
+  campaignId: String!
 }
 
 input RemoveCampaignCreativeInput {
-  id: String!
-  cid: String!
+  campaignId: String!
+  creativeId: String!
 }
 
 # input UpdateCampaignCreativeInput {

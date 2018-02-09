@@ -20,7 +20,7 @@ describe('fixtures/generators/campaign', function() {
   const creative = GenCreative();
   const fields = [
     { key: 'name', cb: v => expect(v).be.a('string') },
-    { key: 'cid', cb: v => expect(v).be.a('string') },
+    { key: 'url', cb: v => expect(v).be.a('string') },
     { key: 'advertiserId', cb: v => expect(v).to.equal('1234') },
     { key: 'creatives', cb: v => expect(v).be.an('array').that.contains(creative) },
     { key: 'status', cb: v => expect(v).be.a('string').and.be.oneOf([
@@ -29,8 +29,8 @@ describe('fixtures/generators/campaign', function() {
       'Draft',
       'Deleted',
     ]) },
-    { key: 'createdAt', cb: v => expect(v).be.a('number').gt(0) },
-    { key: 'updatedAt', cb: v => expect(v).be.a('number').gt(0) },
+    { key: 'createdAt', cb: v => expect(v).be.a('date') },
+    { key: 'updatedAt', cb: v => expect(v).be.a('date') },
   ];
 
   const advertiserId = () => '1234';

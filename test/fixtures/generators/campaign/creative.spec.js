@@ -7,10 +7,8 @@ describe('fixtures/generators/campaign/creative', function() {
     done();
   });
   const fields = [
-    { key: 'url', cb: v => expect(v).be.a('string') },
     { key: 'title', cb: v => expect(v).be.a('string') },
     { key: 'teaser', cb: v => expect(v).be.a('string') },
-    { key: 'image', cb: v => expect(v).be.a('string') },
   ];
 
   const obj = Generate();

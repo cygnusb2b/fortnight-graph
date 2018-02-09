@@ -1,13 +1,13 @@
 const paginationResolvers = require('./pagination');
 const AdvertiserRepo = require('../../repositories/advertiser');
 const CampaignRepo = require('../../repositories/campaign');
+const CreativeRepo = require('../../repositories/campaign/creative');
 
 module.exports = {
   /**
    *
    */
   Campaign: {
-    id: campaign => campaign.get('cid'),
     advertiser: campaign => AdvertiserRepo.findById(campaign.get('advertiserId')),
   },
 
@@ -68,7 +68,8 @@ module.exports = {
      */
     addCampaignCreative: async (root, { input }, { auth }) => {
       auth.check();
-      return CampaignRepo.addCreative(input);
+      const { campaignId, payload } = input;
+      return CreativeRepo.createFor(campaignId, payload);
     },
 
     /**
@@ -84,7 +85,8 @@ module.exports = {
      */
     removeCampaignCreative: async (root, { input }, { auth }) => {
       auth.check();
-      return CampaignRepo.removeCreative(input);
+      const { campaignId, creativeId } = input;
+      return CreativeRepo.removeFrom(campaignId, creativeId);
     },
   },
 };
