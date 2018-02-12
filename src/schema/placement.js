@@ -12,7 +12,6 @@ module.exports = new Schema({
   },
   template: {
     type: String,
-    required: true,
   },
   publisherId: {
     type: Schema.Types.ObjectId,
