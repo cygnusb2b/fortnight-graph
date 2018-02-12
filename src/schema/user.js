@@ -17,6 +17,7 @@ const schema = new Schema({
         validator(email) {
           return validator.isEmail(email);
         },
+        message: 'Invalid email address {VALUE}',
       },
     ],
   },
