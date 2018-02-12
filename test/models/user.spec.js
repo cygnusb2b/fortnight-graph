@@ -133,4 +133,26 @@ describe('models/user', function() {
     });
   });
 
+  describe('#photoURL', function() {
+    let user;
+    beforeEach(function() {
+      user = generateUser();
+    });
+
+    it('should be trimmed.', function() {
+      return testTrimmedField(User, user, 'photoURL', { value: ' http://somedomain.com  ', expected: 'http://somedomain.com' });
+    });
+
+    ['ftp://somedomain.com', 'some value', 'http://', 'http://foo', 'www.somedomain.com'].forEach((value) => {
+      it(`should be required and be rejected when the value is '${value}'`, async function() {
+        user.set('photoURL', value);
+        await expect(user.save()).to.be.rejectedWith(Error, /Invalid photo URL/);
+      });
+    });
+    it('should set a default gravatar URL when empty.', async function() {
+      user.set('photoURL', '');
+      await expect(user.save()).to.be.fulfilled.and.eventually.have.property('photoURL').that.matches(/gravatar/i);
+    });
+  });
+
 });

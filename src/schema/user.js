@@ -57,6 +57,17 @@ const schema = new Schema({
   },
   photoURL: {
     type: String,
+    trim: true,
+    validate: {
+      validator(v) {
+        if (!v) return true;
+        return validator.isURL(v, {
+          protocols: ['http', 'https'],
+          require_protocol: true,
+        });
+      },
+      message: 'Invalid photo URL for {VALUE}',
+    },
   },
 }, {
   timestamps: true,
