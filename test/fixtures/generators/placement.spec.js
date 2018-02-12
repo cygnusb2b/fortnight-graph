@@ -13,10 +13,9 @@ describe('fixtures/generators/placement', function() {
 
   const fields = [
     { key: 'name', cb: v => expect(v).be.a('string') },
-    { key: 'pid', cb: v => expect(v).be.a('string') },
     { key: 'template', cb: v => expect(v).be.a('string') },
-    { key: 'createdAt', cb: v => expect(v).be.a('number').gt(0) },
-    { key: 'updatedAt', cb: v => expect(v).be.a('number').gt(0) },
+    { key: 'createdAt', cb: v => expect(v).be.a('date') },
+    { key: 'updatedAt', cb: v => expect(v).be.a('date') },
     { key: 'publisherId', cb: v => expect(v).to.equal('1234') },
   ];
 
