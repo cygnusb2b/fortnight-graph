@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 const CreativeSchema = require('./creative');
 const Advertiser = require('../../models/advertiser');
 
@@ -38,6 +39,15 @@ const schema = new Schema({
     type: String,
     trim: true,
     required: true,
+    validate: {
+      validator(v) {
+        return validator.isURL(v, {
+          protocols: ['http', 'https'],
+          require_protocol: true,
+        });
+      },
+      message: 'Invalid campaign URL for {VALUE}',
+    },
   },
   creatives: [CreativeSchema],
 }, { timestamps: true });
