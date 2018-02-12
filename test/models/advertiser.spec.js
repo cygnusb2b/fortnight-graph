@@ -7,6 +7,8 @@ const { testTrimmedField, testUniqueField, testRequiredField } = require('../uti
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
+const generateAdvertiser = () => fixtures(Advertiser, 1).one();
+
 describe('models/advertiser', function() {
   before(function() {
     return Advertiser.remove();
@@ -15,14 +17,14 @@ describe('models/advertiser', function() {
     return Advertiser.remove();
   });
   it('should successfully save.', async function() {
-    const advertiser = fixtures(Advertiser, 1).one();
+    const advertiser = generateAdvertiser();
     await expect(advertiser.save()).to.be.fulfilled;
   });
 
   describe('#name', function() {
     let advertiser;
     beforeEach(function() {
-      advertiser = fixtures(Advertiser, 1).one();
+      advertiser = generateAdvertiser();
     });
     it('should be trimmed.', function() {
       return testTrimmedField(Advertiser, advertiser, 'name');
@@ -34,7 +36,7 @@ describe('models/advertiser', function() {
       });
     });
     it('should be unique.', function() {
-      const another = fixtures(Advertiser, 1).one();
+      const another = generateAdvertiser();
       return testUniqueField(Advertiser, advertiser, another, 'name');
     });
   });

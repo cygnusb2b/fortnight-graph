@@ -8,6 +8,13 @@ const { testTrimmedField, testUniqueField, testRequiredField } = require('../uti
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
+const generateCampaign = (advertiser) => {
+  return fixtures(Campaign, 1, {
+    advertiserId: () => advertiser.id,
+    creatives: () => [],
+  }).one();
+};
+
 describe('models/campaign', function() {
   let advertiser;
   before(async function() {
@@ -21,20 +28,14 @@ describe('models/campaign', function() {
   });
 
   it('should successfully save.', async function() {
-    const campaign = fixtures(Campaign, 1, {
-      advertiserId: () => advertiser.id,
-      creatives: () => [],
-    }).one();
+    const campaign = generateCampaign(advertiser);
     await expect(campaign.save()).to.be.fulfilled;
   });
 
   describe('#name', function() {
     let campaign;
     beforeEach(function() {
-      campaign = fixtures(Campaign, 1, {
-        advertiserId: () => advertiser.id,
-        creatives: () => [],
-      }).one();
+      campaign = generateCampaign(advertiser);
     });
     it('should be trimmed.', function() {
       return testTrimmedField(Campaign, campaign, 'name');
@@ -49,10 +50,7 @@ describe('models/campaign', function() {
   describe('#advertiserId', function() {
     let campaign;
     beforeEach(function() {
-      campaign = fixtures(Campaign, 1, {
-        advertiserId: () => advertiser.id,
-        creatives: () => [],
-      }).one();
+      campaign = generateCampaign(advertiser);
     });
     [null, undefined].forEach((value) => {
       it(`should be required and be rejected when the value is '${value}'`, function() {
@@ -75,10 +73,7 @@ describe('models/campaign', function() {
   describe('#status', function() {
     let campaign;
     beforeEach(function() {
-      campaign = fixtures(Campaign, 1, {
-        advertiserId: () => advertiser.id,
-        creatives: () => [],
-      }).one();
+      campaign = generateCampaign(advertiser);
     });
 
     [null, undefined].forEach((value) => {
@@ -102,10 +97,7 @@ describe('models/campaign', function() {
   describe('#url', function() {
     let campaign;
     beforeEach(function() {
-      campaign = fixtures(Campaign, 1, {
-        advertiserId: () => advertiser.id,
-        creatives: () => [],
-      }).one();
+      campaign = generateCampaign(advertiser);
     });
 
     [null, undefined].forEach((value) => {
