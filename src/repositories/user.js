@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const Promise = require('bluebird');
 const sessionRepo = require('./session');
 const User = require('../models/user');
 const fixtures = require('../fixtures');
@@ -19,10 +20,13 @@ module.exports = {
    * @return {Promise}
    */
   findByEmail(email) {
-    return User.findOne({ email: this.normalizeEmail(email) });
+    const value = this.normalizeEmail(email);
+    if (!value) return Promise.reject(new Error('Unable to find user: no email address was provided.'));
+    return User.findOne({ email: value });
   },
 
   normalizeEmail(email) {
+    if (!email) return '';
     return String(email).trim().toLowerCase();
   },
 
@@ -32,11 +36,14 @@ module.exports = {
    * @return {Promise}
    */
   findById(id) {
+    if (!id) return Promise.reject(new Error('Unable to find user: no ID was provided.'));
     return User.findOne({ _id: id });
   },
 
   removeByEmail(email) {
-    return this.remove({ email: this.normalizeEmail(email) });
+    const value = this.normalizeEmail(email);
+    if (!value) return Promise.reject(new Error('Unable to remove user: no email address was provided.'));
+    return this.remove({ email: value });
   },
 
   remove(criteria) {
@@ -52,6 +59,7 @@ module.exports = {
   async login(email, password) {
     // @todo Need to determine whether email address is verified!
     // Or does that get handled elsewhere?
+    if (!password) throw new Error('Unable to login user. No password was provided.');
 
     // Load user from database.
     const user = await this.findByEmail(email);
@@ -63,8 +71,8 @@ module.exports = {
     // Create session.
     const session = await sessionRepo.set({ uid: user.id });
 
-    // Update login info (but don't wait)
-    this.updateLoginInfo(user);
+    // Update login info
+    await this.updateLoginInfo(user);
     return { user, session };
   },
 
@@ -72,7 +80,7 @@ module.exports = {
     const session = await sessionRepo.get(token);
     // Ensure user still exists/refresh the user data.
     const user = await this.findById(session.uid);
-    if (!user) throw new Error('The provided user could not be found.');
+    if (!user) throw new Error('Unable to retrieve session: the provided user could not be found.');
     return { user, session };
   },
 
@@ -94,8 +102,7 @@ module.exports = {
    * @return {Promise}
    */
   updateLoginInfo(user) {
-    const logins = user.get('logins') || 0;
-    user.set('logins', logins + 1);
+    user.set('logins', user.get('logins') + 1);
     user.set('lastLoggedInAt', new Date());
     return user.save();
   },
