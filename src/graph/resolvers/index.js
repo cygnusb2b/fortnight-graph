@@ -40,7 +40,6 @@ module.exports = deepAssign(advertiser, campaign, user, {
    *
    */
   Placement: {
-    id: placement => placement.get('pid'),
     publisher: placement => Publisher.findOne({ _id: placement.get('publisherId') }),
   },
 });
