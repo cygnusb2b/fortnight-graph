@@ -1,7 +1,10 @@
 const faker = require('faker');
 
-module.exports = () => ({
-  name: faker.company.companyName(),
-  createdAt: faker.date.past().valueOf(),
-  updatedAt: faker.date.recent().valueOf(),
-});
+module.exports = () => {
+  const now = new Date();
+  return {
+    name: faker.company.companyName(),
+    createdAt: now,
+    updatedAt: now,
+  };
+};
