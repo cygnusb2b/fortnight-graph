@@ -86,52 +86,22 @@ module.exports = {
     expect(paginated.Model).to.be.a('function');
   },
 
-  async testTrimmedField(Model, document, field) {
+  async testTrimmedField(Model, document, field, { value = ' Trim Me ', expected = 'Trim Me' } = {}) {
     const { id } = document;
-    document.set(field, ' Trim Me ');
+    document.set(field, value);
     await expect(document.save()).to.be.fulfilled;
-    await expect(Model.findOne({ _id: id })).to.eventually.have.property(field).equal('Trim Me');
+    await expect(Model.findOne({ _id: id })).to.eventually.have.property(field).equal(expected);
   },
 
-  async testUniqueField(Model, doc1, doc2, field) {
-    doc1.set(field, 'Unique Name');
+  async testUniqueField(Model, doc1, doc2, field, value = 'Unique Name') {
+    doc1.set(field, value);
     await expect(doc1.save()).to.be.fulfilled;
-    doc2.set('name', 'Unique Name');
+    doc2.set(field, value);
     await expect(doc2.save()).to.be.rejectedWith(Error, /E11000 duplicate key error/);
   },
 
-  async testRequiredField(Model, document, field) {
-    const values = ['', null, undefined];
-    const promises = [];
-
-    values.forEach((value) => {
-      document.set(field, value);
-      promises.push(document.save());
-    });
-
-    await promises;
-    promises.forEach((promise) => {
-      expect(promise).to.be.rejectedWith(Error, /is required/i);
-    });
+  async testRequiredField(Model, document, field, value) {
+    document.set(field, value);
+    await expect(document.save()).to.be.rejectedWith(Error, /is required/i);
   },
 };
-
-// it('should be trimmed.', async function() {
-//   advertiser.set('name', ' Trim Me ');
-//   await expect(advertiser.save()).to.be.fulfilled;
-//   await expect(find(advertiser)).to.eventually.have.property('name').equal('Trim Me');
-// });
-// const names = ['', '  ', null, undefined];
-// names.forEach((name) => {
-//   it(`should be required and rejected when value is '${name}'.`, async function() {
-//     advertiser.set('name', name);
-//     await expect(advertiser.save()).to.be.rejectedWith(Error, 'advertiser validation failed: name: Path `name` is required.');
-//   });
-// });
-// it('should be unique.', async function() {
-//   advertiser.set('name', 'Unique Name');
-//   await expect(advertiser.save()).to.be.fulfilled;
-//   const another = fixtures(Advertiser, 1).one();
-//   another.set('name', 'Unique Name');
-//   await expect(another.save()).to.be.rejectedWith(Error, /E11000 duplicate key error/);
-// });

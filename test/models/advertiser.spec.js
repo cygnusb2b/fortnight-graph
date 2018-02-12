@@ -14,6 +14,10 @@ describe('models/advertiser', function() {
   after(function() {
     return Advertiser.remove();
   });
+  it('should successfully save.', async function() {
+    const advertiser = fixtures(Advertiser, 1).one();
+    await expect(advertiser.save()).to.be.fulfilled;
+  });
 
   describe('#name', function() {
     let advertiser;
@@ -23,13 +27,15 @@ describe('models/advertiser', function() {
     it('should be trimmed.', function() {
       return testTrimmedField(Advertiser, advertiser, 'name');
     });
-    it('should be required', function() {
-      return testRequiredField(Advertiser, advertiser, 'name');
+    const values = ['', null, undefined];
+    values.forEach((value) => {
+      it(`should be required and be rejected when the value is '${value}'`, function() {
+        return testRequiredField(Advertiser, advertiser, 'name', value);
+      });
     });
     it('should be unique.', function() {
       const another = fixtures(Advertiser, 1).one();
       return testUniqueField(Advertiser, advertiser, another, 'name');
     });
   });
-
 });
