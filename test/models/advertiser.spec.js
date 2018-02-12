@@ -1,11 +1,7 @@
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+require('../connect');
 const Advertiser = require('../../src/models/advertiser');
 const fixtures = require('../../src/fixtures');
 const { testTrimmedField, testUniqueField, testRequiredField } = require('../utils');
-
-chai.use(chaiAsPromised);
-const expect = chai.expect;
 
 const generateAdvertiser = () => fixtures(Advertiser, 1).one();
 
