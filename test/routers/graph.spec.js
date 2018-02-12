@@ -14,15 +14,16 @@ describe('routers/graph', function() {
   let token;
   before(async function() {
     // Create a user and get a session token.
+    await UserRepo.remove();
     user = UserRepo.generate().one();
     const cleartext = user.password;
     await user.save();
     const { session } = await UserRepo.login(user.email, cleartext);
     token = session.token;
   });
-  after(function() {
+  after(async function() {
     // Delete the user.
-    return UserRepo.removeByEmail(user.email);
+    await UserRepo.remove();
   });
 
   it('should export a router function.', function(done) {
@@ -53,12 +54,13 @@ describe('routers/graph', function() {
 
   describe('query Advertiser($input: ModelIdInput!)', function() {
     let advertiser;
-    before(function() {
+    before(async function() {
+      await AdvertiserRepo.remove();
       advertiser = AdvertiserRepo.generate().one();
-      return advertiser.save();
+      await advertiser.save();
     });
-    after(function() {
-      AdvertiserRepo.remove();
+    after(async function() {
+      await AdvertiserRepo.remove();
     });
 
     const query = `
@@ -119,8 +121,8 @@ describe('routers/graph', function() {
       const promises = advertisers.map(advertiser => advertiser.save());
       await Promise.all(promises);
     });
-    after(function() {
-      return AdvertiserRepo.remove();
+    after(async function() {
+      await AdvertiserRepo.remove();
     });
 
     const query = `
@@ -215,6 +217,9 @@ describe('routers/graph', function() {
   });
 
   describe('mutation CreateAdvertiser($input: CreateAdvertiserInput!)', function() {
+    before(function() {
+      return AdvertiserRepo.remove();
+    });
     after(function() {
       return AdvertiserRepo.remove();
     });
@@ -260,12 +265,13 @@ describe('routers/graph', function() {
 
   describe('mutation UpdateAdvertiser($input: UpdateAdvertiserInput!)', function() {
     let advertiser;
-    before(function() {
+    before(async function() {
+      await AdvertiserRepo.remove();
       advertiser = AdvertiserRepo.generate().one();
-      return advertiser.save();
+      await advertiser.save();
     });
-    after(function() {
-      AdvertiserRepo.remove();
+    after(async function() {
+      await AdvertiserRepo.remove();
     });
     const query = `
       mutation UpdateAdvertiser($input: UpdateAdvertiserInput!) {
