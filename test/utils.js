@@ -35,15 +35,19 @@ module.exports = {
 
     expect(body).to.have.property('errors').and.be.an('array');
     const messages = body.errors.map(err => err.message);
-    expect(messages).to.contain(message);
+    expect(messages).to.contain(message, messages.join('; '));
   },
 
   expectGraphSuccess(res, root, type = 'object') {
     const { body, status } = res;
     expect(status).to.equal(200);
-    expect(body).to.have.property('data').and.be.an('object');
+    expect(body).to.be.an('object');
+
     expect(body).to.not.have.property('errors');
+
+    expect(body).to.have.property('data');
     const { data } = body;
+    expect(data).to.be.an('object');
     expect(data).to.have.property(root).and.be.a(type);
   },
 
