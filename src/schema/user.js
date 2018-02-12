@@ -1,18 +1,11 @@
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const validator = require('validator');
-const shortid = require('shortid');
 const crypto = require('crypto');
 
 const { Schema } = mongoose;
 
 const schema = new Schema({
-  uid: {
-    type: String,
-    required: true,
-    unique: true,
-    default: shortid.generate,
-  },
   email: {
     type: String,
     required: true,

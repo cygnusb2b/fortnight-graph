@@ -14,7 +14,7 @@ class Auth {
   getError() {
     if (this.err) return this.err instanceof Error ? this.err : new Error(this.err);
     if (!this.session || !this.user) return new Error('No user or session was found.');
-    return this.session.uid !== this.user.uid ? new Error('Session-user mismatch encountered.') : null;
+    return this.session.uid !== this.user.id ? new Error('Session-user mismatch encountered.') : null;
   }
 
   hasRole(name) {

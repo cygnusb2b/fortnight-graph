@@ -5,13 +5,6 @@ module.exports = {
   /**
    *
    */
-  User: {
-    id: user => user.get('uid'),
-  },
-
-  /**
-   *
-   */
   Query: {
     /**
      *

@@ -31,17 +31,8 @@ module.exports = {
    * @param {string} id
    * @return {Promise}
    */
-  findByInternalId(id) {
+  findById(id) {
     return User.findOne({ _id: id });
-  },
-
-  /**
-   *
-   * @param {string} uid
-   * @return {Promise}
-   */
-  findByUID(uid) {
-    return User.findOne({ uid });
   },
 
   removeByEmail(email) {
@@ -70,7 +61,7 @@ module.exports = {
     await this.verifyPassword(password, user.get('password'));
 
     // Create session.
-    const session = await sessionRepo.set({ uid: user.uid });
+    const session = await sessionRepo.set({ uid: user.id });
 
     // Update login info (but don't wait)
     this.updateLoginInfo(user);
@@ -80,7 +71,7 @@ module.exports = {
   async retrieveSession(token) {
     const session = await sessionRepo.get(token);
     // Ensure user still exists/refresh the user data.
-    const user = await this.findByUID(session.uid);
+    const user = await this.findById(session.uid);
     if (!user) throw new Error('The provided user could not be found.');
     return { user, session };
   },
