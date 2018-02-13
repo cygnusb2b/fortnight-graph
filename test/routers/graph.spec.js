@@ -93,6 +93,103 @@ describe('routers/graph', function() {
         .end(done);
     });
   });
+
+  describe('query CheckSession(input: SessionTokenInput!)', function() {
+    const query = `
+      query CheckSession($input: SessionTokenInput!) {
+        checkSession(input: $input) {
+          user {
+            id
+            email
+            givenName
+            familyName
+            logins
+            photoURL
+          }
+          session {
+            id
+            uid
+            cre
+            exp
+            token
+          }
+        }
+      }
+    `;
+    it('should return a 400 when the token is not provided.', function(done) {
+      const body = buildGraphQuery(query);
+      request(app)
+        .post(GRAPH_ENDPOINT)
+        .send(body)
+        .expect(400)
+        .end(done);
+    });
+    it('should return an error when the token is empty.', function(done) {
+      const variables = { input: { token: '' } };
+      const body = buildGraphQuery(query, variables);
+      request(app)
+        .post(GRAPH_ENDPOINT)
+        .send(body)
+        .expect(res => expectGraphError(res, 'Unable to get session: no token was provided.'))
+        .end(done);
+      ;
+    });
+    it('should return an error when the token is invalid.', function(done) {
+      const variables = { input: { token: 'badformat' } };
+      const body = buildGraphQuery(query, variables);
+      request(app)
+        .post(GRAPH_ENDPOINT)
+        .send(body)
+        .expect(res => expectGraphError(res, 'Unable to get session: invalid token format.'))
+        .end(done);
+      ;
+    });
+    it('should return the current auth info.', function(done) {
+      const variables = { input: { token } };
+      const body = buildGraphQuery(query, variables);
+      request(app)
+        .post(GRAPH_ENDPOINT)
+        .send(body)
+        .expect(res => expectGraphSuccess(res, 'checkSession'))
+        .end(done);
+    });
+  }),
+
+  describe('mutation CreateUser(input: CreateUserInput!)', function() {
+    const query = `
+      mutation CreateUser($input: CreateUserInput!) {
+        createUser(input: $input) {
+          id
+          email
+          givenName
+          familyName
+          logins
+          photoURL
+        }
+      }
+    `;
+    it('should create a user.', function(done) {
+      const payload = {
+        email: 'this.is.a.test@google.com',
+        password: '123456',
+        givenName: 'Jane',
+        familyName: 'Doe',
+      };
+      const variables = { input: { payload } };
+      const body = buildGraphQuery(query, variables);
+
+      request(app)
+        .post(GRAPH_ENDPOINT)
+        .send(body)
+        .expect((res) => {
+          expectGraphSuccess(res, 'createUser');
+          const parsed = parseGraphResponse(res, 'createUser');
+          expect(parsed.email).to.equal(payload.email);
+        })
+        .end(done);
+    });
+  });
+
   describe('query Advertiser($input: ModelIdInput!)', function() {
     let advertiser;
     before(async function() {
