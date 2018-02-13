@@ -36,7 +36,7 @@ module.exports = {
 
     expect(body).to.have.property('errors').and.be.an('array');
     const messages = body.errors.map(err => err.message);
-    expect(messages).to.contain(message, messages.join('; '));
+    expect(messages).to.contain(message, `Errors found: ${messages.join('; ')}`);
   },
 
   expectGraphSuccess(res, root, type = 'object') {
@@ -55,7 +55,7 @@ module.exports = {
   parseGraphResponse(res, root) {
     const { body } = res;
     const { data } = body;
-    return data[root];
+    return root ? data[root] : data;
   },
 
   /**
