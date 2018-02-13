@@ -11,7 +11,7 @@ const generatePlacement = (publisher) => {
   }).one();
 };
 
-describe('models/placement', function() {
+describe('schema/placement', function() {
   let publisher;
   before(async function() {
     await Placement.remove();

@@ -5,7 +5,7 @@ const { testTrimmedField, testUniqueField, testRequiredField } = require('../uti
 
 const generatePublisher = () => fixtures(Publisher, 1).one();
 
-describe('models/publisher', function() {
+describe('schema/publisher', function() {
   before(function() {
     return Publisher.remove();
   });

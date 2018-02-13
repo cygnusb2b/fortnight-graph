@@ -5,7 +5,7 @@ const { testTrimmedField, testUniqueField, testRequiredField } = require('../uti
 
 const generateAdvertiser = () => fixtures(Advertiser, 1).one();
 
-describe('models/advertiser', function() {
+describe('schema/advertiser', function() {
   before(function() {
     return Advertiser.remove();
   });

@@ -7,7 +7,7 @@ const { testTrimmedField, testUniqueField, testRequiredField, stubHash } = requi
 const bcryptRegex = /^\$2[ayb]\$[0-9]{2}\$[A-Za-z0-9\.\/]{53}$/;
 const generateUser = () => fixtures(User, 1).one();
 
-describe('models/user', function() {
+describe('schema/user', function() {
   let stub;
   before(function() {
     stub = stubHash();

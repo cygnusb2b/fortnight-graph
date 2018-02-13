@@ -11,7 +11,7 @@ const generateCampaign = (advertiser) => {
   }).one();
 };
 
-describe('models/campaign', function() {
+describe('schema/campaign', function() {
   let advertiser;
   before(async function() {
     await Campaign.remove();
