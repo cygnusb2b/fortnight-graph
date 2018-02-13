@@ -1,4 +1,3 @@
-const expect = require('chai').expect;
 const Auth = require('../../src/classes/auth');
 
 const simpleAuth = new Auth();
