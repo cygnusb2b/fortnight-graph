@@ -1,4 +1,4 @@
-require('../connect');
+require('../connections');
 const Advertiser = require('../../src/models/advertiser');
 const fixtures = require('../../src/fixtures');
 const { testTrimmedField, testUniqueField, testRequiredField } = require('../utils');
