@@ -1,14 +1,18 @@
 require('../connections');
+const bcrypt = require('bcrypt');
 const Repo = require('../../src/repositories/user');
-const Utils = require('../utils');
+const { stubHash } = require('../utils');
 
 const createUser = () => Repo.generate().one().save();
 
 describe('repositories/user', function() {
+  let stub;
   before(function() {
+    stub = stubHash();
     return Repo.remove();
   });
   after(function() {
+    stub.restore();
     return Repo.remove();
   });
   it('should export an object.', function(done) {
@@ -125,11 +129,15 @@ describe('repositories/user', function() {
     let user;
     const cleartext = 'test password';
     before(async function() {
+      // Unstub to simulate true behavior.
+      stub.restore();
       user = Repo.generate().one();
       user.set('password', cleartext);
       await user.save();
     });
     after(async function() {
+      // restub hashing
+      stub = stubHash();
       await Repo.remove();
     });
     [null, undefined, '', false, 0].forEach((value) => {
@@ -156,6 +164,8 @@ describe('repositories/user', function() {
     let user;
     let token;
     before(async function() {
+      // Unstub to simulate true behavior.
+      stub.restore();
       const cleartext = 'test password';
       user = Repo.generate().one();
       user.set('password', cleartext);
@@ -164,6 +174,7 @@ describe('repositories/user', function() {
       token = session.token;
     });
     after(async function() {
+      stub = stubHash();
       await Repo.remove();
     });
     it('should reject if a valid session was found, but the user no longer exists.', async function() {

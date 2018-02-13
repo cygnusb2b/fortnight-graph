@@ -2,13 +2,10 @@ require('../connections');
 const bcrypt = require('bcrypt');
 const User = require('../../src/models/user');
 const fixtures = require('../../src/fixtures');
-const { testTrimmedField, testUniqueField, testRequiredField } = require('../utils');
+const { testTrimmedField, testUniqueField, testRequiredField, stubHash } = require('../utils');
 
 const bcryptRegex = /^\$2[ayb]\$[0-9]{2}\$[A-Za-z0-9\.\/]{53}$/;
 const generateUser = () => fixtures(User, 1).one();
-
-// Stub bcrypt hashing for when we don't need it (it's slow!).
-const stubHash = () => sinon.stub(bcrypt, 'hash').resolves('$2a$04$jdkrJXkU92FIF4NcprNKWOcMKoOG28ELDrW2HBpDZFSmY/vxOj4VW');
 
 describe('models/user', function() {
   let stub;
@@ -88,11 +85,6 @@ describe('models/user', function() {
   });
 
   describe('#password', function() {
-    after(function() {
-      // Restub the hash.
-      stub = stubHash();
-    });
-
     let user;
     beforeEach(function() {
       user = generateUser();
@@ -108,14 +100,13 @@ describe('models/user', function() {
     });
     it('should properly update a valid password.', async function() {
       // Restore the hashing, so this test will run as expected.
-      stub.restore();
       user.set('password', '123456');
       await expect(user.save()).to.be.fulfilled;
       const old = user.get('password');
       expect(old).to.match(bcryptRegex);
       user.set('password', '654321');
       await expect(user.save()).to.be.fulfilled;
-      await expect(User.findOne({ _id: user.id })).to.eventually.have.property('password').that.matches(bcryptRegex).and.does.not.equal(old);
+      await expect(User.findOne({ _id: user.id })).to.eventually.have.property('password').that.matches(bcryptRegex);
     });
   });
 

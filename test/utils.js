@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const { expect } = require('chai');
 const Pagination = require('../src/classes/pagination');
 const Promise = require('bluebird');
@@ -79,6 +80,10 @@ module.exports = {
       .expect(runAuthExpect)
       .end(done);
     ;
+  },
+
+  stubHash() {
+    return sinon.stub(bcrypt, 'hash').resolves('$2a$04$jdkrJXkU92FIF4NcprNKWOcMKoOG28ELDrW2HBpDZFSmY/vxOj4VW');
   },
 
   /**
