@@ -91,6 +91,15 @@ The test environment can be booted and run by executing `yarn run test` or `yarn
 ### Running/Writing Tests
 [Mocha](https://mochajs.org/) and [Chai](http://chaijs.com/) are used for unit testing. All tests are found in the `/test` folder, and must contain `.spec.js` in the name in order for the file to be recognized. You can run tests via the `yarn run test` command. Preferably, the folder and file structure should mimic the `/src` directory. For example, the  file `/src/classes/auth.js` should have a corresponding test file located at `/test/classes/auth.spec.js`. While the BDD assertion style is preferred (e.g. `expect` or `should`), feel free to use the TDD `assert` style if that's more comfortable. **Note:** the test command will also execute the `lint` command. In other words, if lint errors are found, the tests will also fail!
 
+By default, running `yarn run test` will run all test files. You can optionally specify the tests to run by executing `yarn run test tests/some/test.spec.js`, or using a glob: `yarn run test "tests/some-folder/*.js"` (_make sure you include the quotes_). This is usually more efficient when writing new tests, so you don't have to wait for the entire test suite to finish when making tweaks.
+
+Since the test environment runs within a Docker container, tests (generally) are a mixture of unit and integration tests. If your test will access either Mongo and/or Redis, you **must** include the connection bootstrapper (`require('../connections);`) as the _first_ line in your test file. This ensures that the connections are properly intialized, torn down, and that Mocha will exit correctly (not hang).
+
+All tests are bootstrapped using the `/test/bootstrap.js` file. This exposes the Bluebird `Promise`, `chai`, Supertest `request`, and Chai `expect` variables globally, so you do not need to require these packages in each test file. In addition, `chai-as-promised` is loaded within the bootstrapped Chai instance.
+
+#### Successful Test Criteria
+You __must__ ensure that new tests will run successfully as _an individual file_ and as a part of the _global test suite_. The test(s) should pass and the container should properly exit and tear down. For example, if you've just created the`/test/my-cool-test.spec.js` test file, then __both__ of these commands should meet the success conditions: `yarn run test` and `yarn run test test/my-cool-test.spec.js`.
+
 ### Code Coverage
 Test coverage is handled by [Instanbul/nyc](https://istanbul.js.org/). To view a coverage report, execute `yarn run coverage` at the root of the project. When adding/modifying code, the coverage should preferably stay the same (meaning new tests were added) - or get better!
 
