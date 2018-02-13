@@ -37,6 +37,9 @@ describe('repositories/session', function() {
     it('should return a rejected promise when no token is provided.', async function() {
       await expect(Repo.get()).to.be.rejectedWith(Error, 'Unable to get session: no token was provided.');
     });
+    it('should return a rejected promise when the token format is invalid.', async function() {
+      await expect(Repo.get('badformattedtoken')).to.be.rejectedWith(Error, 'Unable to get session: invalid token format.');
+    });
     it('should return a rejected promise when the token cannot be found.', async function() {
       await expect(Repo.get(removedToken)).to.be.rejectedWith(Error, 'Unable to get session: no token found in storage.');
     });

@@ -50,6 +50,7 @@ module.exports = {
   async get(token) {
     if (!token) throw new Error('Unable to get session: no token was provided.');
     const parsed = await jwt.decode(token, { complete: true, force: true });
+    if (!parsed) throw new Error('Unable to get session: invalid token format.');
     const result = await this.getClient().getAsync(`${SETTINGS.idPrefix}:${parsed.payload.jti}`);
 
     if (!result) throw new Error('Unable to get session: no token found in storage.');
