@@ -51,6 +51,48 @@ describe('routers/graph', function() {
     });
   });
 
+  describe('query CurrentUser', function() {
+    const query = `
+      query CurrentUser {
+        currentUser {
+          id
+          email
+          givenName
+          familyName
+          logins
+          photoURL
+        }
+      }
+    `;
+    const body = buildGraphQuery(query);
+    it('should return null when not authenticated.', function(done) {
+      request(app)
+        .post(GRAPH_ENDPOINT)
+        .send(body)
+        .expect(res => expectGraphSuccess(res, 'currentUser', 'null'))
+        .end(done);
+    });
+    it('should return null when invalid auth is found.', function(done) {
+      request(app)
+        .post(GRAPH_ENDPOINT)
+        .set('Authorization', `Bearer someinvalidtoken`)
+        .send(body)
+        .expect(res => expectGraphSuccess(res, 'currentUser', 'null'))
+        .end(done);
+    });
+    it('should return the current user when logged-in.', function(done) {
+      request(app)
+        .post(GRAPH_ENDPOINT)
+        .set('Authorization', `Bearer ${token}`)
+        .send(body)
+        .expect(res => expectGraphSuccess(res, 'currentUser'))
+        .expect((res) => {
+          const parsed = parseGraphResponse(res, 'currentUser');
+          expect(parsed.id).to.equal(user.id);
+        })
+        .end(done);
+    });
+  });
   describe('query Advertiser($input: ModelIdInput!)', function() {
     let advertiser;
     before(async function() {
