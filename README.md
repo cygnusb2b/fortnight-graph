@@ -95,7 +95,7 @@ By default, running `yarn run test` will run all test files. You can optionally 
 
 Since the test environment runs within a Docker container, tests (generally) are a mixture of unit and integration tests. If your test will access either Mongo and/or Redis, you **must** include the connection bootstrapper (`require('../connections);`) as the _first_ line in your test file. This ensures that the connections are properly intialized, torn down, and that Mocha will exit correctly (not hang).
 
-All tests are bootstrapped using the `/test/bootstrap.js` file. This exposes the Bluebird `Promise`, `chai`, Supertest `request`, and Chai `expect` variables globally, so you do not need to require these packages in each test file. In addition, `chai-as-promised` is loaded within the bootstrapped Chai instance.
+All tests are bootstrapped using the `/test/bootstrap.js` file. This globally exposes the `Promise` (via `bluebird`), `chai`, `request` (via `supertest`), `sinon`, and `expect` (via `chai`) variables, so you do not need to require these packages your tests. In addition, `chai-as-promised` is loaded within the bootstrapped Chai instance.
 
 #### Successful Test Criteria
 You __must__ ensure that new tests will run successfully as _an individual file_ and as a part of the _global test suite_. The test(s) should pass and the container should properly exit and tear down. For example, if you've just created the`/test/my-cool-test.spec.js` test file, then __both__ of these commands should meet the success conditions: `yarn run test` and `yarn run test test/my-cool-test.spec.js`.
