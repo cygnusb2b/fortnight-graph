@@ -1,12 +1,11 @@
-const expect = require('chai').expect;
-const request = require('supertest');
-const Promise = require('bluebird');
+require('../connections');
+const app = require('../../src/app');
+
 const UserRepo = require('../../src/repositories/user');
 const AdvertiserRepo = require('../../src/repositories/advertiser');
 const { buildGraphQuery, testNoAuth, testBadAuth, expectGraphError, expectGraphSuccess, parseGraphResponse, GRAPH_ENDPOINT } = require('../utils');
 const { CursorType } = require('../../src/graph/custom-types');
 
-const { app } = require('../../src/server');
 const router = require('../../src/routers/graph');
 
 describe('routers/graph', function() {

@@ -1,5 +1,4 @@
-const expect = require('chai').expect;
-const request = require('supertest');
+require('../connections');
 const app = require('../../src/app');
 const router = require('../../src/routers/correlate');
 

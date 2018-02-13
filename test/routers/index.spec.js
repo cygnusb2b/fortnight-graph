@@ -1,4 +1,3 @@
-const expect = require('chai').expect;
 const loadRouters = require('../../src/routers');
 
 describe('routers/index', function() {

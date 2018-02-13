@@ -1,4 +1,3 @@
-const expect = require('chai').expect;
 const router = require('../../src/routers/placement');
 
 describe('routers/placement', function() {
