@@ -1,9 +1,5 @@
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+require('../connections');
 const Repo = require('../../src/repositories/session');
-
-chai.use(chaiAsPromised);
-const expect = chai.expect;
 
 describe('repositories/session', function() {
   const uid = '1234';

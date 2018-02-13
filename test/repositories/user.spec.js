@@ -1,10 +1,6 @@
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+require('../connections');
 const Repo = require('../../src/repositories/user');
 const Utils = require('../utils');
-
-chai.use(chaiAsPromised);
-const expect = chai.expect;
 
 const createUser = () => Repo.generate().one().save();
 

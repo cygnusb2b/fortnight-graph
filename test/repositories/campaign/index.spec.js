@@ -1,11 +1,7 @@
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+require('../../connections');
 const Repo = require('../../../src/repositories/campaign');
 const AdvertiserRepo = require('../../../src/repositories/advertiser');
 const Utils = require('../../utils');
-
-chai.use(chaiAsPromised);
-const expect = chai.expect;
 
 const createCampaign = async () => {
   const advertiser = await AdvertiserRepo.generate().one().save();
