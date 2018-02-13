@@ -1,4 +1,3 @@
-const expect = require('chai').expect;
 const Result = require('../../src/fixtures/result');
 
 const testObjType = (result) => {

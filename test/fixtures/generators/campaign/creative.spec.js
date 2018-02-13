@@ -1,4 +1,3 @@
-const expect = require('chai').expect;
 const Generate = require('../../../../src/fixtures/generators/campaign/creative');
 
 describe('fixtures/generators/campaign/creative', function() {

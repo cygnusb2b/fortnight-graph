@@ -1,4 +1,3 @@
-const expect = require('chai').expect;
 const generators = require('../../../src/fixtures/generators');
 
 describe('fixtures/generators', function() {

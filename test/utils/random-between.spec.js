@@ -1,4 +1,3 @@
-const expect = require('chai').expect;
 const randomBetween = require('../../src/utils/random-between');
 
 describe('utils/random-between', function() {

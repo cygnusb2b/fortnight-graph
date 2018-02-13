@@ -1,4 +1,3 @@
-const expect = require('chai').expect;
 const fixture = require('../../src/fixtures');
 const Publisher = require('../../src/models/publisher');
 const { testObjType } = require('./result.spec');
