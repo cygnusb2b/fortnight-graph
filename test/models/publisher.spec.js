@@ -1,11 +1,7 @@
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+require('../connections');
 const Publisher = require('../../src/models/publisher');
 const fixtures = require('../../src/fixtures');
 const { testTrimmedField, testUniqueField, testRequiredField } = require('../utils');
-
-chai.use(chaiAsPromised);
-const expect = chai.expect;
 
 const generatePublisher = () => fixtures(Publisher, 1).one();
 

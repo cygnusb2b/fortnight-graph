@@ -1,11 +1,7 @@
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+require('../connections');
 const User = require('../../src/models/user');
 const fixtures = require('../../src/fixtures');
 const { testTrimmedField, testUniqueField, testRequiredField } = require('../utils');
-
-chai.use(chaiAsPromised);
-const expect = chai.expect;
 
 const bcryptRegex = /^\$2[ayb]\$[0-9]{2}\$[A-Za-z0-9\.\/]{53}$/;
 const generateUser = () => fixtures(User, 1).one();
