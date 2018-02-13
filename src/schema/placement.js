@@ -18,8 +18,7 @@ module.exports = new Schema({
     required: true,
     validate: {
       async validator(v) {
-        if (!this.isModified('publisherId')) return true;
-        const doc = await Publisher.findOne({ _id: v });
+        const doc = await Publisher.findOne({ _id: v }, { _id: 1 });
         if (doc) return true;
         return false;
       },

@@ -16,8 +16,7 @@ const schema = new Schema({
     required: true,
     validate: {
       async validator(v) {
-        if (!this.isModified('advertiserId')) return true;
-        const doc = await Advertiser.findOne({ _id: v });
+        const doc = await Advertiser.findOne({ _id: v }, { _id: 1 });
         if (doc) return true;
         return false;
       },
