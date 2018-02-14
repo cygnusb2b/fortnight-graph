@@ -178,6 +178,9 @@ describe('repositories/user', function() {
       stub = stubHash();
       await Repo.remove();
     });
+    it('should fulfill with a valid user token.', async function() {
+      await expect(Repo.retrieveSession(token)).to.be.fulfilled.and.eventually.be.an('object').with.all.keys('user', 'session');
+    });
     it('should reject if a valid session was found, but the user no longer exists.', async function() {
       await Repo.removeByEmail(user.email);
       await expect(Repo.retrieveSession(token)).to.be.rejectedWith(Error, 'Unable to retrieve session: the provided user could not be found.');

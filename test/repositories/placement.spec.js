@@ -78,6 +78,14 @@ describe('repositories/placement', function() {
       expect(results.length).to.equal(1);
       done();
     });
+    it('should return a fixture result with one record when count is undefined.', function(done) {
+      const results = Repo.generate(undefined, {
+        publisherId: () => publisherId,
+      });
+      expect(results).to.be.an('object');
+      expect(results.length).to.equal(1);
+      done();
+    });
     it('should return a fixture result with the specified number of records.', function(done) {
       const results = Repo.generate(5, {
         publisherId: () => publisherId,
