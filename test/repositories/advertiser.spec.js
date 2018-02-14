@@ -3,7 +3,10 @@ const Repo = require('../../src/repositories/advertiser');
 const Model = require('../../src/models/advertiser');
 const Utils = require('../utils');
 
-const createAdvertiser = () => Repo.generate().one().save();
+const createAdvertiser = async () => {
+  const results = await Repo.seed();
+  return results.one();
+};
 
 describe('repositories/advertiser', function() {
   before(function() {

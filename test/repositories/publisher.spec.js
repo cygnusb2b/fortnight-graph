@@ -2,7 +2,10 @@ require('../connections');
 const Repo = require('../../src/repositories/publisher');
 const Model = require('../../src/models/publisher');
 
-const createPublisher = () => Repo.generate().one().save();
+const createPublisher = async () => {
+  const results = await Repo.seed();
+  return results.one();
+};
 
 describe('repositories/publisher', function() {
   before(function() {
