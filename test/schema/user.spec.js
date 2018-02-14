@@ -108,6 +108,11 @@ describe('schema/user', function() {
       await expect(user.save()).to.be.fulfilled;
       await expect(User.findOne({ _id: user.id })).to.eventually.have.property('password').that.matches(bcryptRegex);
     });
+    it('should not update the password if not modified.', async function() {
+      await user.save();
+      const password = user.get('password');
+      await expect(user.save()).to.be.fulfilled.and.eventually.have.property('password', password);
+    });
   });
 
   describe('#role', function() {
