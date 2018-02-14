@@ -8,7 +8,6 @@ const createCampaign = async () => {
   const advertiser = await AdvertiserRepo.generate().one().save();
   const campaign = await Repo.generate(1, {
     advertiserId: () => advertiser.id,
-    creatives: () => [],
   }).one().save();
   return { advertiser, campaign }
 };
@@ -108,7 +107,6 @@ describe('repositories/campaign', function() {
     it('should return a fixture result with one record.', function(done) {
       const results = Repo.generate(undefined, {
         advertiserId: () => '1234',
-        creatives: () => [],
       });
       expect(results).to.be.an('object');
       expect(results.length).to.equal(1);
@@ -117,7 +115,6 @@ describe('repositories/campaign', function() {
     it('should return a fixture result with the specified number of records.', function(done) {
       const results = Repo.generate(5, {
         advertiserId: () => '1234',
-        creatives: () => [],
       });
       expect(results).to.be.an('object');
       expect(results.length).to.equal(5);
