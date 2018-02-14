@@ -170,6 +170,12 @@ describe('schema/campaign', function() {
         return testRequiredField(Campaign, campaign, 'creatives.0.image.src', value);
       });
     });
+    ['foo.com', 'some value', 'http://www.foo.com', 'https://'].forEach((value) => {
+      it(`should be rejected when the value is '${value}'`, async function() {
+        campaign.set('creatives.0.image.src', value);
+        await expect(campaign.save()).to.be.rejectedWith(Error, /Invalid image source URL/);
+      });
+    });
   });
 
   describe('#creatives.image.filePath', function() {
@@ -188,6 +194,25 @@ describe('schema/campaign', function() {
       it(`should be required and be rejected when the value is '${value}'`, function() {
         return testRequiredField(Campaign, campaign, 'creatives.0.image.filePath', value);
       });
+    });
+  });
+
+  describe('#creatives.image.mimeType', function() {
+    let campaign;
+    beforeEach(function() {
+      campaign = generateCampaign(advertiser);
+    });
+
+    const allowed = ['image/jpeg', 'image/png', 'image/webm', 'image/gif'];
+    allowed.forEach((value) => {
+      it(`should be fulfilled when the enum value is '${value}'`, async function() {
+        campaign.set('creatives.0.image.mimeType', value);
+        await expect(campaign.save()).to.be.fulfilled;
+      });
+    });
+    it('should reject when the value is not in the enum list.', async function() {
+      campaign.set('creatives.0.image.mimeType', 'image/tiff');
+      await expect(campaign.save()).to.be.rejectedWith(Error, /is not a valid enum value/);
     });
   });
 

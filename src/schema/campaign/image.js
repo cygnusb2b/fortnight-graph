@@ -13,6 +13,7 @@ module.exports = new Schema({
         validator(value) {
           return validator.isURL(value, { protocols: ['https'], require_protocol: true });
         },
+        message: 'Invalid image source URL {VALUE}',
       },
     ],
   },
