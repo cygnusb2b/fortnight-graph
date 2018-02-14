@@ -82,6 +82,17 @@ describe('repositories/campaign', function() {
     });
   });
 
+  describe('#findForAdvertiser', function() {
+    before(async function() {
+      campaign = await createCampaign();
+    });
+    it('should return a fulfilled promise with the correct campaign.', async function() {
+      await expect(Repo.findForAdvertiser(campaign.advertiserId)).to.be.fulfilled.and.eventually.be.an('array');
+      const campaigns = await Repo.findForAdvertiser(campaign.advertiserId);
+      expect(campaigns.map(c => c.id)).to.include(campaign.id);
+    });
+  });
+
   describe('#find', function() {
     it('should return a promise.', async function() {
       await expect(Repo.find()).to.be.fulfilled.and.eventually.be.an('array');
