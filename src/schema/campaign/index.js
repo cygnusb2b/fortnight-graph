@@ -51,6 +51,7 @@ const schema = new Schema({
   creatives: [CreativeSchema],
 }, { timestamps: true });
 
+schema.index({ advertiserId: 1 });
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
 schema.index({ updatedAt: 1, _id: 1 }, { unique: true });

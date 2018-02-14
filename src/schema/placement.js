@@ -3,7 +3,7 @@ const Publisher = require('../models/publisher');
 
 const { Schema } = mongoose;
 
-module.exports = new Schema({
+const schema = new Schema({
   name: {
     type: String,
     required: true,
@@ -26,3 +26,7 @@ module.exports = new Schema({
     },
   },
 }, { timestamps: true });
+
+schema.index({ publisherId: 1 });
+
+module.exports = schema;
