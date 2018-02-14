@@ -1,6 +1,7 @@
 require('../connections');
 const bcrypt = require('bcrypt');
 const Repo = require('../../src/repositories/user');
+const Model = require('../../src/models/user');
 const { stubHash } = require('../utils');
 
 const createUser = () => Repo.generate().one().save();
@@ -30,7 +31,7 @@ describe('repositories/user', function() {
       const user = await Repo.create(payload);
       const found = await Repo.findById(user.get('id'));
 
-      expect(found).to.be.an('object');
+      expect(found).to.be.an.instanceof(Model);
       expect(found).to.have.property('id').equal(user.get('id'));
     });
   });
@@ -51,7 +52,7 @@ describe('repositories/user', function() {
       await expect(Repo.findById(id)).to.be.fulfilled.and.become(null);
     });
     it('should return a fulfilled promise with a document when found.', async function() {
-      await expect(Repo.findById(user.get('id'))).to.be.fulfilled.and.eventually.have.property('id').equal(user.get('id'));
+      await expect(Repo.findById(user.get('id'))).to.be.fulfilled.and.eventually.be.an.instanceof(Model).with.property('id').equal(user.get('id'));
     });
   });
 
@@ -87,7 +88,7 @@ describe('repositories/user', function() {
       await expect(Repo.findByEmail(email)).to.be.fulfilled.and.become(null);
     });
     it('should return a fulfilled promise with a document when found.', async function() {
-      await expect(Repo.findByEmail(user.get('email'))).to.be.fulfilled.and.eventually.have.property('id').equal(user.get('id'));
+      await expect(Repo.findByEmail(user.get('email'))).to.be.fulfilled.and.eventually.be.an.instanceof(Model).with.property('id').equal(user.get('id'));
     });
   });
 

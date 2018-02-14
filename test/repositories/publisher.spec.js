@@ -1,5 +1,6 @@
 require('../connections');
 const Repo = require('../../src/repositories/publisher');
+const Model = require('../../src/models/publisher');
 
 const createPublisher = () => Repo.generate().one().save();
 
@@ -25,7 +26,7 @@ describe('repositories/publisher', function() {
       const publisher = await Repo.create(payload);
       const found = await Repo.findById(publisher.get('id'));
 
-      expect(found).to.be.an('object');
+      expect(found).to.be.an.instanceof(Model);
       expect(found).to.have.property('id').equal(publisher.get('id'));
     });
   });
@@ -43,7 +44,7 @@ describe('repositories/publisher', function() {
       await expect(Repo.findById(id)).to.be.fulfilled.and.become(null);
     });
     it('should return a fulfilled promise with a document when found.', async function() {
-      await expect(Repo.findById(publisher.get('id'))).to.be.fulfilled.and.eventually.have.property('id').equal(publisher.get('id'));
+      await expect(Repo.findById(publisher.get('id'))).to.be.fulfilled.and.eventually.be.an.instanceof(Model).with.property('id').equal(publisher.get('id'));
     });
   });
 

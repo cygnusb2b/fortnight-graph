@@ -1,5 +1,6 @@
 require('../connections');
 const Repo = require('../../src/repositories/advertiser');
+const Model = require('../../src/models/advertiser');
 const Utils = require('../utils');
 
 const createAdvertiser = () => Repo.generate().one().save();
@@ -26,7 +27,7 @@ describe('repositories/advertiser', function() {
       const advertiser = await Repo.create(payload);
       const found = await Repo.findById(advertiser.get('id'));
 
-      expect(found).to.be.an('object');
+      expect(found).to.be.an.instanceof(Model);
       expect(found).to.have.property('id').equal(advertiser.get('id'));
     });
   });
@@ -49,7 +50,7 @@ describe('repositories/advertiser', function() {
     it('should return the updated model object.', async function() {
       const updated = await Repo.update(advertiser.id, { name: 'Updated name.' });
       expect(updated).to.be.an('object');
-      expect(updated).to.have.property('name').equal('Updated name.');
+      expect(updated).to.be.an.instanceof(Model).with.property('name').equal('Updated name.');
     });
   });
 
@@ -66,7 +67,7 @@ describe('repositories/advertiser', function() {
       await expect(Repo.findById(id)).to.be.fulfilled.and.become(null);
     });
     it('should return a fulfilled promise with a document when found.', async function() {
-      await expect(Repo.findById(advertiser.get('id'))).to.be.fulfilled.and.eventually.have.property('id').equal(advertiser.get('id'));
+      await expect(Repo.findById(advertiser.get('id'))).to.be.fulfilled.and.eventually.be.an.instanceof(Model).with.property('id').equal(advertiser.get('id'));
     });
   });
 

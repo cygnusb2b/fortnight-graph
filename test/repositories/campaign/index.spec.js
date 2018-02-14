@@ -1,5 +1,6 @@
 require('../../connections');
 const Repo = require('../../../src/repositories/campaign');
+const Model = require('../../../src/models/campaign');
 const AdvertiserRepo = require('../../../src/repositories/advertiser');
 const Utils = require('../../utils');
 
@@ -43,7 +44,7 @@ describe('repositories/campaign', function() {
       const campaign = await Repo.create(payload);
       const found = await Repo.findById(campaign.get('id'));
 
-      expect(found).to.be.an('object');
+      expect(found).to.be.an.instanceof(Model);
       expect(found).to.have.property('id').equal(campaign.get('id'));
     });
   });
@@ -67,7 +68,7 @@ describe('repositories/campaign', function() {
     it('should return the updated model object.', async function() {
       const { campaign } = models;
       const updated = await Repo.update(campaign.id, { name: 'Updated name.' });
-      expect(updated).to.be.an('object');
+      expect(updated).to.be.an.instanceof(Model);
       expect(updated).to.have.property('name').equal('Updated name.');
     });
   });
@@ -86,7 +87,7 @@ describe('repositories/campaign', function() {
     });
     it('should return a fulfilled promise with a document when found.', async function() {
       const { campaign } = models;
-      await expect(Repo.findById(campaign.get('id'))).to.be.fulfilled.and.eventually.have.property('id').equal(campaign.get('id'));
+      await expect(Repo.findById(campaign.get('id'))).to.be.fulfilled.and.eventually.be.an.instanceof(Model).with.property('id').equal(campaign.get('id'));
     });
   });
 
