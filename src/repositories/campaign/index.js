@@ -106,7 +106,7 @@ module.exports = {
     const results = this.generate(count, {
       advertiserId: () => advertisers.random().id,
     });
-    await Promise.all(results.all().map(model => model.save));
+    await Promise.all(results.all().map(model => model.save()));
     return results;
   },
 };

@@ -64,7 +64,7 @@ module.exports = {
 
   async seed({ count = 1 } = {}) {
     const results = this.generate(count);
-    await Promise.all(results.all().map(model => model.save));
+    await Promise.all(results.all().map(model => model.save()));
     return results;
   },
 };
