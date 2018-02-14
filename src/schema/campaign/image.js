@@ -3,7 +3,7 @@ const validator = require('validator');
 
 const { Schema } = mongoose;
 
-const schema = new Schema({
+module.exports = new Schema({
   src: {
     type: String,
     required: true,
@@ -20,17 +20,14 @@ const schema = new Schema({
     type: String,
     required: true,
     trim: true,
+    set(value) {
+      if (!value) return value;
+      return validator.trim(value, ' /');
+    },
   },
   mimeType: {
     type: String,
-    trim: true,
-    validate: [
-      {
-        validator(value) {
-          return validator.isMimeType(value);
-        },
-      },
-    ],
+    enum: ['image/jpeg', 'image/png', 'image/webm', 'image/gif'],
   },
   fileSize: {
     type: Number,
@@ -39,10 +36,12 @@ const schema = new Schema({
   width: {
     type: Number,
     min: 0,
+    max: 32768,
   },
   height: {
     type: Number,
     min: 0,
+    max: 32768,
   },
   focalPoint: {
     x: {
@@ -59,15 +58,3 @@ const schema = new Schema({
     },
   },
 });
-
-
-schema.pre('validate', function sanitizeFilePath(next) {
-  if (!this.isModified('filePath')) {
-    next();
-  } else {
-    this.filePath = validator.trim(this.filePath, ' /');
-    next();
-  }
-});
-
-module.exports = schema;
