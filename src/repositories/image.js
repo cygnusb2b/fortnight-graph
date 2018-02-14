@@ -10,7 +10,12 @@ module.exports = {
   /**
    *
    */
-  signUpload(filename) {
+  signUpload(filename, type) {
+    if (!filename) return Promise.reject(new Error('Unable to sign upload: no filename provided.'));
+
+    const acceptable = ['image/png', 'image/jpeg', 'image/webm'];
+    if (!acceptable.includes(type)) return Promise.reject(new Error('Unable to sign upload: invalid file type.'));
+
     const key = `${uuidv4()}/${filename}`;
     const expires = 120;
     const params = {
@@ -18,6 +23,7 @@ module.exports = {
       Key: key,
       ACL: 'public-read',
       Expires: expires,
+      ContentType: type,
     };
     return new Promise((resolve, reject) => {
       S3.getSignedUrl('putObject', params, (err, url) => {
