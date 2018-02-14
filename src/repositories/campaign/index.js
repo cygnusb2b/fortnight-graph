@@ -1,4 +1,5 @@
 const Promise = require('bluebird');
+const AdvertiserRepo = require('../advertiser');
 const Campaign = require('../../models/campaign');
 const Pagination = require('../../classes/pagination');
 const fixtures = require('../../fixtures');
@@ -98,5 +99,14 @@ module.exports = {
    */
   generate(count = 1, params) {
     return fixtures(Campaign, count, params);
+  },
+
+  async seed({ count = 1, advertiserCount = 1 } = {}) {
+    const advertisers = await AdvertiserRepo.seed({ count: advertiserCount });
+    const results = this.generate(count, {
+      advertiserId: () => advertisers.random().id,
+    });
+    await Promise.all(results.all().map(model => model.save));
+    return results;
   },
 };

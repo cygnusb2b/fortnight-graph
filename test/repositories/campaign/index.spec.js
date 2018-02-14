@@ -124,6 +124,13 @@ describe('repositories/campaign', function() {
     });
   });
 
+  describe('#seed', function() {
+    it('should generate and save the fixture data.', async function() {
+      await expect(Repo.seed()).to.be.fulfilled.and.eventually.be.an('object');
+      await expect(Repo.seed({ count: 2 })).to.be.fulfilled.and.eventually.be.an('object');
+    });
+  });
+
   describe('#removeById', function() {
     let models;
     before(async function() {
