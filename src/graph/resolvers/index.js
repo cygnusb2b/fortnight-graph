@@ -27,12 +27,8 @@ module.exports = deepAssign(advertiser, campaign, user, {
      *
      */
     signImageUpload: (root, { input }) => {
-      const accept = ['image/jpeg', 'image/png', 'image/webm', 'image/gif'];
       const { name, type } = input;
-      if (!accept.includes(type)) {
-        throw new Error(`The requested file type '${type}' is not supported.`);
-      }
-      return ImageRepo.signUpload(name);
+      return ImageRepo.signUpload(name, type);
     },
   },
 
