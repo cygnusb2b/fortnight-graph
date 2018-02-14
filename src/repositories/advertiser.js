@@ -91,4 +91,10 @@ module.exports = {
   generate(count = 1) {
     return fixtures(Advertiser, count);
   },
+
+  async seed({ count = 1 } = {}) {
+    const results = this.generate(count);
+    await Promise.all(results.all().map(model => model.save));
+    return results;
+  },
 };
