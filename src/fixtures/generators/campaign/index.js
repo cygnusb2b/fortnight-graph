@@ -1,6 +1,16 @@
 const faker = require('faker');
+const creative = require('./creative');
 
-module.exports = ({ advertiserId, creatives }) => {
+module.exports = ({ advertiserId }) => {
+  const creatives = () => {
+    const stack = [];
+    const num = faker.random.number(5);
+    for (let i = 0; i < num; i += 1) {
+      stack.push(creative());
+    }
+    return stack;
+  };
+
   const now = new Date();
   return {
     name: faker.random.words(),
