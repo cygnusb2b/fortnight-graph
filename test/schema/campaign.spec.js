@@ -7,7 +7,6 @@ const { testTrimmedField, testUniqueField, testRequiredField } = require('../uti
 const generateCampaign = (advertiser) => {
   return fixtures(Campaign, 1, {
     advertiserId: () => advertiser.id,
-    creatives: () => [],
   }).one();
 };
 
@@ -110,6 +109,84 @@ describe('schema/campaign', function() {
       it(`should be required and be rejected when the value is '${value}'`, async function() {
         campaign.set('url', value);
         await expect(campaign.save()).to.be.rejectedWith(Error, /Invalid campaign URL/);
+      });
+    });
+  });
+
+  describe('#creatives', function() {
+    let campaign;
+    before(function() {
+      campaign = generateCampaign(advertiser);
+    });
+    it('should be an array', function() {
+      expect(campaign.get('creatives')).to.be.an('array');
+    });
+  });
+
+  describe('#creatives.title', function() {
+    let campaign;
+    beforeEach(function() {
+      campaign = generateCampaign(advertiser);
+    });
+    it('should be trimmed.', function() {
+      return testTrimmedField(Campaign, campaign, 'creatives.0.title', { property: 'creatives[0].title' });
+    });
+  });
+
+  describe('#creatives.teaser', function() {
+    let campaign;
+    beforeEach(function() {
+      campaign = generateCampaign(advertiser);
+    });
+    it('should be trimmed.', function() {
+      return testTrimmedField(Campaign, campaign, 'creatives.0.teaser', { property: 'creatives[0].teaser' });
+    });
+  });
+
+  describe('#creatives.image', function() {
+    let campaign;
+    before(function() {
+      campaign = generateCampaign(advertiser);
+    });
+    it('should be an object.', function() {
+      expect(campaign.get('creatives.0.image')).to.be.an('object');
+    });
+  });
+
+  describe('#creatives.image.src', function() {
+    let campaign;
+    beforeEach(function() {
+      campaign = generateCampaign(advertiser);
+    });
+    it('should be trimmed.', function() {
+      return testTrimmedField(Campaign, campaign, 'creatives.0.image.src', {
+        value: '   https://www.google.com  ',
+        expected: 'https://www.google.com',
+        property: 'creatives[0].image.src',
+      });
+    });
+    ['', null, undefined].forEach((value) => {
+      it(`should be required and be rejected when the value is '${value}'`, function() {
+        return testRequiredField(Campaign, campaign, 'creatives.0.image.src', value);
+      });
+    });
+  });
+
+  describe('#creatives.image.filePath', function() {
+    let campaign;
+    beforeEach(function() {
+      campaign = generateCampaign(advertiser);
+    });
+    it('should be trimmed and slashes removed.', function() {
+      return testTrimmedField(Campaign, campaign, 'creatives.0.image.filePath', {
+        value: ' /some/foo/file.jpg/  ',
+        expected: 'some/foo/file.jpg',
+        property: 'creatives[0].image.filePath',
+      });
+    });
+    ['', null, undefined].forEach((value) => {
+      it(`should be required and be rejected when the value is '${value}'`, function() {
+        return testRequiredField(Campaign, campaign, 'creatives.0.image.filePath', value);
       });
     });
   });

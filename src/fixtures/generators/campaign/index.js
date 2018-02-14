@@ -4,7 +4,7 @@ const creative = require('./creative');
 module.exports = ({ advertiserId }) => {
   const creatives = () => {
     const stack = [];
-    const num = faker.random.number(5);
+    const num = faker.random.number({ min: 1, max: 5 });
     for (let i = 0; i < num; i += 1) {
       stack.push(creative());
     }

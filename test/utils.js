@@ -95,11 +95,17 @@ module.exports = {
     expect(paginated.Model).to.be.a('function');
   },
 
-  async testTrimmedField(Model, document, field, { value = ' Trim Me ', expected = 'Trim Me' } = {}) {
+  async testTrimmedField(Model, document, field, { value = ' Trim Me ', expected = 'Trim Me', property } = {}) {
+    const prop = property || field;
     const { id } = document;
     document.set(field, value);
     await expect(document.save()).to.be.fulfilled;
-    await expect(Model.findOne({ _id: id })).to.eventually.have.property(field).equal(expected);
+    if (field.match(/\./)) {
+      await expect(Model.findOne({ _id: id })).to.eventually.have.nested.include({ [prop]: expected });
+    } else {
+      await expect(Model.findOne({ _id: id })).to.eventually.have.property(field).equal(expected);
+    }
+
   },
 
   async testUniqueField(Model, doc1, doc2, field, value = 'Unique Name') {
