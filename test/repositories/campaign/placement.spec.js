@@ -26,10 +26,16 @@ describe('repositories/campaign', function() {
         done();
       });
     });
-    const expected = { foo: 'ba:r', key: 'value!' };
-    ['foo:ba%3Ar;key:value!', 'foo:ba%3Ar;key:value%21', 'foo%3Aba%253Ar%3Bkey%3Avalue%21'].forEach((value) => {
+    const expected = { foo: 'ba:r', 'ke;y': 'value!' };
+    ['foo:ba%3Ar;ke%3By:value!', 'foo:ba%3Ar;ke%3By:value%21'].forEach((value) => {
       it(`should properly parse the variables when value is '${value}'`, function(done) {
         expect(Repo.parseVariables(value)).to.deep.equal(expected);
+        done();
+      });
+    });
+    ['foo:ba:r;ke;y:value!', 'foo:ba:r;ke;y:value%21'].forEach((value) => {
+      it(`should not parse the variables when value is '${value}'`, function(done) {
+        expect(Repo.parseVariables(value)).to.not.deep.equal(expected);
         done();
       });
     });

@@ -6,9 +6,9 @@ const Request = require('../../models/request');
 
 module.exports = {
   parseVariables(vars) {
-    const { parse, unescape } = querystring;
+    const { parse } = querystring;
     if (typeof vars !== 'string') return {};
-    return parse(unescape(vars), ';', ':');
+    return parse(vars, ';', ':');
   },
 
   /**
