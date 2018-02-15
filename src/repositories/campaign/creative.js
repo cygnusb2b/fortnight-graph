@@ -14,7 +14,7 @@ module.exports = {
    * @param {string} payload.title
    * @return {Promise}
    */
-  async createFor(campaignId, { title }) {
+  async createFor(campaignId, { title } = {}) {
     const campaign = await findCampaign(campaignId);
     const { creatives } = campaign;
     creatives.push({ title });
@@ -32,7 +32,9 @@ module.exports = {
     if (!creativeId) throw new Error('Unable to handle creative: no creative ID was provided.');
     const campaign = await findCampaign(campaignId);
 
-    campaign.creatives.id(creativeId).remove();
+    const creative = campaign.creatives.id(creativeId);
+    if (!creative) throw new Error('Unable to handle creative: no creative from found for the provided ID.');
+    creative.remove();
     return campaign.save();
   },
 };
