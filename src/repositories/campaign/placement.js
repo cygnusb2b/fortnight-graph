@@ -1,9 +1,21 @@
 const createError = require('http-errors');
+const querystring = require('querystring');
 const Placement = require('../../models/placement');
 const Campaign = require('../../models/campaign');
 const Request = require('../../models/request');
 
 module.exports = {
+  parseVariables(vars = {}) {
+    let variables = {};
+    if (typeof vars === 'string') {
+      const parsed = querystring.parse(vars);
+      if (parsed && typeof parsed === 'object') variables = parsed;
+    } else if (vars && typeof vars === 'object') {
+      variables = vars;
+    }
+    return variables;
+  },
+
   /**
    *
    * @param {object} params
