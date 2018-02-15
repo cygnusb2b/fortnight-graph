@@ -8,7 +8,7 @@ const createCampaign = async () => {
   return results.one();
 };
 
-describe('repositories/campaign', function() {
+describe('repositories/campaign/creative', function() {
   before(async function() {
     await CampaignRepo.remove();
   });

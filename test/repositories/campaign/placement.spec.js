@@ -13,7 +13,7 @@ const createPlacement = async () => {
   return results.one();
 }
 
-describe('repositories/campaign', function() {
+describe('repositories/campaign/placement', function() {
   before(async function() {
     await CampaignRepo.remove();
   });
