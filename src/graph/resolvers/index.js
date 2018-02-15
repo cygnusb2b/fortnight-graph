@@ -1,7 +1,7 @@
 const deepAssign = require('deep-assign');
 const { DateType, CursorType } = require('../custom-types');
 const ImageRepo = require('../../repositories/image');
-const Publisher = require('../../models/publisher');
+const PublisherRepo = require('../../repositories/publisher');
 
 const advertiser = require('./advertiser');
 const campaign = require('./campaign');
@@ -36,6 +36,6 @@ module.exports = deepAssign(advertiser, campaign, user, {
    *
    */
   Placement: {
-    publisher: placement => Publisher.findOne({ _id: placement.get('publisherId') }),
+    publisher: placement => PublisherRepo.findById(placement.get('publisherId')),
   },
 });
