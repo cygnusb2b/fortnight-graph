@@ -67,10 +67,17 @@ The available request parameters (as query string values) are as follows, and ar
 Specifies the number of campaigns that should be returned.  The default value is `1` and cannot exceed `10`. The CSA will do its best to return the number requested, but is not guaranteed, based on inventory conditions. For example, `limit=2` or `limit=5`.
 
 **`cv`**
-The custom variables to send with the request. Can be sent as either object-notated key/values, or as a URL encoded query string. For example, as an object: `cv[foo]=bar&cv[key]=value`, or as URL encoded string: `cv=foo%3Dbar%26key%3Dvalue`
+The custom variables to send with the request. Only custom variables that have been pre-defined in the system will be used. Any others will be ignored. Should be sent as: `cv=foo:bar;key:value`. See note on variable format below.
 
 **`mv`**
-The custom merge values to be used inside the placement's template. Will only be applied if the variable exists within the template. Can be sent as either object-notated key/values, or as a URL encoded query string. For example, as an object: `mv[foo]=bar&mv[key]=value`, or as URL encoded string: `mv=foo%3Dbar%26key%3Dvalue`
+The custom merge values to be used inside the placement's template. Will only be applied if the variable exists within the template. Should be sent as: `mv=foo:bar;key:value`. See note on variable format below.
+
+**Note on Variable Format**
+Special characters within the key or value part should still be URL encoded. For example `cv=foo:bar!` should be sent as `cv=foo:bar%21`.
+
+If a `;` or `:` must be present as a key or value, it must be encoded. For example, to create a `{ 'f:oo' : 'ba;r' }` object, the string must be sent as `cv=f%3Aoo:ba%3Br`.
+
+If you decide to encode the _entire_ string you can, but note that `:` and `;` must be _double-encoded_. For example, in order to create `{ foo: 'ba:r', key: 'value!' }` (when encoding the entire string), the string must be sent as `cv=foo%3Aba%253Ar%3Bkey%3Avalue%21`. If you are _not_ encoding the entire string, this value will also acceptable: `cv=foo:ba%3Ar;key:value%21`.
 
 ## Development
 ### Docker Compose
