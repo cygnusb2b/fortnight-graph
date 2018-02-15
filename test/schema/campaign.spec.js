@@ -216,4 +216,70 @@ describe('schema/campaign', function() {
     });
   });
 
+  describe('#creatives.image.focalPoint', function() {
+    let campaign;
+    beforeEach(function() {
+      campaign = generateCampaign(advertiser);
+    });
+
+    [undefined, {}].forEach((value) => {
+      it(`should be fulfilled when set to '${value}'.`, async function() {
+        campaign.set('creatives.0.image.focalPoint', value);
+        await expect(campaign.save()).to.be.fulfilled;
+      });
+    });
+    it(`should reject when set to null.`, async function() {
+      campaign.set('creatives.0.image.focalPoint', null);
+      await expect(campaign.save()).to.be.rejectedWith(Error, /Validation failed/i);
+    });
+  });
+
+  describe('#creatives.image.focalPoint.x', function() {
+    let campaign;
+    beforeEach(function() {
+      campaign = generateCampaign(advertiser);
+    });
+    [null, undefined].forEach((value) => {
+      it(`should be required and be rejected when the value is '${value}'`, function() {
+        return testRequiredField(Campaign, campaign, 'creatives.0.image.focalPoint.x', value);
+      });
+    });
+    [-0.1, 1.1, 2].forEach((value) => {
+      it(`should follow min/max constraints and be rejected when the value is '${value}'`, async function() {
+        campaign.set('creatives.0.image.focalPoint.x', value);
+        await expect(campaign.save()).to.be.rejectedWith(Error, /.*Validation failed.*[minimum|maximum].*/i);
+      });
+    });
+    [0, 1, 0.8, 0.1].forEach((value) => {
+      it(`should fulfill when min/max constraints are followed with value '${value}'`, async function() {
+        campaign.set('creatives.0.image.focalPoint.x', value);
+        await expect(campaign.save()).to.be.fulfilled;
+      });
+    });
+  });
+
+  describe('#creatives.image.focalPoint.y', function() {
+    let campaign;
+    beforeEach(function() {
+      campaign = generateCampaign(advertiser);
+    });
+    [null, undefined].forEach((value) => {
+      it(`should be required and be rejected when the value is '${value}'`, function() {
+        return testRequiredField(Campaign, campaign, 'creatives.0.image.focalPoint.y', value);
+      });
+    });
+    [-0.1, 1.1, 2].forEach((value) => {
+      it(`should follow min/max constraints and be rejected when the value is '${value}'`, async function() {
+        campaign.set('creatives.0.image.focalPoint.y', value);
+        await expect(campaign.save()).to.be.rejectedWith(Error, /.*Validation failed.*[minimum|maximum].*/i);
+      });
+    });
+    [0, 1, 0.8, 0.1].forEach((value) => {
+      it(`should fulfill when min/max constraints are followed with value '${value}'`, async function() {
+        campaign.set('creatives.0.image.focalPoint.y', value);
+        await expect(campaign.save()).to.be.fulfilled;
+      });
+    });
+  });
+
 });
