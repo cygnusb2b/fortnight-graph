@@ -1,8 +1,15 @@
 require('../../connections');
-const { graphql, getAuth, logOut } = require('./utils');
+const { graphql, getAuth, logOut, passwords, setup, teardown } = require('./utils');
 const SessionRepo = require('../../../src/repositories/session');
+const UserRepo = require('../../../src/repositories/user');
 
 describe('graph/resolvers/user', function() {
+  before(async function() {
+    await setup();
+  });
+  after(async function() {
+    await teardown();
+  });
   describe('Query', function() {
 
     describe('currentUser', function() {
@@ -105,13 +112,13 @@ describe('graph/resolvers/user', function() {
       `;
       it('should log a user in.', async function() {
         const { user, cleartext } = await getAuth();
-        const input = { email: user.email, password: cleartext };
+        const input = { email: user.email, password: passwords.valid };
         const variables = { input };
         await expect(graphql({ query, key: 'loginUser', variables })).to.eventually.be.an('object');
       });
       it('should error when the password is invalid.', async function() {
-        const { user, cleartext } = await getAuth();
-        const input = { email: user.email, password: `${cleartext}-bad` };
+        const { user } = await getAuth();
+        const input = { email: user.email, password: passwords.invalid };
         const variables = { input };
         await expect(graphql({ query, key: 'loginUser', variables })).to.be.rejectedWith(Error, /password was incorrect/i);
       });
@@ -158,13 +165,14 @@ describe('graph/resolvers/user', function() {
       it('should create a new user.', async function() {
         const payload = {
           email: 'foo.bar@baz.com',
-          password: '123456',
+          password: passwords.valid,
           givenName: 'Jane',
           familyName: 'Doe',
         };
         const input = { payload };
         const variables = { input };
         await expect(graphql({ query, key: 'createUser', variables })).to.eventually.be.an('object');
+        await expect(UserRepo.findByEmail(payload.email)).to.be.fulfilled;
       });
     });
 
