@@ -19,7 +19,7 @@ const createCampaigns = async (count) => {
   return results.all();
 };
 
-describe('graph/resolvers/advertiser', function() {
+describe('graph/resolvers/campaign', function() {
   before(async function() {
     await setup();
     await CampaignRepo.remove();
