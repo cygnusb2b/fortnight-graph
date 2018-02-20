@@ -4,7 +4,7 @@ services:
     build: ../
     volumes:
       - ../:/app
-      - test_node_modules:/app/node_modules
+      - node_modules:/app/node_modules
     depends_on:
       - redis
       - mongo
@@ -16,7 +16,25 @@ services:
       PORT: 8100
   redis:
     image: redis:alpine
+    volumes:
+      - redis:/data
   mongo:
     image: mongo:3.4
+    volumes:
+      - mongodb:/data/db
+
 volumes:
-  test_node_modules: {}
+  node_modules:
+    labels:
+      io.as3.appname: "fortnight-graph"
+      io.as3.env: "test"
+  mongodb:
+    labels:
+      io.as3.appname: "fortnight-graph"
+      io.as3.discard: "true"
+      io.as3.env: "test"
+  redis:
+    labels:
+      io.as3.appname: "fortnight-graph"
+      io.as3.discard: "true"
+      io.as3.env: "test"
