@@ -127,19 +127,8 @@ describe('graph/resolvers/advertiser', function() {
         const pagination = { first: 5, after };
         const variables = { pagination };
         const promise = graphql({ query, key: 'allAdvertisers', variables, loggedIn: true });
-        await expect(promise).to.be.rejectedWith(Error,  `No record found for cursor '${after}'.`);
+        await expect(promise).to.be.rejectedWith(Error, `No record found for cursor '${after}'.`);
       });
-      // it('should return the next set of nodes.', async function() {
-      //   const after = CursorType.serialize(advertisers[0].id);
-      //   console.info(after, advertisers[0].id);
-      //   const pagination = { first: 2, after };
-      //   const variables = { pagination };
-      //   const promise = graphql({ query, key: 'allAdvertisers', variables, loggedIn: true });
-      //   await expect(promise).to.eventually.be.an('object');
-      //   const data = await promise;
-      //   expect(data.totalCount).to.equal(10);
-      //   expect(data.edges.length).to.equal(2);
-      // });
     });
 
   });

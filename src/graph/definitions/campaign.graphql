@@ -62,25 +62,32 @@ input CampaignSortInput {
 }
 
 input CreateCampaignInput {
-  payload: CreateCampaignPaylodInput!
+  payload: CreateCampaignPayloadInput!
 }
 
-input CreateCampaignPaylodInput {
+input CreateCampaignPayloadInput {
   name: String!
   advertiserId: String!
+  url: String!
 }
 
 input UpdateCampaignInput {
   id: String!
-  payload: UpdateCampaignPaylodInput!
+  payload: UpdateCampaignPayloadInput!
 }
 
-input UpdateCampaignPaylodInput {
+input UpdateCampaignPayloadInput {
   name: String!
+  url: String
 }
 
 input AddCampaignCreativeInput {
   campaignId: String!
+  payload: AddCampaignCreativePayloadInput
+}
+
+input AddCampaignCreativePayloadInput {
+  title: String
 }
 
 input RemoveCampaignCreativeInput {
