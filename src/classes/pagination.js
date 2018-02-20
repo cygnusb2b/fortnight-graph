@@ -60,7 +60,7 @@ class Pagination {
     const filter = await this.getFilter();
     return this.Model.find(filter)
       .sort(this.getSortObject())
-      .limit(this.getLimit())
+      .limit(this.limit)
       .collation(this.collation)
       .comment(this.createComment('getEdges'));
   }
@@ -71,37 +71,28 @@ class Pagination {
 
   async getEndCursor() {
     const filter = await this.getFilter();
-    const limit = this.getLimit();
 
     const Query = this.Model
       .findOne(filter)
+      .sort(this.getSortObject())
+      .limit(this.limit)
+      .skip(this.limit - 1)
       .select({ _id: 1 })
       .collation(this.collation)
       .comment(this.createComment('getEndCursor'));
 
-    if (limit) {
-      const skip = limit - 1;
-      Query.sort(this.getSortObject()).limit(limit).skip(skip);
-    } else {
-      Query.sort(this.invertSortObj()).limit(1);
-    }
     const model = await Query;
     return model ? model.get('id') : null;
   }
 
   async hasNextPage() {
-    let count;
-    const limit = this.getLimit();
-
-    if (limit) {
-      const filter = await this.getFilter();
-      count = await this.Model.find(filter)
-        .sort(this.getSortObject())
-        .collation(this.collation)
-        .comment(this.createComment('hasNextPage'))
-        .count();
-    }
-    return Boolean(limit && count > limit);
+    const filter = await this.getFilter();
+    const count = await this.Model.find(filter)
+      .sort(this.getSortObject())
+      .collation(this.collation)
+      .comment(this.createComment('hasNextPage'))
+      .count();
+    return Boolean(count > this.limit);
   }
 
   static parseSort({ field, order } = {}) {
@@ -112,8 +103,9 @@ class Pagination {
   }
 
   static getSortField(field) {
+    const toResolve = field || 'id';
     const resolveToId = ['id', '_id', 'createdAt'];
-    return field && !resolveToId.includes(field) ? field : '_id';
+    return toResolve && !resolveToId.includes(toResolve) ? toResolve : '_id';
   }
 
   static getSortOrder(order) {
@@ -132,13 +124,12 @@ class Pagination {
     return keys(sort).reduce((obj, key) => assign(obj, { [key]: sort[key] === 1 ? -1 : 1 }), {});
   }
 
-  getLimit({ def = 10, max = 200 } = {}) {
-    let limit = parseInt(this.first, 10);
-    if (!limit || limit < 1) {
-      limit = def;
-    } else if (limit > 200) {
-      limit = max;
-    }
+  get limit() {
+    const def = 10;
+    const max = 200;
+    const limit = parseInt(this.first, 10);
+    if (!limit || limit < 1) return def;
+    if (limit > max) return max;
     return limit;
   }
 
