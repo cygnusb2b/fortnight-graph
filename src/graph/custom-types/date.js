@@ -5,9 +5,11 @@ module.exports = new GraphQLScalarType({
   name: 'Date',
   description: 'Date custom scalar type',
   parseValue(value) {
-    return new Date(value); // value from the client
+    if (!value) return null;
+    return new Date(parseInt(value, 10)); // value from the client
   },
   serialize(value) {
+    if (!(value instanceof Date)) return null;
     return value.getTime(); // value sent to the client
   },
   parseLiteral(ast) {
