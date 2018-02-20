@@ -26,6 +26,12 @@ node {
 
   if (!env.BRANCH_NAME.contains('PR-')) {
     try {
+      stage('Yarn Production Install') {
+        nodeBuilder.inside("-v ${env.WORKSPACE}:/app -u 0:0") {
+          sh 'yarn install --production'
+        }
+      }
+
       docker.withRegistry('https://664537616798.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:aws-jenkins-login') {
         stage('Build Container') {
           myDocker = docker.build("fortnight-graph:v${env.BUILD_NUMBER}", '.')
