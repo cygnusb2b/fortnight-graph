@@ -1,112 +1,125 @@
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
-const sinon = require('sinon');
+require('../connections');
 const Repo = require('../../src/repositories/advertiser');
 const Model = require('../../src/models/advertiser');
-const Pagination = require('../../src/classes/pagination');
-const Promise = require('bluebird');
+const Utils = require('../utils');
 
-chai.use(chaiAsPromised);
-const expect = chai.expect;
-const sandbox = sinon.createSandbox();
+const createAdvertiser = async () => {
+  const results = await Repo.seed();
+  return results.one();
+};
 
 describe('repositories/advertiser', function() {
+  before(function() {
+    return Repo.remove();
+  });
+  after(function() {
+    return Repo.remove();
+  });
   it('should export an object.', function(done) {
     expect(Repo).to.be.an('object');
     done();
   });
-  describe('#findById', function() {
-    beforeEach(function() {
-      sandbox.stub(Model, 'findOne').callsFake(({ _id }) => {
-        const val = _id === '1234' ? { _id } : null;
-        return Promise.resolve(val);
-      });
 
-    });
-    afterEach(function() {
-      sinon.assert.calledOnce(Model.findOne);
-      sandbox.restore();
-    });
-
-    it('should return an advertiser document.', async () => {
-      const _id = '1234';
-      await expect(Repo.findById('1234'))
-        .to.be.fulfilled
-        .and.eventually.have.property('_id').equal(_id)
-      ;
-      sinon.assert.calledWith(Model.findOne, { _id });
-    });
-    it('should error when the advertiser is not found.', async () => {
-      const id = '12345';
-      await expect(Repo.findById(id))
-        .to.be.rejectedWith(Error, `No advertiser found for id '${id}'`)
-      ;
-      sinon.assert.calledWith(Model.findOne, { _id: id });
-    });
-  });
-  describe('#update', function() {
-    beforeEach(function() {
-      sandbox.stub(Model, 'findOneAndUpdate').callsFake(({ _id }, { $set }, options) => {
-        const val = _id === '1234' ? { _id, name: $set.name } : null;
-        return Promise.resolve(val);
-      });
-
-    });
-    afterEach(function() {
-      sinon.assert.calledOnce(Model.findOneAndUpdate);
-      sandbox.restore();
-    });
-
-    it('should return the updated advertiser document.', async () => {
-      const id = '1234';
-      const name = 'New Name';
-      await expect(Repo.update({ id, name }))
-        .to.be.fulfilled
-        .and.become({ _id: id, name });
-      ;
-      sinon.assert.calledWith(Model.findOneAndUpdate, { _id: id }, { $set: { name } }, { new: true });
-    });
-    it('should error when the advertiser is not found.', async () => {
-      const id = '12345';
-      const name = 'New Name';
-      await expect(Repo.update({ id, name }))
-        .to.be.rejectedWith(Error, `No advertiser found for id '${id}'`)
-      ;
-      sinon.assert.calledWith(Model.findOneAndUpdate, { _id: id }, { $set: { name } }, { new: true });
-    });
-  });
   describe('#create', function() {
-    beforeEach(function() {
-      sandbox.stub(Model.prototype, 'save').callsFake(() => {
-        return Promise.resolve({ id: '1234' });
-      });
+    it('should return a rejected promise when valiation fails.', async function() {
+      await expect(Repo.create({})).to.be.rejectedWith(Error, /validation/i);
+      await expect(Repo.create()).to.be.rejectedWith(Error, /validation/i);
+    });
+    it('should return a fulfilled promise with the model.', async function() {
+      const payload = Repo.generate().one();
+      const advertiser = await Repo.create(payload);
+      const found = await Repo.findById(advertiser.get('id'));
 
-    });
-    afterEach(function() {
-      sinon.assert.calledOnce(Model.prototype.save);
-      sandbox.restore();
-    });
-
-    it('should return the created advertiser document.', async () => {
-      const name = 'New Name';
-      await expect(Repo.create({ name }))
-        .to.be.fulfilled
-        .and.become({ id: '1234' });
-      ;
-    });
-    it('should return the created advertiser document when no payload is present.', async () => {
-      await expect(Repo.create())
-        .to.be.fulfilled
-        .and.become({ id: '1234' });
-      ;
+      expect(found).to.be.an.instanceof(Model);
+      expect(found).to.have.property('id').equal(advertiser.get('id'));
     });
   });
+
+  describe('#update', function() {
+    let advertiser;
+    before(async function() {
+      advertiser = await createAdvertiser();
+    });
+    it('should return a rejected promise when no ID is provided.', async function() {
+      await expect(Repo.update()).to.be.rejectedWith(Error, 'Unable to update advertiser: no ID was provided.');
+    });
+    it('should return a rejected promise when the ID cannot be found.', async function() {
+      const id = '507f1f77bcf86cd799439011';
+      await expect(Repo.update(id, { name: 'foo' })).to.be.rejectedWith(Error, `Unable to update advertiser: no record was found for ID '${id}'`);
+    });
+    it('should return a rejected promise when valiation fails.', async function() {
+      await expect(Repo.update(advertiser.id)).to.be.rejectedWith(Error, /validation/i);
+    });
+    it('should return the updated model object.', async function() {
+      const updated = await Repo.update(advertiser.id, { name: 'Updated name.' });
+      expect(updated).to.be.an('object');
+      expect(updated).to.be.an.instanceof(Model).with.property('name').equal('Updated name.');
+    });
+  });
+
+  describe('#findById', function() {
+    let advertiser;
+    before(async function() {
+      advertiser = await createAdvertiser();
+    });
+    it('should return a rejected promise when no ID is provided.', async function() {
+      await expect(Repo.findById()).to.be.rejectedWith(Error, 'Unable to find advertiser: no ID was provided.');
+    });
+    it('should return a fulfilled promise with a `null` document when not found.', async function() {
+      const id = '507f1f77bcf86cd799439011';
+      await expect(Repo.findById(id)).to.be.fulfilled.and.become(null);
+    });
+    it('should return a fulfilled promise with a document when found.', async function() {
+      await expect(Repo.findById(advertiser.get('id'))).to.be.fulfilled.and.eventually.be.an.instanceof(Model).with.property('id').equal(advertiser.get('id'));
+    });
+  });
+
+  describe('#find', function() {
+    it('should return a promise.', async function() {
+      await expect(Repo.find()).to.be.fulfilled.and.eventually.be.an('array');
+    });
+  });
+
   describe('#paginate', function() {
     it('should return a Pagination instance.', function(done) {
-      const paginated = Repo.paginate();
-      expect(paginated).to.be.an.instanceOf(Pagination);
-      expect(paginated.Model).to.be.a('function');
+      Utils.testPaginate(Repo);
       done();
     })
+  });
+
+  describe('#generate', function() {
+    it('should return a fixture result with one record.', function(done) {
+      const results = Repo.generate();
+      expect(results).to.be.an('object');
+      expect(results.length).to.equal(1);
+      done();
+    });
+    it('should return a fixture result with the specified number of records.', function(done) {
+      const results = Repo.generate(5);
+      expect(results).to.be.an('object');
+      expect(results.length).to.equal(5);
+      done();
+    });
+  });
+
+  describe('#seed', function() {
+    it('should generate and save the fixture data.', async function() {
+      await expect(Repo.seed()).to.be.fulfilled.and.eventually.be.an('object');
+      await expect(Repo.seed({ count: 2 })).to.be.fulfilled.and.eventually.be.an('object');
+    });
+  });
+
+  describe('#removeById', function() {
+    let advertiser;
+    before(async function() {
+      advertiser = await createAdvertiser();
+    });
+    it('should return a rejected promise when no ID is provided.', async function() {
+      await expect(Repo.removeById()).to.be.rejectedWith(Error, 'Unable to remove advertiser: no ID was provided.');
+    });
+    it('remove the requested advertiser.', async function() {
+      await expect(Repo.removeById(advertiser.id)).to.be.fulfilled;
+      await expect(Repo.findById(advertiser.id)).to.be.fulfilled.and.eventually.be.null;
+    });
   });
 });

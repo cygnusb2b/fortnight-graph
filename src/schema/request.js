@@ -5,17 +5,19 @@ const uuidParse = require('uuid-parse');
 const { Schema } = mongoose;
 const MongooseBuffer = mongoose.Types.Buffer;
 
+const createBuffer = buffer => new MongooseBuffer(buffer).toObject(0x04);
+
 module.exports = new Schema({
   _id: {
     type: Schema.Types.Buffer,
     default: () => {
       const buffer = uuidv4(null, Buffer.alloc(16));
-      return new MongooseBuffer(buffer).toObject(0x04);
+      return createBuffer(buffer);
     },
     get: buffer => uuidParse.unparse(buffer),
     set: (string) => {
       const buffer = uuidParse.parse(string);
-      return new MongooseBuffer(buffer).toObject(0x04);
+      return createBuffer(buffer);
     },
   },
   d: {
@@ -24,10 +26,10 @@ module.exports = new Schema({
     default: () => new Date(),
   },
   cid: {
-    type: String,
+    type: Schema.Types.ObjectId,
   },
   pid: {
-    type: String,
+    type: Schema.Types.ObjectId,
     required: true,
   },
 });

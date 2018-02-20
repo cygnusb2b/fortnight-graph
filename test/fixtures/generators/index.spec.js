@@ -1,4 +1,3 @@
-const expect = require('chai').expect;
 const generators = require('../../../src/fixtures/generators');
 
 describe('fixtures/generators', function() {
@@ -7,7 +6,7 @@ describe('fixtures/generators', function() {
     done();
   });
   const cases = [
-    'publisher', 'placement', 'advertiser', 'campaign', 'creative', 'user'
+    'publisher', 'placement', 'advertiser', 'campaign', 'creative', 'user', 'request'
   ];
   it(`should only contain the ${cases.join(', ')} properties`, function(done) {
     expect(generators).to.have.keys(cases);

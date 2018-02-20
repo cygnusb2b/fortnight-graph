@@ -1,4 +1,3 @@
-const expect = require('chai').expect;
 const Auth = require('../../src/classes/auth');
 
 const simpleAuth = new Auth();
@@ -14,9 +13,9 @@ const badSessionsUsers = [
   ['', {}],
 ];
 const mismatches = [
-  [{ uid: 1 }, { uid: '' }],
-  [{ uid: 1 }, { uid: '1' }],
-  [{ uid: null }, { uid: undefined }],
+  [{ uid: 1 }, { id: '' }],
+  [{ uid: 1 }, { id: '1' }],
+  [{ uid: null }, { id: undefined }],
 ];
 
 describe('classes/auth', function() {
@@ -52,7 +51,7 @@ describe('classes/auth', function() {
     });
     it('should return null when no error conditions have been found.', function(done) {
       const auth = new Auth({
-        user: { uid: 1 },
+        user: { id: 1 },
         session: { uid: 1 },
       });
       expect(auth.getError()).to.be.null;
@@ -87,7 +86,7 @@ describe('classes/auth', function() {
     });
     it('should return true when no error conditions have been found.', function(done) {
       const auth = new Auth({
-        user: { uid: 1 },
+        user: { id: 1 },
         session: { uid: 1 },
       });
       expect(auth.isValid()).to.be.true;
@@ -123,7 +122,7 @@ describe('classes/auth', function() {
     });
     it('should return true when the role is set.', function(done) {
       const auth = new Auth({
-        user: { uid: 1, role: 'foo' },
+        user: { id: 1, role: 'foo' },
         session: { uid: 1 },
       });
       expect(auth.hasRole('foo')).to.be.true;
@@ -160,14 +159,14 @@ describe('classes/auth', function() {
         expect(auth.isAdmin()).to.be.false;
       });
 
-      auth.user = { uid: 1, role: 'admin' };
+      auth.user = { id: 1, role: 'admin' };
       auth.session = { uid: 1 };
       expect(auth.isAdmin()).to.be.false;
       done();
     });
     it('should return true when role is set to Admin.', function(done) {
       const auth = new Auth({
-        user: { uid: 1, role: 'Admin' },
+        user: { id: 1, role: 'Admin' },
         session: { uid: 1 },
       });
       expect(auth.isAdmin()).to.be.true;
@@ -191,7 +190,7 @@ describe('classes/auth', function() {
       badSessionsUsers.forEach((args) => {
         auth.session = args[0];
         auth.user = args[1];
-        expect(auth.check.bind(auth)).to.throw(Error, 'No user or session was found.');
+        expect(auth.check.bind(auth)).to.throw(Error, 'You must be logged-in to access this resource.');
       });
       done();
     });
@@ -200,13 +199,13 @@ describe('classes/auth', function() {
       mismatches.forEach((args) => {
         auth.session = args[0];
         auth.user = args[1];
-        expect(auth.check.bind(auth)).to.throw(Error, 'Session-user mismatch encountered.');
+        expect(auth.check.bind(auth)).to.throw(Error, 'You must be logged-in to access this resource.');
       });
       done();
     });
     it('should return undefined (and not throw) when no error conditions have been found.', function(done) {
       const auth = new Auth({
-        user: { uid: 1 },
+        user: { id: 1 },
         session: { uid: 1 },
       });
       expect(auth.check.bind(auth)).to.not.throw();

@@ -1,4 +1,3 @@
-const expect = require('chai').expect;
 const Generate = require('../../../src/fixtures/generators/advertiser');
 
 describe('fixtures/generators/advertiser', function() {
@@ -9,8 +8,8 @@ describe('fixtures/generators/advertiser', function() {
 
   const fields = [
     { key: 'name', cb: v => expect(v).be.a('string') },
-    { key: 'createdAt', cb: v => expect(v).be.a('number').gt(0) },
-    { key: 'updatedAt', cb: v => expect(v).be.a('number').gt(0) },
+    { key: 'createdAt', cb: v => expect(v).be.a('date') },
+    { key: 'updatedAt', cb: v => expect(v).be.a('date') },
   ];
 
   const obj = Generate();

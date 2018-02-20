@@ -11,8 +11,8 @@ const SETTINGS = {
   saltRounds: 5, // For user secret bcrypt.
   namespace: 'b966dde2-9ca8-11e7-abc4-cec278b6b50a', // Namespace for UUIDv5.
   expires: 60 * 60, // One hour, in seconds.
-  idPrefix: 'id', // Cache prefix.
-  userPrefix: 'user', // Cache prefix.
+  idPrefix: 'session:id', // Cache prefix.
+  userPrefix: 'session:user', // Cache prefix.
 };
 
 
@@ -24,17 +24,9 @@ function createSecret({ userSecret }) {
   return `${userSecret}.${SETTINGS.globalSecret}`;
 }
 
-let client;
-
-/**
- * @todo Need to adjust how errors are handled so certain 500's stay 500's??
- */
 module.exports = {
   getClient() {
-    if (!client) {
-      client = redis.get('session');
-    }
-    return client;
+    return redis;
   },
 
   /**
@@ -56,11 +48,13 @@ module.exports = {
    * @return {Promise}
    */
   async get(token) {
+    if (!token) throw new Error('Unable to get session: no token was provided.');
     const parsed = await jwt.decode(token, { complete: true, force: true });
+    if (!parsed) throw new Error('Unable to get session: invalid token format.');
     const result = await this.getClient().getAsync(`${SETTINGS.idPrefix}:${parsed.payload.jti}`);
-    if (!result) {
-      throw new Error('No token found in storage.');
-    }
+
+    if (!result) throw new Error('Unable to get session: no token found in storage.');
+
     const session = Object(JSON.parse(result));
     const sid = createSessionId(session);
     const secret = createSecret({ userSecret: session.s });
@@ -83,12 +77,11 @@ module.exports = {
    * @return {Promise}
    */
   async set({ uid }) {
+    if (!uid) throw new Error('The user ID is required.');
+
     const now = new Date();
     const iat = Math.floor(now.valueOf() / 1000);
 
-    if (!uid) {
-      throw new Error('The user ID is required.');
-    }
     const userSecret = await bcrypt.hash(uuidv4(), SETTINGS.saltRounds);
 
     const ts = now.valueOf();

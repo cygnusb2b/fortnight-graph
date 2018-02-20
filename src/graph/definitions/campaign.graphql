@@ -18,16 +18,31 @@ type Campaign {
   updatedAt: Date
   advertiser: Advertiser!
   status: CampaignStatus!
-  creatives: [CampaignCreative]!
+  url: String!
+  creatives: [CampaignCreative]
 }
 
 type CampaignCreative {
   id: String!
-  name: String
-  url: String
   title: String
   teaser: String
-  image: String
+  image: CampaignCreativeImage
+}
+
+type CampaignCreativeImage {
+  id: String!
+  src: String!
+  filePath: String!
+  mimeType: String
+  fileSize: Int
+  width: Int
+  height: Int
+  focalPoint: ImageFocalPoint
+}
+
+type ImageFocalPoint {
+  x: Float!
+  y: Float!
 }
 
 type CampaignConnection {
@@ -47,22 +62,37 @@ input CampaignSortInput {
 }
 
 input CreateCampaignInput {
+  payload: CreateCampaignPayloadInput!
+}
+
+input CreateCampaignPayloadInput {
   name: String!
   advertiserId: String!
+  url: String!
 }
 
 input UpdateCampaignInput {
   id: String!
+  payload: UpdateCampaignPayloadInput!
+}
+
+input UpdateCampaignPayloadInput {
   name: String!
+  url: String
 }
 
 input AddCampaignCreativeInput {
-  cid: String!
+  campaignId: String!
+  payload: AddCampaignCreativePayloadInput
+}
+
+input AddCampaignCreativePayloadInput {
+  title: String
 }
 
 input RemoveCampaignCreativeInput {
-  id: String!
-  cid: String!
+  campaignId: String!
+  creativeId: String!
 }
 
 # input UpdateCampaignCreativeInput {

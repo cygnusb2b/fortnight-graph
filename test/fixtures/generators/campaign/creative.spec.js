@@ -1,17 +1,14 @@
-const expect = require('chai').expect;
-const Generate = require('../../../src/fixtures/generators/creative');
+const Generate = require('../../../../src/fixtures/generators/campaign/creative');
 
-describe('fixtures/generators/publisher', function() {
+describe('fixtures/generators/campaign/creative', function() {
   it('should return a factory function', function(done) {
     expect(Generate).to.be.a('function');
     done();
   });
   const fields = [
-    { key: 'name', cb: v => expect(v).be.a('string') },
-    { key: 'url', cb: v => expect(v).be.a('string') },
     { key: 'title', cb: v => expect(v).be.a('string') },
     { key: 'teaser', cb: v => expect(v).be.a('string') },
-    { key: 'image', cb: v => expect(v).be.a('string') },
+    { key: 'image', cb: v => expect(v).be.an('object') },
   ];
 
   const obj = Generate();

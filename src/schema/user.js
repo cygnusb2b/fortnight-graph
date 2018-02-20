@@ -1,18 +1,11 @@
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const validator = require('validator');
-const shortid = require('shortid');
 const crypto = require('crypto');
 
 const { Schema } = mongoose;
 
 const schema = new Schema({
-  uid: {
-    type: String,
-    required: true,
-    unique: true,
-    default: shortid.generate,
-  },
   email: {
     type: String,
     required: true,
@@ -24,6 +17,7 @@ const schema = new Schema({
         validator(email) {
           return validator.isEmail(email);
         },
+        message: 'Invalid email address {VALUE}',
       },
     ],
   },
@@ -63,6 +57,17 @@ const schema = new Schema({
   },
   photoURL: {
     type: String,
+    trim: true,
+    validate: {
+      validator(v) {
+        if (!v) return true;
+        return validator.isURL(v, {
+          protocols: ['http', 'https'],
+          require_protocol: true,
+        });
+      },
+      message: 'Invalid photo URL for {VALUE}',
+    },
   },
 }, {
   timestamps: true,
@@ -90,8 +95,8 @@ schema.pre('save', function setPhotoURL(next) {
   if (!this.photoURL) {
     const hash = crypto.createHash('md5').update(this.email).digest('hex');
     this.photoURL = `https://www.gravatar.com/avatar/${hash}`;
-    next();
   }
+  next();
 });
 
 module.exports = schema;

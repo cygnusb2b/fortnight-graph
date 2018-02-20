@@ -5,20 +5,15 @@ const { Kind } = require('graphql/language');
 const toCursor = value => Base64URL.encode(`${value}`);
 
 const fromCursor = (value) => {
-  if (!value) return null;
   const cursor = Base64URL.decode(value);
-  if (cursor) {
-    return cursor;
-  }
+  if (cursor) return cursor;
   return null;
 };
 
 const CursorType = new GraphQLScalarType({
   name: 'Cursor',
   serialize(value) {
-    if (value) {
-      return toCursor(value);
-    }
+    if (value) return toCursor(value);
     return null;
   },
   parseLiteral(ast) {
@@ -28,7 +23,8 @@ const CursorType = new GraphQLScalarType({
     return null;
   },
   parseValue(value) {
-    return fromCursor(value);
+    if (value) return fromCursor(value);
+    return null;
   },
 });
 

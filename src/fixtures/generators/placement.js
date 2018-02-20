@@ -1,4 +1,3 @@
-const shortid = require('shortid');
 const faker = require('faker');
 
 const template = `
@@ -6,11 +5,13 @@ const template = `
 <p>{{ teaser }} - {{ c.customVar }}</p>
 `;
 
-module.exports = ({ publisherId } = {}) => ({
-  name: faker.random.words(),
-  pid: shortid.generate(),
-  template,
-  createdAt: faker.date.past().valueOf(),
-  updatedAt: faker.date.recent().valueOf(),
-  publisherId: publisherId(),
-});
+module.exports = ({ publisherId } = {}) => {
+  const now = new Date();
+  return {
+    name: faker.random.words(),
+    template,
+    createdAt: now,
+    updatedAt: now,
+    publisherId: publisherId(),
+  };
+};

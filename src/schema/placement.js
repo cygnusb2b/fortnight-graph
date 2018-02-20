@@ -1,26 +1,32 @@
 const mongoose = require('mongoose');
-const shortid = require('shortid');
+const Publisher = require('../models/publisher');
 
 const { Schema } = mongoose;
 
-module.exports = new Schema({
+const schema = new Schema({
   name: {
     type: String,
     required: true,
     trim: true,
-  },
-  pid: {
-    type: String,
-    required: true,
     unique: true,
-    default: shortid.generate,
   },
   template: {
     type: String,
-    required: true,
   },
   publisherId: {
     type: Schema.Types.ObjectId,
     required: true,
+    validate: {
+      async validator(v) {
+        const doc = await Publisher.findOne({ _id: v }, { _id: 1 });
+        if (doc) return true;
+        return false;
+      },
+      message: 'No publisher found for ID {VALUE}',
+    },
   },
 }, { timestamps: true });
+
+schema.index({ publisherId: 1 });
+
+module.exports = schema;

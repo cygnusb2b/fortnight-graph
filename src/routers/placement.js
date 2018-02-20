@@ -1,7 +1,6 @@
 const { Router } = require('express');
-const querystring = require('querystring');
 const createError = require('http-errors');
-const CampaignRepo = require('../repositories/campaign');
+const CampaignPlacementRepo = require('../repositories/campaign/placement');
 
 const router = Router();
 
@@ -12,23 +11,13 @@ const handleError = (err, req, res) => {
   const extension = acceptable.includes(ext) ? ext : 'html';
   const status = err.status || err.statusCode || 500;
   const message = err.expose ? err.message : 'A fatal error has occurred.';
-
+  res.set('Content-Type', 'text/html');
   let response = `${message} (${status})`;
   if (extension === 'json') {
     response = { error: { status, message } };
+    res.set('Content-Type', 'application/json');
   }
   res.status(status).send(response);
-};
-
-const parseVariables = (vars = {}) => {
-  let variables = {};
-  if (typeof vars === 'string') {
-    const parsed = querystring.parse(vars);
-    if (parsed && typeof parsed === 'object') variables = parsed;
-  } else if (vars && typeof vars === 'object') {
-    variables = vars;
-  }
-  return variables;
 };
 
 router.get('/:pid.:ext', (req, res) => {
@@ -37,9 +26,9 @@ router.get('/:pid.:ext', (req, res) => {
   const { limit, cv, mv } = req.query;
 
   if (acceptable.includes(ext)) {
-    const custom = parseVariables(cv);
-    const merge = parseVariables(mv);
-    CampaignRepo.findFor({
+    const custom = CampaignPlacementRepo.parseVariables(cv);
+    const merge = CampaignPlacementRepo.parseVariables(mv);
+    CampaignPlacementRepo.findFor({
       url,
       pid,
       limit,

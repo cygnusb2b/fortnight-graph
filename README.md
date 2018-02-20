@@ -67,10 +67,17 @@ The available request parameters (as query string values) are as follows, and ar
 Specifies the number of campaigns that should be returned.  The default value is `1` and cannot exceed `10`. The CSA will do its best to return the number requested, but is not guaranteed, based on inventory conditions. For example, `limit=2` or `limit=5`.
 
 **`cv`**
-The custom variables to send with the request. Can be sent as either object-notated key/values, or as a URL encoded query string. For example, as an object: `cv[foo]=bar&cv[key]=value`, or as URL encoded string: `cv=foo%3Dbar%26key%3Dvalue`
+The custom variables to send with the request. Only custom variables that have been pre-defined in the system will be used. Any others will be ignored. Should be sent as: `cv=foo:bar;key:value`. See note on variable format below.
 
 **`mv`**
-The custom merge values to be used inside the placement's template. Will only be applied if the variable exists within the template. Can be sent as either object-notated key/values, or as a URL encoded query string. For example, as an object: `mv[foo]=bar&mv[key]=value`, or as URL encoded string: `mv=foo%3Dbar%26key%3Dvalue`
+The custom merge values to be used inside the placement's template. Will only be applied if the variable exists within the template. Should be sent as: `mv=foo:bar;key:value`. See note on variable format below.
+
+**Note on Variable Format**
+Special characters within the key or value part should still be URL encoded. For example `cv=foo:bar!` should be sent as `cv=foo:bar%21`.
+
+If a `;` or `:` must be present as a key or value, it must be encoded. For example, to create a `{ 'f:oo' : 'ba;r' }` object, the string must be sent as `cv=f%3Aoo:ba%3Br`.
+
+If you decide to encode the _entire_ string you can, but note that `:` and `;` must be _double-encoded_. For example, in order to create `{ foo: 'ba:r', key: 'value!' }` (when encoding the entire string), the string must be sent as `cv=foo%3Aba%253Ar%3Bkey%3Avalue%21`. If you are _not_ encoding the entire string, this value will also acceptable: `cv=foo:ba%3Ar;key:value%21`.
 
 ## Development
 ### Docker Compose
@@ -89,7 +96,16 @@ The testing framework runs within a second Docker Compose environment defined in
 The test environment can be booted and run by executing `yarn run test` or `yarn run coverage`, or manually via `docker-compose -p fortnightgraphtest -f test/docker-compose.yml run --entrypoint "yarn run test" test`.
 
 ### Running/Writing Tests
-[Mocha](https://mochajs.org/) and [Chai](http://chaijs.com/) are used for unit testing. All tests are found in the `/test` folder, and must contain `.spec.js` in the name in order for the file to be recognized. You can run tests via the `yarn run test` command. Preferably, the folder and file structure should mimic the `/src` directory. For example, the  file `/src/classes/auth.js` should have a corresponding test file located at `/test/classes/auth.spec.js`. While the BDD assertion style is preferred (e.g. `expect` or `should`), feel free to use the TDD `assert` style if that's more comfortable. **Note:** the test command will also execute the `lint:hard` command. In other words, if lint errors are found, the tests will also fail!
+[Mocha](https://mochajs.org/) and [Chai](http://chaijs.com/) are used for unit testing. All tests are found in the `/test` folder, and must contain `.spec.js` in the name in order for the file to be recognized. You can run tests via the `yarn run test` command. Preferably, the folder and file structure should mimic the `/src` directory. For example, the  file `/src/classes/auth.js` should have a corresponding test file located at `/test/classes/auth.spec.js`. While the BDD assertion style is preferred (e.g. `expect` or `should`), feel free to use the TDD `assert` style if that's more comfortable. **Note:** the test command will also execute the `lint` command. In other words, if lint errors are found, the tests will also fail!
+
+By default, running `yarn run test` will run all test files. You can optionally specify the tests to run by executing `yarn run test tests/some/test.spec.js`, or using a glob: `yarn run test "tests/some-folder/*.js"` (_make sure you include the quotes_). This is usually more efficient when writing new tests, so you don't have to wait for the entire test suite to finish when making tweaks.
+
+Since the test environment runs within a Docker container, tests (generally) are a mixture of unit and integration tests. If your test will access either Mongo and/or Redis, you **must** include the connection bootstrapper (`require('../connections);`) as the _first_ line in your test file. This ensures that the connections are properly intialized, torn down, and that Mocha will exit correctly (not hang).
+
+All tests are bootstrapped using the `/test/bootstrap.js` file. This globally exposes the `Promise` (via `bluebird`), `chai`, `request` (via `supertest`), `sinon`, and `expect` (via `chai`) variables, so you do not need to require these packages your tests. In addition, `chai-as-promised` is loaded within the bootstrapped Chai instance.
+
+#### Successful Test Criteria
+You __must__ ensure that new tests will run successfully as _an individual file_ and as a part of the _global test suite_. The test(s) should pass and the container should properly exit and tear down. For example, if you've just created the`/test/my-cool-test.spec.js` test file, then __both__ of these commands should meet the success conditions: `yarn run test` and `yarn run test test/my-cool-test.spec.js`.
 
 ### Code Coverage
 Test coverage is handled by [Instanbul/nyc](https://istanbul.js.org/). To view a coverage report, execute `yarn run coverage` at the root of the project. When adding/modifying code, the coverage should preferably stay the same (meaning new tests were added) - or get better!

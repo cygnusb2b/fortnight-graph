@@ -1,13 +1,13 @@
 const paginationResolvers = require('./pagination');
 const AdvertiserRepo = require('../../repositories/advertiser');
 const CampaignRepo = require('../../repositories/campaign');
+const CreativeRepo = require('../../repositories/campaign/creative');
 
 module.exports = {
   /**
    *
    */
   Campaign: {
-    id: campaign => campaign.get('cid'),
     advertiser: campaign => AdvertiserRepo.findById(campaign.get('advertiserId')),
   },
 
@@ -28,10 +28,12 @@ module.exports = {
     /**
      *
      */
-    campaign: (root, { input }, { auth }) => {
+    campaign: async (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      return CampaignRepo.findById(id);
+      const record = await CampaignRepo.findById(id);
+      if (!record) throw new Error(`No campaign record found for ID ${id}.`);
+      return record;
     },
 
     /**
@@ -52,7 +54,8 @@ module.exports = {
      */
     createCampaign: (root, { input }, { auth }) => {
       auth.check();
-      return CampaignRepo.create(input);
+      const { payload } = input;
+      return CampaignRepo.create(payload);
     },
 
     /**
@@ -60,15 +63,17 @@ module.exports = {
      */
     updateCampaign: (root, { input }, { auth }) => {
       auth.check();
-      return CampaignRepo.update(input);
+      const { id, payload } = input;
+      return CampaignRepo.update(id, payload);
     },
 
     /**
      *
      */
-    addCampaignCreative: async (root, { input }, { auth }) => {
+    addCampaignCreative: (root, { input }, { auth }) => {
       auth.check();
-      return CampaignRepo.addCreative(input);
+      const { campaignId, payload } = input;
+      return CreativeRepo.createFor(campaignId, payload);
     },
 
     /**
@@ -84,7 +89,9 @@ module.exports = {
      */
     removeCampaignCreative: async (root, { input }, { auth }) => {
       auth.check();
-      return CampaignRepo.removeCreative(input);
+      const { campaignId, creativeId } = input;
+      await CreativeRepo.removeFrom(campaignId, creativeId);
+      return 'ok';
     },
   },
 };

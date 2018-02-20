@@ -1,4 +1,3 @@
-const expect = require('chai').expect;
 const Generate = require('../../../src/fixtures/generators/user');
 
 describe('fixtures/generators/user', function() {
@@ -7,16 +6,17 @@ describe('fixtures/generators/user', function() {
     done();
   });
   const fields = [
-    { key: 'uid', cb: v => expect(v).be.a('string') },
     { key: 'email', cb: v => expect(v).be.a('string') },
     { key: 'password', cb: v => expect(v).be.a('string') },
     { key: 'givenName', cb: v => expect(v).be.a('string') },
     { key: 'familyName', cb: v => expect(v).be.a('string') },
     { key: 'logins', cb: v => expect(v).be.a('number') },
-    { key: 'lastLoggedInAt', cb: v => expect(v).be.a('number').gt(0) },
+    { key: 'lastLoggedInAt', cb: v => expect(v).be.a('date') },
     { key: 'isEmailVerified', cb: v => expect(v).be.a('boolean') },
     { key: 'role', cb: v => expect(v).be.a('string') },
     { key: 'photoURL', cb: v => expect(v).be.a('string') },
+    { key: 'createdAt', cb: v => expect(v).be.a('date') },
+    { key: 'updatedAt', cb: v => expect(v).be.a('date') },
   ];
   const obj = Generate();
 

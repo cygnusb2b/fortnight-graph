@@ -18,15 +18,15 @@ type Query {
 
 type Mutation {
   createUser(input: CreateUserInput!): User
-  createAdvertiser(input: CreateAdvertiserInput!): Advertiser
-  updateAdvertiser(input: UpdateAdvertiserInput!): Advertiser
-  createCampaign(input: CreateCampaignInput!): Campaign
-  updateCampaign(input: UpdateCampaignInput!): Campaign
+  createAdvertiser(input: CreateAdvertiserInput!): Advertiser!
+  updateAdvertiser(input: UpdateAdvertiserInput!): Advertiser!
+  createCampaign(input: CreateCampaignInput!): Campaign!
+  updateCampaign(input: UpdateCampaignInput!): Campaign!
   loginUser(input: LoginInput!): Authentication
   deleteSession: String
-  addCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative
-  # updateCampaignCreative(input: UpdateCampaignCreativeInput!): CampaignCreative
-  removeCampaignCreative(input: RemoveCampaignCreativeInput!): CampaignCreative
+  addCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative!
+  # updateCampaignCreative(input: UpdateCampaignCreativeInput!): CampaignCreative!
+  removeCampaignCreative(input: RemoveCampaignCreativeInput!): String!
 }
 
 type Placement {

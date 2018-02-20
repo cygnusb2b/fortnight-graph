@@ -1,4 +1,3 @@
-const expect = require('chai').expect;
 const uuidUtil = require('../../src/utils/uuid');
 
 const cases = [

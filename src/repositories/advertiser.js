@@ -1,5 +1,7 @@
+const Promise = require('bluebird');
 const Advertiser = require('../models/advertiser');
 const Pagination = require('../classes/pagination');
+const fixtures = require('../fixtures');
 
 module.exports = {
   /**
@@ -14,31 +16,59 @@ module.exports = {
 
   /**
    *
-   * @param {object} params
-   * @param {string} params.id
-   * @param {string} params.name
+   * @param {string} id
+   * @param {object} payload
+   * @param {string} payload.name
    * @return {Promise}
    */
-  update({ id, name }) {
+  update(id, { name } = {}) {
+    if (!id) return Promise.reject(new Error('Unable to update advertiser: no ID was provided.'));
     const criteria = { _id: id };
     const update = { $set: { name } };
-    const options = { new: true };
+    const options = { new: true, runValidators: true };
     return Advertiser.findOneAndUpdate(criteria, update, options).then((document) => {
-      if (!document) throw new Error(`No advertiser found for id '${id}'`);
+      if (!document) throw new Error(`Unable to update advertiser: no record was found for ID '${id}'`);
       return document;
     });
   },
 
   /**
+   * Find an Advertiser record by ID.
+   *
+   * Will return a rejected promise if no ID was provided.
+   * Will NOT reject the promise if the record cannnot be found.
    *
    * @param {string} id
    * @return {Promise}
    */
   findById(id) {
-    return Advertiser.findOne({ _id: id }).then((document) => {
-      if (!document) throw new Error(`No advertiser found for id '${id}'`);
-      return document;
-    });
+    if (!id) return Promise.reject(new Error('Unable to find advertiser: no ID was provided.'));
+    return Advertiser.findOne({ _id: id });
+  },
+
+  /**
+   * @param {object} criteria
+   * @return {Promise}
+   */
+  find(criteria) {
+    return Advertiser.find(criteria);
+  },
+
+  /**
+   * @param {string} id
+   * @return {Promise}
+   */
+  removeById(id) {
+    if (!id) return Promise.reject(new Error('Unable to remove advertiser: no ID was provided.'));
+    return this.remove({ _id: id });
+  },
+
+  /**
+   * @param {object} criteria
+   * @return {Promise}
+   */
+  remove(criteria) {
+    return Advertiser.remove(criteria);
   },
 
   /**
@@ -51,5 +81,20 @@ module.exports = {
    */
   paginate({ pagination, sort } = {}) {
     return new Pagination(Advertiser, { pagination, sort });
+  },
+
+  /**
+   *
+   * @param {number} [count=1]
+   * @return {object}
+   */
+  generate(count = 1) {
+    return fixtures(Advertiser, count);
+  },
+
+  async seed({ count = 1 } = {}) {
+    const results = this.generate(count);
+    await Promise.all(results.all().map(model => model.save()));
+    return results;
   },
 };

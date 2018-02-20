@@ -1,6 +1,7 @@
 version: '3'
 services:
   app:
+    tty: true
     build: .
     ports:
       - "${GRAPH_APP_PORT-8100}:8100"
