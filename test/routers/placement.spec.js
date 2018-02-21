@@ -133,6 +133,19 @@ describe('routers/placement', function() {
       });
     });
 
+    it('should return a 400 when no tid is provided.', function(done) {
+      const pid = placement.id;
+      const tid = ''
+      request(app).get(`/placement/${pid}.html`)
+        .query({ tid })
+        .expect((res) => {
+          const { status, text } = res;
+          expect(status).to.equal(400);
+          expect(text).to.equal('No template ID was provided. (400)');
+        })
+        .end(done);
+    });
+
     it('should return a 500 (with an obfuscated error) when a fatal is encountered.', function(done) {
       const message = 'Some internal error';
       const stub = sinon.stub(CampaignPlacementRepo, 'findFor').rejects(new Error(message));
