@@ -278,13 +278,14 @@ describe('graph/resolvers/campaign', function() {
       });
       it('should add the campaign creative.', async function() {
         const campaignId = campaign.id;
-        const payload = { title: 'Some creative title' };
+        const payload = { title: 'Some creative title', teaser: 'Some teaser.' };
         const input = { campaignId, payload };
         const variables = { input };
         const promise = graphql({ query, variables, key: 'addCampaignCreative', loggedIn: true });
         await expect(promise).to.eventually.be.an('object');
         const data = await promise;
         expect(data.title).to.equal(payload.title);
+        expect(data.teaser).to.equal(payload.teaser);
         expect(data.image).to.be.null;
         const found = await CampaignRepo.findById(campaignId);
         expect(found.creatives.id(data.id)).to.be.an('object');
