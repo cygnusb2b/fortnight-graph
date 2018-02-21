@@ -14,10 +14,10 @@ module.exports = {
    * @param {string} payload.title
    * @return {Promise}
    */
-  async createFor(campaignId, { title } = {}) {
+  async createFor(campaignId, { title, teaser } = {}) {
     const campaign = await findCampaign(campaignId);
     const { creatives } = campaign;
-    creatives.push({ title });
+    creatives.push({ title, teaser });
 
     await campaign.save();
     return creatives[creatives.length - 1];
