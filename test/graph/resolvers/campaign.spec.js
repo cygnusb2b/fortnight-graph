@@ -285,6 +285,7 @@ describe('graph/resolvers/campaign', function() {
         await expect(promise).to.eventually.be.an('object');
         const data = await promise;
         expect(data.title).to.equal(payload.title);
+        expect(data.teaser).to.equal(payload.teaser);
         expect(data.image).to.be.null;
         const found = await CampaignRepo.findById(campaignId);
         expect(found.creatives.id(data.id)).to.be.an('object');
