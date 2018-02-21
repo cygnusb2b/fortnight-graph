@@ -59,25 +59,64 @@ type Mutation {
 See the `graph/index.graphql` file for complete details, or use a GraphQL compatible client (such as [Insomnia](https://insomnia.rest/)) for automatic schema detection and query autocomplete capabilities.
 
 ### Placement Delivery
-Requests for an ad placement, or placements, can be made to `GET /placement/{pid}.html` (or `.json` for JSON responses). This will trigger the Campaign-Serve-Algorithm (or CSA) and provide the best matching campaigns for the requested Placement ID (`pid`) and request options. If no campaigns can be found for the specific request, an empty response will be returned.
+Requests for an ad placement, or placements (along with the desired template), can be made to `GET /placement/{pid}.html?opts={}` (or `.json` for JSON responses). This will trigger the Campaign-Serve-Algorithm (or CSA) and provide the best matching campaigns for the requested Placement ID (`pid`) and request options. If no campaigns can be found for the specific request, an empty response will be returned.
 
-The available request parameters (as query string values) are as follows, and are _all optional_:
+Request options must sent as a URL encoded, compact JSON string, assigned to the value of the `opts` query string. The only required option is the `tid` field, as it determines the template that will be used when rendering a campaign.
 
-**`limit`**
-Specifies the number of campaigns that should be returned.  The default value is `1` and cannot exceed `10`. The CSA will do its best to return the number requested, but is not guaranteed, based on inventory conditions. For example, `limit=2` or `limit=5`.
+```js
+encodeURIComponent(JSON.stringify({
+  /**
+   * REQUIRED.
+   * Specifies the template identifier to use when rendering the campaign.
+   * If not present or not found, will return a 400 or 404 response, respectively.
+   */
+  tid: '507f1f77bcf86cd799439011',
 
-**`cv`**
-The custom variables to send with the request. Only custom variables that have been pre-defined in the system will be used. Any others will be ignored. Should be sent as: `cv=foo:bar;key:value`. See note on variable format below.
+  /**
+   * Optional.
+   * Specifies the number of campaigns that should be returned.
+   * The default value is `1` and cannot exceed `10` (a 400 response will be returned if the max is exceeded).
+   * The CSA will do its best to return the number requested, but is not guaranteed, based on inventory conditions.
+   */
+  n: 1,
 
-**`mv`**
-The custom merge values to be used inside the placement's template. Will only be applied if the variable exists within the template. Should be sent as: `mv=foo:bar;key:value`. See note on variable format below.
+  /**
+   * Optional.
+   * The custom targting variables to send with the request - used for campaign targeting.
+   * Only custom variables that have been pre-defined in the system will be used.
+   * Any others will be ignored.
+   */
+  cv: {
+    foo: 'bar',
+    key: 'value',
+  },
 
-**Note on Variable Format**
-Special characters within the key or value part should still be URL encoded. For example `cv=foo:bar!` should be sent as `cv=foo:bar%21`.
+  /**
+   * Optional.
+   * The custom merge values to be used within the template when a campaign is found and rendered.
+   * Will only be applied if the variable exists within the template.
+   */
+  mv: {
+    foo: 'bar',
+    key: 'value',
+  },
 
-If a `;` or `:` must be present as a key or value, it must be encoded. For example, to create a `{ 'f:oo' : 'ba;r' }` object, the string must be sent as `cv=f%3Aoo:ba%3Br`.
+  /**
+   * Optional.
+   * The fallback variables to use to fill the template's fallback HTML (if defined on the template).
+   * Will be used when no campaign(s) are found.
+   * If this is left empty, or no fallback HTML is defined on the template, no fallback will be returned.
+   */
+  fv: {
+    foo: 'bar',
+    key: 'value',
+  },
+}));
+```
 
-If you decide to encode the _entire_ string you can, but note that `:` and `;` must be _double-encoded_. For example, in order to create `{ foo: 'ba:r', key: 'value!' }` (when encoding the entire string), the string must be sent as `cv=foo%3Aba%253Ar%3Bkey%3Avalue%21`. If you are _not_ encoding the entire string, this value will also acceptable: `cv=foo:ba%3Ar;key:value%21`.
+The above example is for illustrative purposes. An actual request would be similar to:
+`GET /placement/{pid}.html?opts={"tid":"507f1f77bcf86cd799439011","n":1,"cv":{"foo":"bar","key":"value"},"mv":{"foo":"bar","key":"value"},"fv":{"foo":"bar","key":"value"}}`
+When URL encoded: `opts=%7B%22tid%22%3A%22507f1f77bcf86cd799439011%22%2C%22n%22%3A1%2C%22cv%22%3A%7B%22foo%22%3A%22bar%22%2C%22key%22%3A%22value%22%7D%2C%22mv%22%3A%7B%22foo%22%3A%22bar%22%2C%22key%22%3A%22value%22%7D%2C%22fv%22%3A%7B%22foo%22%3A%22bar%22%2C%22key%22%3A%22value%22%7D%7D`
 
 ## Development
 ### Docker Compose

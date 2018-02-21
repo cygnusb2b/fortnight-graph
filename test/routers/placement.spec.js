@@ -38,11 +38,28 @@ describe('routers/placement', function() {
       template = await createTemplate();
     });
 
+    it('should return a 400 when no opts are sent.', function(done) {
+      const pid = placement.id;
+      request(app).get(`/placement/${pid}.html`)
+        .expect('Content-Type', /text\/html/)
+        .expect(400)
+        .end(done);
+    });
+
+    it('should return a 400 when opts are empty.', function(done) {
+      const pid = placement.id;
+      request(app).get(`/placement/${pid}.html`)
+        .query({ opts: '' })
+        .expect('Content-Type', /text\/html/)
+        .expect(400)
+        .end(done);
+    });
+
     it('should return a 200 when valid with :ext of html.', function(done) {
       const pid = placement.id;
-      const tid = template.id;
+      const opts = JSON.stringify({ tid: template.id });
       request(app).get(`/placement/${pid}.html`)
-        .query({ tid })
+        .query({ opts })
         .expect('Content-Type', /text\/html/)
         .expect(200)
         .end(done);
@@ -50,36 +67,24 @@ describe('routers/placement', function() {
 
     it('should return a 200 when valid with :ext of json.', function(done) {
       const pid = placement.id;
-      const tid = template.id;
+      const opts = JSON.stringify({ tid: template.id });
       request(app).get(`/placement/${pid}.json`)
-        .query({ tid })
+        .query({ opts })
         .expect('Content-Type', /json/)
         .expect(200)
         .end(done);
     });
 
-    it('should return a 200 when valid with the cv and mv query string present (object-notated).', function(done) {
+    it('should return a 200 when valid when vars are present.', function(done) {
       const pid = placement.id;
-      const tid = template.id;
-      request(app).get(`/placement/${pid}.json?tid=${tid}&cv[foo]=bar&cv[key]=value&mv[foo]=bar&mv[key]=value`)
-        .expect('Content-Type', /json/)
-        .expect(200)
-        .end(done);
-    });
-
-    it('should return a 200 when valid with the cv and mv query string present (encoded string).', function(done) {
-      const pid = placement.id;
-      const tid = template.id;
-      request(app).get(`/placement/${pid}.json?tid=${tid}&cv=foo%3Dbar%26key%3Dvalue&mv=foo%3Dbar%26key%3Dvalue`)
-        .expect('Content-Type', /json/)
-        .expect(200)
-        .end(done);
-    });
-
-    it('should return a 200 when valid with the cv and mv query string present (empty).', function(done) {
-      const pid = placement.id;
-      const tid = template.id;
-      request(app).get(`/placement/${pid}.json?tid=${tid}&cv=&mv=`)
+      const opts = JSON.stringify({
+        tid: template.id,
+        cv: { foo: 'bar' },
+        mv: { foo: 'bar' },
+        fv: { foo: 'bar' },
+      });
+      request(app).get(`/placement/${pid}.json`)
+        .query({ opts })
         .expect('Content-Type', /json/)
         .expect(200)
         .end(done);
@@ -87,9 +92,9 @@ describe('routers/placement', function() {
 
     it('should return a 404 when no placement was found using :ext json.', function(done) {
       const pid = '507f1f77bcf86cd799439011';
-      const tid = template.id;
+      const opts = JSON.stringify({ tid: template.id });
       request(app).get(`/placement/${pid}.json`)
-        .query({ tid })
+        .query({ opts })
         .expect('Content-Type', /json/)
         .expect((res) => {
           const { status, body } = res;
@@ -105,9 +110,9 @@ describe('routers/placement', function() {
 
     it('should return a 404 when no placement was found using :ext html.', function(done) {
       const pid = '507f1f77bcf86cd799439011';
-      const tid = template.id;
+      const opts = JSON.stringify({ tid: template.id });
       request(app).get(`/placement/${pid}.html`)
-        .query({ tid })
+        .query({ opts })
         .expect('Content-Type', /text\/html/)
         .expect((res) => {
           const { status, text } = res;
@@ -120,9 +125,9 @@ describe('routers/placement', function() {
     ['xml', 'htm', 'jsonp'].forEach((value) => {
       it(`should return a 400 when accessed with an invalid :ext of '${value}'`, function(done) {
         const pid = placement.id;
-        const tid = template.id;
+        const opts = JSON.stringify({ tid: template.id });
         request(app).get(`/placement/${pid}.${value}`)
-          .query({ tid })
+          .query({ opts })
           .expect('Content-Type', /text\/html/)
           .expect((res) => {
             const { status, text } = res;
@@ -135,9 +140,9 @@ describe('routers/placement', function() {
 
     it('should return a 400 when no tid is provided.', function(done) {
       const pid = placement.id;
-      const tid = ''
+      const opts = JSON.stringify({ tid: '' });
       request(app).get(`/placement/${pid}.html`)
-        .query({ tid })
+        .query({ opts })
         .expect((res) => {
           const { status, text } = res;
           expect(status).to.equal(400);
@@ -150,9 +155,9 @@ describe('routers/placement', function() {
       const message = 'Some internal error';
       const stub = sinon.stub(CampaignPlacementRepo, 'findFor').rejects(new Error(message));
       const pid = placement.id;
-      const tid = template.id;
+      const opts = JSON.stringify({ tid: template.id });
       request(app).get(`/placement/${pid}.json`)
-        .query({ tid })
+        .query({ opts })
         .expect('Content-Type', /json/)
         .expect((res) => {
           const { status, body } = res;
