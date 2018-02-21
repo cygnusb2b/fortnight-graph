@@ -1,6 +1,7 @@
 const createError = require('http-errors');
 const querystring = require('querystring');
 const Placement = require('../../models/placement');
+const Template = require('../../models/template');
 const Campaign = require('../../models/campaign');
 const Request = require('../../models/request');
 
@@ -15,13 +16,20 @@ module.exports = {
    *
    * @param {object} params
    * @param {string} params.pid The placement identifier.
+   * @param {string} params.pid The template identifier.
    * @param {string} params.url The URL the ad request came from.
    * @param {number} [params.limit=1] The number of ads to return. Max of 20.
    * @param {object} [params.custom] An object containing custom key/values.
    * @param {object} [params.merge] An object containing custom template merge key/values.
    */
-  async findFor({ pid, url, limit = 1 } = {}) {
-    if (!pid) throw new Error('No placement ID was provided.');
+  async findFor({
+    pid,
+    tid,
+    url,
+    limit = 1,
+  } = {}) {
+    if (!pid) throw createError(400, 'No placement ID was provided.');
+    if (!tid) throw createError(400, 'No template ID was provided.');
 
     /**
      * @todo
@@ -31,8 +39,11 @@ module.exports = {
      * Or the pre-query?
      * We will need the pid for the request.
      */
-    const placement = await Placement.findOne({ _id: pid }, { template: 1 });
+    const placement = await Placement.findOne({ _id: pid }, { _id: 1 });
     if (!placement) throw createError(404, `No placement exists for pid '${pid}'`);
+
+    const template = await Template.findOne({ _id: tid }, { html: 1, fallback: 1 });
+    if (!template) throw createError(404, `No template exists for tid '${tid}'`);
 
     /**
      * @todo
@@ -57,7 +68,7 @@ module.exports = {
       reqs.push(request);
 
       const correlator = this.createCorrelator(url, request.get('id'));
-      const html = placement.template
+      const html = template.html
         .replace(/{{ id }}/g, campaign.get('id'))
         /**
          * @todo This needs to use the campaign creative title, not name.

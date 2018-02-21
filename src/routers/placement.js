@@ -23,7 +23,12 @@ const handleError = (err, req, res) => {
 router.get('/:pid.:ext', (req, res) => {
   const url = `${req.protocol}://${req.get('host')}`;
   const { pid, ext } = req.params;
-  const { limit, cv, mv } = req.query;
+  const {
+    limit,
+    cv,
+    mv,
+    tid,
+  } = req.query;
 
   if (acceptable.includes(ext)) {
     const custom = CampaignPlacementRepo.parseVariables(cv);
@@ -31,6 +36,7 @@ router.get('/:pid.:ext', (req, res) => {
     CampaignPlacementRepo.findFor({
       url,
       pid,
+      tid,
       limit,
       custom,
       merge,
