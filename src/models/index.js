@@ -4,6 +4,7 @@ const Placement = require('./placement');
 const Publisher = require('./publisher');
 const Request = require('./request');
 const User = require('./user');
+const Template = require('./template');
 
 module.exports = {
   Advertiser,
@@ -12,4 +13,5 @@ module.exports = {
   Publisher,
   Request,
   User,
+  Template,
 };

@@ -2,6 +2,7 @@ require('../../connections');
 const Repo = require('../../../src/repositories/campaign/placement');
 const CampaignRepo = require('../../../src/repositories/campaign');
 const PlacementRepo = require('../../../src/repositories/placement');
+const TemplateRepo = require('../../../src/repositories/template');
 
 const createCampaign = async () => {
   const results = await CampaignRepo.seed();
@@ -13,79 +14,107 @@ const createPlacement = async () => {
   return results.one();
 }
 
+const createTemplate = async () => {
+  const results = await TemplateRepo.seed();
+  return results.one();
+}
+
 describe('repositories/campaign/placement', function() {
   before(async function() {
     await CampaignRepo.remove();
+    await PlacementRepo.remove();
+    await TemplateRepo.remove();
   });
   after(async function() {
     await CampaignRepo.remove();
+    await PlacementRepo.remove();
+    await TemplateRepo.remove();
   });
   it('should export an object.', function(done) {
     expect(Repo).to.be.an('object');
     done();
   });
 
-  describe('#parseVariables', function() {
-    [undefined, {}, '', null].forEach((value) => {
-      it(`should return an empty object when the vars are invalid: '${value}'`, function(done) {
-        expect(Repo.parseVariables(value)).to.deep.equal({});
+  describe('#parseOptions', function() {
+    [null, undefined, '', 'somestring', 0].forEach((value) => {
+      it(`should return an object when the options are '${value}'.`, function(done) {
+        expect(Repo.parseOptions(value)).to.be.an('object');
         done();
       });
     });
-    const expected = { foo: 'ba:r', 'ke;y': 'value!' };
-    ['foo:ba%3Ar;ke%3By:value!', 'foo:ba%3Ar;ke%3By:value%21'].forEach((value) => {
-      it(`should properly parse the variables when value is '${value}'`, function(done) {
-        expect(Repo.parseVariables(value)).to.deep.equal(expected);
-        done();
-      });
-    });
-    ['foo:ba:r;ke;y:value!', 'foo:ba:r;ke;y:value%21'].forEach((value) => {
-      it(`should not parse the variables when value is '${value}'`, function(done) {
-        expect(Repo.parseVariables(value)).to.not.deep.equal(expected);
-        done();
-      });
+    it('should parse the options', function(done) {
+      expect(Repo.parseOptions('{"foo":"bar"}')).to.deep.equal({ foo: 'bar' });
+      done();
     });
   });
 
   describe('#findFor', function() {
+    const requestURL = 'https://somedomain.com';
+
     let placement;
+    let template;
     before(async function() {
-      await CampaignRepo.remove();
       placement = await createPlacement();
+      template = await createTemplate();
     });
     it('should reject when no params are sent', async function() {
-      await expect(Repo.findFor()).to.be.rejectedWith(Error, 'No placement ID was provided.');
+      await expect(Repo.findFor()).to.be.rejectedWith(Error);
     });
-    [null, undefined, ''].forEach((pid) => {
-      it(`should reject when the pid is '${pid}'.`, async function() {
-        await expect(Repo.findFor({ pid })).to.be.rejectedWith(Error, 'No placement ID was provided.');
+    it('should reject when no request URL is provided.', async function() {
+      const placementId = placement.id;
+      const templateId = template.id;
+      await expect(Repo.findFor({ placementId, templateId, requestURL: '' })).to.be.rejectedWith(Error);
+    });
+    [null, undefined, ''].forEach((placementId) => {
+      it(`should reject when the placementId is '${placementId}'.`, async function() {
+        const templateId = template.id;
+        await expect(Repo.findFor({ placementId, requestURL })).to.be.rejectedWith(Error, 'No placement ID was provided.');
+      });
+    });
+    [null, undefined, ''].forEach((templateId) => {
+      it(`should reject when the templateId is '${templateId}'.`, async function() {
+        const placementId = placement.id;
+        await expect(Repo.findFor({ placementId, templateId, requestURL })).to.be.rejectedWith(Error, 'No template ID was provided.');
       });
     });
     it('should reject when no placement could be found.', async function() {
-      const pid = '507f1f77bcf86cd799439011';
-      await expect(Repo.findFor({ pid })).to.be.rejectedWith(Error, `No placement exists for pid '${pid}'`);
+      const placementId = '507f1f77bcf86cd799439011';
+      const templateId = template.id;
+      await expect(Repo.findFor({ placementId, templateId, requestURL })).to.be.rejectedWith(Error, `No placement exists for ID '${placementId}'`);
     });
-    it('should reject when the limit is higher than 10.', async function() {
-      const pid = placement.id;
-      const limit = 11;
-      await expect(Repo.findFor({ pid, limit })).to.be.rejectedWith(Error, 'You cannot return more than 10 ads in one request.');
+    it('should reject when no template could be found.', async function() {
+      const placementId = placement.id;
+      const templateId = '507f1f77bcf86cd799439011';
+      await expect(Repo.findFor({ placementId, templateId, requestURL })).to.be.rejectedWith(Error, `No template exists for ID '${templateId}'`);
+    });
+    it('should reject when the num is higher than 10.', async function() {
+      const placementId = placement.id;
+      const templateId = template.id;
+      const num = 11;
+      await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.rejectedWith(Error, 'You cannot return more than 10 ads in one request.');
     });
     it('should fulfill when no campaigns are found.', async function() {
-      const pid = placement.id;
-      await expect(Repo.findFor({ pid })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 0);
+      await CampaignRepo.remove();
+      const placementId = placement.id;
+      const templateId = template.id;
+      await expect(Repo.findFor({ placementId, templateId, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 0);
     });
     it('should fulfill when a campaign is found.', async function() {
-      const pid = placement.id;
-      const limit = 1;
+      await CampaignRepo.remove();
+      const placementId = placement.id;
+      const templateId = template.id;
+      const num = 1;
       const campaign = await createCampaign();
-      await expect(Repo.findFor({ pid, limit })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
+      await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
       await CampaignRepo.remove();
     });
-    [undefined, 0, -1, 1, null, '1'].forEach((limit) => {
-      it(`should fulfill with a single campaign when limit is ${limit}`, async function() {
-        const pid = placement.id;
-        const campaign = await createCampaign();
-        await expect(Repo.findFor({ pid, limit })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
+    [undefined, 0, -1, 1, null, '1'].forEach((num) => {
+      it(`should fulfill with a single campaign when num is ${num}`, async function() {
+        const placementId = placement.id;
+        const templateId = template.id;
+        await createCampaign();
+        await createCampaign();
+        await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
         await CampaignRepo.remove();
       });
     });

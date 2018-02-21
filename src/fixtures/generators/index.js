@@ -5,6 +5,7 @@ const campaign = require('./campaign');
 const creative = require('./campaign/creative');
 const user = require('./user');
 const request = require('./request');
+const template = require('./template');
 
 module.exports = {
   publisher,
@@ -14,4 +15,5 @@ module.exports = {
   creative,
   user,
   request,
+  template,
 };

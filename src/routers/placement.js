@@ -21,19 +21,23 @@ const handleError = (err, req, res) => {
 };
 
 router.get('/:pid.:ext', (req, res) => {
-  const url = `${req.protocol}://${req.get('host')}`;
   const { pid, ext } = req.params;
-  const { limit, cv, mv } = req.query;
-
   if (acceptable.includes(ext)) {
-    const custom = CampaignPlacementRepo.parseVariables(cv);
-    const merge = CampaignPlacementRepo.parseVariables(mv);
+    const {
+      tid,
+      n,
+      cv,
+      mv,
+      fv,
+    } = CampaignPlacementRepo.parseOptions(req.query.opts);
+
+    const vars = { custom: cv, merge: mv, fallback: fv };
     CampaignPlacementRepo.findFor({
-      url,
-      pid,
-      limit,
-      custom,
-      merge,
+      requestURL: `${req.protocol}://${req.get('host')}`,
+      placementId: pid,
+      templateId: tid,
+      num: n,
+      vars,
     }).then((ads) => {
       if (ext === 'html') {
         const html = ads.reduce((str, ad) => `${str}\n${ad.html}`, '');

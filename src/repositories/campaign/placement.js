@@ -1,47 +1,58 @@
 const createError = require('http-errors');
-const querystring = require('querystring');
 const Placement = require('../../models/placement');
+const Template = require('../../models/template');
 const Campaign = require('../../models/campaign');
 const Request = require('../../models/request');
 
 module.exports = {
-  parseVariables(vars) {
-    const { parse } = querystring;
-    if (typeof vars !== 'string') return {};
-    return parse(vars, ';', ':');
+  parseOptions(options) {
+    if (!options) return {};
+    try {
+      return JSON.parse(String(options));
+    } catch (e) {
+      return {};
+    }
   },
 
   /**
    *
    * @param {object} params
-   * @param {string} params.pid The placement identifier.
-   * @param {string} params.url The URL the ad request came from.
-   * @param {number} [params.limit=1] The number of ads to return. Max of 20.
-   * @param {object} [params.custom] An object containing custom key/values.
-   * @param {object} [params.merge] An object containing custom template merge key/values.
+   * @param {string} params.placementId The placement identifier.
+   * @param {string} params.templateId The template identifier.
+   * @param {string} params.requestURL The URL the ad request came from.
+   * @param {number} [params.num=1] The number of ads to return. Max of 20.
+   * @param {object} [params.vars] An object containing targeting, merge, and fallback vars.
    */
-  async findFor({ pid, url, limit = 1 } = {}) {
-    if (!pid) throw new Error('No placement ID was provided.');
+  async findFor({
+    placementId,
+    templateId,
+    requestURL,
+    num = 1,
+  } = {}) {
+    if (!requestURL) throw new Error('No request URL was provided');
+    if (!placementId) throw createError(400, 'No placement ID was provided.');
+    if (!templateId) throw createError(400, 'No template ID was provided.');
+
+    const limit = num > 0 ? parseInt(num, 10) : 1;
+    if (limit > 10) throw createError(400, 'You cannot return more than 10 ads in one request.');
 
     /**
      * @todo
-     * Do we need to confirm the placement id?
-     * If it doesn't exist, the ad algorithm wouldn't return any ads.
-     * We do need it for the template, though, but could that be saved along with the schedule?
-     * Or the pre-query?
-     * We will need the pid for the request.
+     * Determine what _actually_ needs to be queried here.
+     * Keep this as small (and as fast) as possible.
      */
-    const placement = await Placement.findOne({ _id: pid }, { template: 1 });
-    if (!placement) throw createError(404, `No placement exists for pid '${pid}'`);
+    const placement = await Placement.findOne({ _id: placementId }, { _id: 1 });
+    if (!placement) throw createError(404, `No placement exists for ID '${placementId}'`);
+
+    const template = await Template.findOne({ _id: templateId }, { html: 1, fallback: 1 });
+    if (!template) throw createError(404, `No template exists for ID '${templateId}'`);
 
     /**
      * @todo
      * The ad selection algo would now run, find the appropriate ad (or ads), and replace
      * the template's merge variables. Also, replace any custom merge variables. For now, simulate.
      */
-    const l = limit > 0 ? parseInt(limit, 10) : 1;
-    if (l > 10) throw createError(400, 'You cannot return more than 10 ads in one request.');
-    const campaigns = await Campaign.find().limit(l);
+    const campaigns = await Campaign.find().limit(limit);
 
     const ads = [];
     const reqs = [];
@@ -53,11 +64,11 @@ module.exports = {
      */
     campaigns.forEach((campaign) => {
       const cid = campaign.get('id');
-      const request = new Request({ cid, pid });
+      const request = new Request({ cid, pid: placementId });
       reqs.push(request);
 
-      const correlator = this.createCorrelator(url, request.get('id'));
-      const html = placement.template
+      const correlator = this.createCorrelator(requestURL, request.get('id'));
+      const html = template.html
         .replace(/{{ id }}/g, campaign.get('id'))
         /**
          * @todo This needs to use the campaign creative title, not name.
