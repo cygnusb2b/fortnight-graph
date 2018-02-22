@@ -1,5 +1,6 @@
 const Promise = require('bluebird');
 const Publisher = require('../models/publisher');
+const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
 
 module.exports = {
@@ -11,6 +12,21 @@ module.exports = {
   create(payload = {}) {
     const publisher = new Publisher(payload);
     return publisher.save();
+  },
+
+  update(id, payload = {}) {
+    if (!id) return Promise.reject(new Error('Unable to update publisher: no ID was provided.'));
+    const criteria = { _id: id };
+    const $set = {};
+    ['name'].forEach((key) => {
+      const value = payload[key];
+      if (typeof value !== 'undefined') $set[key] = value;
+    });
+    const options = { new: true, runValidators: true };
+    return Publisher.findOneAndUpdate(criteria, { $set }, options).then((document) => {
+      if (!document) throw new Error(`Unable to update publisher: no record was found for ID '${id}'`);
+      return document;
+    });
   },
 
   /**
@@ -66,5 +82,17 @@ module.exports = {
     const results = this.generate(count);
     await Promise.all(results.all().map(model => model.save()));
     return results;
+  },
+
+  /**
+   * Paginates all Template models.
+   *
+   * @param {object} params
+   * @param {object.object} params.pagination The pagination parameters.
+   * @param {object.object} params.sort The sort parameters.
+   * @return {Pagination}
+   */
+  paginate({ pagination, sort } = {}) {
+    return new Pagination(Publisher, { pagination, sort });
   },
 };

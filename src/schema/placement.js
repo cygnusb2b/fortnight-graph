@@ -10,9 +10,6 @@ const schema = new Schema({
     trim: true,
     unique: true,
   },
-  template: {
-    type: String,
-  },
   publisherId: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -28,5 +25,9 @@ const schema = new Schema({
 }, { timestamps: true });
 
 schema.index({ publisherId: 1 });
+schema.index({ name: 1, _id: 1 }, { unique: true });
+schema.index({ name: -1, _id: -1 }, { unique: true });
+schema.index({ updatedAt: 1, _id: 1 }, { unique: true });
+schema.index({ updatedAt: -1, _id: -1 }, { unique: true });
 
 module.exports = schema;

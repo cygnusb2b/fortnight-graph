@@ -1,0 +1,53 @@
+type Query {
+  allPublishers(pagination: PaginationInput = {}, sort: PublisherSortInput = {}): PublisherConnection!
+  publisher(input: ModelIdInput!): Publisher!
+}
+
+type Mutation {
+  createPublisher(input: CreatePublisherInput!): Publisher!
+  updatePublisher(input: UpdatePublisherInput!): Publisher!
+}
+
+enum PublisherSortField {
+  name
+  createdAt
+  updatedAt
+}
+
+type Publisher {
+  id: String!
+  name: String!
+  updatedAt: Date
+  createdAt: Date
+}
+
+type PublisherConnection {
+  totalCount: Int!
+  edges: [PublisherEdge]!
+  pageInfo: PageInfo!
+}
+
+type PublisherEdge {
+  node: Publisher!
+  cursor: Cursor!
+}
+
+input PublisherSortInput {
+  field: PublisherSortField! = createdAt
+  order: Int! = -1
+}
+
+input PublisherPayloadInput {
+  name: String!
+}
+
+input CreatePublisherInput {
+  payload: PublisherPayloadInput!
+}
+
+input UpdatePublisherInput {
+  id: String!
+  payload: PublisherPayloadInput!
+}
+
+

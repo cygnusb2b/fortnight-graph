@@ -1,6 +1,7 @@
 const Promise = require('bluebird');
 const Placement = require('../models/placement');
 const PublisherRepo = require('./publisher');
+const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
 
 module.exports = {
@@ -12,6 +13,21 @@ module.exports = {
   create(payload = {}) {
     const placement = new Placement(payload);
     return placement.save();
+  },
+
+  update(id, payload = {}) {
+    if (!id) return Promise.reject(new Error('Unable to update placement: no ID was provided.'));
+    const criteria = { _id: id };
+    const $set = {};
+    ['name', 'publisherId'].forEach((key) => {
+      const value = payload[key];
+      if (typeof value !== 'undefined') $set[key] = value;
+    });
+    const options = { new: true, runValidators: true };
+    return Placement.findOneAndUpdate(criteria, { $set }, options).then((document) => {
+      if (!document) throw new Error(`Unable to update placement: no record was found for ID '${id}'`);
+      return document;
+    });
   },
 
   /**
@@ -71,5 +87,17 @@ module.exports = {
     });
     await Promise.all(results.all().map(model => model.save()));
     return results;
+  },
+
+  /**
+   * Paginates all Template models.
+   *
+   * @param {object} params
+   * @param {object.object} params.pagination The pagination parameters.
+   * @param {object.object} params.sort The sort parameters.
+   * @return {Pagination}
+   */
+  paginate({ pagination, sort } = {}) {
+    return new Pagination(Placement, { pagination, sort });
   },
 };

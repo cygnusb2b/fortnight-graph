@@ -1,0 +1,55 @@
+type Query {
+  allPlacements(pagination: PaginationInput = {}, sort: PlacementSortInput = {}): PlacementConnection!
+  placement(input: ModelIdInput!): Placement!
+}
+
+type Mutation {
+  createPlacement(input: CreatePlacementInput!): Placement!
+  updatePlacement(input: UpdatePlacementInput!): Placement!
+}
+
+enum PlacementSortField {
+  name
+  createdAt
+  updatedAt
+}
+
+type Placement {
+  id: String!
+  name: String!
+  publisher: Publisher!
+  updatedAt: Date
+  createdAt: Date
+}
+
+type PlacementConnection {
+  totalCount: Int!
+  edges: [PlacementEdge]!
+  pageInfo: PageInfo!
+}
+
+type PlacementEdge {
+  node: Placement!
+  cursor: Cursor!
+}
+
+input PlacementSortInput {
+  field: PlacementSortField! = createdAt
+  order: Int! = -1
+}
+
+input PlacementPayloadInput {
+  name: String!
+  publisherId: String!
+}
+
+input CreatePlacementInput {
+  payload: PlacementPayloadInput!
+}
+
+input UpdatePlacementInput {
+  id: String!
+  payload: PlacementPayloadInput!
+}
+
+
