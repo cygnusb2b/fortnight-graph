@@ -10,20 +10,16 @@
     "pretest": "yarn run posttest && $npm_package_docker_test_install",
     "posttest": "$npm_package_docker_test_down && $npm_package_docker_test_prune",
     "test": "$npm_package_docker_test_test",
-
     "prestart": "$npm_package_docker_dev_install",
     "start": "$npm_package_docker_dev_up",
-
     "stop": "$npm_package_docker_dev_down",
-
+    "terminal": "docker exec -it fortnightgraph_app_1 /bin/bash",
     "prelint": "$npm_package_docker_test_install",
     "lint": "$npm_package_docker_test_lint",
     "postlint": "$npm_package_docker_test_down",
-
     "precoverage": "yarn run postcoverage && $npm_package_docker_test_install",
     "coverage": "$npm_package_docker_test_coverage",
     "postcoverage": "$npm_package_docker_test_down && $npm_package_docker_test_prune",
-
     "test:ci": "yarn run lint:run && ./node_modules/.bin/mocha --reporter mocha-junit-reporter",
     "test:run": "yarn run lint:run && ./node_modules/.bin/mocha --reporter spec",
     "lint:run": "./node_modules/.bin/eslint \"src/**/*.js\"",
@@ -55,10 +51,10 @@
     "dotenv": "^4.0.0",
     "express": "^4.16.2",
     "faker": "^4.1.0",
-    "graphql": "^0.12.3",
-    "graphql-import": "^0.4.1",
-    "graphql-tools": "^2.18.0",
-    "helmet": "^3.9.0",
+    "graphql": "^0.13.1",
+    "graphql-import": "^0.4.3",
+    "graphql-tools": "^2.21.0",
+    "helmet": "^3.11.0",
     "http-errors": "^1.6.2",
     "jsonwebtoken": "^8.1.1",
     "mongoose": "^5.0.1",
