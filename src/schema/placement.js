@@ -10,9 +10,6 @@ const schema = new Schema({
     trim: true,
     unique: true,
   },
-  template: {
-    type: String,
-  },
   publisherId: {
     type: Schema.Types.ObjectId,
     required: true,
