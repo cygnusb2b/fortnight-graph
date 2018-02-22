@@ -1,6 +1,7 @@
 require('../connections');
 const Repo = require('../../src/repositories/template');
 const Model = require('../../src/models/template');
+const Utils = require('../utils');
 
 const createTemplate = async () => {
   const results = await Repo.seed();
@@ -31,6 +32,67 @@ describe('repositories/template', function() {
 
       expect(found).to.be.an.instanceof(Model);
       expect(found).to.have.property('id').equal(template.get('id'));
+    });
+  });
+
+  describe('#update', function() {
+    let template;
+    before(async function() {
+      template = await createTemplate();
+    });
+
+    let spy;
+    beforeEach(function(done) {
+      spy = sinon.spy(Model, 'findOneAndUpdate');
+      done();
+    });
+    afterEach(function(done) {
+      if (spy.called) {
+        sinon.assert.calledOnce(spy);
+        sinon.assert.calledWith(spy, sinon.match.any, sinon.match.any, { new: true, runValidators: true });
+      }
+      spy.restore();
+      done();
+    });
+
+    it('should return a rejected promise when no ID is provided.', async function() {
+      await expect(Repo.update()).to.be.rejectedWith(Error, 'Unable to update template: no ID was provided.');
+      sinon.assert.notCalled(spy);
+    });
+    it('should return a rejected promise when the ID cannot be found.', async function() {
+      const id = '507f1f77bcf86cd799439011';
+      await expect(Repo.update(id)).to.be.rejectedWith(Error, `Unable to update template: no record was found for ID '${id}'`);
+
+    });
+    it('should fulfill on an empty payload, but not update anything.', async function() {
+      const id = template.id;
+      const promise = Repo.update(id);
+      await expect(promise).to.eventually.be.an.instanceOf(Model);
+      const updated = await promise;
+
+      ['name', 'html'].forEach((value) => {
+        expect(updated[value]).to.equal(template[value]);
+      });
+      sinon.assert.calledWith(spy, { _id: id });
+    });
+    it('should return a rejected promise when valiation fails.', async function() {
+      const id = template.id;
+      const payload = { name: '' };
+      await expect(Repo.update(id, payload)).to.be.rejectedWith(Error, /validation/i);
+      sinon.assert.calledWith(spy, { _id: id });
+    });
+    it('should return the updated model object.', async function() {
+      const id = template.id;
+      const payload = { name: 'New Name', html: '<div>' };
+      const promise = Repo.update(id, payload);
+      await expect(promise).to.eventually.be.an.instanceOf(Model);
+      const updated = await promise;
+
+      ['name', 'html'].forEach((value) => {
+        expect(updated[value]).to.equal(payload[value]);
+      });
+
+      sinon.assert.calledWith(spy, { _id: id });
     });
   });
 
@@ -91,5 +153,12 @@ describe('repositories/template', function() {
       await expect(Repo.removeById(template.id)).to.be.fulfilled;
       await expect(Repo.findById(template.id)).to.be.fulfilled.and.eventually.be.null;
     });
+  });
+
+  describe('#paginate', function() {
+    it('should return a Pagination instance.', function(done) {
+      Utils.testPaginate(Repo);
+      done();
+    })
   });
 });

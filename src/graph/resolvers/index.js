@@ -5,8 +5,9 @@ const ImageRepo = require('../../repositories/image');
 const advertiser = require('./advertiser');
 const campaign = require('./campaign');
 const user = require('./user');
+const template = require('./template');
 
-module.exports = deepAssign(advertiser, campaign, user, {
+module.exports = deepAssign(advertiser, campaign, user, template, {
   /**
    *
    */

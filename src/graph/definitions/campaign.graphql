@@ -1,3 +1,16 @@
+type Query {
+  allCampaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
+  campaign(input: ModelIdInput!): Campaign!
+}
+
+type Mutation {
+  createCampaign(input: CreateCampaignInput!): Campaign!
+  updateCampaign(input: UpdateCampaignInput!): Campaign!
+  addCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative!
+  # updateCampaignCreative(input: UpdateCampaignCreativeInput!): CampaignCreative!
+  removeCampaignCreative(input: RemoveCampaignCreativeInput!): String!
+}
+
 enum CampaignSortField {
   name
   createdAt

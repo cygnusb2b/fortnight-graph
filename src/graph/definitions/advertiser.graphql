@@ -1,3 +1,13 @@
+type Query {
+  allAdvertisers(pagination: PaginationInput = {}, sort: AdvertiserSortInput = {}): AdvertiserConnection!
+  advertiser(input: ModelIdInput!): Advertiser!
+}
+
+type Mutation {
+  createAdvertiser(input: CreateAdvertiserInput!): Advertiser!
+  updateAdvertiser(input: UpdateAdvertiserInput!): Advertiser!
+}
+
 enum AdvertiserSortField {
   name
   createdAt

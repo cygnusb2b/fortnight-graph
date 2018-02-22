@@ -20,6 +20,17 @@ type User {
   photoURL: String
 }
 
+type Query {
+  currentUser: User
+  checkSession(input: SessionTokenInput!): Authentication
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): User
+  loginUser(input: LoginInput!): Authentication
+  deleteSession: String
+}
+
 input NewUserPayloadInput {
   email: String!
   password: String!

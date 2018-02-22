@@ -1,5 +1,6 @@
 # import * from 'advertiser.graphql'
 # import * from 'campaign.graphql'
+# import * from 'template.graphql'
 # import * from 'user.graphql'
 
 scalar Date
@@ -7,26 +8,7 @@ scalar Cursor
 
 type Query {
   ping: String!
-  currentUser: User
-  checkSession(input: SessionTokenInput!): Authentication
   signImageUpload(input: ImageUploadInput!): SignedImageLocation!
-  advertiser(input: ModelIdInput!): Advertiser!
-  allAdvertisers(pagination: PaginationInput = {}, sort: AdvertiserSortInput = {}): AdvertiserConnection!
-  allCampaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
-  campaign(input: ModelIdInput!): Campaign!
-}
-
-type Mutation {
-  createUser(input: CreateUserInput!): User
-  createAdvertiser(input: CreateAdvertiserInput!): Advertiser!
-  updateAdvertiser(input: UpdateAdvertiserInput!): Advertiser!
-  createCampaign(input: CreateCampaignInput!): Campaign!
-  updateCampaign(input: UpdateCampaignInput!): Campaign!
-  loginUser(input: LoginInput!): Authentication
-  deleteSession: String
-  addCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative!
-  # updateCampaignCreative(input: UpdateCampaignCreativeInput!): CampaignCreative!
-  removeCampaignCreative(input: RemoveCampaignCreativeInput!): String!
 }
 
 type Placement {
