@@ -6,8 +6,9 @@ const advertiser = require('./advertiser');
 const campaign = require('./campaign');
 const user = require('./user');
 const template = require('./template');
+const publisher = require('./publisher');
 
-module.exports = deepAssign(advertiser, campaign, user, template, {
+module.exports = deepAssign(advertiser, campaign, user, template, publisher, {
   /**
    *
    */

@@ -2,6 +2,7 @@
 # import * from 'campaign.graphql'
 # import * from 'template.graphql'
 # import * from 'user.graphql'
+# import * from 'publisher.graphql'
 
 scalar Date
 scalar Cursor
@@ -9,17 +10,6 @@ scalar Cursor
 type Query {
   ping: String!
   signImageUpload(input: ImageUploadInput!): SignedImageLocation!
-}
-
-type Placement {
-  id: String!
-  template: String!
-  publisher: Publisher!
-}
-
-type Publisher {
-  id: String!
-  name: String!
 }
 
 type PageInfo {
