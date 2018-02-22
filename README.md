@@ -10,6 +10,9 @@ This project requires [Docker Compose](https://docs.docker.com/compose/overview/
 3. In the project root, run `yarn run start`
 4. The server is now accessible on `localhost:8100` (or whatever port you configure)
 
+## Interactive Terminal
+You can load an interactive terminal for the app container via `yarn run terminal`. This will allow you to add, remove, or upgrade project dependencies using Yarn (among other things). Note: _the application instance must be running via `yarn run start` for the terminal to load._
+
 ## Environment Variables
 Production environment variables are *not* under version control, per [Part 3 of the 12 Factors](https://12factor.net/config). As such, the [dotenv](https://www.npmjs.com/package/dotenv) package is used to manage your variables locally.
 1. Create a `.env` file in the project root (at the same level as the `package.json` file)
@@ -21,9 +24,6 @@ GRAPH_DB_PORT=8101
 DEBUG=express:*
 MONGOOSE_DEBUG=1
 ```
-
-## Interactive Terminal
-You can load an interactive terminal for the app container via `yarn run terminal`. This will allow you to add, remove, or upgrade project dependencies using Yarn (among other things). Note: _the application instance must be running via `yarn run start` for the terminal to load._
 
 ### Production Environment Variables
 The following environment variables must be set at run-time for the production deployment of this application. The development and test environments set appropriate values for those environments within the `docker-compose.yml` configuration files.
