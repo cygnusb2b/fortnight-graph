@@ -3,6 +3,7 @@
 # import * from 'template.graphql'
 # import * from 'user.graphql'
 # import * from 'publisher.graphql'
+# import * from 'placement.graphql'
 
 scalar Date
 scalar Cursor
