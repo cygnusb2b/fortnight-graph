@@ -1,6 +1,7 @@
 require('../connections');
 const Repo = require('../../src/repositories/placement');
 const Model = require('../../src/models/placement');
+const Utils = require('../utils');
 
 const createPlacement = async () => {
   const results = await Repo.seed();
@@ -115,5 +116,12 @@ describe('repositories/placement', function() {
       await expect(Repo.removeById(placement.id)).to.be.fulfilled;
       await expect(Repo.findById(placement.id)).to.be.fulfilled.and.eventually.be.null;
     });
+  });
+
+  describe('#paginate', function() {
+    it('should return a Pagination instance.', function(done) {
+      Utils.testPaginate(Repo);
+      done();
+    })
   });
 });

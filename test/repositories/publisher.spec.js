@@ -1,6 +1,7 @@
 require('../connections');
 const Repo = require('../../src/repositories/publisher');
 const Model = require('../../src/models/publisher');
+const Utils = require('../utils');
 
 const createPublisher = async () => {
   const results = await Repo.seed();
@@ -91,5 +92,12 @@ describe('repositories/publisher', function() {
       await expect(Repo.removeById(publisher.id)).to.be.fulfilled;
       await expect(Repo.findById(publisher.id)).to.be.fulfilled.and.eventually.be.null;
     });
+  });
+
+  describe('#paginate', function() {
+    it('should return a Pagination instance.', function(done) {
+      Utils.testPaginate(Repo);
+      done();
+    })
   });
 });

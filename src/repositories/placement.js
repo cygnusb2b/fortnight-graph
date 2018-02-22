@@ -1,6 +1,7 @@
 const Promise = require('bluebird');
 const Placement = require('../models/placement');
 const PublisherRepo = require('./publisher');
+const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
 
 module.exports = {
@@ -71,5 +72,17 @@ module.exports = {
     });
     await Promise.all(results.all().map(model => model.save()));
     return results;
+  },
+
+  /**
+   * Paginates all Template models.
+   *
+   * @param {object} params
+   * @param {object.object} params.pagination The pagination parameters.
+   * @param {object.object} params.sort The sort parameters.
+   * @return {Pagination}
+   */
+  paginate({ pagination, sort } = {}) {
+    return new Pagination(Placement, { pagination, sort });
   },
 };
