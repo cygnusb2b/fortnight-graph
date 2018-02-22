@@ -13,6 +13,21 @@ module.exports = {
     return template.save();
   },
 
+  update(id, payload = {}) {
+    if (!id) return Promise.reject(new Error('Unable to update template: no ID was provided.'));
+    const criteria = { _id: id };
+    const $set = {};
+    ['name', 'html'].forEach((key) => {
+      const value = payload[key];
+      if (typeof value !== 'undefined') $set[key] = value;
+    });
+    const options = { new: true, runValidators: true };
+    return Template.findOneAndUpdate(criteria, { $set }, options).then((document) => {
+      if (!document) throw new Error(`Unable to update template: no record was found for ID '${id}'`);
+      return document;
+    });
+  },
+
   /**
    * Find a Template record by ID.
    *
