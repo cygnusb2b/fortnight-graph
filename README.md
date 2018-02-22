@@ -22,6 +22,9 @@ DEBUG=express:*
 MONGOOSE_DEBUG=1
 ```
 
+## Interactive Terminal
+You can load an interactive terminal for the app container via `yarn run terminal`. This will allow you to add, remove, or upgrade project dependencies using Yarn (among other things). Note: _the application instance must be running via `yarn run start` for the terminal to load._
+
 ### Production Environment Variables
 The following environment variables must be set at run-time for the production deployment of this application. The development and test environments set appropriate values for those environments within the `docker-compose.yml` configuration files.
 ```
