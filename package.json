@@ -54,7 +54,7 @@
     "graphql": "^0.12.3",
     "graphql-import": "^0.4.1",
     "graphql-tools": "^2.18.0",
-    "helmet": "^3.9.0",
+    "helmet": "^3.11.0",
     "http-errors": "^1.6.2",
     "jsonwebtoken": "^8.1.1",
     "mongoose": "^5.0.1",
