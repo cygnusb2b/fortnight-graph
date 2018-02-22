@@ -3,7 +3,7 @@ services:
   test:
     build: ../
     volumes:
-      - ../:/app
+      - ../:/app:cached
       - node_modules:/app/node_modules
     depends_on:
       - redis
