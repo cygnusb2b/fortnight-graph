@@ -1,5 +1,6 @@
 # import * from 'advertiser.graphql'
 # import * from 'campaign.graphql'
+# import * from 'template.graphql'
 # import * from 'user.graphql'
 
 scalar Date

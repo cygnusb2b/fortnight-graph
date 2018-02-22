@@ -1,0 +1,57 @@
+type Query {
+  allTemplates(pagination: PaginationInput = {}, sort: TemplateSortInput = {}): TemplateConnection!
+  template(input: ModelIdInput!): Template!
+}
+
+type Mutation {
+  createTemplate(input: CreateTemplateInput!): Template!
+  updateTemplate(input: UpdateTemplateInput!): Template!
+}
+
+enum TemplateSortField {
+  name
+  createdAt
+  updatedAt
+}
+
+type Template {
+  id: String!
+  name: String!
+  html: String!
+  fallback: String
+  updatedAt: Date
+  createdAt: Date
+}
+
+type TemplateConnection {
+  totalCount: Int!
+  edges: [TemplateEdge]!
+  pageInfo: PageInfo!
+}
+
+type TemplateEdge {
+  node: Template!
+  cursor: Cursor!
+}
+
+input TemplateSortInput {
+  field: TemplateSortField! = createdAt
+  order: Int! = -1
+}
+
+input TemplatePayloadInput {
+  name: String!
+  html: String!
+  fallback: String
+}
+
+input CreateTemplateInput {
+  payload: TemplatePayloadInput!
+}
+
+input UpdateTemplateInput {
+  id: String!
+  payload: TemplatePayloadInput!
+}
+
+
