@@ -1,6 +1,7 @@
 require('../connections');
 const Repo = require('../../src/repositories/template');
 const Model = require('../../src/models/template');
+const Utils = require('../utils');
 
 const createTemplate = async () => {
   const results = await Repo.seed();
@@ -152,5 +153,12 @@ describe('repositories/template', function() {
       await expect(Repo.removeById(template.id)).to.be.fulfilled;
       await expect(Repo.findById(template.id)).to.be.fulfilled.and.eventually.be.null;
     });
+  });
+
+  describe('#paginate', function() {
+    it('should return a Pagination instance.', function(done) {
+      Utils.testPaginate(Repo);
+      done();
+    })
   });
 });

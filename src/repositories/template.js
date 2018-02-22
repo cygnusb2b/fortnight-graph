@@ -1,5 +1,6 @@
 const Promise = require('bluebird');
 const Template = require('../models/template');
+const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
 
 module.exports = {
@@ -65,6 +66,18 @@ module.exports = {
    */
   remove(criteria) {
     return Template.remove(criteria);
+  },
+
+  /**
+   * Paginates all Template models.
+   *
+   * @param {object} params
+   * @param {object.object} params.pagination The pagination parameters.
+   * @param {object.object} params.sort The sort parameters.
+   * @return {Pagination}
+   */
+  paginate({ pagination, sort } = {}) {
+    return new Pagination(Template, { pagination, sort });
   },
 
   /**
