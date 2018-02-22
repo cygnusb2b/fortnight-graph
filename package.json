@@ -10,20 +10,16 @@
     "pretest": "yarn run posttest && $npm_package_docker_test_install",
     "posttest": "$npm_package_docker_test_down && $npm_package_docker_test_prune",
     "test": "$npm_package_docker_test_test",
-
     "prestart": "$npm_package_docker_dev_install",
     "start": "$npm_package_docker_dev_up",
-
     "stop": "$npm_package_docker_dev_down",
-
+    "terminal": "docker exec -it fortnightgraph_app_1 /bin/bash",
     "prelint": "$npm_package_docker_test_install",
     "lint": "$npm_package_docker_test_lint",
     "postlint": "$npm_package_docker_test_down",
-
     "precoverage": "yarn run postcoverage && $npm_package_docker_test_install",
     "coverage": "$npm_package_docker_test_coverage",
     "postcoverage": "$npm_package_docker_test_down && $npm_package_docker_test_prune",
-
     "test:ci": "yarn run lint:run && ./node_modules/.bin/mocha --reporter mocha-junit-reporter",
     "test:run": "yarn run lint:run && ./node_modules/.bin/mocha --reporter spec",
     "lint:run": "./node_modules/.bin/eslint \"src/**/*.js\"",
