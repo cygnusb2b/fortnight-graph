@@ -14,6 +14,21 @@ module.exports = {
     return publisher.save();
   },
 
+  update(id, payload = {}) {
+    if (!id) return Promise.reject(new Error('Unable to update publisher: no ID was provided.'));
+    const criteria = { _id: id };
+    const $set = {};
+    ['name'].forEach((key) => {
+      const value = payload[key];
+      if (typeof value !== 'undefined') $set[key] = value;
+    });
+    const options = { new: true, runValidators: true };
+    return Publisher.findOneAndUpdate(criteria, { $set }, options).then((document) => {
+      if (!document) throw new Error(`Unable to update publisher: no record was found for ID '${id}'`);
+      return document;
+    });
+  },
+
   /**
    * Find a Publisher record by ID.
    *
