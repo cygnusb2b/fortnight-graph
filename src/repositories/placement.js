@@ -15,6 +15,21 @@ module.exports = {
     return placement.save();
   },
 
+  update(id, payload = {}) {
+    if (!id) return Promise.reject(new Error('Unable to update placement: no ID was provided.'));
+    const criteria = { _id: id };
+    const $set = {};
+    ['name', 'publisherId'].forEach((key) => {
+      const value = payload[key];
+      if (typeof value !== 'undefined') $set[key] = value;
+    });
+    const options = { new: true, runValidators: true };
+    return Placement.findOneAndUpdate(criteria, { $set }, options).then((document) => {
+      if (!document) throw new Error(`Unable to update placement: no record was found for ID '${id}'`);
+      return document;
+    });
+  },
+
   /**
    * Find a Placement record by ID.
    *
