@@ -32,7 +32,7 @@ module.exports = {
   async updateFor(campaignId, creativeId, { title, teaser } = {}) {
     const campaign = await findCampaign(campaignId);
     const creative = campaign.creatives.id(creativeId);
-    if (!creative) throw new Error('Unable to handle creative: no creative from found for the provided ID.');
+    if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
 
     creative.title = title;
     creative.teaser = teaser;
@@ -51,7 +51,7 @@ module.exports = {
     const campaign = await findCampaign(campaignId);
 
     const creative = campaign.creatives.id(creativeId);
-    if (!creative) throw new Error('Unable to handle creative: no creative from found for the provided ID.');
+    if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
     creative.remove();
     return campaign.save();
   },
