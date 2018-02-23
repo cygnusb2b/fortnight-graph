@@ -79,10 +79,11 @@ module.exports = {
     /**
      *
      */
-    // updateCampaignCreative: async (root, args, { auth }) => {
-    //   auth.check();
-    //   return CampaignRepo.updateCreative(args);
-    // },
+    updateCampaignCreative: async (root, { input }, { auth }) => {
+      auth.check();
+      const { campaignId, creativeId, payload } = input;
+      return CreativeRepo.updateFor(campaignId, creativeId, payload);
+    },
 
     /**
      *
