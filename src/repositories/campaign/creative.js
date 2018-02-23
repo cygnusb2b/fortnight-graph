@@ -25,6 +25,24 @@ module.exports = {
 
   /**
    * @param {string} campaignId
+   * @param {object} payload
+   * @param {string} payload.title
+   * @return {Promise}
+   */
+  async updateFor(campaignId, creativeId, { title, teaser } = {}) {
+    const campaign = await findCampaign(campaignId);
+    const creative = campaign.creatives.id(creativeId);
+    if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
+
+    creative.title = title;
+    creative.teaser = teaser;
+
+    await campaign.save();
+    return campaign.creatives.id(creativeId);
+  },
+
+  /**
+   * @param {string} campaignId
    * @param {string} creativeId
    * @return {Promise}
    */
@@ -33,7 +51,7 @@ module.exports = {
     const campaign = await findCampaign(campaignId);
 
     const creative = campaign.creatives.id(creativeId);
-    if (!creative) throw new Error('Unable to handle creative: no creative from found for the provided ID.');
+    if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
     creative.remove();
     return campaign.save();
   },

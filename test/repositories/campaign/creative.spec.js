@@ -59,7 +59,7 @@ describe('repositories/campaign/creative', function() {
     });
     it('should reject when attempting to remove a creative that does not exist.', async function() {
       const creativeId = '507f1f77bcf86cd799439011';
-      await expect(Repo.removeFrom(campaign.id, creativeId)).to.be.rejectedWith(Error, 'Unable to handle creative: no creative from found for the provided ID.');
+      await expect(Repo.removeFrom(campaign.id, creativeId)).to.be.rejectedWith(Error, 'Unable to handle creative: no creative was found for the provided ID.');
     });
     it('should fulfill and remove the creative.', async function() {
       const length = campaign.get('creatives').length;
