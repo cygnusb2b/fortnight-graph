@@ -20,7 +20,7 @@
     "precoverage": "yarn run postcoverage && $npm_package_docker_test_install",
     "coverage": "$npm_package_docker_test_coverage",
     "postcoverage": "$npm_package_docker_test_down && $npm_package_docker_test_prune",
-    "test:ci": "yarn run lint:run && ./node_modules/.bin/mocha --reporter mocha-junit-reporter",
+    "test:ci": "yarn run lint:run && ./node_modules/.bin/mocha --reporter mocha-junit-reporter --reporter-options mochaFile=./coverage/test-results.xml",
     "test:run": "yarn run lint:run && ./node_modules/.bin/mocha --reporter spec",
     "lint:run": "./node_modules/.bin/eslint \"src/**/*.js\"",
     "coverage:run": "./node_modules/.bin/nyc yarn run test:ci"
