@@ -62,6 +62,88 @@ describe('repositories/campaign/placement', function() {
     });
   });
 
+  describe('#createEmptyAd', function() {
+    it('should return an empty ad object.', function (done) {
+      const expected = {
+        campaignId: '1234',
+        creativeId: null,
+        fallback: true,
+        html: '',
+      };
+      expect(Repo.createEmptyAd('1234')).to.deep.equal(expected);
+      done();
+    });
+  });
+
+  describe('#buildFallbackFor', function() {
+    ['', undefined, null, false].forEach((fallback) => {
+      it(`should return an empty ad object when the template fallback is '${fallback}'`, function (done) {
+        const campaign = { id: '1234' };
+        const template = { fallback };
+        const expected = {
+          campaignId: campaign.id,
+          creativeId: null,
+          fallback: true,
+          html: '',
+        };
+        expect(Repo.buildFallbackFor(campaign, template)).to.deep.equal(expected);
+        done();
+      });
+    });
+
+    it('should render the ad with the fallback template and vars.', function(done) {
+      const campaign = { id: '1234' };
+      const template = { fallback: '<div>{{ var }}</div>' };
+      const expected = {
+        campaignId: campaign.id,
+        creativeId: null,
+        fallback: true,
+        html: '<div>Variable here!</div>',
+      };
+      const fallbackVars = { var: 'Variable here!' };
+      expect(Repo.buildFallbackFor(campaign, template, fallbackVars)).to.deep.equal(expected);
+      done();
+    });
+
+  });
+
+  describe('#buildAdFor', function() {
+    let campaign;
+    before(async function() {
+      campaign = await createCampaign();
+      campaign.set('creatives', []);
+    });
+
+    it('should build a fallback when the creatives are empty.', function(done) {
+      const template = { fallback: null };
+      const expected = {
+        campaignId: campaign.id,
+        creativeId: null,
+        fallback: true,
+        html: '',
+      };
+      expect(Repo.buildAdFor(campaign, template)).to.deep.equal(expected);
+      done();
+    });
+
+    it('should build return the rendered ad object.', function(done) {
+      campaign.set('creatives.0', {});
+
+      const creative = campaign.get('creatives.0');
+
+      const template = { html: '<div>{{ campaign.id }}</div><span>{{ creative.id }}</span>' };
+      const expected = {
+        campaignId: campaign.id,
+        creativeId: creative.id,
+        fallback: false,
+        html: `<div>${campaign.id}</div><span>${creative.id}</span>`,
+      };
+      expect(Repo.buildAdFor(campaign, template)).to.deep.equal(expected);
+      done();
+    });
+
+  });
+
   describe('#findFor', function() {
     const requestURL = 'https://somedomain.com';
 

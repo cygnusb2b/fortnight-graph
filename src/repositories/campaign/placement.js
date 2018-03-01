@@ -41,12 +41,15 @@ module.exports = {
    * @param {string} params.requestURL The URL the ad request came from.
    * @param {number} [params.num=1] The number of ads to return. Max of 20.
    * @param {object} [params.vars] An object containing targeting, merge, and fallback vars.
+   * @param {object} [params.vars.custom] Custom targeting variables.
+   * @param {object} [params.vars.fallback] Fallback template merge variables.
    */
   async findFor({
     placementId,
     templateId,
     requestURL,
     num = 1,
+    vars = { fallback: {} },
   } = {}) {
     if (!requestURL) throw new Error('No request URL was provided');
     if (!placementId) throw createError(400, 'No placement ID was provided.');
@@ -78,30 +81,45 @@ module.exports = {
      * The campaign id may not always be required (what if no ads were returned?).
      * Merge variables also need to be stored on the request.
      */
-    const ads = campaigns.map(campaign => this.buildAdFor(campaign, template));
+    const ads = campaigns.map(campaign => this.buildAdFor(campaign, template, vars.fallback));
     return ads;
   },
 
-  buildAdFor(campaign, template) {
-    const count = campaign.get('creatives.length');
-    const ad = {
-      campaignId: campaign.id,
+  buildFallbackFor(campaign, template, fallbackVars) {
+    const ad = this.createEmptyAd(campaign.id);
+    if (template.fallback) {
+      ad.html = TemplateRepo.render(template.fallback, fallbackVars);
+    }
+    return ad;
+  },
+
+  createEmptyAd(campaignId) {
+    return {
+      campaignId,
       creativeId: null,
       fallback: true,
       html: '',
     };
+  },
 
-    if (count) {
-      // Rotate the creative randomly. Eventually weighting could be added.
-      const index = randomBetween(0, count - 1);
-      const creative = campaign.get(`creatives.${index}`);
-      // Render the template.
-      // @todo The tracking becon/correlator needs to be appended to the creative.
-      // @todo The click tracker also needs to be added.
-      ad.html = TemplateRepo.render(template.html, { campaign, creative });
-      ad.creativeId = creative.id;
-      ad.fallback = false;
+  buildAdFor(campaign, template, fallbackVars) {
+    const count = campaign.get('creatives.length');
+    if (!count) {
+      // No creative found. Send fallback.
+      return this.buildFallbackFor(campaign, template, fallbackVars);
     }
+    const ad = this.createEmptyAd(campaign.id);
+
+    // Rotate the creative randomly. Eventually weighting could be added.
+    const index = randomBetween(0, count - 1);
+    const creative = campaign.get(`creatives.${index}`);
+
+    // Render the template.
+    // @todo The tracking becon/correlator needs to be appended to the creative.
+    // @todo The click tracker also needs to be added.
+    ad.html = TemplateRepo.render(template.html, { campaign, creative });
+    ad.creativeId = creative.id;
+    ad.fallback = false;
     return ad;
   },
 
