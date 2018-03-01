@@ -1,7 +1,11 @@
 const Promise = require('bluebird');
+const handlebars = require('handlebars');
+const moment = require('moment');
 const Template = require('../models/template');
 const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
+
+handlebars.registerHelper('moment-format', (date, format) => moment(date).format(format));
 
 module.exports = {
   /**
@@ -93,5 +97,10 @@ module.exports = {
     const results = this.generate(count);
     await Promise.all(results.all().map(model => model.save()));
     return results;
+  },
+
+  render(source, data) {
+    const template = handlebars.compile(source);
+    return template(data);
   },
 };

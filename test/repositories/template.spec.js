@@ -161,4 +161,32 @@ describe('repositories/template', function() {
       done();
     })
   });
+
+  describe('#render', function() {
+    it('should render basic variables.', function(done) {
+      const source = `
+        <div id="{{campaign.id}}">
+          <h1>{{creative.title}}</h1>
+          <p>{{creative.teaser}}</p>
+        </div>
+      `;
+      const expected = `
+        <div id="1234">
+          <h1>Title</h1>
+          <p>Teaser goes here.</p>
+        </div>
+      `;
+      const data = { campaign: { id: '1234' }, creative: { title: 'Title', teaser: 'Teaser goes here.' } };
+      expect(Repo.render(source, data)).to.equal(expected);
+      done();
+    });
+    it('should handle date formats.', function(done) {
+      const source = `<div>{{moment-format campaign.createdAt 'ddd, MMM Do YYYY'}}</div>`;
+      const expected = `<div>Thu, Mar 1st 2018</div>`;
+      const createdAt = new Date(1519921042000);
+      const data = { campaign: { createdAt } };
+      expect(Repo.render(source, data)).to.equal(expected);
+      done();
+    });
+  });
 });
