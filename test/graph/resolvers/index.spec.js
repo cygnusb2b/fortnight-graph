@@ -2,7 +2,6 @@ require('../../connections');
 const { graphql } = require('./utils');
 const ImageRepo = require('../../../src/repositories/image');
 const sandbox = sinon.createSandbox();
-const PlacementRepo = require('../../../src/repositories/placement');
 
 describe('graph/resolvers', function() {
   describe('Query', function() {
@@ -51,5 +50,6 @@ describe('graph/resolvers', function() {
         expect(data).to.be.an('object').with.all.keys('url', 'key', 'expires');
       });
     });
+
   });
 });
