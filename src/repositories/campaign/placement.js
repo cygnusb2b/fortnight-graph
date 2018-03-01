@@ -54,34 +54,37 @@ module.exports = {
      */
     const campaigns = await Campaign.find().limit(limit);
 
-    const ads = [];
     /**
      * @todo The request tracking implementation *definitely* needs work.
      * Some sort of pre-aggregation should exist.
      * The campaign id may not always be required (what if no ads were returned?).
      * Merge variables also need to be stored on the request.
      */
-    campaigns.forEach((campaign) => {
-      const count = campaign.get('creatives.length');
-      const ad = {
-        campaignId: campaign.id,
-        creativeId: null,
-        html: '',
-      };
-
-      if (count) {
-        // Rotate the creative randomly. Eventually weighting could be added.
-        const index = randomBetween(0, count - 1);
-        const creative = campaign.get(`creatives.${index}`);
-        // Render the template.
-        // @todo The tracking becon/correlator needs to be appended to the creative.
-        // @todo The click tracker also needs to be added.
-        ad.html = TemplateRepo.render(template.html, { campaign, creative });
-        ad.creativeId = creative.id;
-      }
-      ads.push(ad);
-    });
+    const ads = campaigns.map(campaign => this.buildAdFor(campaign, template));
     return ads;
+  },
+
+  buildAdFor(campaign, template) {
+    const count = campaign.get('creatives.length');
+    const ad = {
+      campaignId: campaign.id,
+      creativeId: null,
+      fallback: true,
+      html: '',
+    };
+
+    if (count) {
+      // Rotate the creative randomly. Eventually weighting could be added.
+      const index = randomBetween(0, count - 1);
+      const creative = campaign.get(`creatives.${index}`);
+      // Render the template.
+      // @todo The tracking becon/correlator needs to be appended to the creative.
+      // @todo The click tracker also needs to be added.
+      ad.html = TemplateRepo.render(template.html, { campaign, creative });
+      ad.creativeId = creative.id;
+      ad.fallback = false;
+    }
+    return ad;
   },
 
   // createCorrelator(url, id) {
