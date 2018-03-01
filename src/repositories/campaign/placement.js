@@ -16,6 +16,24 @@ module.exports = {
   },
 
   /**
+   * @todo Eventually this needs to limit by vars that are acceptable.
+   * @param {object} vars
+   */
+  cleanTargetingVars(vars = {}) {
+    const toClean = vars && typeof vars === 'object' ? vars : {};
+    const cleaned = {};
+    Object.keys(toClean).forEach((key) => {
+      // Strip null, undefined, and empty string values.
+      const v = toClean[key];
+      const empty = v === null || v === undefined || v === '';
+      if (!empty) {
+        cleaned[key] = v;
+      }
+    });
+    return cleaned;
+  },
+
+  /**
    *
    * @param {object} params
    * @param {string} params.placementId The placement identifier.
