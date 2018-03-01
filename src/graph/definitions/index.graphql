@@ -11,6 +11,7 @@ scalar Cursor
 type Query {
   ping: String!
   signImageUpload(input: ImageUploadInput!): SignedImageLocation!
+  autocomplete(input: AutocompleteInput!): [AutocompleteResult]!
 }
 
 type PageInfo {
@@ -33,6 +34,17 @@ input PaginationInput {
 
 input ModelIdInput {
   id: String!
+}
+
+input AutocompleteInput {
+  type: String!
+  field: String!
+  term: String!
+}
+
+type AutocompleteResult {
+  id: String!
+  name: String!
 }
 
 input ImageUploadInput {
