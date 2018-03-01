@@ -2,6 +2,7 @@ const Promise = require('bluebird');
 const Publisher = require('../models/publisher');
 const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
+const TypeAhead = require('../classes/type-ahead');
 
 module.exports = {
   /**
@@ -94,5 +95,19 @@ module.exports = {
    */
   paginate({ pagination, sort } = {}) {
     return new Pagination(Publisher, { pagination, sort });
+  },
+
+  /**
+   * Searches & Paginates all Advertiser models.
+   *
+   * @param {object} params
+   * @param {object.object} params.pagination The pagination parameters.
+   * @param {object.object} params.search The search parameters.
+   * @return {Pagination}
+   */
+  search({ pagination, search } = {}) {
+    const { typeahead } = search;
+    const { criteria, sort } = TypeAhead.getCriteria(typeahead);
+    return new Pagination(Publisher, { criteria, pagination, sort });
   },
 };

@@ -129,6 +129,109 @@ describe('graph/resolvers/publisher', function() {
       });
     });
 
+    describe('searchPublishers', function() {
+      let advertisers, model;
+      before(async function() {
+        await PublisherRepo.remove();
+        advertisers = await createPublishers(10);
+        model = advertisers[0];
+      });
+      after(async function() {
+        await PublisherRepo.remove();
+      });
+
+      const field = 'name';
+      const query = `
+        query SearchPublishers($pagination: PaginationInput, $search: PublisherSearchInput!) {
+          searchPublishers(pagination: $pagination, search: $search) {
+            totalCount
+            edges {
+              node {
+                id
+                name
+              }
+              cursor
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      `;
+      it('should reject when no user is logged-in.', async function() {
+        const pagination = { first: 5 };
+        const search = { typeahead: { field, term: 'John' }}
+        const variables = { pagination, search };
+        await expect(graphql({ query, variables, key: 'searchPublishers', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
+      });
+      it('should return at most 5 results.', async function() {
+        const pagination = { first: 5 };
+        const search = { typeahead: { field, term: 'John' }}
+        const variables = { pagination, search };
+        const promise = graphql({ query, key: 'searchPublishers', variables, loggedIn: true });
+        await expect(promise).to.eventually.be.an('object');
+        const data = await promise;
+        expect(data.totalCount).to.be.at.most(10);
+        expect(data.edges.length).to.be.at.most(5);
+      });
+      it('should return an error when an after cursor is requested that does not exist.', async function() {
+        const after = CursorType.serialize(PublisherRepo.generate().one().id);
+        const pagination = { first: 5, after };
+        const search = { typeahead: { field, term: 'John' }}
+        const variables = { pagination, search };
+        const promise = graphql({ query, key: 'searchPublishers', variables, loggedIn: true });
+        await expect(promise).to.be.rejectedWith(Error, `No record found for cursor '${after}'.`);
+      });
+
+      it('should reject if field is not specified.', async function() {
+        const pagination = { first: 5 };
+        const search = { typeahead: { term: 'John' }}
+        const variables = { pagination, search };
+        await expect(graphql({ query, variables, key: 'searchPublishers', loggedIn: true })).to.be.rejectedWith(Error, /Field value\.typeahead\.field of required type String! was not provided/i);
+      });
+      it('should always return an array', async function() {
+        const pagination = { first: 5 };
+        const search = { typeahead: { field, term: 'this should never be found unless someone is dumb' }}
+        const variables = { pagination, search };
+        const promise = graphql({ query, variables, key: 'searchPublishers', loggedIn: true })
+        const data = await expect(promise).to.eventually.be.an('object');
+        expect(data.edges).to.be.an('array')
+      });
+      it('should return the expected model', async function() {
+        const { id, name } = model;
+        const pagination = { first: 5 };
+        const search = { typeahead: { field, term: name }}
+        const variables = { pagination, search };
+        const promise = graphql({ query, variables, key: 'searchPublishers', loggedIn: true })
+        const data = await expect(promise).to.eventually.be.an('object');
+        expect(data.edges).to.be.an('array')
+        expect(data.edges[0].node).to.deep.include({ id, name });
+      });
+      it('should allow partial searches', async function() {
+        const { id, name } = model;
+        const term = name.substr(0, 3);
+        const pagination = { first: 5 };
+        const search = { typeahead: { field, term }}
+        const variables = { pagination, search };
+        const promise = graphql({ query, variables, key: 'searchPublishers', loggedIn: true })
+        const data = await expect(promise).to.eventually.be.an('object');
+        expect(data.edges).to.be.an('array')
+        expect(data.edges[0].node).to.deep.include({ id, name });
+      });
+      it('should allow case-insensitive searches', async function() {
+        const { id, name } = model;
+        const term = name.toUpperCase();
+        const pagination = { first: 5 };
+        const search = { typeahead: { field, term }}
+        const variables = { pagination, search };
+        const promise = graphql({ query, variables, key: 'searchPublishers', loggedIn: true })
+        const data = await expect(promise).to.eventually.be.an('object');
+        expect(data.edges).to.be.an('array')
+        expect(data.edges[0].node).to.deep.include({ id, name });
+      });
+    });
+
   });
 
   describe('Mutation', function() {
