@@ -87,6 +87,13 @@ describe('repositories/advertiser', function() {
     })
   });
 
+  describe('#search', function() {
+    it('should return a Pagination instance.', function(done) {
+      Utils.testSearch(Repo);
+      done();
+    })
+  });
+
   describe('#generate', function() {
     it('should return a fixture result with one record.', function(done) {
       const results = Repo.generate();

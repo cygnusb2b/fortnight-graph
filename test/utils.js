@@ -95,6 +95,15 @@ module.exports = {
     expect(paginated.Model).to.be.a('function');
   },
 
+  /**
+   *
+   */
+  testSearch(Repo) {
+    const paginated = Repo.search({ search: { typeahead: { field: 'name', term: 'test' } } });
+    expect(paginated).to.be.an.instanceOf(Pagination);
+    expect(paginated.Model).to.be.a('function');
+  },
+
   async testTrimmedField(Model, document, field, { value = ' Trim Me ', expected = 'Trim Me', property } = {}) {
     const prop = property || field;
     const { id } = document;
