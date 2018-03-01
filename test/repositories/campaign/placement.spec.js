@@ -56,7 +56,7 @@ describe('repositories/campaign/placement', function() {
       });
     });
     it(`should strip empty values but maintain good values.`, function (done) {
-      const value = { bad: '', another: null, final: undefined, good: 0, alsoGood: false, foo: 'bar' };
+      const value = { bad: '', another: null, final: undefined, obj: {}, arr: [], good: 0, alsoGood: false, foo: 'bar' };
       expect(Repo.cleanTargetingVars(value)).to.deep.equal({ good: 0, alsoGood: false, foo: 'bar' });
       done();
     });

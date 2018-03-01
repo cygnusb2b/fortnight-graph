@@ -4,6 +4,7 @@ const Template = require('../../models/template');
 const TemplateRepo = require('../../repositories/template');
 const Campaign = require('../../models/campaign');
 const randomBetween = require('../../utils/random-between');
+const isScalar = require('../../utils/is-scalar');
 
 module.exports = {
   parseOptions(options) {
@@ -26,7 +27,7 @@ module.exports = {
       // Strip null, undefined, and empty string values.
       const v = toClean[key];
       const empty = v === null || v === undefined || v === '';
-      if (!empty) {
+      if (!empty && isScalar(v)) {
         cleaned[key] = v;
       }
     });
