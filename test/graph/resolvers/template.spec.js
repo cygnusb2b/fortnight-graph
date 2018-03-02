@@ -158,13 +158,17 @@ describe('graph/resolvers/template', function() {
         await expect(graphql({ query, variables, key: 'createTemplate', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
       });
       it('should create the template.', async function() {
-        const payload = { name: 'Test Template', html: '<div>' };
+        const payload = { name: 'Test Template', html: '<div></div>', fallback: '<section></section>' };
         const input = { payload };
         const variables = { input };
         const promise = graphql({ query, variables, key: 'createTemplate', loggedIn: true });
         await expect(promise).to.eventually.be.an('object').with.property('id');
         const data = await promise;
-        await expect(TemplateRepo.findById(data.id)).to.eventually.be.an('object');
+        await expect(TemplateRepo.findById(data.id)).to.eventually.be.an('object').and.deep.include({
+          name: payload.name,
+          html: payload.html,
+          fallback: payload.fallback
+        });
       });
     });
 
@@ -189,6 +193,7 @@ describe('graph/resolvers/template', function() {
       const payload = {
         name: 'Updated Template Name',
         html: '<div>New stuff!</div>',
+        fallback: '<section>Fallback!</section>'
       };
 
       it('should reject when no user is logged-in.', async function() {
@@ -211,7 +216,11 @@ describe('graph/resolvers/template', function() {
         await expect(promise).to.eventually.be.an('object').with.property('id');
         const data = await promise;
         expect(data.name).to.equal(payload.name);
-        await expect(TemplateRepo.findById(data.id)).to.eventually.be.an('object').with.property('name', payload.name);
+        await expect(TemplateRepo.findById(data.id)).to.eventually.be.an('object').and.deep.include({
+          name: payload.name,
+          html: payload.html,
+          fallback: payload.fallback
+        });
       });
     });
 
