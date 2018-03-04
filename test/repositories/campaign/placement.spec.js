@@ -48,20 +48,6 @@ describe('repositories/campaign/placement', function() {
     });
   });
 
-  describe('#cleanTargetingVars', function() {
-    [undefined, {}, null, ''].forEach((value) => {
-      it(`should return an empty object when the value is '${value}'.`, function (done) {
-        expect(Repo.cleanTargetingVars(value)).to.deep.equal({});
-        done();
-      });
-    });
-    it(`should strip empty values but maintain good values.`, function (done) {
-      const value = { bad: '', another: null, final: undefined, obj: {}, arr: [], good: 0, alsoGood: false, foo: 'bar' };
-      expect(Repo.cleanTargetingVars(value)).to.deep.equal({ good: 0, alsoGood: false, foo: 'bar' });
-      done();
-    });
-  });
-
   describe('#createEmptyAd', function() {
     it('should return an empty ad object.', function (done) {
       const expected = {

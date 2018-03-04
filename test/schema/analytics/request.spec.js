@@ -7,29 +7,33 @@ const sandbox = sinon.createSandbox();
 describe('schema/analytics/request', function() {
 
   describe('.kv', function() {
-    beforeEach(function() {
-      sandbox.spy(CampaignPlacementRepo, 'cleanTargetingVars');
+
+    [undefined, {}, null, ''].forEach((kv) => {
+      it(`should return an empty object when the kv is '${kv}' using .set()`, function (done) {
+        const request = new AnalyticsRequest();
+        request.set('kv', kv);
+        expect(request.kv).to.deep.equal({});
+        done();
+      });
+      it(`should return an empty object when the kv is '${kv}' using direct set`, function (done) {
+        const request = new AnalyticsRequest();
+        request.kv = kv;
+        expect(request.kv).to.deep.equal({});
+        done();
+      });
+      it(`should return an empty object when the kv is '${kv}' using the constructor`, function (done) {
+        const request = new AnalyticsRequest({ kv });
+        expect(request.kv).to.deep.equal({});
+        done();
+      });
     });
-    afterEach(function() {
-      sandbox.restore();
-    });
-    it('should clean the target vars when using .set()', function(done) {
-      const request = new AnalyticsRequest();
-      request.set('kv', { foo: 'bar' });
-      sinon.assert.calledOnce(CampaignPlacementRepo.cleanTargetingVars);
+    it(`should strip empty values but maintain good values.`, function (done) {
+      const kv = { bad: '', another: null, final: undefined, obj: {}, arr: [], good: 0, alsoGood: false, foo: 'bar' };
+      const request = new AnalyticsRequest({ kv });
+      expect(request.kv).to.deep.equal({ good: 0, alsoGood: false, foo: 'bar' });
       done();
     });
-    it('should clean the target vars when directly setting', function(done) {
-      const request = new AnalyticsRequest();
-      request.kv = { foo: 'bar' };
-      sinon.assert.calledOnce(CampaignPlacementRepo.cleanTargetingVars);
-      done();
-    });
-    it('should clean the target vars when constructing.', function(done) {
-      const request = new AnalyticsRequest({ kv: { foo: 'bar' } });
-      sinon.assert.calledOnce(CampaignPlacementRepo.cleanTargetingVars);
-      done();
-    });
+
   });
 
   describe('.hour', function() {

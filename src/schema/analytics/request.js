@@ -1,6 +1,6 @@
 const { Schema } = require('mongoose');
 const hash = require('object-hash');
-const CampaignPlacementRepo = require('../../repositories/campaign/placement');
+const isScalar = require('../../utils/is-scalar');
 
 const schema = new Schema({
   hash: {
@@ -31,7 +31,21 @@ const schema = new Schema({
   kv: {
     type: Schema.Types.Mixed,
     required: true,
-    set: v => CampaignPlacementRepo.cleanTargetingVars(v),
+    /**
+     * @todo Eventually this needs to limit by vars that are acceptable.
+     */
+    set: (kv) => {
+      const toClean = kv && typeof kv === 'object' ? kv : {};
+      const cleaned = {};
+      Object.keys(toClean).forEach((key) => {
+        const v = toClean[key];
+        const empty = v === null || v === undefined || v === '';
+        if (!empty && isScalar(v)) {
+          cleaned[key] = v;
+        }
+      });
+      return cleaned;
+    },
   },
   n: {
     type: Number,

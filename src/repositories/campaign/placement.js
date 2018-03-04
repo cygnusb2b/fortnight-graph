@@ -1,10 +1,10 @@
 const createError = require('http-errors');
 const Placement = require('../../models/placement');
 const Template = require('../../models/template');
+const AnalyticsRequest = require('../../models/analytics/request');
 const TemplateRepo = require('../../repositories/template');
 const Campaign = require('../../models/campaign');
 const randomBetween = require('../../utils/random-between');
-const isScalar = require('../../utils/is-scalar');
 
 module.exports = {
   parseOptions(options) {
@@ -14,24 +14,6 @@ module.exports = {
     } catch (e) {
       return {};
     }
-  },
-
-  /**
-   * @todo Eventually this needs to limit by vars that are acceptable.
-   * @param {object} vars
-   */
-  cleanTargetingVars(vars = {}) {
-    const toClean = vars && typeof vars === 'object' ? vars : {};
-    const cleaned = {};
-    Object.keys(toClean).forEach((key) => {
-      // Strip null, undefined, and empty string values.
-      const v = toClean[key];
-      const empty = v === null || v === undefined || v === '';
-      if (!empty && isScalar(v)) {
-        cleaned[key] = v;
-      }
-    });
-    return cleaned;
   },
 
   /**
@@ -50,7 +32,7 @@ module.exports = {
     templateId,
     requestURL,
     num = 1,
-    vars = { fallback: {} },
+    vars = { custom: {}, fallback: {} },
   } = {}) {
     if (!requestURL) throw new Error('No request URL was provided');
     if (!placementId) throw createError(400, 'No placement ID was provided.');
@@ -76,12 +58,9 @@ module.exports = {
      */
     const campaigns = await Campaign.find().limit(limit);
 
-    /**
-     * @todo The request tracking implementation *definitely* needs work.
-     * Some sort of pre-aggregation should exist.
-     * The campaign id may not always be required (what if no ads were returned?).
-     * Merge variables also need to be stored on the request.
-     */
+    const request = new AnalyticsRequest({ kv: vars.custom, pid: placement.id });
+    request.aggregateSave(); // Save, but do not await.
+
     const ads = campaigns.map(campaign => this.buildAdFor(campaign, template, vars.fallback));
     return ads;
   },
