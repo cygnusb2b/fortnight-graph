@@ -1,5 +1,6 @@
 const Generate = require('../../../../src/fixtures/generators/campaign');
 const GenCreative = require('../../../../src/fixtures/generators/campaign/creative')
+const GenCriteria = require('../../../../src/fixtures/generators/campaign/criteria')
 
 describe('fixtures/generators/campaign', function() {
   it('should return a factory function', function(done) {
@@ -16,6 +17,7 @@ describe('fixtures/generators/campaign', function() {
     { key: 'url', cb: v => expect(v).be.a('string') },
     { key: 'advertiserId', cb: v => expect(v).to.equal('1234') },
     { key: 'creatives', cb: v => expect(v).be.an('array') },
+    { key: 'criteria', cb: v => expect(v).be.an('object') },
     { key: 'status', cb: v => expect(v).be.a('string').and.be.oneOf([
       'Active',
       'Paused',
@@ -27,8 +29,10 @@ describe('fixtures/generators/campaign', function() {
   ];
 
   const advertiserId = () => '1234';
+  const placementId = () => '2345';
   const creatives = () => [creative];
-  const obj = Generate({ advertiserId, creatives });
+  const criteria = () => criteria;
+  const obj = Generate({ advertiserId, placementId, creatives, criteria });
 
   it('should be an object', function(done) {
     expect(obj).to.be.an('object');

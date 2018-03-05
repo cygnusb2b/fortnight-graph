@@ -1,7 +1,8 @@
 const faker = require('faker');
 const creative = require('./creative');
+const criteria = require('./criteria');
 
-module.exports = ({ advertiserId }) => {
+module.exports = ({ advertiserId, placementId }) => {
   const creatives = () => {
     const stack = [];
     const num = faker.random.number({ min: 1, max: 5 });
@@ -23,6 +24,7 @@ module.exports = ({ advertiserId }) => {
       'Deleted',
     ]),
     creatives: creatives(),
+    criteria: criteria({ placementId }),
     createdAt: now,
     updatedAt: now,
   };
