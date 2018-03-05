@@ -57,6 +57,26 @@ describe('schema/analytics/request', function() {
       expect(result.hash).to.equal(request.hash);
       expect(result.n).to.equal(2);
     });
+    it('should save/upsert and increment, when increment is less than 1', async function() {
+      const date = new Date(1519939126481);
+      const request = new AnalyticsRequest({
+        last: date,
+        hash: '660095791f5d2264447ea840b08b1bd7',
+      });
+      await expect(request.aggregateSave(0)).to.be.fulfilled;
+      const result = await AnalyticsRequest.findOne({ hash: request.hash });
+      expect(result.hash).to.equal(request.hash);
+      expect(result.n).to.equal(3);
+    });
+    it('should save/upsert when specifying an increment', async function() {
+      const request = new AnalyticsRequest({
+        hash: 'a60095791f5d2264447ea840b08b1bd6',
+      });
+      await expect(request.aggregateSave(5)).to.be.fulfilled;
+      const result = await AnalyticsRequest.findOne({ hash: request.hash });
+      expect(result.hash).to.equal(request.hash);
+      expect(result.n).to.equal(5);
+    });
   });
 
 });
