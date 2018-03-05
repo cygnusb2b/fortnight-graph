@@ -34,6 +34,14 @@ module.exports = {
       auth.check();
       return PublisherRepo.paginate({ pagination, sort });
     },
+
+    /**
+     *
+     */
+    searchPublishers: (root, { pagination, search }, { auth }) => {
+      auth.check();
+      return PublisherRepo.search({ pagination, search });
+    },
   },
 
   /**

@@ -161,4 +161,11 @@ describe('repositories/publisher', function() {
       done();
     })
   });
+
+  describe('#search', function() {
+    it('should return a Pagination instance.', function(done) {
+      Utils.testSearch(Repo);
+      done();
+    })
+  });
 });

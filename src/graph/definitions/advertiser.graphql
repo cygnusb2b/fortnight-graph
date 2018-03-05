@@ -1,5 +1,6 @@
 type Query {
   allAdvertisers(pagination: PaginationInput = {}, sort: AdvertiserSortInput = {}): AdvertiserConnection!
+  searchAdvertisers(pagination: PaginationInput = {}, search: AdvertiserSearchInput!): AdvertiserConnection!
   advertiser(input: ModelIdInput!): Advertiser!
 }
 
@@ -32,6 +33,19 @@ type AdvertiserConnection {
 type AdvertiserEdge {
   node: Advertiser!
   cursor: Cursor!
+}
+
+input AdvertiserSearchInput {
+  typeahead: AdvertiserTypeaheadInput!
+}
+
+input AdvertiserTypeaheadInput {
+  field: AdvertiserTypeAheadField!
+  term: String!
+}
+
+enum AdvertiserTypeAheadField {
+  name
 }
 
 input AdvertiserSortInput {

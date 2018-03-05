@@ -22,7 +22,7 @@ module.exports = {
     if (!id) return Promise.reject(new Error('Unable to update template: no ID was provided.'));
     const criteria = { _id: id };
     const $set = {};
-    ['name', 'html'].forEach((key) => {
+    ['name', 'html', 'fallback'].forEach((key) => {
       const value = payload[key];
       if (typeof value !== 'undefined') $set[key] = value;
     });

@@ -1,5 +1,6 @@
 type Query {
   allPublishers(pagination: PaginationInput = {}, sort: PublisherSortInput = {}): PublisherConnection!
+  searchPublishers(pagination: PaginationInput = {}, search: PublisherSearchInput!): PublisherConnection!
   publisher(input: ModelIdInput!): Publisher!
 }
 
@@ -30,6 +31,19 @@ type PublisherConnection {
 type PublisherEdge {
   node: Publisher!
   cursor: Cursor!
+}
+
+input PublisherSearchInput {
+  typeahead: PublisherTypeAheadInput!
+}
+
+input PublisherTypeAheadInput {
+  field: PublisherTypeAheadField!
+  term: String!
+}
+
+enum PublisherTypeAheadField {
+  name
 }
 
 input PublisherSortInput {

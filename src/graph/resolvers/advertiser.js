@@ -43,6 +43,14 @@ module.exports = {
       auth.check();
       return AdvertiserRepo.paginate({ pagination, sort });
     },
+
+    /**
+     *
+     */
+    searchAdvertisers: (root, { pagination, search }, { auth }) => {
+      auth.check();
+      return AdvertiserRepo.search({ pagination, search });
+    },
   },
 
   /**
