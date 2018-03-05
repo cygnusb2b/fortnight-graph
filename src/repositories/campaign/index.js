@@ -102,10 +102,12 @@ module.exports = {
     return fixtures(Campaign, count, params);
   },
 
-  async seed({ count = 1, advertiserCount = 1 } = {}) {
+  async seed({ count = 1, advertiserCount = 1, placementCount = 1 } = {}) {
     const advertisers = await AdvertiserRepo.seed({ count: advertiserCount });
+    const placements = await AdvertiserRepo.seed({ count: placementCount });
     const results = this.generate(count, {
       advertiserId: () => advertisers.random().id,
+      placementId: () => placements.random().id,
     });
     await Promise.all(results.all().map(model => model.save()));
     return results;
