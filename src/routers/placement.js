@@ -1,8 +1,10 @@
 const { Router } = require('express');
+const helmet = require('helmet');
 const createError = require('http-errors');
 const CampaignPlacementRepo = require('../repositories/campaign/placement');
 
 const router = Router();
+router.use(helmet.noCache());
 
 const acceptable = ['json', 'html'];
 

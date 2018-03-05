@@ -65,6 +65,18 @@ describe('routers/placement', function() {
         .end(done);
     });
 
+    it('should return no-cache headers.', function(done) {
+      const pid = placement.id;
+      const opts = JSON.stringify({ tid: template.id });
+      request(app).get(`/placement/${pid}.html`)
+        .query({ opts })
+        .expect(200)
+        .expect('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+        .expect('Expires', '0')
+        .expect('Pragma', 'no-cache')
+        .end(done);
+    });
+
     it('should return a 200 when valid with :ext of json.', function(done) {
       const pid = placement.id;
       const opts = JSON.stringify({ tid: template.id });
