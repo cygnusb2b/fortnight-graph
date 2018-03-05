@@ -1,5 +1,7 @@
 require('../../connections');
 const Repo = require('../../../src/repositories/campaign/placement');
+const AnalyticsRequest = require('../../../src/models/analytics/request');
+const AnalyticsRequestObject = require('../../../src/models/analytics/request-object');
 const CampaignRepo = require('../../../src/repositories/campaign');
 const PlacementRepo = require('../../../src/repositories/placement');
 const TemplateRepo = require('../../../src/repositories/template');
@@ -184,6 +186,18 @@ describe('repositories/campaign/placement', function() {
     before(async function() {
       placement = await createPlacement();
       template = await createTemplate();
+      await AnalyticsRequestObject.remove();
+      await AnalyticsRequest.remove();
+    });
+    it('should should record the proper request analytics.', async function() {
+      const placementId = placement.id;
+      const templateId = template.id;
+      const num = 3;
+      await expect(Repo.findFor({ placementId, templateId, requestURL, num })).to.be.fulfilled;
+      const obj = await AnalyticsRequestObject.findOne({ pid: placementId });
+      expect(obj).to.be.an('object');
+      const request = await AnalyticsRequest.findOne({ hash: obj.hash });
+      expect(request.n).to.equal(3);
     });
     it('should reject when no params are sent', async function() {
       await expect(Repo.findFor()).to.be.rejectedWith(Error);

@@ -2,6 +2,7 @@ const createError = require('http-errors');
 const Placement = require('../../models/placement');
 const Template = require('../../models/template');
 const AnalyticsRequest = require('../../models/analytics/request');
+const AnalyticsRequestObject = require('../../models/analytics/request-object');
 const TemplateRepo = require('../../repositories/template');
 const Campaign = require('../../models/campaign');
 const randomBetween = require('../../utils/random-between');
@@ -59,10 +60,14 @@ module.exports = {
     const campaigns = await Campaign.find().limit(limit);
     this.fillWithFallbacks(campaigns, limit);
 
-    const request = new AnalyticsRequest({ kv: vars.custom, pid: placement.id });
-    request.aggregateSave(); // Save, but do not await.
+    const requestObj = new AnalyticsRequestObject({ kv: vars.custom, pid: placement.id });
+    await requestObj.aggregateSave();
 
     const ads = campaigns.map(campaign => this.buildAdFor(campaign, template, vars.fallback));
+
+    const now = new Date();
+    const request = new AnalyticsRequest({ hash: requestObj.hash, hour: now, last: now });
+    await request.aggregateSave(limit); // @todo Determine if this should actually not await?
     return ads;
   },
 
