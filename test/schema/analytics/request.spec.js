@@ -6,36 +6,6 @@ const sandbox = sinon.createSandbox();
 
 describe('schema/analytics/request', function() {
 
-  describe('.kv', function() {
-
-    [undefined, {}, null, ''].forEach((kv) => {
-      it(`should return an empty object when the kv is '${kv}' using .set()`, function (done) {
-        const request = new AnalyticsRequest();
-        request.set('kv', kv);
-        expect(request.kv).to.deep.equal({});
-        done();
-      });
-      it(`should return an empty object when the kv is '${kv}' using direct set`, function (done) {
-        const request = new AnalyticsRequest();
-        request.kv = kv;
-        expect(request.kv).to.deep.equal({});
-        done();
-      });
-      it(`should return an empty object when the kv is '${kv}' using the constructor`, function (done) {
-        const request = new AnalyticsRequest({ kv });
-        expect(request.kv).to.deep.equal({});
-        done();
-      });
-    });
-    it(`should strip empty values but maintain good values.`, function (done) {
-      const kv = { bad: '', another: null, final: undefined, obj: {}, arr: [], good: 0, alsoGood: false, foo: 'bar' };
-      const request = new AnalyticsRequest({ kv });
-      expect(request.kv).to.deep.equal({ good: 0, alsoGood: false, foo: 'bar' });
-      done();
-    });
-
-  });
-
   describe('.hour', function() {
     it('should remove the milli, seconds, and minutes from the date.', function(done) {
       const request = new AnalyticsRequest();
@@ -46,44 +16,6 @@ describe('schema/analytics/request', function() {
       expect(request.hour.getMinutes()).to.equal(0);
 
       done();
-    });
-  });
-
-  describe('.hashObj', function() {
-    it('should return the object to hash.', function(done) {
-      const request = new AnalyticsRequest({
-        pid: '5410f52389ce2f8354ac8e2e',
-        kv: { foo: 'bar' },
-        hour: new Date(),
-      });
-      request.kv = { bar: 'foo' };
-
-      expect(request.hashObj).to.deep.equal({
-        pid: '5410f52389ce2f8354ac8e2e',
-        kv: { bar: 'foo' },
-      });
-      done();
-    });
-  });
-
-  describe('#validate', function() {
-    it('should throw an error when the model is invalid.', async function() {
-      const request = new AnalyticsRequest();
-      await expect(request.validate()).to.be.rejectedWith(Error, /validation failed/i);
-    });
-  });
-
-  describe('#buildHash', function() {
-    it('should create the hash and successfully validate.', async function() {
-      const request = new AnalyticsRequest({
-        pid: '5410f52389ce2f8354ac8e2e',
-        kv: { foo: 'bar' },
-        hour: new Date(),
-      });
-      request.buildHash();
-
-      expect(request.hash).to.be.a('string').that.matches(/[a-f0-9]{32}/);
-      await expect(request.validate()).to.be.fulfilled;
     });
   });
 
@@ -103,9 +35,8 @@ describe('schema/analytics/request', function() {
     it('should save/upsert.', async function() {
       const date = new Date(1519939126481);
       const request = new AnalyticsRequest({
-        hour: date,
-        pid: '5410f52389ce2f8354ac8e2e',
-        kv: { foo: 'bar' },
+        last: date,
+        hash: '660095791f5d2264447ea840b08b1bd7',
       });
       await expect(request.aggregateSave()).to.be.fulfilled;
       const result = await AnalyticsRequest.findOne({ hash: request.hash });
@@ -118,9 +49,8 @@ describe('schema/analytics/request', function() {
     it('should save/upsert and increment.', async function() {
       const date = new Date(1519939126481);
       const request = new AnalyticsRequest({
-        hour: date,
-        pid: '5410f52389ce2f8354ac8e2e',
-        kv: { foo: 'bar' },
+        last: date,
+        hash: '660095791f5d2264447ea840b08b1bd7',
       });
       await expect(request.aggregateSave()).to.be.fulfilled;
       const result = await AnalyticsRequest.findOne({ hash: request.hash });

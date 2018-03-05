@@ -5,7 +5,7 @@ const CampaignPlacementRepo = require('../../../src/repositories/campaign/placem
 
 const sandbox = sinon.createSandbox();
 
-describe('schema/analytics/request', function() {
+describe('schema/analytics/request-object', function() {
 
   describe('.kv', function() {
 
