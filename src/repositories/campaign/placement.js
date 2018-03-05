@@ -1,8 +1,10 @@
 const createError = require('http-errors');
 const Placement = require('../../models/placement');
 const Template = require('../../models/template');
+const AnalyticsRequest = require('../../models/analytics/request');
+const TemplateRepo = require('../../repositories/template');
 const Campaign = require('../../models/campaign');
-const Request = require('../../models/request');
+const randomBetween = require('../../utils/random-between');
 
 module.exports = {
   parseOptions(options) {
@@ -22,12 +24,15 @@ module.exports = {
    * @param {string} params.requestURL The URL the ad request came from.
    * @param {number} [params.num=1] The number of ads to return. Max of 20.
    * @param {object} [params.vars] An object containing targeting, merge, and fallback vars.
+   * @param {object} [params.vars.custom] Custom targeting variables.
+   * @param {object} [params.vars.fallback] Fallback template merge variables.
    */
   async findFor({
     placementId,
     templateId,
     requestURL,
     num = 1,
+    vars = { custom: {}, fallback: {} },
   } = {}) {
     if (!requestURL) throw new Error('No request URL was provided');
     if (!placementId) throw createError(400, 'No placement ID was provided.');
@@ -48,41 +53,57 @@ module.exports = {
     if (!template) throw createError(404, `No template exists for ID '${templateId}'`);
 
     /**
-     * @todo
-     * The ad selection algo would now run, find the appropriate ad (or ads), and replace
-     * the template's merge variables. Also, replace any custom merge variables. For now, simulate.
+     * For now, merely return the number of requested ads.
+     * Eventually this should use scheduling, weighting, custom variable targeting, etc.
      */
     const campaigns = await Campaign.find().limit(limit);
 
-    const ads = [];
-    const reqs = [];
-    /**
-     * @todo The request tracking implementation *definitely* needs work.
-     * Some sort of pre-aggregation should exist.
-     * The campaign id may not always be required (what if no ads were returned?).
-     * Merge variables also need to be stored on the request.
-     */
-    campaigns.forEach((campaign) => {
-      const cid = campaign.get('id');
-      const request = new Request({ cid, pid: placementId });
-      reqs.push(request);
+    const request = new AnalyticsRequest({ kv: vars.custom, pid: placement.id });
+    request.aggregateSave(); // Save, but do not await.
 
-      const correlator = this.createCorrelator(requestURL, request.get('id'));
-      const html = template.html
-        .replace(/{{ id }}/g, campaign.get('id'))
-        /**
-         * @todo This needs to use the campaign creative title, not name.
-         */
-        .replace(/{{ title }}/g, campaign.get('name'));
-      ads.push({ name: campaign.name, html: `${html}\n${correlator}` });
-    });
-    if (reqs.length) {
-      await Request.collection.insertMany(reqs);
-    }
+    const ads = campaigns.map(campaign => this.buildAdFor(campaign, template, vars.fallback));
     return ads;
   },
 
-  createCorrelator(url, id) {
-    return `<img src="${url}/c/l/${id}.gif" data-view-src="${url}/c/v/${id}.gif">`;
+  buildFallbackFor(campaign, template, fallbackVars) {
+    const ad = this.createEmptyAd(campaign.id);
+    if (template.fallback) {
+      ad.html = TemplateRepo.render(template.fallback, fallbackVars);
+    }
+    return ad;
   },
+
+  createEmptyAd(campaignId) {
+    return {
+      campaignId,
+      creativeId: null,
+      fallback: true,
+      html: '',
+    };
+  },
+
+  buildAdFor(campaign, template, fallbackVars) {
+    const count = campaign.get('creatives.length');
+    if (!count) {
+      // No creative found. Send fallback.
+      return this.buildFallbackFor(campaign, template, fallbackVars);
+    }
+    const ad = this.createEmptyAd(campaign.id);
+
+    // Rotate the creative randomly. Eventually weighting could be added.
+    const index = randomBetween(0, count - 1);
+    const creative = campaign.get(`creatives.${index}`);
+
+    // Render the template.
+    // @todo The tracking becon/correlator needs to be appended to the creative.
+    // @todo The click tracker also needs to be added.
+    ad.html = TemplateRepo.render(template.html, { campaign, creative });
+    ad.creativeId = creative.id;
+    ad.fallback = false;
+    return ad;
+  },
+
+  // createCorrelator(url, id) {
+  //   return `<img src="${url}/c/l/${id}.gif" data-view-src="${url}/c/v/${id}.gif">`;
+  // },
 };

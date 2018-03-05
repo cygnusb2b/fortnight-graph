@@ -123,6 +123,17 @@ describe('schema/campaign', function() {
     });
   });
 
+  describe('#creatives.length', function() {
+    let campaign;
+    before(function() {
+      campaign = generateCampaign(advertiser);
+    });
+    it('should be a number greater than 0', function(done) {
+      expect(campaign.get('creatives.length')).to.be.gt(0);
+      done();
+    });
+  });
+
   describe('#creatives.title', function() {
     let campaign;
     beforeEach(function() {

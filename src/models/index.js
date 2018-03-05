@@ -5,6 +5,7 @@ const Publisher = require('./publisher');
 const Request = require('./request');
 const User = require('./user');
 const Template = require('./template');
+const AnalyticsRequest = require('./analytics/request');
 
 module.exports = {
   Advertiser,
@@ -14,4 +15,5 @@ module.exports = {
   Request,
   User,
   Template,
+  AnalyticsRequest,
 };

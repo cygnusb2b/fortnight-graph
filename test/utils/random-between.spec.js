@@ -14,4 +14,9 @@ describe('utils/random-between', function() {
       done();
     });
   });
+  it('should select the exact number when min and max are the same.', function(done) {
+    expect(randomBetween(1, 1)).to.equal(1);
+    expect(randomBetween(0, 0)).to.equal(0);
+    done();
+  });
 });
