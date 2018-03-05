@@ -1,7 +1,7 @@
 class TypeAhead {
   static getCriteria(typeahead = {}) {
     const { field, term } = typeahead;
-    if (!typeahead || !field || !term) return {};
+    if (!term) throw new Error('TypeAhead term must be specified.');
     const escaped = TypeAhead.buildRegexQuery(term);
     return {
       criteria: { [field]: escaped },

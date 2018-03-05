@@ -5,8 +5,8 @@ describe('classes/type-ahead', function() {
     it('should respond to the function.', function() {
       expect(TypeAhead).itself.to.respondTo('getCriteria');
     });
-    it('should return an empty object when no search criteria is present', function(done) {
-      expect(TypeAhead.getCriteria()).to.be.an('object');
+    it('should error when no term is present', function(done) {
+      expect(TypeAhead.getCriteria).to.throw(Error, /TypeAhead term must be specified/i);
       done();
     });
     it('should return a tuple of criteria and sort', function(done) {
