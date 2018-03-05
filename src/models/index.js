@@ -6,6 +6,7 @@ const Request = require('./request');
 const User = require('./user');
 const Template = require('./template');
 const AnalyticsRequest = require('./analytics/request');
+const AnalyticsRequestObject = require('./analytics/request-object');
 
 module.exports = {
   Advertiser,
@@ -16,4 +17,5 @@ module.exports = {
   User,
   Template,
   AnalyticsRequest,
+  AnalyticsRequestObject,
 };
