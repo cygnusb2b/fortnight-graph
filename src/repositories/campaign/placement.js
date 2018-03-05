@@ -57,6 +57,7 @@ module.exports = {
      * Eventually this should use scheduling, weighting, custom variable targeting, etc.
      */
     const campaigns = await Campaign.find().limit(limit);
+    this.fillWithFallbacks(campaigns, limit);
 
     const request = new AnalyticsRequest({ kv: vars.custom, pid: placement.id });
     request.aggregateSave(); // Save, but do not await.
@@ -65,8 +66,17 @@ module.exports = {
     return ads;
   },
 
-  buildFallbackFor(campaign, template, fallbackVars) {
-    const ad = this.createEmptyAd(campaign.id);
+  fillWithFallbacks(campaigns, limit) {
+    if (campaigns.length < limit) {
+      const n = limit - campaigns.length;
+      for (let i = 0; i < n; i += 1) {
+        campaigns.push({ id: null });
+      }
+    }
+  },
+
+  buildFallbackFor(campaignId, template, fallbackVars) {
+    const ad = this.createEmptyAd(campaignId);
     if (template.fallback) {
       ad.html = TemplateRepo.render(template.fallback, fallbackVars);
     }
@@ -75,7 +85,7 @@ module.exports = {
 
   createEmptyAd(campaignId) {
     return {
-      campaignId,
+      campaignId: campaignId || null,
       creativeId: null,
       fallback: true,
       html: '',
@@ -83,10 +93,11 @@ module.exports = {
   },
 
   buildAdFor(campaign, template, fallbackVars) {
+    if (!campaign.id) return this.buildFallbackFor(null, template, fallbackVars);
     const count = campaign.get('creatives.length');
     if (!count) {
       // No creative found. Send fallback.
-      return this.buildFallbackFor(campaign, template, fallbackVars);
+      return this.buildFallbackFor(campaign.id, template, fallbackVars);
     }
     const ad = this.createEmptyAd(campaign.id);
 
