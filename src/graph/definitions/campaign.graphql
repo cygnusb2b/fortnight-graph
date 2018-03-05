@@ -9,6 +9,9 @@ type Mutation {
   addCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative!
   updateCampaignCreative(input: UpdateCampaignCreativeInput!): CampaignCreative!
   removeCampaignCreative(input: RemoveCampaignCreativeInput!): String!
+  addCampaignCriteria(input: AddCampaignCriteriaInput!): CampaignCriteria!
+  updateCampaignCriteria(input: UpdateCampaignCriteriaInput!): CampaignCriteria!
+  removeCampaignCriteria(input: RemoveCampaignCriteriaInput!): String!
 }
 
 enum CampaignSortField {
@@ -40,6 +43,19 @@ type CampaignCreative {
   title: String
   teaser: String
   image: CampaignCreativeImage
+}
+
+type CampaignCriteria {
+  id: String!
+  start: Date!
+  end: Date
+  placements: [Placement]
+  kvs: [KeyValues]
+}
+
+type KeyValues {
+  key: String!
+  value: String!
 }
 
 type CampaignCreativeImage {
@@ -119,4 +135,37 @@ input UpdateCampaignCreativePayloadInput {
   title: String
   teaser: String
   # image: CampaignCreativeImageInput
+}
+
+input AddCampaignCriteriaInput {
+  campaignId: String!
+  payload: AddCampaignCriteriaPayloadInput
+}
+
+input AddCampaignCriteriaPayloadInput {
+  start: Date!
+  end: Date
+  placements: [String]
+  kvs: [KeyValuesPayloadInput]
+}
+
+input KeyValuesPayloadInput {
+  key: String!
+  value: String!
+}
+
+input RemoveCampaignCriteriaInput {
+  campaignId: String!
+}
+
+input UpdateCampaignCriteriaInput {
+  campaignId: String!
+  payload: UpdateCampaignCriteriaPayloadInput
+}
+
+input UpdateCampaignCriteriaPayloadInput {
+  start: Date!
+  end: Date
+  placements: [String]
+  kvs: [KeyValuesPayloadInput]
 }
