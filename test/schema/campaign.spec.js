@@ -1,36 +1,42 @@
 require('../connections');
 const Advertiser = require('../../src/models/advertiser');
 const Campaign = require('../../src/models/campaign');
+const Placement = require('../../src/models/advertiser');
 const fixtures = require('../../src/fixtures');
 const { testTrimmedField, testUniqueField, testRequiredField } = require('../utils');
 
-const generateCampaign = (advertiser) => {
+const generateCampaign = (advertiser, placement) => {
   return fixtures(Campaign, 1, {
     advertiserId: () => advertiser.id,
+    placementId: () => placement.id,
   }).one();
 };
 
 describe('schema/campaign', function() {
   let advertiser;
+  let placement;
   before(async function() {
     await Campaign.remove();
     await Advertiser.remove();
+    await Placement.remove();
     advertiser = await fixtures(Advertiser, 1).one().save();
+    placement = await fixtures(Placement, 1).one().save();
   });
   after(async function() {
     await Campaign.remove();
     await Advertiser.remove();
+    await Placement.remove();
   });
 
   it('should successfully save.', async function() {
-    const campaign = generateCampaign(advertiser);
+    const campaign = generateCampaign(advertiser, placement);
     await expect(campaign.save()).to.be.fulfilled;
   });
 
   describe('#name', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
     it('should be trimmed.', function() {
       return testTrimmedField(Campaign, campaign, 'name');
@@ -45,7 +51,7 @@ describe('schema/campaign', function() {
   describe('#advertiserId', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
     [null, undefined].forEach((value) => {
       it(`should be required and be rejected when the value is '${value}'`, function() {
@@ -68,7 +74,7 @@ describe('schema/campaign', function() {
   describe('#status', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
 
     [null, undefined].forEach((value) => {
@@ -92,7 +98,7 @@ describe('schema/campaign', function() {
   describe('#url', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
 
     [null, undefined].forEach((value) => {
@@ -116,7 +122,7 @@ describe('schema/campaign', function() {
   describe('#creatives', function() {
     let campaign;
     before(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
     it('should be an array', function() {
       expect(campaign.get('creatives')).to.be.an('array');
@@ -126,7 +132,7 @@ describe('schema/campaign', function() {
   describe('#creatives.length', function() {
     let campaign;
     before(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
     it('should be a number greater than 0', function(done) {
       expect(campaign.get('creatives.length')).to.be.gt(0);
@@ -137,7 +143,7 @@ describe('schema/campaign', function() {
   describe('#creatives.title', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
     it('should be trimmed.', function() {
       return testTrimmedField(Campaign, campaign, 'creatives.0.title', { property: 'creatives[0].title' });
@@ -147,7 +153,7 @@ describe('schema/campaign', function() {
   describe('#creatives.teaser', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
     it('should be trimmed.', function() {
       return testTrimmedField(Campaign, campaign, 'creatives.0.teaser', { property: 'creatives[0].teaser' });
@@ -157,7 +163,7 @@ describe('schema/campaign', function() {
   describe('#creatives.image', function() {
     let campaign;
     before(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
     it('should be an object.', function() {
       expect(campaign.get('creatives.0.image')).to.be.an('object');
@@ -167,7 +173,7 @@ describe('schema/campaign', function() {
   describe('#creatives.image.src', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
     it('should be trimmed.', function() {
       return testTrimmedField(Campaign, campaign, 'creatives.0.image.src', {
@@ -192,7 +198,7 @@ describe('schema/campaign', function() {
   describe('#creatives.image.filePath', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
     it('should be trimmed and slashes removed.', function() {
       return testTrimmedField(Campaign, campaign, 'creatives.0.image.filePath', {
@@ -211,7 +217,7 @@ describe('schema/campaign', function() {
   describe('#creatives.image.mimeType', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
 
     const allowed = ['image/jpeg', 'image/png', 'image/webm', 'image/gif'];
@@ -230,7 +236,7 @@ describe('schema/campaign', function() {
   describe('#creatives.image.focalPoint', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
 
     [undefined, {}].forEach((value) => {
@@ -248,7 +254,7 @@ describe('schema/campaign', function() {
   describe('#creatives.image.focalPoint.x', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
     [null, undefined].forEach((value) => {
       it(`should be required and be rejected when the value is '${value}'`, function() {
@@ -272,7 +278,7 @@ describe('schema/campaign', function() {
   describe('#creatives.image.focalPoint.y', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser);
+      campaign = generateCampaign(advertiser, placement);
     });
     [null, undefined].forEach((value) => {
       it(`should be required and be rejected when the value is '${value}'`, function() {
@@ -290,6 +296,77 @@ describe('schema/campaign', function() {
         campaign.set('creatives.0.image.focalPoint.y', value);
         await expect(campaign.save()).to.be.fulfilled;
       });
+    });
+  });
+
+  describe('#criteria', function() {
+    let campaign;
+    before(function() {
+      campaign = generateCampaign(advertiser, placement);
+    });
+    it('should be an object', function() {
+      expect(campaign.get('criteria')).to.be.an('object');
+    });
+  });
+
+  describe('#schedules.start', function() {
+    let campaign;
+    beforeEach(function() {
+      campaign = generateCampaign(advertiser, placement);
+    });
+    it('should be a date.', function() {
+      expect(campaign.get('criteria.start')).to.be.a('date');
+    });
+  });
+
+  describe('#schedules.end', function() {
+    let campaign;
+    beforeEach(function() {
+      campaign = generateCampaign(advertiser, placement);
+    });
+    it('should be a date.', function() {
+      expect(campaign.get('criteria.end')).to.be.a('date');
+    });
+  });
+
+  describe('#schedules.placement', function() {
+    let campaign;
+    before(function() {
+      campaign = generateCampaign(advertiser, placement);
+    });
+    it('should be an array of strings.', function() {
+      expect(campaign.get('criteria.placements')).to.be.an('array');
+      expect(campaign.get('criteria.placements.0')).to.be.a('string');
+    });
+  });
+
+  describe('#schedules.kvs', function() {
+    let campaign;
+    before(function() {
+      campaign = generateCampaign(advertiser, placement);
+    });
+    it('should be an array.', function() {
+      expect(campaign.get('criteria.kvs')).to.be.an('array');
+    });
+  });
+
+  describe('#schedules.kvs.key', function() {
+    let campaign;
+    before(function() {
+      campaign = generateCampaign(advertiser, placement);
+    });
+    it('should be a string.', function() {
+      expect(campaign.get('criteria.kvs.0.key')).to.be.a('string');
+    });
+  });
+
+  describe('#schedules.kvs.value', function() {
+    let campaign;
+    before(function() {
+      campaign = generateCampaign(advertiser, placement);
+    });
+    it('should be a string.', function() {
+      expect(campaign.get('criteria.kvs.0.value')).to.be.a('string');
     });
   });
 
