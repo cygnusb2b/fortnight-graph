@@ -188,7 +188,7 @@ describe('graph/resolvers/publisher', function() {
         const pagination = { first: 5 };
         const search = { typeahead: { term: 'John' }}
         const variables = { pagination, search };
-        await expect(graphql({ query, variables, key: 'searchPublishers', loggedIn: true })).to.be.rejectedWith(Error, /Field value\.typeahead\.field of required type String! was not provided/i);
+        await expect(graphql({ query, variables, key: 'searchPublishers', loggedIn: true })).to.be.rejectedWith(Error, /Field value\.typeahead\.field of required type PublisherTypeAheadField! was not provided/i);
       });
       it('should always return an array', async function() {
         const pagination = { first: 5 };

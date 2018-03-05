@@ -34,12 +34,16 @@ type PublisherEdge {
 }
 
 input PublisherSearchInput {
-  typeahead: PublisherTypeaheadInput!
+  typeahead: PublisherTypeAheadInput!
 }
 
-input PublisherTypeaheadInput {
-  field: String!
+input PublisherTypeAheadInput {
+  field: PublisherTypeAheadField!
   term: String!
+}
+
+enum PublisherTypeAheadField {
+  name
 }
 
 input PublisherSortInput {

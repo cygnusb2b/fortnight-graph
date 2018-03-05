@@ -40,8 +40,12 @@ input AdvertiserSearchInput {
 }
 
 input AdvertiserTypeaheadInput {
-  field: String!
+  field: AdvertiserTypeAheadField!
   term: String!
+}
+
+enum AdvertiserTypeAheadField {
+  name
 }
 
 input AdvertiserSortInput {
