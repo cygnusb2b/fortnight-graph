@@ -99,9 +99,12 @@ module.exports = {
    *
    */
   testSearch(Repo) {
-    const paginated = Repo.search({ search: { typeahead: { field: 'name', term: 'test' } } });
+    const pagination = { first: 5 };
+    const search = { typeahead: { field: 'name', term: 'test' } };
+    const paginated = Repo.search({ pagination, search });
     expect(paginated).to.be.an.instanceOf(Pagination);
     expect(paginated.Model).to.be.a('function');
+    expect(Repo.search).to.throw(Error, /Cannot destructure property/);
   },
 
   async testTrimmedField(Model, document, field, { value = ' Trim Me ', expected = 'Trim Me', property } = {}) {
