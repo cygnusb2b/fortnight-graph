@@ -10,10 +10,13 @@ const schema = new Schema({
     required: true,
     default: () => new Date(),
     set: (v) => {
-      v.setMilliseconds(0);
-      v.setSeconds(0);
-      v.setMinutes(0);
-      return v;
+      if (!v) return v;
+      // Ensure the date is cloned.
+      const hour = new Date(v.valueOf());
+      hour.setMilliseconds(0);
+      hour.setSeconds(0);
+      hour.setMinutes(0);
+      return hour;
     },
   },
   last: {

@@ -17,6 +17,17 @@ describe('schema/analytics/request', function() {
 
       done();
     });
+    it('ensure it clones the incoming object.', function(done) {
+      const request = new AnalyticsRequest();
+      const now = new Date();
+      request.hour = now;
+
+      expect(now.getMilliseconds()).to.be.gt(0);
+      expect(now.getSeconds()).to.be.gt(0);
+      expect(now.getMinutes()).to.be.gt(0);
+
+      done();
+    });
   });
 
   describe('#aggregateSave', function() {
