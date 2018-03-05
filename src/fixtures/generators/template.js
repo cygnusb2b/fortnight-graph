@@ -130,7 +130,7 @@ const fallback = `
         data-bvo-param-filter="" data-bvo-param-is-fragment="false" data-bvo-param-fragment-url="" data-bvo-param-format="ap:mdy"
         data-bvo-template-name="platform-content.published-date">
         <span class="value" data-bvo-item-id="{{ contentId }}" data-bvo-item-type="platform-content">
-          {{ publishedDate }}
+          {{#if publishedDate}}{{moment-format publishedDate 'MMM D, YYYY'}}{{/if}}
         </span>
       </div>
     </div>

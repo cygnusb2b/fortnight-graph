@@ -48,6 +48,21 @@ describe('repositories/campaign/placement', function() {
     });
   });
 
+  describe('#fillWithFallbacks', function() {
+    it('should leave campaign array untouched when length is >= limit', function(done) {
+      const campaigns = [{ id: '1234' }];
+      Repo.fillWithFallbacks(campaigns, 1);
+      expect(campaigns).deep.equal([{ id: '1234' }]);
+      done();
+    });
+    it('should fill with the extra, empty campaigns', function(done) {
+      const campaigns = [{ id: '1234' }];
+      Repo.fillWithFallbacks(campaigns, 3);
+      expect(campaigns).deep.equal([{ id: '1234' }, { id: null }, { id: null }]);
+      done();
+    });
+  });
+
   describe('#createEmptyAd', function() {
     it('should return an empty ad object.', function (done) {
       const expected = {
@@ -59,35 +74,47 @@ describe('repositories/campaign/placement', function() {
       expect(Repo.createEmptyAd('1234')).to.deep.equal(expected);
       done();
     });
+    ['', undefined, null].forEach((value) => {
+      it(`should return an empty ad object with a null campaignId when the id value is '${value}'.`, function(done) {
+        const expected = {
+          campaignId: null,
+          creativeId: null,
+          fallback: true,
+          html: '',
+        };
+        expect(Repo.createEmptyAd(value)).to.deep.equal(expected);
+        done();
+      });
+    });
   });
 
   describe('#buildFallbackFor', function() {
     ['', undefined, null, false].forEach((fallback) => {
       it(`should return an empty ad object when the template fallback is '${fallback}'`, function (done) {
-        const campaign = { id: '1234' };
+        const campaignId = '1234';
         const template = { fallback };
         const expected = {
-          campaignId: campaign.id,
+          campaignId,
           creativeId: null,
           fallback: true,
           html: '',
         };
-        expect(Repo.buildFallbackFor(campaign, template)).to.deep.equal(expected);
+        expect(Repo.buildFallbackFor(campaignId, template)).to.deep.equal(expected);
         done();
       });
     });
 
     it('should render the ad with the fallback template and vars.', function(done) {
-      const campaign = { id: '1234' };
+      const campaignId = '1234';
       const template = { fallback: '<div>{{ var }}</div>' };
       const expected = {
-        campaignId: campaign.id,
+        campaignId,
         creativeId: null,
         fallback: true,
         html: '<div>Variable here!</div>',
       };
       const fallbackVars = { var: 'Variable here!' };
-      expect(Repo.buildFallbackFor(campaign, template, fallbackVars)).to.deep.equal(expected);
+      expect(Repo.buildFallbackFor(campaignId, template, fallbackVars)).to.deep.equal(expected);
       done();
     });
 
@@ -112,7 +139,26 @@ describe('repositories/campaign/placement', function() {
       done();
     });
 
-    it('should build return the rendered ad object.', function(done) {
+    ['', null, undefined].forEach((value) => {
+      it(`should build a fallback when no campaign id value is '${value}'`, function(done) {
+        const campaign = { id: value };
+        const template = {
+          html: '<div>{{ campaign.id }}</div><span>{{ creative.id }}</span>',
+          fallback: '<div>{{ fallback }}</div>',
+        };
+        const fallbackVars = { fallback: 'Fallback!' };
+        const expected = {
+          campaignId: null,
+          creativeId: null,
+          fallback: true,
+          html: '<div>Fallback!</div>',
+        };
+        expect(Repo.buildAdFor(campaign, template, fallbackVars)).to.deep.equal(expected);
+        done();
+      });
+    });
+
+    it('should build the rendered ad object.', function(done) {
       campaign.set('creatives.0', {});
 
       const creative = campaign.get('creatives.0');
@@ -175,11 +221,12 @@ describe('repositories/campaign/placement', function() {
       const num = 11;
       await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.rejectedWith(Error, 'You cannot return more than 10 ads in one request.');
     });
-    it('should fulfill when no campaigns are found.', async function() {
+    it('should fulfill when no campaigns are found, but still have the correct length.', async function() {
       await CampaignRepo.remove();
       const placementId = placement.id;
       const templateId = template.id;
-      await expect(Repo.findFor({ placementId, templateId, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 0);
+      const num = 3;
+      await expect(Repo.findFor({ placementId, templateId, requestURL, num })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 3);
     });
     it('should fulfill when a campaign is found.', async function() {
       await CampaignRepo.remove();
@@ -188,6 +235,15 @@ describe('repositories/campaign/placement', function() {
       const num = 1;
       const campaign = await createCampaign();
       await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
+      await CampaignRepo.remove();
+    });
+    it('should fulfill when a campaign is found, and fallbacks are present.', async function() {
+      await CampaignRepo.remove();
+      const placementId = placement.id;
+      const templateId = template.id;
+      const num = 3;
+      const campaign = await createCampaign();
+      await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 3);
       await CampaignRepo.remove();
     });
     [undefined, 0, -1, 1, null, '1'].forEach((num) => {

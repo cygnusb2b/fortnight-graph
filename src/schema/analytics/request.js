@@ -5,7 +5,6 @@ const isScalar = require('../../utils/is-scalar');
 const schema = new Schema({
   hash: {
     type: String,
-    unique: true,
     required: true,
   },
   pid: {
