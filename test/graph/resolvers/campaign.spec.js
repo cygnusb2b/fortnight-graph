@@ -451,6 +451,14 @@ describe('graph/resolvers/campaign', function() {
         const variables = { input };
         await expect(graphql({ query, variables, key: 'addCampaignCriteria', loggedIn: true })).to.be.rejectedWith(Error, /no placement found/i);
       });
+      it('should reject when the placement is not provided', async function() {
+        const campaignId = campaign.id;
+        const placementIds = [ null ];
+        const payload = { start, placementIds };
+        const input = { campaignId, payload };
+        const variables = { input };
+        await expect(graphql({ query, variables, key: 'addCampaignCriteria', loggedIn: true })).to.be.rejectedWith(Error, /not to be null at value\.payload\.placementIds/i);
+      });
       it('should add the campaign criteria', async function() {
         const campaignId = campaign.id;
         const placementIds = [ placement.id ];
@@ -513,6 +521,14 @@ describe('graph/resolvers/campaign', function() {
         const input = { campaignId, payload };
         const variables = { input };
         await expect(graphql({ query, variables, key: 'updateCampaignCriteria', loggedIn: true })).to.be.rejectedWith(Error, /no placement found/i);
+      });
+      it('should reject when the placement is not provided', async function() {
+        const campaignId = campaign.id;
+        const placementIds = [ null ];
+        const payload = { start, placementIds };
+        const input = { campaignId, payload };
+        const variables = { input };
+        await expect(graphql({ query, variables, key: 'addCampaignCriteria', loggedIn: true })).to.be.rejectedWith(Error, /not to be null at value\.payload\.placementIds/i);
       });
       it('should update the campaign criteria', async function() {
         const campaignId = campaign.id;
