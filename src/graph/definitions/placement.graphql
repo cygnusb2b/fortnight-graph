@@ -1,5 +1,6 @@
 type Query {
   allPlacements(pagination: PaginationInput = {}, sort: PlacementSortInput = {}): PlacementConnection!
+  searchPlacements(pagination: PaginationInput = {}, search: PlacementSearchInput!): PlacementConnection!
   placement(input: ModelIdInput!): Placement!
 }
 
@@ -31,6 +32,19 @@ type PlacementConnection {
 type PlacementEdge {
   node: Placement!
   cursor: Cursor!
+}
+
+input PlacementSearchInput {
+  typeahead: PlacementTypeaheadInput!
+}
+
+input PlacementTypeaheadInput {
+  field: PlacementTypeAheadField!
+  term: String!
+}
+
+enum PlacementTypeAheadField {
+  name
 }
 
 input PlacementSortInput {
