@@ -290,15 +290,23 @@ describe('repositories/campaign/placement', function() {
       await AnalyticsRequestObject.remove();
       await AnalyticsRequest.remove();
     });
+    it('should throw a not implemented error if greater than 1', async function() {
+      const placementId = placement.id;
+      const templateId = template.id;
+      const num = 2;
+      await expect(Repo.findFor({ placementId, templateId, requestURL, num })).to.be.rejectedWith(Error, 'Requesting more than one ad in a request is not yet implemented');
+    });
     it('should should record the proper request analytics.', async function() {
       const placementId = placement.id;
       const templateId = template.id;
-      const num = 3;
+      // const num = 3;
+      const num = 1;
       await expect(Repo.findFor({ placementId, templateId, requestURL, num })).to.be.fulfilled;
       const obj = await AnalyticsRequestObject.findOne({ pid: placementId });
       expect(obj).to.be.an('object');
       const request = await AnalyticsRequest.findOne({ hash: obj.hash });
-      expect(request.n).to.equal(3);
+      // expect(request.n).to.equal(3);
+      expect(request.n).to.equal(1);
     });
     it('should reject when no params are sent', async function() {
       await expect(Repo.findFor()).to.be.rejectedWith(Error);
@@ -340,9 +348,10 @@ describe('repositories/campaign/placement', function() {
       await CampaignRepo.remove();
       const placementId = placement.id;
       const templateId = template.id;
-      const num = 3;
+      // const num = 3;
+      const num = 1;
       const promise = Repo.findFor({ placementId, templateId, requestURL, num });
-      await expect(promise).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 3);
+      await expect(promise).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
       const ads = await promise;
       ads.forEach((ad) => {
         expect(ad).to.be.an('object').with.all.keys('campaignId', 'creativeId', 'fallback', 'html', 'trackers');
@@ -362,9 +371,10 @@ describe('repositories/campaign/placement', function() {
       await CampaignRepo.remove();
       const placementId = placement.id;
       const templateId = template.id;
-      const num = 3;
+      // const num = 3;
+      const num = 1;
       const campaign = await createCampaign();
-      await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 3);
+      await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
       await CampaignRepo.remove();
     });
     [undefined, 0, -1, 1, null, '1'].forEach((num) => {
