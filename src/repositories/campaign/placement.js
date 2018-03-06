@@ -98,7 +98,7 @@ module.exports = {
       hash,
       cid: campaignId || undefined,
     };
-    const token = jwt.sign(payload, secret, { expiresIn: '5m' });
+    const token = jwt.sign(payload, secret, { expiresIn: '24h' });
     return `${requestURL}/t/${token}/${type}.gif`;
   },
 
