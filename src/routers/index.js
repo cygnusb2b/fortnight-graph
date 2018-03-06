@@ -1,9 +1,9 @@
 const graph = require('./graph');
 const placement = require('./placement');
-const correlate = require('./correlate');
+const track = require('./track');
 
 module.exports = (app) => {
   app.use('/graph', graph);
   app.use('/placement', placement);
-  app.use('/c', correlate);
+  app.use('/t', track);
 };
