@@ -178,6 +178,38 @@ describe('repositories/campaign/placement', function() {
 
   });
 
+  describe('#createTracker', function() {
+    it('should create the URL.', function(done) {
+      const url = Repo.createTracker('view', '1234', 'http://www.foo.com', 'abcde');
+      expect(url).to.equal('http://www.foo.com/t/view/abcde.gif?cid=1234');
+      done();
+    });
+    it('should create the URL when the campaignId is empty', function(done) {
+      const url = Repo.createTracker('view', null, 'http://www.foo.com', 'abcde');
+      expect(url).to.equal('http://www.foo.com/t/view/abcde.gif?cid=');
+      done();
+    });
+  });
+
+  describe('#appendTrackers', function() {
+    it('should append trackers to the ad object.', function(done) {
+      const ad = { campaignId: '1234' };
+      const tracked = Repo.appendTrackers(ad, 'http://www.foo.com', 'abc');
+      expect(tracked).to.be.an('object');
+      expect(tracked.campaignId).to.equal(ad.campaignId);
+      expect(tracked.trackers.load).to.equal('http://www.foo.com/t/load/abc.gif?cid=1234');
+      expect(tracked.trackers.view).to.equal('http://www.foo.com/t/view/abc.gif?cid=1234');
+      done();
+    });
+    it('but not manipulate the incoming object', function(done) {
+      const ad = { campaignId: '1234' };
+      const tracked = Repo.appendTrackers(ad, 'http://www.foo.com', 'abc');
+      expect(ad).to.have.all.keys('campaignId');
+      expect(tracked).to.have.all.keys('campaignId', 'trackers');
+      done();
+    });
+  });
+
   describe('#findFor', function() {
     const requestURL = 'https://somedomain.com';
 
@@ -240,7 +272,12 @@ describe('repositories/campaign/placement', function() {
       const placementId = placement.id;
       const templateId = template.id;
       const num = 3;
-      await expect(Repo.findFor({ placementId, templateId, requestURL, num })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 3);
+      const promise = Repo.findFor({ placementId, templateId, requestURL, num });
+      await expect(promise).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 3);
+      const ads = await promise;
+      ads.forEach((ad) => {
+        expect(ad).to.be.an('object').with.all.keys('campaignId', 'creativeId', 'fallback', 'html', 'trackers');
+      });
     });
     it('should fulfill when a campaign is found.', async function() {
       await CampaignRepo.remove();

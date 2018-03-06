@@ -63,12 +63,29 @@ module.exports = {
     const requestObj = new AnalyticsRequestObject({ kv: vars.custom, pid: placement.id });
     await requestObj.aggregateSave();
 
-    const ads = campaigns.map(campaign => this.buildAdFor(campaign, template, vars.fallback));
+    const ads = campaigns.map((campaign) => {
+      const ad = this.buildAdFor(campaign, template, vars.fallback);
+      return this.appendTrackers(ad, requestURL, requestObj.hash);
+    });
 
     const now = new Date();
     const request = new AnalyticsRequest({ hash: requestObj.hash, hour: now, last: now });
     await request.aggregateSave(limit); // @todo Determine if this should actually not await?
     return ads;
+  },
+
+  appendTrackers(ad, requestURL, hash) {
+    const { campaignId } = ad;
+    const trackers = {
+      load: this.createTracker('load', campaignId, requestURL, hash),
+      view: this.createTracker('view', campaignId, requestURL, hash),
+    };
+    return { ...ad, ...{ trackers } };
+  },
+
+  createTracker(type, campaignId, requestURL, hash) {
+    const cid = campaignId || '';
+    return `${requestURL}/t/${type}/${hash}.gif?cid=${cid}`;
   },
 
   fillWithFallbacks(campaigns, limit) {
@@ -111,15 +128,10 @@ module.exports = {
     const creative = campaign.get(`creatives.${index}`);
 
     // Render the template.
-    // @todo The tracking becon/correlator needs to be appended to the creative.
     // @todo The click tracker also needs to be added.
     ad.html = TemplateRepo.render(template.html, { campaign, creative });
     ad.creativeId = creative.id;
     ad.fallback = false;
     return ad;
   },
-
-  // createCorrelator(url, id) {
-  //   return `<img src="${url}/c/l/${id}.gif" data-view-src="${url}/c/v/${id}.gif">`;
-  // },
 };
