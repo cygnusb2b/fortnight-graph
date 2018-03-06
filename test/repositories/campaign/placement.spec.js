@@ -183,9 +183,11 @@ describe('repositories/campaign/placement', function() {
   describe('#createTracker', function() {
     it('should create the URL.', function(done) {
       const url = Repo.createTracker('view', 1234, 'http://www.foo.com', 'abcde');
-      expect(url).to.match(/^http:\/\/www\.foo\.com\/t\/view\/.*$/);
+      expect(url).to.match(/^http:\/\/www\.foo\.com\/t\/.*\/view\.gif$/);
       const parsed = new URL(url);
-      const token = parsed.pathname.split('/').pop();
+      const parts = parsed.pathname.split('/');
+      parts.pop();
+      const token = parts.pop();
       expect(token).to.be.a('string');
       // Check payload, but not sig here.
       const decoded = jwt.decode(token);
@@ -199,9 +201,11 @@ describe('repositories/campaign/placement', function() {
     });
     it('should create the URL when the campaignId is empty', function(done) {
       const url = Repo.createTracker('view', null, 'http://www.foo.com', 'abcde');
-    expect(url).to.match(/^http:\/\/www\.foo\.com\/t\/view\/.*$/);
+    expect(url).to.match(/^http:\/\/www\.foo\.com\/t\/.*\/view\.gif$/);
       const parsed = new URL(url);
-      const token = parsed.pathname.split('/').pop();
+      const parts = parsed.pathname.split('/');
+      parts.pop();
+      const token = parts.pop();
       expect(token).to.be.a('string');
       // Check payload, but not sig here.
       const decoded = jwt.decode(token);
@@ -221,8 +225,8 @@ describe('repositories/campaign/placement', function() {
       const tracked = Repo.appendTrackers(ad, 'http://www.foo.com', 'abc');
       expect(tracked).to.be.an('object');
       expect(tracked.campaignId).to.equal(ad.campaignId);
-      expect(tracked.trackers.load).to.match(/^http:\/\/www\.foo\.com\/t\/load\/.*$/);
-      expect(tracked.trackers.view).to.match(/^http:\/\/www\.foo\.com\/t\/view\/.*$/);
+      expect(tracked.trackers.load).to.match(/^http:\/\/www\.foo\.com\/t\/.*\/load\.gif$/);
+      expect(tracked.trackers.view).to.match(/^http:\/\/www\.foo\.com\/t\/.*\/view\.gif$/);
       done();
     });
     it('but not manipulate the incoming object', function(done) {

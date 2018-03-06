@@ -99,7 +99,7 @@ module.exports = {
       cid: campaignId || undefined,
     };
     const token = jwt.sign(payload, secret, { expiresIn: '5m' });
-    return `${requestURL}/t/${type}/${token}`;
+    return `${requestURL}/t/${token}/${type}.gif`;
   },
 
   fillWithFallbacks(campaigns, limit) {
