@@ -180,6 +180,26 @@ describe('repositories/campaign/placement', function() {
 
   });
 
+  describe('#createImgBeacon', function() {
+    it('should return the tracker HMTL snippet.', function(done) {
+      const expected = '<div data-app="fortnight" data-type="placement"><img src="http://foo.com/l" data-view-src="http://foo.com/v"></div>';
+      expect(Repo.createImgBeacon({ load: 'http://foo.com/l', view: 'http://foo.com/v' })).to.equal(expected);
+      done();
+    });
+  });
+
+  describe('#createTrackedHTML', function() {
+    it('should return the tracker HMTL snippet.', function(done) {
+      const expected = `<div>Some ad HTML</div>\n<div data-app="fortnight" data-type="placement"><img src="http://foo.com/l" data-view-src="http://foo.com/v"></div>`;
+      const ad = {
+        html: '<div>Some ad HTML</div>',
+        trackers: { load: 'http://foo.com/l', view: 'http://foo.com/v' },
+      }
+      expect(Repo.createTrackedHTML(ad)).to.equal(expected);
+      done();
+    });
+  });
+
   describe('#createTracker', function() {
     it('should create the URL.', function(done) {
       const url = Repo.createTracker('view', 1234, 'http://www.foo.com', 'abcde');

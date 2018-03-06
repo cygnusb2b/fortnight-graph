@@ -102,6 +102,15 @@ module.exports = {
     return `${requestURL}/t/${token}/${type}.gif`;
   },
 
+  createImgBeacon(trackers) {
+    return `<div data-app="fortnight" data-type="placement"><img src="${trackers.load}" data-view-src="${trackers.view}"></div>`;
+  },
+
+  createTrackedHTML(ad) {
+    const { trackers } = ad;
+    return `${ad.html}\n${this.createImgBeacon(trackers)}`;
+  },
+
   fillWithFallbacks(campaigns, limit) {
     if (campaigns.length < limit) {
       const n = limit - campaigns.length;
