@@ -20,6 +20,7 @@ services:
       PORT: ${GRAPH_APP_PORT-8100}
       MONGOOSE_DEBUG: ${MONGOOSE_DEBUG}
       DEBUG: ${DEBUG}
+      TRACKER_SECRET: ${TRACKER_SECRET}
   redis:
     image: redis:alpine
   mongo:

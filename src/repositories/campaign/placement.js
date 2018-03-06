@@ -1,4 +1,5 @@
 const createError = require('http-errors');
+const jwt = require('jsonwebtoken');
 const Placement = require('../../models/placement');
 const Template = require('../../models/template');
 const AnalyticsRequest = require('../../models/analytics/request');
@@ -83,9 +84,22 @@ module.exports = {
     return { ...ad, ...{ trackers } };
   },
 
+  /**
+   *
+   * @todo These should probably be signed and embedded with the cid.
+   * @param {string} type
+   * @param {?string} campaignId
+   * @param {string} requestURL
+   * @param {string} hash
+   */
   createTracker(type, campaignId, requestURL, hash) {
-    const cid = campaignId || '';
-    return `${requestURL}/t/${type}/${hash}.gif?cid=${cid}`;
+    const secret = process.env.TRACKER_SECRET;
+    const payload = {
+      hash,
+      cid: campaignId || undefined,
+    };
+    const token = jwt.sign(payload, secret, { expiresIn: '5m' });
+    return `${requestURL}/t/${type}/${token}`;
   },
 
   fillWithFallbacks(campaigns, limit) {

@@ -1,4 +1,6 @@
 require('../../connections');
+const { URL } = require('url');
+const jwt = require('jsonwebtoken');
 const Repo = require('../../../src/repositories/campaign/placement');
 const AnalyticsRequest = require('../../../src/models/analytics/request');
 const AnalyticsRequestObject = require('../../../src/models/analytics/request-object');
@@ -180,13 +182,35 @@ describe('repositories/campaign/placement', function() {
 
   describe('#createTracker', function() {
     it('should create the URL.', function(done) {
-      const url = Repo.createTracker('view', '1234', 'http://www.foo.com', 'abcde');
-      expect(url).to.equal('http://www.foo.com/t/view/abcde.gif?cid=1234');
+      const url = Repo.createTracker('view', 1234, 'http://www.foo.com', 'abcde');
+      expect(url).to.match(/^http:\/\/www\.foo\.com\/t\/view\/.*$/);
+      const parsed = new URL(url);
+      const token = parsed.pathname.split('/').pop();
+      expect(token).to.be.a('string');
+      // Check payload, but not sig here.
+      const decoded = jwt.decode(token);
+      expect(decoded).to.be.an('object');
+      expect(decoded.iat).to.be.a('number').gt(0);
+      expect(decoded.exp).to.be.a('number').gt(0);
+      expect(decoded.hash).to.equal('abcde');
+      expect(decoded.cid).to.equal(1234);
+
       done();
     });
     it('should create the URL when the campaignId is empty', function(done) {
       const url = Repo.createTracker('view', null, 'http://www.foo.com', 'abcde');
-      expect(url).to.equal('http://www.foo.com/t/view/abcde.gif?cid=');
+    expect(url).to.match(/^http:\/\/www\.foo\.com\/t\/view\/.*$/);
+      const parsed = new URL(url);
+      const token = parsed.pathname.split('/').pop();
+      expect(token).to.be.a('string');
+      // Check payload, but not sig here.
+      const decoded = jwt.decode(token);
+      expect(decoded).to.be.an('object');
+      expect(decoded.iat).to.be.a('number').gt(0);
+      expect(decoded.exp).to.be.a('number').gt(0);
+      expect(decoded.hash).to.equal('abcde');
+      expect(decoded.cid).to.equal(undefined);
+
       done();
     });
   });
@@ -197,8 +221,8 @@ describe('repositories/campaign/placement', function() {
       const tracked = Repo.appendTrackers(ad, 'http://www.foo.com', 'abc');
       expect(tracked).to.be.an('object');
       expect(tracked.campaignId).to.equal(ad.campaignId);
-      expect(tracked.trackers.load).to.equal('http://www.foo.com/t/load/abc.gif?cid=1234');
-      expect(tracked.trackers.view).to.equal('http://www.foo.com/t/view/abc.gif?cid=1234');
+      expect(tracked.trackers.load).to.match(/^http:\/\/www\.foo\.com\/t\/load\/.*$/);
+      expect(tracked.trackers.view).to.match(/^http:\/\/www\.foo\.com\/t\/view\/.*$/);
       done();
     });
     it('but not manipulate the incoming object', function(done) {
