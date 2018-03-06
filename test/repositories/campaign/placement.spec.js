@@ -277,6 +277,7 @@ describe('repositories/campaign/placement', function() {
       const ads = await promise;
       ads.forEach((ad) => {
         expect(ad).to.be.an('object').with.all.keys('campaignId', 'creativeId', 'fallback', 'html', 'trackers');
+        expect(ad.trackers).to.be.an('object').with.all.keys('view', 'load');
       });
     });
     it('should fulfill when a campaign is found.', async function() {
