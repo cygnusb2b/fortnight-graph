@@ -1,7 +1,9 @@
 const paginationResolvers = require('./pagination');
 const AdvertiserRepo = require('../../repositories/advertiser');
+const PlacementRepo = require('../../repositories/placement');
 const CampaignRepo = require('../../repositories/campaign');
 const CreativeRepo = require('../../repositories/campaign/creative');
+const CriteriaRepo = require('../../repositories/campaign/criteria');
 
 module.exports = {
   /**
@@ -9,6 +11,10 @@ module.exports = {
    */
   Campaign: {
     advertiser: campaign => AdvertiserRepo.findById(campaign.get('advertiserId')),
+  },
+
+  CampaignCriteria: {
+    placements: criteria => PlacementRepo.find({ _id: criteria.get('placementIds') }),
   },
 
   /**
@@ -92,6 +98,34 @@ module.exports = {
       auth.check();
       const { campaignId, creativeId } = input;
       await CreativeRepo.removeFrom(campaignId, creativeId);
+      return 'ok';
+    },
+
+    /**
+     *
+     */
+    addCampaignCriteria: (root, { input }, { auth }) => {
+      auth.check();
+      const { campaignId, payload } = input;
+      return CriteriaRepo.createFor(campaignId, payload);
+    },
+
+    /**
+     *
+     */
+    updateCampaignCriteria: async (root, { input }, { auth }) => {
+      auth.check();
+      const { campaignId, payload } = input;
+      return CriteriaRepo.updateFor(campaignId, payload);
+    },
+
+    /**
+     *
+     */
+    removeCampaignCriteria: async (root, { input }, { auth }) => {
+      auth.check();
+      const { campaignId } = input;
+      await CriteriaRepo.removeFrom(campaignId);
       return 'ok';
     },
   },

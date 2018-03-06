@@ -36,6 +36,7 @@ type Campaign {
   status: CampaignStatus!
   url: String!
   creatives: [CampaignCreative]
+  criteria: CampaignCriteria
 }
 
 type CampaignCreative {
@@ -145,7 +146,7 @@ input AddCampaignCriteriaInput {
 input AddCampaignCriteriaPayloadInput {
   start: Date!
   end: Date
-  placements: [String]
+  placementIds: [String]
   kvs: [KeyValuesPayloadInput]
 }
 
@@ -166,6 +167,6 @@ input UpdateCampaignCriteriaInput {
 input UpdateCampaignCriteriaPayloadInput {
   start: Date!
   end: Date
-  placements: [String]
+  placementIds: [String]
   kvs: [KeyValuesPayloadInput]
 }

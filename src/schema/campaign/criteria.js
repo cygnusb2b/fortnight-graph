@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Placement = require('../../models/placement');
 
 const { Schema } = mongoose;
 
@@ -10,7 +11,19 @@ module.exports = new Schema({
   end: {
     type: Date,
   },
-  placements: [String],
+  placementIds: [{
+    type: Schema.Types.ObjectId,
+    required: true,
+    validate: {
+      async validator(v) {
+        const doc = await Placement.findOne({ _id: v }, { _id: 1 });
+        if (doc) return true;
+        return false;
+      },
+      message: 'No placement found for ID {VALUE}',
+    },
+  }],
+
   kvs: [{
     key: {
       type: String,

@@ -13,21 +13,21 @@ module.exports = {
    * @param {object} payload
    * @param {date} payload.start
    * @param {date} payload.end
-   * @param {array} payload.placements
+   * @param {array} payload.placementIds
    * @param {array} payload.kvs
    * @return {Promise}
    */
   async createFor(campaignId, {
     start,
     end,
-    placements,
+    placementIds,
     kvs,
   } = {}) {
     const campaign = await findCampaign(campaignId);
     campaign.criteria = Object.assign({}, {
       start,
       end,
-      placements,
+      placementIds,
       kvs,
     });
     await campaign.save();
@@ -39,22 +39,23 @@ module.exports = {
    * @param {object} payload
    * @param {date} payload.start
    * @param {date} payload.end
-   * @param {array} payload.placements
+   * @param {array} payload.placementIds
    * @param {array} payload.kvs
    * @return {Promise}
    */
   async updateFor(campaignId, {
     start,
     end,
-    placements,
+    placementIds,
     kvs,
   } = {}) {
     const campaign = await findCampaign(campaignId);
 
-    campaign.criteria.start = start;
-    campaign.criteria.end = end;
-    campaign.criteria.placements = placements;
-    campaign.criteria.kvs = kvs;
+    const { criteria } = campaign;
+    criteria.start = start;
+    criteria.end = end;
+    criteria.placementIds = placementIds;
+    criteria.kvs = kvs;
 
     await campaign.save();
     return campaign.criteria;
@@ -67,7 +68,7 @@ module.exports = {
    */
   async removeFrom(campaignId) {
     const campaign = await findCampaign(campaignId);
-    campaign.criteria = null;
+    campaign.criteria.remove();
     return campaign.save();
   },
 };

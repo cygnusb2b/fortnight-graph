@@ -1,7 +1,8 @@
 require('../connections');
 const Advertiser = require('../../src/models/advertiser');
 const Campaign = require('../../src/models/campaign');
-const Placement = require('../../src/models/advertiser');
+const Placement = require('../../src/models/placement');
+const Publisher = require('../../src/models/publisher');
 const fixtures = require('../../src/fixtures');
 const { testTrimmedField, testUniqueField, testRequiredField } = require('../utils');
 
@@ -16,16 +17,21 @@ describe('schema/campaign', function() {
   let advertiser;
   let placement;
   before(async function() {
-    await Campaign.remove();
-    await Advertiser.remove();
-    await Placement.remove();
+    await Advertiser.remove({});
+    await Campaign.remove({});
+    await Placement.remove({});
+    await Publisher.remove({});
+    const publisher = await fixtures(Publisher, 1).one().save();
     advertiser = await fixtures(Advertiser, 1).one().save();
-    placement = await fixtures(Placement, 1).one().save();
+    placement = await fixtures(Placement, 1, {
+      publisherId: () => publisher.id
+    }).one().save();
   });
   after(async function() {
     await Campaign.remove();
     await Advertiser.remove();
     await Placement.remove();
+    await Publisher.remove({});
   });
 
   it('should successfully save.', async function() {
@@ -309,7 +315,7 @@ describe('schema/campaign', function() {
     });
   });
 
-  describe('#schedules.start', function() {
+  describe('#criteria.start', function() {
     let campaign;
     beforeEach(function() {
       campaign = generateCampaign(advertiser, placement);
@@ -319,7 +325,7 @@ describe('schema/campaign', function() {
     });
   });
 
-  describe('#schedules.end', function() {
+  describe('#criteria.end', function() {
     let campaign;
     beforeEach(function() {
       campaign = generateCampaign(advertiser, placement);
@@ -329,18 +335,17 @@ describe('schema/campaign', function() {
     });
   });
 
-  describe('#schedules.placement', function() {
+  describe('#criteria.placements', function() {
     let campaign;
     before(function() {
       campaign = generateCampaign(advertiser, placement);
     });
-    it('should be an array of strings.', function() {
-      expect(campaign.get('criteria.placements')).to.be.an('array');
-      expect(campaign.get('criteria.placements.0')).to.be.a('string');
+    it('should be an array of ObjectIds.', function() {
+      expect(campaign.get('criteria.placementIds')).to.be.an('array');
     });
   });
 
-  describe('#schedules.kvs', function() {
+  describe('#criteria.kvs', function() {
     let campaign;
     before(function() {
       campaign = generateCampaign(advertiser, placement);
@@ -350,7 +355,7 @@ describe('schema/campaign', function() {
     });
   });
 
-  describe('#schedules.kvs.key', function() {
+  describe('#criteria.kvs.key', function() {
     let campaign;
     before(function() {
       campaign = generateCampaign(advertiser, placement);
@@ -360,7 +365,7 @@ describe('schema/campaign', function() {
     });
   });
 
-  describe('#schedules.kvs.value', function() {
+  describe('#criteria.kvs.value', function() {
     let campaign;
     before(function() {
       campaign = generateCampaign(advertiser, placement);

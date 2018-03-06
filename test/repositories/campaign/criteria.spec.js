@@ -93,7 +93,6 @@ describe('repositories/campaign/criteria', function() {
       await expect(Repo.removeFrom(campaign.id)).to.eventually.be.an.instanceOf(Campaign);
 
       const found = await CampaignRepo.findById(campaign.id);
-      console.warn(found.get('criteria'));
       expect(found.get('criteria')).to.be.null;
     });
   });
