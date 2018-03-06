@@ -1,41 +1,8 @@
+const analyticsPlugin = require('../../plugins/analytics');
 const { Schema } = require('mongoose');
-const moment = require('moment');
 
-const schema = new Schema({
-  hash: {
-    type: String,
-    required: true,
-    validate: {
-      validator(v) {
-        return /[a-f0-9]{32}/.test(v);
-      },
-      message: 'Invalid hash value for {VALUE}',
-    },
-  },
-  hour: {
-    type: Date,
-    required: true,
-    set: (v) => {
-      if (!(v instanceof Date)) return undefined;
-      const date = moment(v);
-      date.utc().startOf('hour');
-      return date.toDate();
-    },
-  },
-  last: {
-    type: Date,
-    required: true,
-    set(v) {
-      if (!(v instanceof Date)) return undefined;
-      this.hour = v;
-      return v;
-    },
-  },
-  n: {
-    type: Number,
-    default: 0,
-  },
-});
+const schema = new Schema();
+schema.plugin(analyticsPlugin);
 
 schema.index({ hash: 1, hour: 1 }, { unique: true });
 
