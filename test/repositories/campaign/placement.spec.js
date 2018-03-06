@@ -1,6 +1,7 @@
 require('../../connections');
 const { URL } = require('url');
 const jwt = require('jsonwebtoken');
+const uuidUtil = require('../../../src/utils/uuid');
 const Repo = require('../../../src/repositories/campaign/placement');
 const AnalyticsRequest = require('../../../src/models/analytics/request');
 const AnalyticsRequestObject = require('../../../src/models/analytics/request-object');
@@ -212,6 +213,7 @@ describe('repositories/campaign/placement', function() {
       // Check payload, but not sig here.
       const decoded = jwt.decode(token);
       expect(decoded).to.be.an('object');
+      expect(uuidUtil.is(decoded.id)).to.be.true;
       expect(decoded.iat).to.be.a('number').gt(0);
       expect(decoded.exp).to.be.a('number').gt(0);
       expect(decoded.hash).to.equal('abcde');
@@ -221,7 +223,7 @@ describe('repositories/campaign/placement', function() {
     });
     it('should create the URL when the campaignId is empty', function(done) {
       const url = Repo.createTracker('view', null, 'http://www.foo.com', 'abcde');
-    expect(url).to.match(/^http:\/\/www\.foo\.com\/t\/.*\/view\.gif$/);
+      expect(url).to.match(/^http:\/\/www\.foo\.com\/t\/.*\/view\.gif$/);
       const parsed = new URL(url);
       const parts = parsed.pathname.split('/');
       parts.pop();
@@ -230,11 +232,30 @@ describe('repositories/campaign/placement', function() {
       // Check payload, but not sig here.
       const decoded = jwt.decode(token);
       expect(decoded).to.be.an('object');
+      expect(uuidUtil.is(decoded.id)).to.be.true;
       expect(decoded.iat).to.be.a('number').gt(0);
       expect(decoded.exp).to.be.a('number').gt(0);
       expect(decoded.hash).to.equal('abcde');
       expect(decoded.cid).to.equal(undefined);
 
+      done();
+    });
+    it('should create unique ids with the same params.', function(done) {
+      const url1 = Repo.createTracker('view', null, 'http://www.foo.com', 'abcde');
+      const parsed1 = new URL(url1);
+      const parts1 = parsed1.pathname.split('/');
+      parts1.pop();
+      const token1 = parts1.pop();
+      const decoded1 = jwt.decode(token1);
+
+      const url2 = Repo.createTracker('view', null, 'http://www.foo.com', 'abcde');
+      const parsed2 = new URL(url2);
+      const parts2 = parsed2.pathname.split('/');
+      parts2.pop();
+      const token2 = parts2.pop();
+      const decoded2 = jwt.decode(token2);
+
+      expect(decoded1.id).to.not.equal(decoded2.id);
       done();
     });
   });

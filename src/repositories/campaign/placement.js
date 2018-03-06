@@ -1,4 +1,5 @@
 const createError = require('http-errors');
+const uuid = require('uuid/v4');
 const jwt = require('jsonwebtoken');
 const Placement = require('../../models/placement');
 const Template = require('../../models/template');
@@ -95,6 +96,7 @@ module.exports = {
   createTracker(type, campaignId, requestURL, hash) {
     const secret = process.env.TRACKER_SECRET;
     const payload = {
+      id: uuid(),
       hash,
       cid: campaignId || undefined,
     };
