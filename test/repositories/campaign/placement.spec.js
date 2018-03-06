@@ -267,7 +267,7 @@ describe('repositories/campaign/placement', function() {
       const num = 11;
       await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.rejectedWith(Error, 'You cannot return more than 10 ads in one request.');
     });
-    it('should fulfill when no campaigns are found, but still have the correct length.', async function() {
+    it('should fulfill when no campaigns are found, but still have the correct length and ad objects.', async function() {
       await CampaignRepo.remove();
       const placementId = placement.id;
       const templateId = template.id;

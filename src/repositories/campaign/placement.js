@@ -69,7 +69,7 @@ module.exports = {
     });
 
     const now = new Date();
-    const request = new AnalyticsRequest({ hash: requestObj.hash, hour: now, last: now });
+    const request = new AnalyticsRequest({ hash: requestObj.hash, last: now });
     await request.aggregateSave(limit); // @todo Determine if this should actually not await?
     return ads;
   },
