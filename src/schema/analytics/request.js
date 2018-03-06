@@ -1,28 +1,35 @@
 const { Schema } = require('mongoose');
+const moment = require('moment');
 
 const schema = new Schema({
   hash: {
     type: String,
     required: true,
+    validate: {
+      validator(v) {
+        return /[a-f0-9]{32}/.test(v);
+      },
+      message: 'Invalid hash value for {VALUE}',
+    },
   },
   hour: {
     type: Date,
     required: true,
-    default: () => new Date(),
     set: (v) => {
-      if (!v) return v;
-      // Ensure the date is cloned.
-      const hour = new Date(v.valueOf());
-      hour.setMilliseconds(0);
-      hour.setSeconds(0);
-      hour.setMinutes(0);
-      return hour;
+      if (!(v instanceof Date)) return undefined;
+      const date = moment(v);
+      date.utc().startOf('hour');
+      return date.toDate();
     },
   },
   last: {
     type: Date,
     required: true,
-    default: () => new Date(),
+    set(v) {
+      if (!(v instanceof Date)) return undefined;
+      this.hour = v;
+      return v;
+    },
   },
   n: {
     type: Number,
