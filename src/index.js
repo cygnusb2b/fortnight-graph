@@ -1,10 +1,10 @@
 require('dotenv').config();
 
-/* eslint-disable */
+/* eslint-disable global-require */
 if (process.env.NEW_RELIC_LICENSE_KEY) {
   require('newrelic');
 }
-/* eslint-enable */
+/* eslint-enable global-require */
 
 const pkg = require('../package.json');
 const { app } = require('./server');
