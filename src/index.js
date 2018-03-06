@@ -1,4 +1,6 @@
 require('dotenv').config();
+
+/* istanbul ignore if  */
 if (process.env.NEW_RELIC_LICENSE_KEY) require('newrelic'); // eslint-disable-line global-require
 
 const pkg = require('../package.json');
