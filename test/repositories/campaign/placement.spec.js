@@ -1,8 +1,14 @@
 require('../../connections');
+const { URL } = require('url');
+const jwt = require('jsonwebtoken');
+const uuidUtil = require('../../../src/utils/uuid');
 const Repo = require('../../../src/repositories/campaign/placement');
+const AnalyticsRequest = require('../../../src/models/analytics/request');
+const AnalyticsRequestObject = require('../../../src/models/analytics/request-object');
 const CampaignRepo = require('../../../src/repositories/campaign');
 const PlacementRepo = require('../../../src/repositories/placement');
 const TemplateRepo = require('../../../src/repositories/template');
+const sandbox = sinon.createSandbox();
 
 const createCampaign = async () => {
   const results = await CampaignRepo.seed();
@@ -46,6 +52,54 @@ describe('repositories/campaign/placement', function() {
       expect(Repo.parseOptions('{"foo":"bar"}')).to.deep.equal({ foo: 'bar' });
       done();
     });
+  });
+
+  describe('#createCampaignRedirect', function() {
+    it('should return the redirect URL.', function(done) {
+      const url = Repo.createCampaignRedirect('1234', 'http://foo.com', 'abcd');
+
+      expect(url).to.match(/^http:\/\/foo\.com\/go\/.*$/);
+      const parsed = new URL(url);
+      const parts = parsed.pathname.split('/');
+      const token = parts.pop();
+      expect(token).to.be.a('string');
+
+      // Check payload, but not sig here.
+      const decoded = jwt.decode(token);
+      expect(decoded).to.be.an('object');
+      expect(decoded.iat).to.be.a('number').gt(0);
+      expect(decoded.hash).to.equal('abcd');
+      expect(decoded.cid).to.equal('1234');
+      done();
+    });
+  });
+
+  describe('#createFallbackRedirect', function() {
+    [undefined, '', '/foo/path.jpg', 'www.google.com', null].forEach((value) => {
+      it(`should pass the URL back, as-is, when the url value is '${value}'`, function(done) {
+        expect(Repo.createFallbackRedirect(value)).to.equal(value);
+        done();
+      });
+    });
+
+    it('should return the fallback redirect URL.', function(done) {
+      const url = Repo.createFallbackRedirect('http://www.redirect-to.com', 'http://foo.com', 'abcd');
+
+      expect(url).to.match(/^http:\/\/foo\.com\/go\/.*$/);
+      const parsed = new URL(url);
+      const parts = parsed.pathname.split('/');
+      const token = parts.pop();
+      expect(token).to.be.a('string');
+
+      // Check payload, but not sig here.
+      const decoded = jwt.decode(token);
+      expect(decoded).to.be.an('object');
+      expect(decoded.iat).to.be.a('number').gt(0);
+      expect(decoded.hash).to.equal('abcd');
+      expect(decoded.url).to.equal('http://www.redirect-to.com');
+      done();
+    });
+
   });
 
   describe('#fillWithFallbacks', function() {
@@ -122,6 +176,13 @@ describe('repositories/campaign/placement', function() {
 
   describe('#buildAdFor', function() {
     let campaign;
+    beforeEach(function() {
+      sandbox.spy(Repo, 'createFallbackRedirect');
+      sandbox.spy(Repo, 'createCampaignRedirect');
+    });
+    afterEach(function() {
+      sandbox.restore();
+    });
     before(async function() {
       campaign = await createCampaign();
       campaign.set('creatives', []);
@@ -136,11 +197,12 @@ describe('repositories/campaign/placement', function() {
         html: '',
       };
       expect(Repo.buildAdFor(campaign, template)).to.deep.equal(expected);
+      sinon.assert.notCalled(Repo.createFallbackRedirect);
       done();
     });
 
     ['', null, undefined].forEach((value) => {
-      it(`should build a fallback when no campaign id value is '${value}'`, function(done) {
+      it(`should build a fallback when the campaign id value is '${value}'`, function(done) {
         const campaign = { id: value };
         const template = {
           html: '<div>{{ campaign.id }}</div><span>{{ creative.id }}</span>',
@@ -154,6 +216,7 @@ describe('repositories/campaign/placement', function() {
           html: '<div>Fallback!</div>',
         };
         expect(Repo.buildAdFor(campaign, template, fallbackVars)).to.deep.equal(expected);
+        sinon.assert.calledOnce(Repo.createFallbackRedirect);
         done();
       });
     });
@@ -171,19 +234,148 @@ describe('repositories/campaign/placement', function() {
         html: `<div>${campaign.id}</div><span>${creative.id}</span>`,
       };
       expect(Repo.buildAdFor(campaign, template)).to.deep.equal(expected);
+      sinon.assert.calledOnce(Repo.createCampaignRedirect);
       done();
     });
 
   });
 
+  describe('#createImgBeacon', function() {
+    it('should return the tracker HMTL snippet.', function(done) {
+      const expected = '<div data-app="fortnight" data-type="placement"><img src="http://foo.com/l" data-view-src="http://foo.com/v"></div>';
+      expect(Repo.createImgBeacon({ load: 'http://foo.com/l', view: 'http://foo.com/v' })).to.equal(expected);
+      done();
+    });
+  });
+
+  describe('#createTrackedHTML', function() {
+    it('should return the tracker HMTL snippet.', function(done) {
+      const expected = `<div>Some ad HTML</div>\n<div data-app="fortnight" data-type="placement"><img src="http://foo.com/l" data-view-src="http://foo.com/v"></div>`;
+      const ad = {
+        html: '<div>Some ad HTML</div>',
+        trackers: { load: 'http://foo.com/l', view: 'http://foo.com/v' },
+      }
+      expect(Repo.createTrackedHTML(ad)).to.equal(expected);
+      done();
+    });
+  });
+
+  describe('#createTracker', function() {
+    it('should create the URL.', function(done) {
+      const url = Repo.createTracker('view', 1234, 'http://www.foo.com', 'abcde');
+      expect(url).to.match(/^http:\/\/www\.foo\.com\/t\/.*\/view\.gif$/);
+      const parsed = new URL(url);
+      const parts = parsed.pathname.split('/');
+      parts.pop();
+      const token = parts.pop();
+      expect(token).to.be.a('string');
+      // Check payload, but not sig here.
+      const decoded = jwt.decode(token);
+      expect(decoded).to.be.an('object');
+      expect(uuidUtil.is(decoded.id)).to.be.true;
+      expect(decoded.iat).to.be.a('number').gt(0);
+      expect(decoded.exp).to.be.a('number').gt(0);
+      expect(decoded.hash).to.equal('abcde');
+      expect(decoded.cid).to.equal(1234);
+
+      done();
+    });
+    it('should create the URL when the campaignId is empty', function(done) {
+      const url = Repo.createTracker('view', null, 'http://www.foo.com', 'abcde');
+      expect(url).to.match(/^http:\/\/www\.foo\.com\/t\/.*\/view\.gif$/);
+      const parsed = new URL(url);
+      const parts = parsed.pathname.split('/');
+      parts.pop();
+      const token = parts.pop();
+      expect(token).to.be.a('string');
+      // Check payload, but not sig here.
+      const decoded = jwt.decode(token);
+      expect(decoded).to.be.an('object');
+      expect(uuidUtil.is(decoded.id)).to.be.true;
+      expect(decoded.iat).to.be.a('number').gt(0);
+      expect(decoded.exp).to.be.a('number').gt(0);
+      expect(decoded.hash).to.equal('abcde');
+      expect(decoded.cid).to.equal(undefined);
+
+      done();
+    });
+    it('should create unique ids with the same params.', function(done) {
+      const url1 = Repo.createTracker('view', null, 'http://www.foo.com', 'abcde');
+      const parsed1 = new URL(url1);
+      const parts1 = parsed1.pathname.split('/');
+      parts1.pop();
+      const token1 = parts1.pop();
+      const decoded1 = jwt.decode(token1);
+
+      const url2 = Repo.createTracker('view', null, 'http://www.foo.com', 'abcde');
+      const parsed2 = new URL(url2);
+      const parts2 = parsed2.pathname.split('/');
+      parts2.pop();
+      const token2 = parts2.pop();
+      const decoded2 = jwt.decode(token2);
+
+      expect(decoded1.id).to.not.equal(decoded2.id);
+      done();
+    });
+  });
+
+  describe('#appendTrackers', function() {
+    it('should append trackers to the ad object.', function(done) {
+      const ad = { campaignId: '1234' };
+      const tracked = Repo.appendTrackers(ad, 'http://www.foo.com', 'abc');
+      expect(tracked).to.be.an('object');
+      expect(tracked.campaignId).to.equal(ad.campaignId);
+      expect(tracked.trackers.load).to.match(/^http:\/\/www\.foo\.com\/t\/.*\/load\.gif$/);
+      expect(tracked.trackers.view).to.match(/^http:\/\/www\.foo\.com\/t\/.*\/view\.gif$/);
+      done();
+    });
+    it('but not manipulate the incoming object', function(done) {
+      const ad = { campaignId: '1234' };
+      const tracked = Repo.appendTrackers(ad, 'http://www.foo.com', 'abc');
+      expect(ad).to.have.all.keys('campaignId');
+      expect(tracked).to.have.all.keys('campaignId', 'trackers');
+      done();
+    });
+  });
+
   describe('#findFor', function() {
     const requestURL = 'https://somedomain.com';
+
+    beforeEach(function() {
+      sandbox.spy(Repo, 'buildAdFor');
+      sandbox.spy(Repo, 'appendTrackers');
+    });
+    afterEach(function() {
+      sandbox.restore();
+    });
 
     let placement;
     let template;
     before(async function() {
       placement = await createPlacement();
       template = await createTemplate();
+      await AnalyticsRequestObject.remove();
+      await AnalyticsRequest.remove();
+    });
+    it('should throw a not implemented error if greater than 1', async function() {
+      const placementId = placement.id;
+      const templateId = template.id;
+      const num = 2;
+      await expect(Repo.findFor({ placementId, templateId, requestURL, num })).to.be.rejectedWith(Error, 'Requesting more than one ad in a request is not yet implemented');
+    });
+    it('should should record the proper request analytics.', async function() {
+      const placementId = placement.id;
+      const templateId = template.id;
+      // const num = 3;
+      const num = 1;
+      await expect(Repo.findFor({ placementId, templateId, requestURL, num })).to.be.fulfilled;
+      const obj = await AnalyticsRequestObject.findOne({ pid: placementId });
+      expect(obj).to.be.an('object');
+      const request = await AnalyticsRequest.findOne({ hash: obj.hash });
+      // expect(request.n).to.equal(3);
+      expect(request.n).to.equal(1);
+      sinon.assert.called(Repo.buildAdFor);
+      sinon.assert.called(Repo.appendTrackers);
     });
     it('should reject when no params are sent', async function() {
       await expect(Repo.findFor()).to.be.rejectedWith(Error);
@@ -221,12 +413,21 @@ describe('repositories/campaign/placement', function() {
       const num = 11;
       await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.rejectedWith(Error, 'You cannot return more than 10 ads in one request.');
     });
-    it('should fulfill when no campaigns are found, but still have the correct length.', async function() {
+    it('should fulfill when no campaigns are found, but still have the correct length and ad objects.', async function() {
       await CampaignRepo.remove();
       const placementId = placement.id;
       const templateId = template.id;
-      const num = 3;
-      await expect(Repo.findFor({ placementId, templateId, requestURL, num })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 3);
+      // const num = 3;
+      const num = 1;
+      const promise = Repo.findFor({ placementId, templateId, requestURL, num });
+      await expect(promise).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
+      const ads = await promise;
+      ads.forEach((ad) => {
+        expect(ad).to.be.an('object').with.all.keys('campaignId', 'creativeId', 'fallback', 'html', 'trackers');
+        expect(ad.trackers).to.be.an('object').with.all.keys('view', 'load');
+      });
+      sinon.assert.called(Repo.buildAdFor);
+      sinon.assert.called(Repo.appendTrackers);
     });
     it('should fulfill when a campaign is found.', async function() {
       await CampaignRepo.remove();
@@ -235,15 +436,20 @@ describe('repositories/campaign/placement', function() {
       const num = 1;
       const campaign = await createCampaign();
       await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
+      sinon.assert.called(Repo.buildAdFor);
+      sinon.assert.called(Repo.appendTrackers);
       await CampaignRepo.remove();
     });
     it('should fulfill when a campaign is found, and fallbacks are present.', async function() {
       await CampaignRepo.remove();
       const placementId = placement.id;
       const templateId = template.id;
-      const num = 3;
+      // const num = 3;
+      const num = 1;
       const campaign = await createCampaign();
-      await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 3);
+      await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
+      sinon.assert.called(Repo.buildAdFor);
+      sinon.assert.called(Repo.appendTrackers);
       await CampaignRepo.remove();
     });
     [undefined, 0, -1, 1, null, '1'].forEach((num) => {
@@ -253,6 +459,8 @@ describe('repositories/campaign/placement', function() {
         await createCampaign();
         await createCampaign();
         await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
+        sinon.assert.called(Repo.buildAdFor);
+        sinon.assert.called(Repo.appendTrackers);
         await CampaignRepo.remove();
       });
     });

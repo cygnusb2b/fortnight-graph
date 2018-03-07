@@ -62,6 +62,9 @@ describe('routers/placement', function() {
         .query({ opts })
         .expect('Content-Type', /text\/html/)
         .expect(200)
+        .expect((res) => {
+          expect(res.text).to.contain('<div data-app="fortnight" data-type="placement">');
+        })
         .end(done);
     });
 

@@ -23,6 +23,7 @@ GRAPH_DB_PORT=8101
 
 DEBUG=express:*
 MONGOOSE_DEBUG=1
+TRACKER_SECRET=somevaluethatshouldbedifferentinprod
 ```
 
 ### Production Environment Variables
@@ -36,6 +37,7 @@ AWS_SECRET_ACCESS_KEY=
 MONGO_DSN=
 REDIS_DSN=
 MONGOOSE_DEBUG=
+TRACKER_SECRET=
 NEW_RELIC_LICENSE_KEY=
 ```
 
