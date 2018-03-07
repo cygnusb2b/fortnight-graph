@@ -42,7 +42,7 @@ router.get('/:pid.:ext', (req, res) => {
       vars,
     }).then((ads) => {
       if (ext === 'html') {
-        const html = ads.reduce((str, ad) => `${str}\n${CampaignPlacementRepo.createTrackedHTML(ad)}`, '');
+        const html = ads.reduce((str, ad) => `${str}\n${ad.html}`, '');
         res.send(html);
       } else {
         res.json(ads);
