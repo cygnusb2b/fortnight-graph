@@ -28,7 +28,7 @@ describe('schema/placement', function() {
     await expect(placement.save()).to.be.fulfilled;
   });
 
-  describe('#name', function() {
+  describe('.name', function() {
     let placement;
     beforeEach(function() {
       placement = generatePlacement(publisher);
@@ -41,13 +41,16 @@ describe('schema/placement', function() {
         return testRequiredField(Placement, placement, 'name', value);
       });
     });
-    it('should be unique.', function() {
-      const another = generatePlacement(publisher);
-      return testUniqueField(Placement, placement, another, 'name');
+    it('should allow the same name, per different publisher.', async function() {
+      const pub2 = await fixtures(Publisher, 1).one().save();
+      const placement2 = generatePlacement(pub2);
+      placement2.name = placement.name;
+      await expect(placement.save()).to.be.fulfilled;
+      await expect(placement2.save()).to.be.fulfilled;
     });
   });
 
-  describe('#publisherId', function() {
+  describe('.publisherId', function() {
     let placement;
     beforeEach(function() {
       placement = generatePlacement(publisher);
@@ -67,6 +70,22 @@ describe('schema/placement', function() {
       const id = '3f056e318e9a4da0d049fcc3';
       placement.set('publisherId', id);
       await expect(placement.save()).to.be.rejectedWith(Error, `No publisher found for ID ${id}`);
+    });
+  });
+
+  describe('.name + .publisherId', function() {
+    it('should be unique.', async function() {
+      const placement = generatePlacement(publisher);
+      const placement2 = generatePlacement(publisher);
+
+      const name = 'The same name cannot be shared for the same pub.';
+
+      placement.name = name;
+      placement2.name = name;
+
+      await expect(placement.save()).to.be.fulfilled;
+      await expect(placement2.save()).to.be.rejectedWith(Error, /duplicate key/i)
+
     });
   });
 

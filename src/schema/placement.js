@@ -8,7 +8,6 @@ const schema = new Schema({
     type: String,
     required: true,
     trim: true,
-    unique: true,
   },
   publisherId: {
     type: Schema.Types.ObjectId,
@@ -24,7 +23,7 @@ const schema = new Schema({
   },
 }, { timestamps: true });
 
-schema.index({ publisherId: 1 });
+schema.index({ publisherId: 1, name: 1 }, { unique: true });
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
 schema.index({ updatedAt: 1, _id: 1 }, { unique: true });
