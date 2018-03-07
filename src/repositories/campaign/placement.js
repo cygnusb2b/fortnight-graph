@@ -68,10 +68,13 @@ module.exports = {
     await requestObj.aggregateSave();
     const { hash } = requestObj;
 
-    const ads = campaigns.map((campaign) => {
-      const ad = this.buildAdFor(campaign, template, vars.fallback, requestURL, hash);
-      return this.appendTrackers(ad, requestURL, hash);
-    });
+    const ads = campaigns.map(campaign => this.buildAdFor(
+      campaign,
+      template,
+      vars.fallback,
+      requestURL,
+      hash,
+    ));
 
     const now = new Date();
     const request = new AnalyticsRequest({ hash: requestObj.hash, last: now });
@@ -86,6 +89,13 @@ module.exports = {
       view: this.createTracker('view', campaignId, requestURL, hash),
     };
     return { ...ad, ...{ trackers } };
+  },
+
+  createTrackers(campaignId, requestURL, hash) {
+    return {
+      load: this.createTracker('load', campaignId, requestURL, hash),
+      view: this.createTracker('view', campaignId, requestURL, hash),
+    };
   },
 
   /**
@@ -145,13 +155,19 @@ module.exports = {
 
   buildFallbackFor(campaignId, template, fallbackVars, requestURL, hash) {
     const ad = this.createEmptyAd(campaignId);
+    const trackers = this.createTrackers(null, requestURL, hash);
+    const beacon = this.createImgBeacon(trackers);
+
     if (template.fallback) {
       let vars = {};
       if (fallbackVars) {
         const url = this.createFallbackRedirect(fallbackVars.url, requestURL, hash);
         vars = Object.assign({}, fallbackVars, { url });
       }
+      vars.beacon = beacon;
       ad.html = TemplateRepo.render(template.fallback, vars);
+    } else {
+      ad.html = beacon;
     }
     return ad;
   },
@@ -180,7 +196,16 @@ module.exports = {
 
     // Render the template.
     const href = this.createCampaignRedirect(campaign.id, requestURL, hash);
-    ad.html = TemplateRepo.render(template.html, { href, campaign, creative });
+    const trackers = this.createTrackers(requestURL, hash);
+    const beacon = this.createImgBeacon(trackers);
+
+    const vars = {
+      beacon,
+      href,
+      campaign,
+      creative,
+    };
+    ad.html = TemplateRepo.render(template.html, vars);
     ad.creativeId = creative.id;
     ad.fallback = false;
     return ad;

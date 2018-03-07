@@ -146,14 +146,22 @@ describe('repositories/campaign/placement', function() {
     ['', undefined, null, false].forEach((fallback) => {
       it(`should return an empty ad object when the template fallback is '${fallback}'`, function (done) {
         const campaignId = '1234';
+        const hash = 'abc';
+        const requestURL = 'http://www.foo.com';
         const template = { fallback };
+
+        const trackers = Repo.createTrackers(campaignId, requestURL, hash);
+        const beacon = Repo.createImgBeacon(trackers);
+
         const expected = {
           campaignId,
           creativeId: null,
           fallback: true,
-          html: '',
         };
-        expect(Repo.buildFallbackFor(campaignId, template)).to.deep.equal(expected);
+        const result = Repo.buildFallbackFor(campaignId, template, undefined, requestURL, hash);
+        expect(result).to.be.an('object');
+        ['campaignId, creativeId, fallback'].forEach(k => expect(result[k]).to.equal(expected[k]));
+        expect(result.html).to.match(/^<div data-app="fortnight" data-type="placement"><img src="http:\/\/www\.foo\.com\/t\/.*<\/div>/i);
         done();
       });
     });
@@ -168,7 +176,32 @@ describe('repositories/campaign/placement', function() {
         html: '<div>Variable here!</div>',
       };
       const fallbackVars = { var: 'Variable here!' };
-      expect(Repo.buildFallbackFor(campaignId, template, fallbackVars)).to.deep.equal(expected);
+      const result = Repo.buildFallbackFor(campaignId, template, fallbackVars);
+      expect(result).to.be.an('object');
+      ['campaignId, creativeId, fallback'].forEach(k => expect(result[k]).to.equal(expected[k]));
+      done();
+    });
+
+    it('should render the ad with the fallback template and beacon.', function(done) {
+      const campaignId = '1234';
+      const hash = 'abc';
+      const requestURL = 'http://www.foo.com';
+
+      const trackers = Repo.createTrackers(campaignId, requestURL, hash);
+      const beacon = Repo.createImgBeacon(trackers);
+
+      const template = { fallback: '<div>{{ foo }}</div>{{{ beacon }}}' };
+      const expected = {
+        campaignId,
+        creativeId: null,
+        fallback: true,
+      };
+      const fallbackVars = { foo: 'Variable here!' };
+
+      const result = Repo.buildFallbackFor(campaignId, template, fallbackVars, requestURL, hash);
+      expect(result).to.be.an('object');
+      ['campaignId, creativeId, fallback'].forEach(k => expect(result[k]).to.equal(expected[k]));
+      expect(result.html).to.match(/^<div>Variable here!<\/div><div data-app="fortnight" data-type="placement"><img src="http:\/\/www\.foo\.com\/t\/.*<\/div>/i);
       done();
     });
 
@@ -194,9 +227,11 @@ describe('repositories/campaign/placement', function() {
         campaignId: campaign.id,
         creativeId: null,
         fallback: true,
-        html: '',
       };
-      expect(Repo.buildAdFor(campaign, template)).to.deep.equal(expected);
+      const result = Repo.buildAdFor(campaign, template);
+      expect(result).to.be.an('object');
+      ['campaignId, creativeId, fallback'].forEach(k => expect(result[k]).to.equal(expected[k]));
+      expect(result.html).to.match(/^<div data-app="fortnight" data-type="placement"><img src=.*/i);
       sinon.assert.notCalled(Repo.createFallbackRedirect);
       done();
     });
@@ -343,7 +378,8 @@ describe('repositories/campaign/placement', function() {
 
     beforeEach(function() {
       sandbox.spy(Repo, 'buildAdFor');
-      sandbox.spy(Repo, 'appendTrackers');
+      sandbox.spy(Repo, 'createTrackers');
+      sandbox.spy(Repo, 'createImgBeacon');
     });
     afterEach(function() {
       sandbox.restore();
@@ -375,7 +411,8 @@ describe('repositories/campaign/placement', function() {
       // expect(request.n).to.equal(3);
       expect(request.n).to.equal(1);
       sinon.assert.called(Repo.buildAdFor);
-      sinon.assert.called(Repo.appendTrackers);
+      sinon.assert.called(Repo.createTrackers);
+      sinon.assert.called(Repo.createImgBeacon);
     });
     it('should reject when no params are sent', async function() {
       await expect(Repo.findFor()).to.be.rejectedWith(Error);
@@ -423,11 +460,11 @@ describe('repositories/campaign/placement', function() {
       await expect(promise).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
       const ads = await promise;
       ads.forEach((ad) => {
-        expect(ad).to.be.an('object').with.all.keys('campaignId', 'creativeId', 'fallback', 'html', 'trackers');
-        expect(ad.trackers).to.be.an('object').with.all.keys('view', 'load');
+        expect(ad).to.be.an('object').with.all.keys('campaignId', 'creativeId', 'fallback', 'html');
       });
       sinon.assert.called(Repo.buildAdFor);
-      sinon.assert.called(Repo.appendTrackers);
+      sinon.assert.called(Repo.createTrackers);
+      sinon.assert.called(Repo.createImgBeacon);
     });
     it('should fulfill when a campaign is found.', async function() {
       await CampaignRepo.remove();
@@ -437,7 +474,8 @@ describe('repositories/campaign/placement', function() {
       const campaign = await createCampaign();
       await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
       sinon.assert.called(Repo.buildAdFor);
-      sinon.assert.called(Repo.appendTrackers);
+      sinon.assert.called(Repo.createTrackers);
+      sinon.assert.called(Repo.createImgBeacon);
       await CampaignRepo.remove();
     });
     it('should fulfill when a campaign is found, and fallbacks are present.', async function() {
@@ -449,7 +487,8 @@ describe('repositories/campaign/placement', function() {
       const campaign = await createCampaign();
       await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
       sinon.assert.called(Repo.buildAdFor);
-      sinon.assert.called(Repo.appendTrackers);
+      sinon.assert.called(Repo.createTrackers);
+      sinon.assert.called(Repo.createImgBeacon);
       await CampaignRepo.remove();
     });
     [undefined, 0, -1, 1, null, '1'].forEach((num) => {
@@ -460,7 +499,8 @@ describe('repositories/campaign/placement', function() {
         await createCampaign();
         await expect(Repo.findFor({ placementId, templateId, num, requestURL })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
         sinon.assert.called(Repo.buildAdFor);
-        sinon.assert.called(Repo.appendTrackers);
+      sinon.assert.called(Repo.createTrackers);
+      sinon.assert.called(Repo.createImgBeacon);
         await CampaignRepo.remove();
       });
     });
