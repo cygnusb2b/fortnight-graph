@@ -1,7 +1,6 @@
 const { Schema } = require('mongoose');
 
 const validateBeacon = (v) => {
-  if (!v) return v;
   const results = v.match(/{{\s*?beacon\s*?}}/g);
   if (!results) return false;
   if (results.length > 1) return false;
@@ -38,13 +37,14 @@ const schema = new Schema({
     validate: [
       {
         validator(v) {
+          if (!v) return true;
           return validateBeacon(v);
         },
         message: 'The {{ beacon }} merge variable must be present, exactly one time.',
       },
       {
         validator(v) {
-          if (!v) return v;
+          if (!v) return true;
           return /{{\s*?url\s*?}}/g.test(v);
         },
         message: 'The {{ url }} merge variable must be present.',

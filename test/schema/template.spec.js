@@ -70,6 +70,7 @@ describe('schema/template', function() {
     });
     [null, undefined, ''].forEach((value) => {
       it(`should succssfully save when the value is '${value}'`, async function() {
+        template.fallback = value;
         await expect(template.save()).to.be.fulfilled;
       });
     });
