@@ -13,7 +13,7 @@ services:
       NODE_ENV: test
       MONGO_DSN: mongodb://mongo:27017/fortnight
       REDIS_DSN: redis://redis:6379/0
-      TRACKER_SECRET: ${TRACKER_SECRET}
+      TRACKER_SECRET: ${TRACKER_SECRET-thiskeynotusedbuttests}
       PORT: 8100
   redis:
     image: redis:alpine
