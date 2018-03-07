@@ -49,6 +49,34 @@ describe('schema/template', function() {
         return testRequiredField(Template, template, 'html', value);
       });
     });
+    it('should be rejected when the {{ beacon }} var is missing.', async function() {
+      template.html = '<div></div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{ beacon }} merge variable must be present, exactly one time.');
+    });
+    it('should be rejected when more than one {{ beacon }} var is present.', async function() {
+      template.html = '<div>{{beacon}} {{  beacon   }}</div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{ beacon }} merge variable must be present, exactly one time.');
+    });
+  });
+
+  describe('#fallback', function() {
+    let template;
+    beforeEach(function() {
+      template = generateTemplate();
+    });
+    [null, undefined, ''].forEach((value) => {
+      it(`should succssfully save when the value is '${value}'`, async function() {
+        await expect(template.save()).to.be.fulfilled;
+      });
+    });
+    it('should be rejected when the {{ beacon }} var is missing.', async function() {
+      template.fallback = '<div></div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{ beacon }} merge variable must be present, exactly one time.');
+    });
+    it('should be rejected when more than one {{ beacon }} var is present.', async function() {
+      template.fallback = '<div>{{beacon}} {{  beacon   }}</div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{ beacon }} merge variable must be present, exactly one time.');
+    });
   });
 
 });
