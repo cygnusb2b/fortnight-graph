@@ -83,7 +83,7 @@ describe('repositories/template', function() {
     });
     it('should return the updated model object.', async function() {
       const id = template.id;
-      const payload = { name: 'New Name', html: '<div>' };
+      const payload = { name: 'New Name', html: '<div>{{ beacon }}{{ href }}</div>' };
       const promise = Repo.update(id, payload);
       await expect(promise).to.eventually.be.an.instanceOf(Model);
       const updated = await promise;
