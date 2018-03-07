@@ -90,7 +90,6 @@ module.exports = {
 
   /**
    *
-   * @todo These should probably be signed and embedded with the cid.
    * @param {string} type
    * @param {?string} campaignId
    * @param {string} requestURL
