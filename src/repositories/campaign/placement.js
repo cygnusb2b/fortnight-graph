@@ -1,5 +1,6 @@
 const createError = require('http-errors');
 const uuid = require('uuid/v4');
+const { isURL } = require('validator');
 const jwt = require('jsonwebtoken');
 const Placement = require('../../models/placement');
 const Template = require('../../models/template');
@@ -65,10 +66,11 @@ module.exports = {
 
     const requestObj = new AnalyticsRequestObject({ kv: vars.custom, pid: placement.id });
     await requestObj.aggregateSave();
+    const { hash } = requestObj;
 
     const ads = campaigns.map((campaign) => {
-      const ad = this.buildAdFor(campaign, template, vars.fallback);
-      return this.appendTrackers(ad, requestURL, requestObj.hash);
+      const ad = this.buildAdFor(campaign, template, vars.fallback, requestURL, hash);
+      return this.appendTrackers(ad, requestURL, hash);
     });
 
     const now = new Date();
@@ -114,6 +116,25 @@ module.exports = {
     return `${ad.html}\n${this.createImgBeacon(trackers)}`;
   },
 
+  createCampaignRedirect(campaignId, requestURL, hash) {
+    const secret = process.env.TRACKER_SECRET;
+    const payload = {
+      hash,
+      cid: campaignId,
+    };
+    const token = jwt.sign(payload, secret);
+    return `${requestURL}/go/${token}`;
+  },
+
+  createFallbackRedirect(url, requestURL, hash) {
+    // @todo This should somehow notify that there's a problem with the URL.
+    if (!isURL(String(url), { require_protocol: true })) return url;
+    const secret = process.env.TRACKER_SECRET;
+    const payload = { hash, url };
+    const token = jwt.sign(payload, secret);
+    return `${requestURL}/go/${token}`;
+  },
+
   fillWithFallbacks(campaigns, limit) {
     if (campaigns.length < limit) {
       const n = limit - campaigns.length;
@@ -123,10 +144,15 @@ module.exports = {
     }
   },
 
-  buildFallbackFor(campaignId, template, fallbackVars) {
+  buildFallbackFor(campaignId, template, fallbackVars, requestURL, hash) {
     const ad = this.createEmptyAd(campaignId);
     if (template.fallback) {
-      ad.html = TemplateRepo.render(template.fallback, fallbackVars);
+      let vars = {};
+      if (fallbackVars) {
+        const url = this.createFallbackRedirect(fallbackVars.url, requestURL, hash);
+        vars = Object.assign({}, fallbackVars, { url });
+      }
+      ad.html = TemplateRepo.render(template.fallback, vars);
     }
     return ad;
   },
@@ -140,12 +166,12 @@ module.exports = {
     };
   },
 
-  buildAdFor(campaign, template, fallbackVars) {
-    if (!campaign.id) return this.buildFallbackFor(null, template, fallbackVars);
+  buildAdFor(campaign, template, fallbackVars, requestURL, hash) {
+    if (!campaign.id) return this.buildFallbackFor(null, template, fallbackVars, requestURL, hash);
     const count = campaign.get('creatives.length');
     if (!count) {
       // No creative found. Send fallback.
-      return this.buildFallbackFor(campaign.id, template, fallbackVars);
+      return this.buildFallbackFor(campaign.id, template, fallbackVars, requestURL, hash);
     }
     const ad = this.createEmptyAd(campaign.id);
 
@@ -154,8 +180,8 @@ module.exports = {
     const creative = campaign.get(`creatives.${index}`);
 
     // Render the template.
-    // @todo The click tracker also needs to be added.
-    ad.html = TemplateRepo.render(template.html, { campaign, creative });
+    const href = this.createCampaignRedirect(campaign.id, requestURL, hash);
+    ad.html = TemplateRepo.render(template.html, { href, campaign, creative });
     ad.creativeId = creative.id;
     ad.fallback = false;
     return ad;

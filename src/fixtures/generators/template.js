@@ -10,7 +10,7 @@ const html = `
       data-bvo-position="left" data-bvo-param-field-key="primaryImage" data-bvo-param-fallback-keys="" data-bvo-param-convert-breaks="false"
       data-bvo-param-filter="" data-bvo-param-is-fragment="false" data-bvo-param-fragment-url="" data-bvo-param-aspect-ratio="16:9"
       data-bvo-param-fit="contain" data-bvo-template-name="platform-content.primary-image">
-      <a href="{{ campaign.url }}"
+      <a href="{{ href }}"
         title="{{ creative.title }}" target="_self">
         <noscript>
           <img class="img-responsive" src="{{ creative.image.src }}"
@@ -27,7 +27,7 @@ const html = `
     <div class="element" data-bvo-type="field" data-bvo-value-wrap-element="h3" data-bvo-linkable="true" data-bvo-width="100"
       data-bvo-position="left" data-bvo-param-field-key="shortName" data-bvo-param-fallback-keys="nameWebsite,name" data-bvo-param-convert-breaks="false"
       data-bvo-param-filter="" data-bvo-param-is-fragment="false" data-bvo-param-fragment-url="" data-bvo-template-name="platform-content.shortName">
-      <a href="{{ campaign.url }}"
+      <a href="{{ href }}"
         title="{{ creative.title }}" target="_self">
         <h3 class="value" data-bvo-item-id="{{ campaign.id }}" data-bvo-item-type="platform-content">
           {{ creative.title }}
