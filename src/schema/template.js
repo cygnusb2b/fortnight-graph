@@ -25,16 +25,31 @@ const schema = new Schema({
         },
         message: 'The {{ beacon }} merge variable must be present, exactly one time.',
       },
+      {
+        validator(v) {
+          return /{{\s*?href\s*?}}/g.test(v);
+        },
+        message: 'The {{ href }} merge variable must be present.',
+      },
     ],
   },
   fallback: {
     type: String,
-    validate: {
-      validator(v) {
-        return validateBeacon(v);
+    validate: [
+      {
+        validator(v) {
+          return validateBeacon(v);
+        },
+        message: 'The {{ beacon }} merge variable must be present, exactly one time.',
       },
-      message: 'The {{ beacon }} merge variable must be present, exactly one time.',
-    },
+      {
+        validator(v) {
+          if (!v) return v;
+          return /{{\s*?url\s*?}}/g.test(v);
+        },
+        message: 'The {{ url }} merge variable must be present.',
+      },
+    ],
   },
 }, { timestamps: true });
 

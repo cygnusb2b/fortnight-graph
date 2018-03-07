@@ -50,12 +50,16 @@ describe('schema/template', function() {
       });
     });
     it('should be rejected when the {{ beacon }} var is missing.', async function() {
-      template.html = '<div></div>';
+      template.html = '<div>{{ href }}</div>';
       await expect(template.save()).to.be.rejectedWith(Error, 'The {{ beacon }} merge variable must be present, exactly one time.');
     });
     it('should be rejected when more than one {{ beacon }} var is present.', async function() {
-      template.html = '<div>{{beacon}} {{  beacon   }}</div>';
+      template.html = '<div>{{ href }}{{beacon}} {{  beacon   }}</div>';
       await expect(template.save()).to.be.rejectedWith(Error, 'The {{ beacon }} merge variable must be present, exactly one time.');
+    });
+    it('should be rejected when the {{ href }} var is missing.', async function() {
+      template.html = '<div>{{ beacon }}</div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{ href }} merge variable must be present.');
     });
   });
 
@@ -76,6 +80,10 @@ describe('schema/template', function() {
     it('should be rejected when more than one {{ beacon }} var is present.', async function() {
       template.fallback = '<div>{{beacon}} {{  beacon   }}</div>';
       await expect(template.save()).to.be.rejectedWith(Error, 'The {{ beacon }} merge variable must be present, exactly one time.');
+    });
+    it('should be rejected when the {{ url }} var is missing.', async function() {
+      template.fallback = '<div>{{ beacon }}</div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{ url }} merge variable must be present.');
     });
   });
 
