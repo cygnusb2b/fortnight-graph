@@ -229,6 +229,10 @@ describe('graph/resolvers/campaign', function() {
       before(async function() {
         campaign = await createCampaign();
       });
+      after(async function() {
+        await CampaignRepo.remove();
+        await AdvertiserRepo.remove();
+      });
 
       const query = `
         mutation UpdateCampaign($input: UpdateCampaignInput!) {
@@ -236,12 +240,18 @@ describe('graph/resolvers/campaign', function() {
             id
             url
             name
+            status
+            advertiser {
+              id
+              name
+            }
           }
         }
       `;
       const payload = {
         name: 'Updated Campaign Name',
         url: 'https://someupdatedurl.com',
+        status: 'Deleted',
       };
 
       it('should reject when no user is logged-in.', async function() {
@@ -258,6 +268,8 @@ describe('graph/resolvers/campaign', function() {
       });
       it('should update the campaign.', async function() {
         const id = campaign.id;
+        const advertiser = await createAdvertiser();
+        payload.advertiserId = advertiser.id;
         const input = { id, payload };
         const variables = { input };
         const promise = graphql({ query, variables, key: 'updateCampaign', loggedIn: true });
@@ -265,6 +277,8 @@ describe('graph/resolvers/campaign', function() {
         const data = await promise;
         expect(data.name).to.equal(payload.name);
         expect(data.url).to.equal(payload.url);
+        expect(data.status).to.equal(payload.status);
+        expect(data.advertiser.id).to.equal(payload.advertiserId);
         await expect(CampaignRepo.findById(data.id)).to.eventually.be.an('object').with.property('name', payload.name);
       });
     });

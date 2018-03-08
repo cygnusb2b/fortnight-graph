@@ -107,6 +107,8 @@ input UpdateCampaignInput {
 input UpdateCampaignPayloadInput {
   name: String!
   url: String
+  status: CampaignStatus
+  advertiserId: String
 }
 
 input AddCampaignCreativeInput {
