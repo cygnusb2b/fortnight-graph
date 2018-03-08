@@ -104,29 +104,10 @@ module.exports = {
     /**
      *
      */
-    addCampaignCriteria: (root, { input }, { auth }) => {
+    setCampaignCriteria: async (root, { input }, { auth }) => {
       auth.check();
       const { campaignId, payload } = input;
-      return CriteriaRepo.createFor(campaignId, payload);
-    },
-
-    /**
-     *
-     */
-    updateCampaignCriteria: async (root, { input }, { auth }) => {
-      auth.check();
-      const { campaignId, payload } = input;
-      return CriteriaRepo.updateFor(campaignId, payload);
-    },
-
-    /**
-     *
-     */
-    removeCampaignCriteria: async (root, { input }, { auth }) => {
-      auth.check();
-      const { campaignId } = input;
-      await CriteriaRepo.removeFrom(campaignId);
-      return 'ok';
+      return CriteriaRepo.setFor(campaignId, payload);
     },
   },
 };

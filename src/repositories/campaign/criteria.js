@@ -17,58 +17,20 @@ module.exports = {
    * @param {array} payload.kvs
    * @return {Promise}
    */
-  async createFor(campaignId, {
+  async setFor(campaignId, {
     start,
     end,
     placementIds,
     kvs,
   } = {}) {
     const campaign = await findCampaign(campaignId);
-    campaign.criteria = Object.assign({}, {
+    campaign.criteria = {
       start,
       end,
       placementIds,
       kvs,
-    });
+    };
     await campaign.save();
     return campaign.criteria;
-  },
-
-  /**
-   * @param {string} campaignId
-   * @param {object} payload
-   * @param {date} payload.start
-   * @param {date} payload.end
-   * @param {array} payload.placementIds
-   * @param {array} payload.kvs
-   * @return {Promise}
-   */
-  async updateFor(campaignId, {
-    start,
-    end,
-    placementIds,
-    kvs,
-  } = {}) {
-    const campaign = await findCampaign(campaignId);
-
-    const { criteria } = campaign;
-    criteria.start = start;
-    criteria.end = end;
-    criteria.placementIds = placementIds;
-    criteria.kvs = kvs;
-
-    await campaign.save();
-    return campaign.criteria;
-  },
-
-  /**
-   * @param {string} campaignId
-   * @param {string} criteriaId
-   * @return {Promise}
-   */
-  async removeFrom(campaignId) {
-    const campaign = await findCampaign(campaignId);
-    campaign.criteria.remove();
-    return campaign.save();
   },
 };

@@ -9,9 +9,7 @@ type Mutation {
   addCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative!
   updateCampaignCreative(input: UpdateCampaignCreativeInput!): CampaignCreative!
   removeCampaignCreative(input: RemoveCampaignCreativeInput!): String!
-  addCampaignCriteria(input: AddCampaignCriteriaInput!): CampaignCriteria!
-  updateCampaignCriteria(input: UpdateCampaignCriteriaInput!): CampaignCriteria!
-  removeCampaignCriteria(input: RemoveCampaignCriteriaInput!): String!
+  setCampaignCriteria(input: SetCampaignCriteriaInput!): CampaignCriteria!
 }
 
 enum CampaignSortField {
@@ -138,33 +136,17 @@ input UpdateCampaignCreativePayloadInput {
   # image: CampaignCreativeImageInput
 }
 
-input AddCampaignCriteriaInput {
-  campaignId: String!
-  payload: AddCampaignCriteriaPayloadInput
-}
-
-input AddCampaignCriteriaPayloadInput {
-  start: Date!
-  end: Date
-  placementIds: [String!]
-  kvs: [KeyValuesPayloadInput]
-}
-
 input KeyValuesPayloadInput {
   key: String!
   value: String!
 }
 
-input RemoveCampaignCriteriaInput {
+input SetCampaignCriteriaInput {
   campaignId: String!
+  payload: SetCampaignCriteriaPayloadInput
 }
 
-input UpdateCampaignCriteriaInput {
-  campaignId: String!
-  payload: UpdateCampaignCriteriaPayloadInput
-}
-
-input UpdateCampaignCriteriaPayloadInput {
+input SetCampaignCriteriaPayloadInput {
   start: Date!
   end: Date
   placementIds: [String!]
