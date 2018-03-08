@@ -1,11 +1,12 @@
 require('../../connections');
 const { graphql, setup, teardown } = require('./utils');
+const AdvertiserRepo = require('../../../src/repositories/advertiser');
 const CampaignRepo = require('../../../src/repositories/campaign');
-const AdvrtiserRepo = require('../../../src/repositories/advertiser');
+const PlacementRepo = require('../../../src/repositories/placement');
 const { CursorType } = require('../../../src/graph/custom-types');
 
 const createAdvertiser = async () => {
-  const results = await AdvrtiserRepo.seed();
+  const results = await AdvertiserRepo.seed();
   return results.one();
 };
 
@@ -19,14 +20,23 @@ const createCampaigns = async (count) => {
   return results.all();
 };
 
+const createPlacement = async () => {
+  const results = await PlacementRepo.seed();
+  return results.one();
+};
+
 describe('graph/resolvers/campaign', function() {
   before(async function() {
     await setup();
     await CampaignRepo.remove();
+    await PlacementRepo.remove();
+    await AdvertiserRepo.remove();
   });
   after(async function() {
     await teardown();
     await CampaignRepo.remove();
+    await PlacementRepo.remove();
+    await AdvertiserRepo.remove();
   });
   describe('Query', function() {
 
@@ -66,6 +76,18 @@ describe('graph/resolvers/campaign', function() {
                 }
               }
             }
+            criteria {
+              start
+              end
+              placements {
+                id
+                name
+              }
+              kvs {
+                key
+                value
+              }
+            }
           }
         }
       `;
@@ -88,7 +110,7 @@ describe('graph/resolvers/campaign', function() {
         const promise = graphql({ query, variables, key: 'campaign', loggedIn: true });
         await expect(promise).to.eventually.be.an('object').with.property('id', id);
         const data = await promise;
-        expect(data).to.have.all.keys('id', 'name', 'createdAt', 'updatedAt', 'advertiser', 'status', 'url', 'creatives');
+        expect(data).to.have.all.keys('id', 'name', 'createdAt', 'updatedAt', 'advertiser', 'status', 'url', 'creatives', 'criteria');
       });
     });
 
@@ -148,7 +170,7 @@ describe('graph/resolvers/campaign', function() {
         expect(data.pageInfo.endCursor).to.be.null;
       });
       it('should return an error when an after cursor is requested that does not exist.', async function() {
-        const after = CursorType.serialize(CampaignRepo.generate(1, { advertiserId: () => '1234' }).one().id);
+        const after = CursorType.serialize(CampaignRepo.generate(1, { advertiserId: () => '1234', placementId: () => '2345' }).one().id);
         const pagination = { first: 5, after };
         const variables = { pagination };
         const promise = graphql({ query, key: 'allCampaigns', variables, loggedIn: true });
@@ -166,7 +188,7 @@ describe('graph/resolvers/campaign', function() {
         advertiser = await createAdvertiser();
       });
       after(async function() {
-        await AdvrtiserRepo.remove();
+        await AdvertiserRepo.remove();
       });
       const query = `
         mutation CreateCampaign($input: CreateCampaignInput!) {
@@ -207,6 +229,10 @@ describe('graph/resolvers/campaign', function() {
       before(async function() {
         campaign = await createCampaign();
       });
+      after(async function() {
+        await CampaignRepo.remove();
+        await AdvertiserRepo.remove();
+      });
 
       const query = `
         mutation UpdateCampaign($input: UpdateCampaignInput!) {
@@ -214,12 +240,18 @@ describe('graph/resolvers/campaign', function() {
             id
             url
             name
+            status
+            advertiser {
+              id
+              name
+            }
           }
         }
       `;
       const payload = {
         name: 'Updated Campaign Name',
         url: 'https://someupdatedurl.com',
+        status: 'Deleted',
       };
 
       it('should reject when no user is logged-in.', async function() {
@@ -236,6 +268,8 @@ describe('graph/resolvers/campaign', function() {
       });
       it('should update the campaign.', async function() {
         const id = campaign.id;
+        const advertiser = await createAdvertiser();
+        payload.advertiserId = advertiser.id;
         const input = { id, payload };
         const variables = { input };
         const promise = graphql({ query, variables, key: 'updateCampaign', loggedIn: true });
@@ -243,6 +277,8 @@ describe('graph/resolvers/campaign', function() {
         const data = await promise;
         expect(data.name).to.equal(payload.name);
         expect(data.url).to.equal(payload.url);
+        expect(data.status).to.equal(payload.status);
+        expect(data.advertiser.id).to.equal(payload.advertiserId);
         await expect(CampaignRepo.findById(data.id)).to.eventually.be.an('object').with.property('name', payload.name);
       });
     });
@@ -380,6 +416,79 @@ describe('graph/resolvers/campaign', function() {
         await expect(promise).to.eventually.equal('ok');
         const found = await CampaignRepo.findById(campaignId);
         expect(found.creatives.id(creativeId)).to.be.null;
+      });
+    });
+
+    describe('setCampaignCriteria', function() {
+      const start = new Date().getTime();
+      let campaign;
+      let placement;
+      before(async function() {
+        campaign = await createCampaign();
+        placement = await createPlacement();
+      });
+      const query = `
+        mutation SetCampaignCriteria($input: SetCampaignCriteriaInput!) {
+          setCampaignCriteria(input: $input) {
+            start
+            end
+            placements {
+              id
+              name
+            }
+            kvs {
+              key
+              value
+            }
+          }
+        }
+      `;
+      it('should reject when no user is logged-in', async function() {
+        const campaignId = campaign.id;
+        const input = { campaignId };
+        const payload = { start };
+        const variables = { input, payload };
+        await expect(graphql({ query, variables, key: 'setCampaignCriteria', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
+      });
+      it('should reject when the campaign record is not found', async function() {
+        const campaignId = '507f1f77bcf86cd799439011'
+        const input = { campaignId };
+        const payload = { start };
+        const variables = { input, payload };
+        await expect(graphql({ query, variables, key: 'setCampaignCriteria', loggedIn: true })).to.be.rejectedWith(Error, /no campaign was found/i);
+      });
+      it('should reject when the placement record is not found', async function() {
+        const campaignId = campaign.id;
+        const placementIds = [ '507f1f77bcf86cd799439011' ];
+        const payload = { start, placementIds };
+        const input = { campaignId, payload };
+        const variables = { input };
+        await expect(graphql({ query, variables, key: 'setCampaignCriteria', loggedIn: true })).to.be.rejectedWith(Error, /no placement found/i);
+      });
+      it('should reject when the placement is not provided', async function() {
+        const campaignId = campaign.id;
+        const placementIds = [ null ];
+        const payload = { start, placementIds };
+        const input = { campaignId, payload };
+        const variables = { input };
+        await expect(graphql({ query, variables, key: 'setCampaignCriteria', loggedIn: true })).to.be.rejectedWith(Error, /not to be null at value\.payload\.placementIds/i);
+      });
+      it('should set the campaign criteria', async function() {
+        const campaignId = campaign.id;
+        const placementIds = [ placement.id ];
+        const payload = { start, placementIds };
+        const input = { campaignId, payload };
+        const variables = { input };
+        const promise = graphql({ query, variables, key: 'setCampaignCriteria', loggedIn: true });
+        await expect(promise).to.eventually.be.an('object');
+        const data = await promise;
+        expect(data.start).to.equal(payload.start);
+
+        const rPlacement = data.placements[0];
+        expect(rPlacement).to.be.an('object').with.property('name');
+        expect(rPlacement).to.deep.include({ id: payload.placementIds[0] });
+        const found = await CampaignRepo.findById(campaignId);
+        expect(found.criteria).to.be.an('object');
       });
     });
 

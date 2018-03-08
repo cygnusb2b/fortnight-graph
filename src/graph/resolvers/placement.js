@@ -42,6 +42,14 @@ module.exports = {
       auth.check();
       return PlacementRepo.paginate({ pagination, sort });
     },
+
+    /**
+     *
+     */
+    searchPlacements: (root, { pagination, search }, { auth }) => {
+      auth.check();
+      return PlacementRepo.search({ pagination, search });
+    },
   },
 
   /**

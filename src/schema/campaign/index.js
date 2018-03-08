@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const CreativeSchema = require('./creative');
+const CriteriaSchema = require('./criteria');
 const Advertiser = require('../../models/advertiser');
 
 const { Schema } = mongoose;
@@ -49,6 +50,7 @@ const schema = new Schema({
     },
   },
   creatives: [CreativeSchema],
+  criteria: CriteriaSchema,
 }, { timestamps: true });
 
 schema.index({ advertiserId: 1 });

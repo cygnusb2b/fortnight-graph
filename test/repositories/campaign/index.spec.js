@@ -2,6 +2,7 @@ require('../../connections');
 const Repo = require('../../../src/repositories/campaign');
 const Model = require('../../../src/models/campaign');
 const AdvertiserRepo = require('../../../src/repositories/advertiser');
+const PlacementRepo = require('../../../src/repositories/placement');
 const Utils = require('../../utils');
 
 const createCampaign = async () => {
@@ -23,9 +24,12 @@ describe('repositories/campaign', function() {
 
   describe('#create', function() {
     let advertiser;
+    let placement;
     before(async function() {
-      const results = await AdvertiserRepo.seed();
-      advertiser = results.one();
+      const ar = await AdvertiserRepo.seed();
+      advertiser = ar.one();
+      const pr = await PlacementRepo.seed();
+      placement = pr.one();
     });
     it('should return a rejected promise when valiation fails.', async function() {
       await expect(Repo.create({})).to.be.rejectedWith(Error, /validation/i);
@@ -34,6 +38,7 @@ describe('repositories/campaign', function() {
     it('should return a fulfilled promise with the model.', async function() {
       const payload = Repo.generate(1, {
         advertiserId: () => advertiser.id,
+        placementId: () => placement.id,
       }).one();
       const campaign = await Repo.create(payload);
       const found = await Repo.findById(campaign.get('id'));
@@ -110,6 +115,7 @@ describe('repositories/campaign', function() {
     it('should return a fixture result with one record.', function(done) {
       const results = Repo.generate(undefined, {
         advertiserId: () => '1234',
+        placementId: () => '2345',
       });
       expect(results).to.be.an('object');
       expect(results.length).to.equal(1);
@@ -118,6 +124,7 @@ describe('repositories/campaign', function() {
     it('should return a fixture result with the specified number of records.', function(done) {
       const results = Repo.generate(5, {
         advertiserId: () => '1234',
+        placementId: () => '2345',
       });
       expect(results).to.be.an('object');
       expect(results.length).to.equal(5);

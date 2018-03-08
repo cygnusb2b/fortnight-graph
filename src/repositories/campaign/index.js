@@ -1,5 +1,6 @@
 const Promise = require('bluebird');
 const AdvertiserRepo = require('../advertiser');
+const PlacementRepo = require('../placement');
 const Campaign = require('../../models/campaign');
 const Pagination = require('../../classes/pagination');
 const fixtures = require('../../fixtures');
@@ -23,11 +24,18 @@ module.exports = {
    * @param {string} payload.advertiserId
    * @return {Promise}
    */
-  update(id, { name, url } = {}) {
+  update(id, {
+    name,
+    url,
+    status,
+    advertiserId,
+  } = {}) {
     if (!id) return Promise.reject(new Error('Unable to update campaign: no ID was provided.'));
     const criteria = { _id: id };
     const update = { $set: { name } };
     if (url) update.$set.url = url;
+    if (status) update.$set.status = status;
+    if (advertiserId) update.$set.advertiserId = advertiserId;
     const options = { new: true, runValidators: true };
     return Campaign.findOneAndUpdate(criteria, update, options).then((document) => {
       if (!document) throw new Error(`Unable to update campaign: no record was found for ID '${id}'`);
@@ -102,10 +110,12 @@ module.exports = {
     return fixtures(Campaign, count, params);
   },
 
-  async seed({ count = 1, advertiserCount = 1 } = {}) {
+  async seed({ count = 1, advertiserCount = 1, placementCount = 1 } = {}) {
     const advertisers = await AdvertiserRepo.seed({ count: advertiserCount });
+    const placements = await PlacementRepo.seed({ count: placementCount });
     const results = this.generate(count, {
       advertiserId: () => advertisers.random().id,
+      placementId: () => placements.random().id,
     });
     await Promise.all(results.all().map(model => model.save()));
     return results;
