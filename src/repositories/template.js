@@ -6,6 +6,7 @@ const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
 
 handlebars.registerHelper('moment-format', (date, format) => moment(date).format(format));
+handlebars.registerHelper('get-timestamp', () => (new Date()).getTime());
 
 module.exports = {
   /**

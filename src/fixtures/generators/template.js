@@ -3,8 +3,7 @@ const faker = require('faker');
 const html = `
 {{!-- Load More Template Style --}}
 
-<div class="item" data-bvo-width="33" data-bvo-item-id="{{ campaign.id }}" data-bvo-item-type="platform-content">
-  {{{ beacon }}}
+<div class="item" data-fortnight-timestamp="{{get-timestamp}}" data-bvo-width="33" data-bvo-item-id="{{ campaign.id }}" data-bvo-item-type="platform-content">
   {{#if creative.image}}
     <div class="element" data-bvo-type="field.image" data-bvo-value-wrap-element="span" data-bvo-linkable="true" data-bvo-width="100"
       data-bvo-position="left" data-bvo-param-field-key="primaryImage" data-bvo-param-fallback-keys="" data-bvo-param-convert-breaks="false"
@@ -66,14 +65,14 @@ const html = `
       </div>
     </div>
   </div>
+  {{{ beacon }}}
 </div>
 `;
 
 const fallback = `
 {{!-- Load More Template Style --}}
 
-<div class="item" data-bvo-width="33" data-bvo-item-id="{{ contentId }}" data-bvo-item-type="platform-content">
-  {{{ beacon }}}
+<div class="item" data-fortnight-timestamp="{{get-timestamp}}" data-bvo-width="33" data-bvo-item-id="{{ contentId }}" data-bvo-item-type="platform-content">
   {{#if image.src}}
     <div class="element" data-bvo-type="field.image" data-bvo-value-wrap-element="span" data-bvo-linkable="true" data-bvo-width="100"
       data-bvo-position="left" data-bvo-param-field-key="primaryImage" data-bvo-param-fallback-keys="" data-bvo-param-convert-breaks="false"
@@ -135,6 +134,7 @@ const fallback = `
       </div>
     </div>
   </div>
+  {{{ beacon }}}
 </div>
 `;
 
