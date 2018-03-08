@@ -15,6 +15,8 @@ passport.use(authStrategies.bearer);
 // Initialize passport auth.
 app.use(passport.initialize());
 
+app.use(express.static('public'));
+
 loadRouters(app);
 
 module.exports = app;
