@@ -23,6 +23,15 @@ exports.config = {
     level: 'info'
   },
   /**
+   *  Alias that should be ignored
+   * @todo Write better health check
+   */
+  rules : {
+    ignore : [
+      '/graph.*ping.*'
+    ]
+  },
+  /**
    * When true, all request headers except for those listed in attributes.exclude
    * will be captured for all traces, unless otherwise specified in a destination's
    * attributes include/exclude lists.
