@@ -25,6 +25,16 @@ const createTemplate = async () => {
   return results.one();
 }
 
+const testImageBeacon = (html) => {
+  let pattern = /^<div data-fortnight-type="placement"><img data-fortnight-view="pending" data-fortnight-beacon="http:\/\/www\.foo\.com\/t\/[a-zA-Z0-9._-]+\/view.gif" src="http:\/\/www\.foo\.com\/t\/[a-zA-Z0-9._-]+\/load.gif"><\/div>$/;
+  expect(html).to.match(pattern);
+};
+
+const testContainsImageBeacon = (html) => {
+  let pattern = /<div data-fortnight-type="placement"><img data-fortnight-view="pending" data-fortnight-beacon="http:\/\/www\.foo\.com\/t\/[a-zA-Z0-9._-]+\/view.gif" src="http:\/\/www\.foo\.com\/t\/[a-zA-Z0-9._-]+\/load.gif"><\/div>/;
+  expect(html).to.match(pattern);
+};
+
 describe('repositories/campaign/placement', function() {
   before(async function() {
     await CampaignRepo.remove();
@@ -161,7 +171,7 @@ describe('repositories/campaign/placement', function() {
         const result = Repo.buildFallbackFor(campaignId, template, undefined, requestURL, hash);
         expect(result).to.be.an('object');
         ['campaignId, creativeId, fallback'].forEach(k => expect(result[k]).to.equal(expected[k]));
-        expect(result.html).to.match(/^<div data-app="fortnight" data-type="placement"><img src="http:\/\/www\.foo\.com\/t\/.*<\/div>/i);
+        testImageBeacon(result.html);
         done();
       });
     });
@@ -201,7 +211,8 @@ describe('repositories/campaign/placement', function() {
       const result = Repo.buildFallbackFor(campaignId, template, fallbackVars, requestURL, hash);
       expect(result).to.be.an('object');
       ['campaignId, creativeId, fallback'].forEach(k => expect(result[k]).to.equal(expected[k]));
-      expect(result.html).to.match(/^<div>Variable here!<\/div><div data-app="fortnight" data-type="placement"><img src="http:\/\/www\.foo\.com\/t\/.*<\/div>/i);
+      expect(result.html).to.match(/^<div>Variable here!<\/div>/);
+      testContainsImageBeacon(result.html)
       done();
     });
 
@@ -228,10 +239,10 @@ describe('repositories/campaign/placement', function() {
         creativeId: null,
         fallback: true,
       };
-      const result = Repo.buildAdFor(campaign, template);
+      const result = Repo.buildAdFor(campaign, template, undefined, 'http://www.foo.com');
       expect(result).to.be.an('object');
       ['campaignId, creativeId, fallback'].forEach(k => expect(result[k]).to.equal(expected[k]));
-      expect(result.html).to.match(/^<div data-app="fortnight" data-type="placement"><img src=.*/i);
+      testImageBeacon(result.html)
       sinon.assert.notCalled(Repo.createFallbackRedirect);
       done();
     });
@@ -277,15 +288,16 @@ describe('repositories/campaign/placement', function() {
 
   describe('#createImgBeacon', function() {
     it('should return the tracker HMTL snippet.', function(done) {
-      const expected = '<div data-app="fortnight" data-type="placement"><img src="http://foo.com/l" data-view-src="http://foo.com/v"></div>';
-      expect(Repo.createImgBeacon({ load: 'http://foo.com/l', view: 'http://foo.com/v' })).to.equal(expected);
+      const expected = '<div data-fortnight-type="placement"><img data-fortnight-view="pending" data-fortnight-beacon="http://www.foo.com/t/abcd/view.gif" src="http://www.foo.com/t/abcd/load.gif"></div>';
+      const result = Repo.createImgBeacon({ load: 'http://www.foo.com/t/abcd/load.gif', view: 'http://www.foo.com/t/abcd/view.gif' });
+      expect(result).to.equal(expected);
       done();
     });
   });
 
   describe('#createTrackedHTML', function() {
     it('should return the tracker HMTL snippet.', function(done) {
-      const expected = `<div>Some ad HTML</div>\n<div data-app="fortnight" data-type="placement"><img src="http://foo.com/l" data-view-src="http://foo.com/v"></div>`;
+      const expected = `<div>Some ad HTML</div>\n<div data-fortnight-type="placement"><img data-fortnight-view="pending" data-fortnight-beacon="http://foo.com/v" src="http://foo.com/l"></div>`;
       const ad = {
         html: '<div>Some ad HTML</div>',
         trackers: { load: 'http://foo.com/l', view: 'http://foo.com/v' },
