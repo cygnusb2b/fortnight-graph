@@ -59,4 +59,12 @@ schema.index({ name: -1, _id: -1 }, { unique: true });
 schema.index({ updatedAt: 1, _id: 1 }, { unique: true });
 schema.index({ updatedAt: -1, _id: -1 }, { unique: true });
 
+// Query logic for campaign retrieval.
+schema.index({
+  status: 1,
+  'criteria.start': 1,
+  'criteria.placementIds': 1,
+  'criteria.end': 1,
+});
+
 module.exports = schema;
