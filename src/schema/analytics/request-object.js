@@ -1,6 +1,6 @@
 const { Schema } = require('mongoose');
 const hash = require('object-hash');
-const isScalar = require('../../utils/is-scalar');
+const Utils = require('../../utils');
 
 const schema = new Schema({
   hash: {
@@ -18,20 +18,7 @@ const schema = new Schema({
     /**
      * @todo Eventually this needs to limited by keys that are acceptable (in the database).
      */
-    set: (kv) => {
-      const toClean = kv && typeof kv === 'object' ? kv : {};
-      const cleaned = {};
-      Object.keys(toClean).forEach((key) => {
-        const v = toClean[key];
-        const empty = v === null || v === undefined || v === '';
-        if (!empty && isScalar(v)) {
-          // Coerce to string and trim.
-          const coerced = String(v).trim();
-          if (coerced) cleaned[key] = coerced;
-        }
-      });
-      return cleaned;
-    },
+    set: kv => Utils.cleanValues(kv),
   },
 });
 
