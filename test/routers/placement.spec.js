@@ -147,7 +147,7 @@ describe('routers/placement', function() {
           .expect((res) => {
             const { status, text } = res;
             expect(status).to.equal(400);
-            expect(text).to.equal('The requested file extension is not supported. (400)');
+            expect(text).to.equal('<!-- The requested file extension is not supported. (400) -->');
           })
           .end(done);
       });
@@ -161,7 +161,7 @@ describe('routers/placement', function() {
         .expect((res) => {
           const { status, text } = res;
           expect(status).to.equal(400);
-          expect(text).to.equal('No template ID was provided. (400)');
+          expect(text).to.equal('<!-- No template ID was provided. (400) -->');
         })
         .end(done);
     });

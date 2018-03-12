@@ -14,7 +14,7 @@ const handleError = (err, req, res) => {
   const status = err.status || err.statusCode || 500;
   const message = err.expose ? err.message : 'A fatal error has occurred.';
   res.set('Content-Type', 'text/html');
-  let response = `${message} (${status})`;
+  let response = `<!-- ${message} (${status}) -->`;
   if (extension === 'json') {
     response = { error: { status, message } };
     res.set('Content-Type', 'application/json');
