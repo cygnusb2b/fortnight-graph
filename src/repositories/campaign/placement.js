@@ -21,6 +21,41 @@ module.exports = {
   },
 
   /**
+   * Queries for campaigns.
+   *
+   * @param {object} params
+   * @return {Promise}
+   */
+  queryCampaigns({
+    startDate,
+    placementId,
+    keyValues,
+    limit,
+  }) {
+    const criteria = {
+      status: 'Active',
+      'criteria.start': { $lte: startDate },
+      'criteria.placementIds': placementId,
+      $and: [
+        {
+          $or: [
+            { 'criteria.end': { $exists: false } },
+            { 'criteria.end': { $gt: startDate } },
+          ],
+        },
+      ],
+    };
+
+    const kvs = Utils.cleanValues(keyValues);
+    Object.keys(kvs).forEach((key) => {
+      criteria.$and.push({
+        'criteria.kvs': { key, value: kvs[key] },
+      });
+    });
+    return Campaign.find().limit(limit);
+  },
+
+  /**
    *
    * @param {object} params
    * @param {string} params.placementId The placement identifier.
@@ -61,13 +96,20 @@ module.exports = {
      * For now, merely return the number of requested ads.
      * Eventually this should use scheduling, weighting, custom variable targeting, etc.
      */
-    const campaigns = await Campaign.find().limit(limit);
-    this.fillWithFallbacks(campaigns, limit);
-
+    const now = new Date();
     const requestObj = new AnalyticsRequestObject({ kv: vars.custom, pid: placement.id });
     await requestObj.aggregateSave();
-    const { hash } = requestObj;
 
+    const campaigns = await this.queryCampaigns({
+      startDate: now,
+      placementId: placement.id,
+      keyValues: vars.custom,
+      limit,
+    });
+
+    this.fillWithFallbacks(campaigns, limit);
+
+    const { hash } = requestObj;
     const ads = campaigns.map(campaign => this.buildAdFor(
       campaign,
       template,
@@ -76,7 +118,6 @@ module.exports = {
       hash,
     ));
 
-    const now = new Date();
     const request = new AnalyticsRequest({ hash: requestObj.hash, last: now });
     await request.aggregateSave(limit); // @todo Determine if this should actually not await?
     return ads;
