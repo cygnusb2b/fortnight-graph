@@ -8,7 +8,7 @@ const AnalyticsRequest = require('../../models/analytics/request');
 const AnalyticsRequestObject = require('../../models/analytics/request-object');
 const TemplateRepo = require('../../repositories/template');
 const Campaign = require('../../models/campaign');
-const randomBetween = require('../../utils/random-between');
+const Utils = require('../../utils');
 
 module.exports = {
   parseOptions(options) {
@@ -191,7 +191,7 @@ module.exports = {
     const ad = this.createEmptyAd(campaign.id);
 
     // Rotate the creative randomly. Eventually weighting could be added.
-    const index = randomBetween(0, count - 1);
+    const index = Utils.randomBetween(0, count - 1);
     const creative = campaign.get(`creatives.${index}`);
 
     // Render the template.
