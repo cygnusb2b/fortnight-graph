@@ -23,8 +23,7 @@ exports.config = {
     level: 'info'
   },
   /**
-   *  Alias that should be ignored
-   * @todo Write better health check
+   *  Alias that should be ignored by New Relic.
    */
   rules : {
     ignore : [
