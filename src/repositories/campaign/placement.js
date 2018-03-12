@@ -49,10 +49,10 @@ module.exports = {
     const kvs = Utils.cleanValues(keyValues);
     Object.keys(kvs).forEach((key) => {
       criteria.$and.push({
-        'criteria.kvs': { key, value: kvs[key] },
+        'criteria.kvs': { $elemMatch: { key, value: kvs[key] } },
       });
     });
-    return Campaign.find().limit(limit);
+    return Campaign.find(criteria).limit(limit);
   },
 
   /**
