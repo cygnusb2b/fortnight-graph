@@ -63,7 +63,7 @@ describe('routers/placement', function() {
         .expect('Content-Type', /text\/html/)
         .expect(200)
         .expect((res) => {
-          expect(res.text).to.contain('<div data-app="fortnight" data-type="placement">');
+          expect(res.text).to.contain('<div data-fortnight-type="placement"><img data-fortnight-view="pending" data-fortnight-beacon="');
         })
         .end(done);
     });

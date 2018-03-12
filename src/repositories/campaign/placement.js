@@ -117,7 +117,7 @@ module.exports = {
   },
 
   createImgBeacon(trackers) {
-    return `<div data-app="fortnight" data-type="placement"><img src="${trackers.load}" data-view-src="${trackers.view}"></div>`;
+    return `<div data-fortnight-type="placement"><img data-fortnight-view="pending" data-fortnight-beacon="${trackers.view}" src="${trackers.load}"></div>`;
   },
 
   createTrackedHTML(ad) {
