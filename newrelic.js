@@ -28,7 +28,7 @@ exports.config = {
    */
   rules : {
     ignore : [
-      '/graph.*ping.*'
+      /^\/graph\?query={ping}/i
     ]
   },
   /**
