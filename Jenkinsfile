@@ -42,10 +42,16 @@ node {
         }
       }
       stage('Upgrade Container') {
-        rancher confirm: true, credentialId: 'rancher', endpoint: 'https://rancher.as3.io/v2-beta', environmentId: '1a18', image: "664537616798.dkr.ecr.us-east-1.amazonaws.com/fortnight-graph:v${env.BUILD_NUMBER}", service: 'fortnight/graph', environments: '', ports: '', timeout: 60
+        rancher confirm: true, credentialId: 'rancher', endpoint: 'https://rancher.as3.io/v2-beta', environmentId: '1a18', image: "664537616798.dkr.ecr.us-east-1.amazonaws.com/fortnight-graph:v${env.BUILD_NUMBER}", service: 'fortnight/graph', environments: '', ports: '', timeout: 180
       }
       stage('Notify Upgrade') {
         slackSend color: 'good', message: "Finished deploying ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|View>)"
+      }
+      stage('Notify NewRelic') {
+        sh "curl -X POST 'https://api.newrelic.com/v2/applications/101523492/deployments.json' \
+          -H 'X-Api-Key:7f58b04fa716469c1243e499c79ca89202b2ac355b0d092' -i \
+          -H 'Content-Type: application/json' \
+          -d '{ \"deployment\": { \"revision\": \"${env.BUILD_NUMBER}\", \"user\": \"jenkins\" } }'"
       }
     } catch (e) {
       slackSend color: 'bad', message: "Failed deploying ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|View>)"

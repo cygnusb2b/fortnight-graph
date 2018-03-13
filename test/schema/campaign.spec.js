@@ -245,14 +245,14 @@ describe('schema/campaign', function() {
       campaign = generateCampaign(advertiser, placement);
     });
 
-    [undefined, {}].forEach((value) => {
+    [undefined, null].forEach((value) => {
       it(`should be fulfilled when set to '${value}'.`, async function() {
         campaign.set('creatives.0.image.focalPoint', value);
         await expect(campaign.save()).to.be.fulfilled;
       });
     });
-    it(`should reject when set to null.`, async function() {
-      campaign.set('creatives.0.image.focalPoint', null);
+    it(`should reject when set to an empty object.`, async function() {
+      campaign.set('creatives.0.image.focalPoint', {});
       await expect(campaign.save()).to.be.rejectedWith(Error, /Validation failed/i);
     });
   });
