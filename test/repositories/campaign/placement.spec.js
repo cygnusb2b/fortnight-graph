@@ -1,4 +1,6 @@
 require('../../connections');
+const moment = require('moment');
+const Promise = require('bluebird');
 const { URL } = require('url');
 const jwt = require('jsonwebtoken');
 const uuidUtil = require('../../../src/utils/uuid');
@@ -6,9 +8,16 @@ const Repo = require('../../../src/repositories/campaign/placement');
 const AnalyticsRequest = require('../../../src/models/analytics/request');
 const AnalyticsRequestObject = require('../../../src/models/analytics/request-object');
 const CampaignRepo = require('../../../src/repositories/campaign');
+const AdvertiserRepo = require('../../../src/repositories/advertiser');
 const PlacementRepo = require('../../../src/repositories/placement');
 const TemplateRepo = require('../../../src/repositories/template');
+const Utils = require('../../../src/utils');
 const sandbox = sinon.createSandbox();
+
+const createAdvertiser = async () => {
+  const results = await AdvertiserRepo.seed();
+  return results.one();
+};
 
 const createCampaign = async () => {
   const results = await CampaignRepo.seed();
@@ -49,6 +58,137 @@ describe('repositories/campaign/placement', function() {
   it('should export an object.', function(done) {
     expect(Repo).to.be.an('object');
     done();
+  });
+
+  describe('#queryCampaigns', function() {
+    let placement1;
+    let placement2;
+    before(async function() {
+      await AdvertiserRepo.remove();
+      await CampaignRepo.remove();
+      await PlacementRepo.remove();
+      await TemplateRepo.remove();
+
+      const advertiser = await createAdvertiser();
+
+      placement1 = await createPlacement();
+      placement2 = await createPlacement();
+      const now = new Date();
+      const futureEnd = moment().add(1, 'year').toDate();
+
+      const propSet = [
+        { status: 'Active', criteria: { placementIds: [placement1.id], start: now, end: futureEnd } },
+        { status: 'Active', criteria: { placementIds: [placement2.id], start: now } },
+        { status: 'Active', criteria: { placementIds: [placement1.id], start: now, kvs: [ { key: 'sectionId', value: '1234' } ] } },
+        { status: 'Draft', criteria: { placementIds: [placement1.id], start: now, kvs: [ { key: 'sectionId', value: '1234' } ] } },
+        { status: 'Active', criteria: { placementIds: [placement1.id], start: now, kvs: [ { key: 'sectionId', value: '1234' } ] } },
+        { status: 'Active', criteria: { placementIds: [placement2.id], start: now, kvs: [ { key: 'sectionId', value: '1234' } ] } },
+        { status: 'Active', criteria: { placementIds: [placement1.id], start: now, kvs: [ { key: 'sectionId', value: '1234' }, { key: 'x', value: '1' } ] } },
+      ];
+      const promises = Promise.all(propSet.map((props) => {
+        const campaign = CampaignRepo.generate(1, {
+          advertiserId: () => advertiser.id,
+          placementId: () => props.criteria.placementIds[0],
+        }).one();
+        campaign.set(props);
+        return campaign.save();
+      }));
+      await promises;
+
+    });
+    after(async function() {
+      await AdvertiserRepo.remove();
+      await CampaignRepo.remove();
+      await PlacementRepo.remove();
+      await TemplateRepo.remove();
+    });
+    beforeEach(function () {
+      sandbox.spy(Utils, 'cleanValues');
+    });
+    afterEach(function() {
+      sinon.assert.calledOnce(Utils.cleanValues);
+      sandbox.restore();
+    });
+    it('should return no campaigns when campaign start date greater than now.', async function() {
+      const params = {
+        startDate: moment().subtract(1, 'year').toDate(),
+        placementId: placement1.id,
+        limit: 1,
+      };
+      const promise = Repo.queryCampaigns(params);
+      await expect(promise).to.eventually.be.an('array');
+      const result = await promise;
+      expect(result.length).to.equal(0);
+    });
+    it('should return four campaigns when using placement1 and just start date', async function() {
+      const params = {
+        startDate: new Date(),
+        placementId: placement1.id,
+        limit: 100,
+      };
+      const promise = Repo.queryCampaigns(params);
+      await expect(promise).to.eventually.be.an('array');
+      const result = await promise;
+      expect(result.length).to.equal(4);
+    });
+    it('should return three campaigns when using placement1 and current date is outside end date', async function() {
+      const params = {
+        startDate: moment().add(2, 'year').toDate(),
+        placementId: placement1.id,
+        limit: 100,
+      };
+      const promise = Repo.queryCampaigns(params);
+      await expect(promise).to.eventually.be.an('array');
+      const result = await promise;
+      expect(result.length).to.equal(3);
+    });
+    it('should return two campaigns when using placement2 and just start date', async function() {
+      const params = {
+        startDate: new Date(),
+        placementId: placement2.id,
+        limit: 100,
+      };
+      const promise = Repo.queryCampaigns(params);
+      await expect(promise).to.eventually.be.an('array');
+      const result = await promise;
+      expect(result.length).to.equal(2);
+    });
+    it('should return three campaigns when using placement1 with start date and sectionId kv', async function() {
+      const params = {
+        startDate: new Date(),
+        placementId: placement1.id,
+        keyValues: { sectionId: 1234 },
+        limit: 100,
+      };
+      const promise = Repo.queryCampaigns(params);
+      await expect(promise).to.eventually.be.an('array');
+      const result = await promise;
+      expect(result.length).to.equal(3);
+    });
+    it('should return one campaigns when using placement1 with start date and sectionId+x kv', async function() {
+      const params = {
+        startDate: new Date(),
+        placementId: placement1.id,
+        keyValues: { sectionId: 1234, x: 1 },
+        limit: 100,
+      };
+      const promise = Repo.queryCampaigns(params);
+      await expect(promise).to.eventually.be.an('array');
+      const result = await promise;
+      expect(result.length).to.equal(1);
+    });
+    it('should return zero campaigns when using placement1 with start date and sectionId kv with invalid value', async function() {
+      const params = {
+        startDate: new Date(),
+        placementId: placement1.id,
+        keyValues: { sectionId: 12345 },
+        limit: 100,
+      };
+      const promise = Repo.queryCampaigns(params);
+      await expect(promise).to.eventually.be.an('array');
+      const result = await promise;
+      expect(result.length).to.equal(0);
+    });
   });
 
   describe('#parseOptions', function() {

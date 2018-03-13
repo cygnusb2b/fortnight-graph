@@ -1,7 +1,9 @@
 require('../../connections');
 const { ObjectId } = require('mongoose').Types;
+const Utils = require('../../../src/utils');
 const AnalyticsRequestObject = require('../../../src/models/analytics/request-object');
 const CampaignPlacementRepo = require('../../../src/repositories/campaign/placement');
+
 
 const sandbox = sinon.createSandbox();
 
@@ -9,50 +11,35 @@ describe('schema/analytics/request-object', function() {
 
   describe('.kv', function() {
 
-    [undefined, {}, null, '', []].forEach((kv) => {
-      it(`should return an empty object when the kv is '${kv}' using .set()`, function (done) {
-        const request = new AnalyticsRequestObject();
-        request.set('kv', kv);
-        expect(request.kv).to.deep.equal({});
-        done();
-      });
-      it(`should return an empty object when the kv is '${kv}' using direct set`, function (done) {
-        const request = new AnalyticsRequestObject();
-        request.kv = kv;
-        expect(request.kv).to.deep.equal({});
-        done();
-      });
-      it(`should return an empty object when the kv is '${kv}' using the constructor`, function (done) {
-        const request = new AnalyticsRequestObject({ kv });
-        expect(request.kv).to.deep.equal({});
-        done();
-      });
+    beforeEach(function() {
+      sandbox.spy(Utils, 'cleanValues');
     });
-    it(`should strip empty and non-scalar values.`, function (done) {
-      const kv = { bad: '', another: null, final: undefined, obj: {}, arr: [] };
-      const request = new AnalyticsRequestObject({ kv });
-      expect(request.kv).to.deep.equal({});
-      done();
-    });
-    it(`should coerce non-strings to strings.`, function (done) {
-      const kv = { a: 'string', b: 0, c: false, d: 1.1, e: null, f: undefined, g: '' };
-      const request = new AnalyticsRequestObject({ kv });
-      expect(request.kv).to.deep.equal({ a: 'string', b: '0', c: 'false', d: '1.1' });
-      done();
-    });
-    it(`should trim the coerced values.`, function (done) {
-      const kv = { a: 'string ', b: ' string ' };
-      const request = new AnalyticsRequestObject({ kv });
-      expect(request.kv).to.deep.equal({ a: 'string', b: 'string' });
-      done();
-    });
-    it(`after trimming, it should not keep empty strings.`, function (done) {
-      const kv = { a: ' ', b: '     ' };
-      const request = new AnalyticsRequestObject({ kv });
-      expect(request.kv).to.deep.equal({});
-      done();
+    afterEach(function() {
+      sinon.assert.calledOnce(Utils.cleanValues);
+      sandbox.restore();
     });
 
+    [undefined, {}, null, '', []].forEach((kv) => {
+      it(`should clean values when the kv is '${kv}' using .set()`, function (done) {
+        const request = new AnalyticsRequestObject();
+        request.set('kv', kv);
+        done();
+      });
+      it(`should clean values when the kv is '${kv}' using direct set`, function (done) {
+        const request = new AnalyticsRequestObject();
+        request.kv = kv;
+        done();
+      });
+      it(`should clean values when the kv is '${kv}' using the constructor`, function (done) {
+        const request = new AnalyticsRequestObject({ kv });
+        done();
+      });
+    });
+    it(`should clean the values.`, function (done) {
+      const kv = { a: 'string', b: 0, c: false, d: 1.1, e: null, f: undefined, g: '' };
+      const request = new AnalyticsRequestObject({ kv });
+      done();
+    });
   });
 
   describe('.hashObj', function() {
