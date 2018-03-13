@@ -321,7 +321,6 @@ describe('repositories/campaign/placement', function() {
       expect(decoded).to.be.an('object');
       expect(uuidUtil.is(decoded.id)).to.be.true;
       expect(decoded.iat).to.be.a('number').gt(0);
-      expect(decoded.exp).to.be.a('number').gt(0);
       expect(decoded.hash).to.equal('abcde');
       expect(decoded.cid).to.equal(1234);
 
@@ -340,7 +339,6 @@ describe('repositories/campaign/placement', function() {
       expect(decoded).to.be.an('object');
       expect(uuidUtil.is(decoded.id)).to.be.true;
       expect(decoded.iat).to.be.a('number').gt(0);
-      expect(decoded.exp).to.be.a('number').gt(0);
       expect(decoded.hash).to.equal('abcde');
       expect(decoded.cid).to.equal(undefined);
 
