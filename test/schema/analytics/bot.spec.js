@@ -210,6 +210,34 @@ describe('schema/analytics/bot', function() {
 
     });
 
+    it('should save/upsert an existing request, when bot value is empty.', async function() {
+      const request1 = new AnalyticsBot({
+        e: 'request',
+        cid: '5aa153bf4795e6000122d825',
+        last: date,
+        hash: '7140bcc287f41c8e4aced0d1f1dbf7ab',
+      });
+      const request2 = new AnalyticsBot({
+        e: 'request',
+        cid: '5aa153bf4795e6000122d825',
+        last: new Date(1519939260000),
+        hash: '7140bcc287f41c8e4aced0d1f1dbf7ab',
+      });
+      await expect(request1.aggregateSave()).to.be.fulfilled;
+      await expect(request2.aggregateSave()).to.be.fulfilled;
+
+      const result = await AnalyticsBot.findOne({ e: request1.e, value: request1.value, cid: request1.cid, hash: request1.hash, day: request1.day });
+
+      expect(result.hash).to.equal('7140bcc287f41c8e4aced0d1f1dbf7ab');
+      expect(result.e).to.equal('request');
+      expect(result.cid.toString()).to.equal('5aa153bf4795e6000122d825');
+      expect(result.value).to.be.null;
+      expect(result.n).to.equal(2);
+      expect(result.day.toUTCString()).to.equal('Thu, 01 Mar 2018 00:00:00 GMT');
+      expect(result.last.toUTCString()).to.equal('Thu, 01 Mar 2018 21:21:00 GMT');
+
+    });
+
     it('should save/upsert an existing request, when cid is not null (and an existing is null).', async function() {
       const initial = new AnalyticsBot({
         e: 'request',
