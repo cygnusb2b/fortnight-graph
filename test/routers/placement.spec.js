@@ -90,6 +90,23 @@ describe('routers/placement', function() {
         .end(done);
     });
 
+    it('should force a secure protocol when on production.', function(done) {
+      const env = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+      const pid = placement.id;
+      const opts = JSON.stringify({ tid: template.id });
+      request(app).get(`/placement/${pid}.json`)
+        .query({ opts })
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .expect((res) => {
+          process.env.NODE_ENV = env;
+          const html = res.body[0].html;
+          expect(html).to.contain('data-fortnight-beacon="https');
+        })
+        .end(done);
+    });
+
     it('should return a 200 when valid when vars are present.', function(done) {
       const pid = placement.id;
       const opts = JSON.stringify({
