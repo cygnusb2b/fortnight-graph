@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const helmet = require('helmet');
+const newrelic = require('../newrelic');
 const createError = require('http-errors');
 const CampaignPlacementRepo = require('../repositories/campaign/placement');
 
@@ -9,6 +10,7 @@ router.use(helmet.noCache());
 const acceptable = ['json', 'html'];
 
 const handleError = (err, req, res) => {
+  newrelic.noticeError(err);
   const { ext } = req.params;
   const extension = acceptable.includes(ext) ? ext : 'html';
   const status = err.status || err.statusCode || 500;
