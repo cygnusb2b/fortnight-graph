@@ -3,6 +3,7 @@ const { Router } = require('express');
 const { noCache } = require('helmet');
 const AnalyticsLoad = require('../models/analytics/load');
 const AnalyticsView = require('../models/analytics/view');
+const AnalyticsLog = require('../models/analytics/event-log');
 
 const emptyGif = Buffer.from('R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==', 'base64');
 
@@ -33,8 +34,12 @@ router.get('/:token/:event.gif', (req, res) => {
     const Model = modelMap[event];
     const { cid, hash } = payload;
     const last = new Date();
-    const doc = new Model({ hash, cid, last });
-    return doc.aggregateSave().then(() => send(res, 200)).catch(e => send(res, 500, e.message));
+    const ua = req.get('user-agent');
+    const log = new AnalyticsLog({ hash, event, ua });
+    return log.save().then(() => {
+      const doc = new Model({ hash, cid, last });
+      return doc.aggregateSave().then(() => send(res, 200)).catch(e => send(res, 500, e.message));
+    });
   });
 });
 
