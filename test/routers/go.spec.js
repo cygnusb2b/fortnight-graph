@@ -163,6 +163,6 @@ describe('routers/go', function() {
       .expect((res) => {
         expect(res.get('location')).to.equal(campaign1.url);
       })
-    await expect(AnalyticsBot.find({ hash, cid: campaignId })).to.eventually.be.an('array').with.property('length', 1);
+    await expect(AnalyticsBot.find({ e: 'click', hash, cid: campaignId })).to.eventually.be.an('array').with.property('length', 1);
   });
 });
