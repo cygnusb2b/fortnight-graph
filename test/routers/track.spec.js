@@ -3,6 +3,7 @@ const app = require('../../src/app');
 const CampaignPlacementRepo = require('../../src/repositories/campaign/placement');
 const AnalyticsLoad = require('../../src/models/analytics/load');
 const AnalyticsView = require('../../src/models/analytics/view');
+const AnalyticsBot = require('../../src/models/analytics/bot');
 const router = require('../../src/routers/track');
 
 const emptyGif = Buffer.from('R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==', 'base64');
@@ -25,10 +26,12 @@ describe('routers/track', function() {
   before(async function() {
     await AnalyticsLoad.remove();
     await AnalyticsView.remove();
+    await AnalyticsBot.remove();
   });
   after(async function() {
     await AnalyticsLoad.remove();
     await AnalyticsView.remove();
+    await AnalyticsBot.remove();
   });
   it('should export a router function.', function(done) {
     expect(router).to.be.a('function');
@@ -114,5 +117,27 @@ describe('routers/track', function() {
       .expect(200)
       .expect(testImageResponse)
       .end(done);
+  });
+  it('should respond to the view event, and track a bot.', async function() {
+    const campaignId = '5a9db9fb9fb64eb206ddf848';
+    const hash = '01f5c84a826ebc85b8abbe318b400ad3';
+    const endpoint = CampaignPlacementRepo.createTracker('view', campaignId, '', hash);
+    await request(app)
+      .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)')
+      .expect(200)
+      .expect(testImageResponse)
+      await expect(AnalyticsBot.find({ e: 'view', hash, cid: campaignId })).to.eventually.be.an('array').with.property('length', 1);
+  });
+  it('should respond to the load event, and track a bot.', async function() {
+    const campaignId = '5a9db9fb9fb64eb206ddf848';
+    const hash = '01f5c84a826ebc85b8abbe318b400ad3';
+    const endpoint = CampaignPlacementRepo.createTracker('load', campaignId, '', hash);
+    await request(app)
+      .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)')
+      .expect(200)
+      .expect(testImageResponse)
+      await expect(AnalyticsBot.find({ e: 'load', hash, cid: campaignId })).to.eventually.be.an('array').with.property('length', 1);
   });
 });
