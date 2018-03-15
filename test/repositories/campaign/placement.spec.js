@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const uuidUtil = require('../../../src/utils/uuid');
 const Repo = require('../../../src/repositories/campaign/placement');
 const AnalyticsRequest = require('../../../src/models/analytics/request');
+const AnalyticsBot = require('../../../src/models/analytics/bot');
 const AnalyticsRequestObject = require('../../../src/models/analytics/request-object');
 const CampaignRepo = require('../../../src/repositories/campaign');
 const AdvertiserRepo = require('../../../src/repositories/advertiser');
@@ -627,6 +628,25 @@ describe('repositories/campaign/placement', function() {
       sinon.assert.called(Repo.createTrackers);
       sinon.assert.called(Repo.createImgBeacon);
       await CampaignRepo.remove();
+    });
+    it('should fulfill and track a bot.', async function() {
+      await CampaignRepo.remove();
+      await AnalyticsBot.remove();
+      const placementId = placement.id;
+      const templateId = template.id;
+      const num = 1;
+      const campaign = await createCampaign();
+      const userAgent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
+      await expect(Repo.findFor({ placementId, templateId, num, requestURL, userAgent })).to.be.fulfilled.and.eventually.be.an('array').with.property('length', 1);
+      sinon.assert.called(Repo.buildAdFor);
+      sinon.assert.called(Repo.createTrackers);
+      sinon.assert.called(Repo.createImgBeacon);
+
+      const obj = await AnalyticsRequestObject.findOne({ pid: placementId });
+      await expect(AnalyticsBot.find({ e: 'request', hash: obj.hash })).to.eventually.be.an('array').with.property('length', 1);
+
+      await CampaignRepo.remove();
+      await AnalyticsBot.remove();
     });
     it('should fulfill when a campaign is found, and fallbacks are present.', async function() {
       await CampaignRepo.remove();

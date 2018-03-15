@@ -2,9 +2,11 @@ const createError = require('http-errors');
 const uuid = require('uuid/v4');
 const { isURL } = require('validator');
 const jwt = require('jsonwebtoken');
+const BotDetector = require('../../services/bot-detector');
 const Placement = require('../../models/placement');
 const Template = require('../../models/template');
 const AnalyticsRequest = require('../../models/analytics/request');
+const AnalyticsBot = require('../../models/analytics/bot');
 const AnalyticsRequestObject = require('../../models/analytics/request-object');
 const TemplateRepo = require('../../repositories/template');
 const Campaign = require('../../models/campaign');
@@ -61,6 +63,7 @@ module.exports = {
    * @param {string} params.placementId The placement identifier.
    * @param {string} params.templateId The template identifier.
    * @param {string} params.requestURL The URL the ad request came from.
+   * @param {string} params.userAgent The requesting user agent.
    * @param {number} [params.num=1] The number of ads to return. Max of 20.
    * @param {object} [params.vars] An object containing targeting, merge, and fallback vars.
    * @param {object} [params.vars.custom] Custom targeting variables.
@@ -70,6 +73,7 @@ module.exports = {
     placementId,
     templateId,
     requestURL,
+    userAgent,
     num = 1,
     vars = { custom: {}, fallback: {} },
   } = {}) {
@@ -118,8 +122,15 @@ module.exports = {
       hash,
     ));
 
-    const request = new AnalyticsRequest({ hash: requestObj.hash, last: now });
-    await request.aggregateSave(limit); // @todo Determine if this should actually not await?
+    const bot = BotDetector.detect(userAgent);
+    const doc = bot.detected ? new AnalyticsBot({
+      hash,
+      last: now,
+      value: bot.value,
+      e: 'request',
+    }) : new AnalyticsRequest({ hash, last: now });
+    // @todo Once limit is larger than 1, the bot model will need to support multiple increments.
+    await doc.aggregateSave(limit); // @todo Determine if this should actually not await?
     return ads;
   },
 

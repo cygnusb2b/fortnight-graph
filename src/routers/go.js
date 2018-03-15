@@ -1,8 +1,10 @@
 const jwt = require('jsonwebtoken');
 const { Router } = require('express');
 const { noCache } = require('helmet');
+const BotDetector = require('../services/bot-detector');
 const CampaignRepo = require('../repositories/campaign');
 const AnalyticsClick = require('../models/analytics/click');
+const AnalyticsBot = require('../models/analytics/bot');
 
 const router = Router();
 router.use(noCache());
@@ -14,9 +16,17 @@ router.get('/:token', (req, res, next) => {
     if (err) return res.status(403).send(err.message);
     const { cid, hash, url } = payload;
     const last = new Date();
-    const click = new AnalyticsClick({ cid, hash, last });
 
-    return click.aggregateSave().then(() => {
+    const bot = BotDetector.detect(req.get('User-Agent'));
+    const model = bot.detected ? new AnalyticsBot({
+      cid,
+      hash,
+      last,
+      value: bot.value,
+      e: 'click',
+    }) : new AnalyticsClick({ cid, hash, last });
+
+    return model.aggregateSave().then(() => {
       if (url) {
         // Redirect immediately.
         res.redirect(301, url);

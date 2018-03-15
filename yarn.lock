@@ -775,6 +775,10 @@ core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
 
+"crawler-user-agents@https://github.com/monperrus/crawler-user-agents.git#master":
+  version "1.0.0"
+  resolved "https://github.com/monperrus/crawler-user-agents.git#2e5bafb49a0e8bbf4ec7d6a0a851f6c43725678c"
+
 cross-spawn@^4:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-4.0.2.tgz#7b9247621c23adfdd3856004a823cbe397424d41"
