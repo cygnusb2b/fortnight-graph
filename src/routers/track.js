@@ -25,6 +25,7 @@ const send = (res, status, message) => {
 router.get('/:token/:event.gif', (req, res) => {
   res.set('Content-Type', 'image/gif');
   const { token, event } = req.params;
+  const ua = req.get('user-agent');
 
   if (!events.includes(event)) {
     return send(res, 400, `The event type '${event}' is invalid.`);
@@ -34,12 +35,13 @@ router.get('/:token/:event.gif', (req, res) => {
     const Model = modelMap[event];
     const { cid, hash } = payload;
     const last = new Date();
-    const ua = req.get('user-agent');
     const log = new AnalyticsLog({ hash, event, ua });
-    return log.save().then(() => {
-      const doc = new Model({ hash, cid, last });
-      return doc.aggregateSave().then(() => send(res, 200)).catch(e => send(res, 500, e.message));
-    });
+    const doc = new Model({ hash, cid, last });
+    return doc.aggregateSave()
+      .then(() => send(res, 200))
+      .then(() => log.save())
+      .catch(e => send(res, 500, e.message))
+    ;
   });
 });
 
