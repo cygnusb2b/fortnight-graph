@@ -3,6 +3,7 @@ const app = require('../../src/app');
 const CampaignPlacementRepo = require('../../src/repositories/campaign/placement');
 const CampaignRepo = require('../../src/repositories/campaign');
 const AnalyticsClick = require('../../src/models/analytics/click');
+const AnalyticsBot = require('../../src/models/analytics/bot');
 const router = require('../../src/routers/track');
 
 const createCampaign = async () => {
@@ -26,10 +27,12 @@ describe('routers/go', function() {
     campaign1 = await createCampaign();
     campaign2 = await createCampaign();
     await AnalyticsClick.remove();
+    await AnalyticsBot.remove();
   });
   after(async function() {
     await AnalyticsClick.remove();
     await CampaignRepo.remove();
+    await AnalyticsBot.remove();
   });
   it('should export a router function.', function(done) {
     expect(router).to.be.a('function');
@@ -146,5 +149,20 @@ describe('routers/go', function() {
         expect(res.get('location')).to.equal(campaign2.url);
       })
       .end(done);
+  });
+  it('should redirect to a campaign url and track a bot.', async function() {
+    const campaignId = campaign1.id;
+    const hash = '01f5c84a826ebc85b8abbe318b400ad3';
+
+    const endpoint = CampaignPlacementRepo.createCampaignRedirect(campaignId, '', hash);
+    await request(app)
+      .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)')
+      .expect(301)
+      .expect(testNoCacheResponse)
+      .expect((res) => {
+        expect(res.get('location')).to.equal(campaign1.url);
+      })
+    await expect(AnalyticsBot.find({ hash, cid: campaignId })).to.eventually.be.an('array').with.property('length', 1);
   });
 });
