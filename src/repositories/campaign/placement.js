@@ -183,7 +183,7 @@ module.exports = {
       hash,
       cid: campaignId,
     };
-    const token = jwt.sign(payload, secret);
+    const token = jwt.sign(payload, secret, { noTimestamp: true });
     return `${requestURL}/go/${token}`;
   },
 
