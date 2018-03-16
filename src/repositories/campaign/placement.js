@@ -177,22 +177,22 @@ module.exports = {
     return `${ad.html}\n${this.createImgBeacon(trackers)}`;
   },
 
-  createCampaignRedirect(campaignId, requestURL, hash) {
+  createCampaignRedirect(campaignId, requestURL, hash, noTimestamp = true) {
     const secret = process.env.TRACKER_SECRET;
     const payload = {
       hash,
       cid: campaignId,
     };
-    const token = jwt.sign(payload, secret, { noTimestamp: true });
+    const token = jwt.sign(payload, secret, { noTimestamp });
     return `${requestURL}/go/${token}`;
   },
 
-  createFallbackRedirect(url, requestURL, hash) {
+  createFallbackRedirect(url, requestURL, hash, noTimestamp = true) {
     // @todo This should somehow notify that there's a problem with the URL.
     if (!isURL(String(url), { require_protocol: true })) return url;
     const secret = process.env.TRACKER_SECRET;
     const payload = { hash, url };
-    const token = jwt.sign(payload, secret);
+    const token = jwt.sign(payload, secret, { noTimestamp });
     return `${requestURL}/go/${token}`;
   },
 

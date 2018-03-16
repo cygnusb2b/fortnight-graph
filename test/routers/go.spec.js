@@ -165,4 +165,20 @@ describe('routers/go', function() {
       })
     await expect(AnalyticsBot.find({ e: 'click', hash, cid: campaignId })).to.eventually.be.an('array').with.property('length', 1);
   });
+
+  it('should redirect when iat is still present', function(done) {
+    const url = 'http://redirect-to-me.com';
+    const hash = '01f5c84a826ebc85b8abbe318b400ad3';
+    const endpoint = CampaignPlacementRepo.createFallbackRedirect(url, '', hash, false);
+
+    request(app)
+      .get(endpoint)
+      .expect(301)
+      .expect(testNoCacheResponse)
+      .expect((res) => {
+        expect(res.get('location')).to.equal(url);
+      })
+      .end(done);
+  });
+
 });
