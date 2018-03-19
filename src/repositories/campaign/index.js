@@ -54,6 +54,16 @@ module.exports = {
   },
 
   /**
+   *
+   * @param {string} hash
+   * @return {Promise}
+   */
+  findByHash(hash) {
+    if (!hash) return Promise.reject(new Error('Unable to find campaign: no hash was provided.'));
+    return Campaign.findOne({ hash });
+  },
+
+  /**
    * @param {object} criteria
    * @return {Promise}
    */
