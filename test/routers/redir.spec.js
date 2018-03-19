@@ -3,7 +3,7 @@ const app = require('../../src/app');
 const CampaignDeliveryRepo = require('../../src/repositories/campaign/delivery');
 const CampaignRepo = require('../../src/repositories/campaign');
 const AnalyticsEvent = require('../../src/models/analytics/event');
-const router = require('../../src/routers/track');
+const router = require('../../src/routers/redir');
 
 const createCampaign = async () => {
   const results = await CampaignRepo.seed();
