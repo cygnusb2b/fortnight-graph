@@ -3,7 +3,7 @@ const app = require('../../src/app');
 const router = require('../../src/routers/placement');
 const PlacementRepo = require('../../src/repositories/placement');
 const TemplateRepo = require('../../src/repositories/template');
-const CampaignPlacementRepo = require('../../src/repositories/campaign/placement');
+const CampaignDeliveryRepo = require('../../src/repositories/campaign/delivery');
 
 const createPlacement = async () => {
   const results = await PlacementRepo.seed();
@@ -185,7 +185,7 @@ describe('routers/placement', function() {
 
     it('should return a 500 (with an obfuscated error) when a fatal is encountered.', function(done) {
       const message = 'Some internal error';
-      const stub = sinon.stub(CampaignPlacementRepo, 'findFor').rejects(new Error(message));
+      const stub = sinon.stub(CampaignDeliveryRepo, 'findFor').rejects(new Error(message));
       const pid = placement.id;
       const opts = JSON.stringify({ tid: template.id });
       request(app).get(`/placement/${pid}.json`)

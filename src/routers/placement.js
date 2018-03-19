@@ -2,7 +2,7 @@ const { Router } = require('express');
 const helmet = require('helmet');
 const newrelic = require('../newrelic');
 const createError = require('http-errors');
-const CampaignPlacementRepo = require('../repositories/campaign/placement');
+const CampaignDeliveryRepo = require('../repositories/campaign/delivery');
 
 const router = Router();
 router.use(helmet.noCache());
@@ -33,12 +33,12 @@ router.get('/:pid.:ext', (req, res) => {
       cv,
       mv,
       fv,
-    } = CampaignPlacementRepo.parseOptions(req.query.opts);
+    } = CampaignDeliveryRepo.parseOptions(req.query.opts);
 
     const vars = { custom: cv, merge: mv, fallback: fv };
     const { NODE_ENV } = process.env;
     const protocol = NODE_ENV === 'production' ? 'https' : req.protocol;
-    CampaignPlacementRepo.findFor({
+    CampaignDeliveryRepo.findFor({
       userAgent: req.get('User-Agent'),
       requestURL: `${protocol}://${req.get('host')}`,
       placementId: pid,
