@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { Router } = require('express');
 const { noCache } = require('helmet');
+const newrelic = require('../newrelic');
 const BotDetector = require('../services/bot-detector');
 const AnalyticsLoad = require('../models/analytics/load');
 const AnalyticsView = require('../models/analytics/view');
@@ -17,8 +18,11 @@ const modelMap = {
   view: AnalyticsView,
 };
 
-const send = (res, status, message) => {
-  if (message) res.set('X-Error-Message', message);
+const send = (res, status, err) => {
+  if (err) {
+    res.set('X-Error-Message', err.message);
+    newrelic.noticeError(err);
+  }
   res.status(status);
   res.send(emptyGif);
 };
@@ -28,10 +32,10 @@ router.get('/:token/:event.gif', (req, res) => {
   const { token, event } = req.params;
 
   if (!events.includes(event)) {
-    return send(res, 400, `The event type '${event}' is invalid.`);
+    return send(res, 400, new Error(`The event type '${event}' is invalid.`));
   }
   return jwt.verify(token, process.env.TRACKER_SECRET, { algorithms: 'HS256' }, (err, payload) => {
-    if (err) return send(res, 403, err.message);
+    if (err) return send(res, 403, err);
     const Model = modelMap[event];
     const { cid, hash } = payload;
     const last = new Date();
@@ -43,7 +47,7 @@ router.get('/:token/:event.gif', (req, res) => {
       value: bot.value,
       e: event,
     }) : new Model({ hash, cid, last });
-    return doc.aggregateSave().then(() => send(res, 200)).catch(e => send(res, 500, e.message));
+    return doc.aggregateSave().then(() => send(res, 200)).catch(e => send(res, 500, e));
   });
 });
 
