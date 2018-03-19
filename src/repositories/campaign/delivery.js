@@ -13,6 +13,19 @@ const Utils = require('../../utils');
 
 module.exports = {
   /**
+   *
+   * @param {*} options
+   */
+  parseOptions(options) {
+    if (!options) return {};
+    try {
+      return JSON.parse(String(options));
+    } catch (e) {
+      return {};
+    }
+  },
+
+  /**
    * Queries for campaigns.
    *
    * @param {object} params

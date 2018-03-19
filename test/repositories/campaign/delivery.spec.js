@@ -54,6 +54,19 @@ describe('repositories/campaign/delivery', function() {
     await TemplateRepo.remove();
   });
 
+  describe('#parseOptions', function() {
+    [null, undefined, '', 'somestring', 0].forEach((value) => {
+      it(`should return an object when the options are '${value}'.`, function(done) {
+        expect(Repo.parseOptions(value)).to.be.an('object');
+        done();
+      });
+    });
+    it('should parse the options', function(done) {
+      expect(Repo.parseOptions('{"foo":"bar"}')).to.deep.equal({ foo: 'bar' });
+      done();
+    });
+  });
+
   describe('#getPlacementAndTemplate', function() {
     let placement;
     let template;
