@@ -24,7 +24,7 @@ node {
     throw e
   }
 
-  if (!env.BRANCH_NAME.contains('PR-')) {
+  if (env.BRANCH_NAME == 'master') {
     try {
       stage('Yarn Production Install') {
         nodeBuilder.inside("-v ${env.WORKSPACE}:/app -u 0:0") {
