@@ -551,11 +551,12 @@ describe('repositories/campaign/placement', function() {
       await expect(Repo.findFor({ placementId, templateId, requestURL, num })).to.be.rejectedWith(Error, 'Requesting more than one ad in a request is not yet implemented');
     });
     it('should should record the proper request analytics.', async function() {
+      const userAgent = 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0';
       const placementId = placement.id;
       const templateId = template.id;
       // const num = 3;
       const num = 1;
-      await expect(Repo.findFor({ placementId, templateId, requestURL, num })).to.be.fulfilled;
+      await expect(Repo.findFor({ placementId, templateId, requestURL, num, userAgent })).to.be.fulfilled;
       const obj = await AnalyticsRequestObject.findOne({ pid: placementId });
       expect(obj).to.be.an('object');
       const request = await AnalyticsRequest.findOne({ hash: obj.hash });

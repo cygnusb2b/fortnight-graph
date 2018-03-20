@@ -68,6 +68,7 @@ describe('routers/track', function() {
     const endpoint = CampaignPlacementRepo.createTracker('load', campaignId, '', hash);
     request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(500)
       .expect(testImageResponse)
       .expect(testErrorHeader)
@@ -84,6 +85,7 @@ describe('routers/track', function() {
     const endpoint = CampaignPlacementRepo.createTracker('load', campaignId, '', hash);
     request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(200)
       .expect(testImageResponse)
       .end(done);
@@ -94,6 +96,7 @@ describe('routers/track', function() {
     const endpoint = CampaignPlacementRepo.createTracker('load', campaignId, '', hash);
     request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(200)
       .expect(testImageResponse)
       .end(done);
@@ -104,6 +107,7 @@ describe('routers/track', function() {
     const endpoint = CampaignPlacementRepo.createTracker('view', campaignId, '', hash);
     request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(200)
       .expect(testImageResponse)
       .end(done);
@@ -114,6 +118,7 @@ describe('routers/track', function() {
     const endpoint = CampaignPlacementRepo.createTracker('view', campaignId, '', hash);
     request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(200)
       .expect(testImageResponse)
       .end(done);
