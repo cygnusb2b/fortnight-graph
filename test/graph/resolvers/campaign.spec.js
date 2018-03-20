@@ -447,56 +447,6 @@ describe('graph/resolvers/campaign', function() {
       });
     });
 
-    describe('clientUpdateCampaignCreative', function() {
-      let campaign;
-      before(async function() {
-        campaign = await createCampaign();
-        creative = campaign.creatives[0];
-      });
-      const query = `
-        mutation ClientUpdateCampaignCreative($input: ClientUpdateCampaignCreativeInput!) {
-          clientUpdateCampaignCreative(input: $input) {
-            id
-            url
-            creatives {
-              id
-              title
-              teaser
-              image {
-                id
-                src
-                focalPoint {
-                  x
-                  y
-                }
-              }
-            }
-          }
-        }
-      `;
-      it('should reject when the campaign record is not found.', async function() {
-        const campaignId = '507f1f77bcf86cd799439011';
-        const creativeId = creative.id;
-        const input = { campaignId, creativeId };
-        const variables = { input };
-        await expect(graphql({ query, variables, key: 'updateCampaignCreative', loggedIn: true })).to.be.rejectedWith(Error, /no campaign was found/i);
-      });
-      it('should update the campaign creative.', async function() {
-        const campaignId = campaign.id;
-        const creativeId = creative.id;
-        const payload = { title: 'This is a new title', teaser: 'This is a new teaser.' };
-        const input = { campaignId, creativeId, payload };
-        const variables = { input };
-        const promise = graphql({ query, variables, key: 'updateCampaignCreative', loggedIn: true });
-        await expect(promise).to.eventually.be.an('object');
-        const data = await promise;
-        expect(data.title).to.equal(payload.title);
-        expect(data.teaser).to.equal(payload.teaser);
-        const found = await CampaignRepo.findById(campaignId);
-        expect(found.creatives.id(data.id)).to.be.an('object');
-      });
-    });
-
     describe('removeCampaignCreative', function() {
       let campaign;
       before(async function() {
