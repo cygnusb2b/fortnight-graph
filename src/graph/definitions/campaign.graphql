@@ -11,6 +11,7 @@ type Mutation {
   updateCampaignCreative(input: UpdateCampaignCreativeInput!): CampaignCreative!
   removeCampaignCreative(input: RemoveCampaignCreativeInput!): String!
   setCampaignCriteria(input: SetCampaignCriteriaInput!): CampaignCriteria!
+  clientUpdateCampaign(input: ClientUpdateCampaignInput!): Campaign!
 }
 
 enum CampaignSortField {
@@ -67,10 +68,10 @@ type CampaignCreativeImage {
   fileSize: Int
   width: Int
   height: Int
-  focalPoint: ImageFocalPoint
+  focalPoint: ImagefocalPoint
 }
 
-type ImageFocalPoint {
+type ImagefocalPoint {
   x: Float!
   y: Float!
 }
@@ -117,6 +118,16 @@ input UpdateCampaignPayloadInput {
   advertiserId: String
 }
 
+input ClientUpdateCampaignInput {
+  campaignId: String!
+  payload: ClientUpdateCampaignPayloadInput!
+}
+
+input ClientUpdateCampaignPayloadInput {
+  url: String!
+  creatives: [CLientUpdateCampaignCreativeInput]
+}
+
 input AddCampaignCreativeInput {
   campaignId: String!
   payload: AddCampaignCreativePayloadInput
@@ -152,6 +163,13 @@ input UpdateCampaignCreativeInput {
   campaignId: String!
   creativeId: String!
   payload: UpdateCampaignCreativePayloadInput
+}
+
+input CLientUpdateCampaignCreativeInput {
+  id: String!
+  title: String
+  teaser: String
+  image: CampaignCreativeImageInput
 }
 
 input UpdateCampaignCreativePayloadInput {

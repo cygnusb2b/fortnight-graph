@@ -103,6 +103,14 @@ module.exports = {
     /**
      *
      */
+    clientUpdateCampaign: async (root, { input }) => {
+      const { campaignId, payload } = input;
+      return CampaignRepo.clientUpdateFor(campaignId, payload);
+    },
+
+    /**
+     *
+     */
     removeCampaignCreative: async (root, { input }, { auth }) => {
       auth.check();
       const { campaignId, creativeId } = input;
