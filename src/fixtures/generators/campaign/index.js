@@ -12,6 +12,18 @@ module.exports = ({ advertiserId, placementId }) => {
     return stack;
   };
 
+  const externalLinks = () => {
+    const stack = [];
+    const num = faker.random.number({ min: 1, max: 5 });
+    for (let i = 0; i < num; i += 1) {
+      stack.push({
+        label: faker.internet.domainWord(),
+        url: faker.internet.url(),
+      });
+    }
+    return stack;
+  };
+
   const now = new Date();
   return {
     name: faker.random.words(),
@@ -27,5 +39,6 @@ module.exports = ({ advertiserId, placementId }) => {
     criteria: criteria({ placementId }),
     createdAt: now,
     updatedAt: now,
+    externalLinks: externalLinks(),
   };
 };

@@ -37,6 +37,7 @@ type Campaign {
   url: String!
   creatives: [CampaignCreative]
   criteria: CampaignCriteria
+  externalLinks: [ExternalLink]
 }
 
 type CampaignCreative {
@@ -57,6 +58,11 @@ type CampaignCriteria {
 type KeyValues {
   key: String!
   value: String!
+}
+
+type ExternalLink {
+  label: String
+  url: String!
 }
 
 type CampaignCreativeImage {
@@ -103,6 +109,7 @@ input CreateCampaignPayloadInput {
   name: String!
   advertiserId: String!
   url: String!
+  externalLinks: [ExternalLinkInput]
 }
 
 input UpdateCampaignInput {
@@ -115,6 +122,12 @@ input UpdateCampaignPayloadInput {
   url: String
   status: CampaignStatus
   advertiserId: String
+  externalLinks: [ExternalLinkInput]
+}
+
+input ExternalLinkInput {
+  label: String
+  url: String!
 }
 
 input AddCampaignCreativeInput {
