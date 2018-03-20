@@ -2,6 +2,7 @@ const paginationResolvers = require('./pagination');
 const AdvertiserRepo = require('../../repositories/advertiser');
 const PlacementRepo = require('../../repositories/placement');
 const CampaignRepo = require('../../repositories/campaign');
+const ClientRepo = require('../../repositories/campaign/client');
 const CreativeRepo = require('../../repositories/campaign/creative');
 const CriteriaRepo = require('../../repositories/campaign/criteria');
 
@@ -105,7 +106,7 @@ module.exports = {
      */
     clientUpdateCampaign: async (root, { input }) => {
       const { campaignId, payload } = input;
-      return CampaignRepo.clientUpdateFor(campaignId, payload);
+      return ClientRepo.updateFor(campaignId, payload);
     },
 
     /**
