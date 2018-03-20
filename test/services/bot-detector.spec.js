@@ -1,12 +1,40 @@
 const BotDetector = require('../../src/services/bot-detector');
+const sandbox = sinon.createSandbox();
 
 describe('services/bot-detector', function() {
-  describe('#detect', function() {
-    ['', undefined, null].forEach((value) => {
-      it(`should return false when the UA value is empty: '${value}'.`, function(done) {
-        expect(BotDetector.detect(value)).to.be.an('object').with.property('detected', false);
+  describe('#formatValue', function() {
+    [
+      [undefined, ''],
+      [null, ''],
+      ['', ''],
+      [' ', ''],
+      ['Googlebot/', 'googlebot'],
+      ['-\Foo-Bar_/ ', 'foo-bar'],
+    ].forEach((values) => {
+      it(`should trim and lower case when the value is '${values[0]}'.`, function(done) {
+        expect(BotDetector.formatValue(values[0])).to.equal(values[1]);
         done();
       });
+    });
+  });
+  describe('#detect', function() {
+    beforeEach(function() {
+      sandbox.spy(BotDetector, 'formatValue');
+    });
+    afterEach(function() {
+      sandbox.restore();
+    });
+
+    ['', undefined, null].forEach((value) => {
+      it(`should return true with a weight of 80% when the UA value is empty: '${value}'.`, function(done) {
+        const result = BotDetector.detect(value);
+        expect(result).to.be.an('object');
+        expect(result.detected).to.be.true;
+        expect(result.weight).to.equal(0.8);
+        expect(result.reason).to.equal('No user agent value was provided.');
+        done();
+      });
+
     });
     [
       'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
@@ -50,12 +78,95 @@ describe('services/bot-detector', function() {
       'facebookexternalhit/1.0 (+http://www.facebook.com/externalhit_uatext.php)',
       'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
       'ia_archiver (+http://www.alexa.com/site/help/webmasters; crawler@alexa.com)',
+      'Java/1.4.1_04',
+      'Java/1.8.0_161',
     ].forEach((value) => {
-      it(`should return true when the UA value is: '${value}'.`, function(done) {
-        expect(BotDetector.detect(value)).to.be.an('object').with.property('detected', true);
+      it(`should return true with a weight of 100% when the UA value is: '${value}'.`, function(done) {
+        const result = BotDetector.detect(value);
+        expect(result).to.be.an('object');
+        expect(result.detected).to.be.true;
+        expect(result.weight).to.equal(1);
+        expect(result.reason).to.equal('Matched a known bot pattern.');
+        sinon.assert.calledOnce(BotDetector.formatValue);
         done();
       });
     });
+
+    [
+      'BLP_bbot/0.1',
+      'Mozilla/5.0+(compatible; UptimeRobot/2.0; http://www.uptimerobot.com/)',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:49.0) Gecko/20100101 Firefox/49.0 (FlipboardProxy/1.2; +http://flipboard.com/browserproxy)',
+      'Symfony BrowserKit',
+      'Mozilla/5.0 (compatible; citycrawler/1.1; +http://www.city-data.com/)',
+      'Feedfetcher-Google; (+http://www.google.com/feedfetcher.html)',
+      'watson-url-fetcher',
+      'robots',
+      'some scraper',
+      'not a bot',
+      'NewsBlur Page Fetcher - 48 subscribers - http://www.newsblur.com/site/358830/nvs-home (Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_1) AppleWebKit/534.48.3 (KHTML, like Gecko) Version/5.1 Safari/534.48.3)',
+      'Xaldon WebSpider',
+      'TextRazor Downloader (https://www.textrazor.com)',
+      'Mozilla/5.0 (compatible;netTrekker-Link-Checker-AAMS/1.0)',
+    ].forEach((value) => {
+      it(`should return true with a weight of 90% when the UA value is: '${value}'.`, function(done) {
+        const result = BotDetector.detect(value);
+        expect(result).to.be.an('object');
+        expect(result.detected).to.be.true;
+        expect(result.weight).to.equal(0.9);
+        expect(result.reason).to.equal('Matched a common bot pattern.');
+        sinon.assert.calledOnce(BotDetector.formatValue);
+        done();
+      });
+    });
+
+    [
+      'python-requests/2.18.4',
+      'PHP/5.4',
+      'Python/3.6 aiohttp/2.2.0',
+      'Ruby',
+      'PHP/5.5',
+      'python-requests/2.12.3',
+      'node-superagent/0.18.2',
+      'WordPress/4.9.4; http://www.abelwomack.com',
+      'WordPress/4.9.4; https://manhattanherald.com',
+    ].forEach((value) => {
+      it(`should return true with a weight of 90% when the UA value is: '${value}'.`, function(done) {
+        const result = BotDetector.detect(value);
+        expect(result).to.be.an('object');
+        expect(result.detected).to.be.true;
+        expect(result.weight).to.equal(0.9);
+        expect(result.reason).to.equal('Matched a common backend pattern.');
+        sinon.assert.calledOnce(BotDetector.formatValue);
+        done();
+      });
+    });
+
+    [
+      'G-i-g-a-b-o-t',
+      'Mozilla',
+      'null',
+      'axios/0.17.1',
+      'Mozilla/5.0 (compatible)',
+      'lua-resty-http/0.07 (Lua) ngx_lua/10000',
+      'rss',
+      'AngleSharp/0.9.9',
+      'Chrome',
+      '.NET Framework Test Client',
+      'HubSpot Marketing Grader',
+      'Go 1.1 package http',
+      'WinHTTP',
+      'CakePHP'
+    ].forEach((value) => {
+      it(`should return true with a weight of 70% when the UA value is: '${value}'.`, function(done) {
+        const result = BotDetector.detect(value);
+        expect(result).to.be.an('object');
+        expect(result.detected).to.be.true;
+        expect(result.weight).to.equal(0.7);
+        expect(result.reason).to.equal('Unable to parse a browser name.');
+        done();
+      });
+    });
+
     [
       'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36 OPR/43.0.2442.991',
       'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.63 Safari/537.36',

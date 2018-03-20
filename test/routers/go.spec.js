@@ -54,6 +54,7 @@ describe('routers/go', function() {
     const endpoint = CampaignPlacementRepo.createCampaignRedirect(campaignId, '', hash);
     request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(500)
       .expect(testNoCacheResponse)
       .end(() => {
@@ -71,6 +72,7 @@ describe('routers/go', function() {
     const endpoint = CampaignPlacementRepo.createFallbackRedirect(url, '', hash);
     request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(301)
       .expect(testNoCacheResponse)
       .expect((res) => {
@@ -86,6 +88,7 @@ describe('routers/go', function() {
     const endpoint = CampaignPlacementRepo.createFallbackRedirect(url, '', hash);
     request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(301)
       .expect(testNoCacheResponse)
       .expect((res) => {
@@ -101,6 +104,7 @@ describe('routers/go', function() {
     const endpoint = CampaignPlacementRepo.createFallbackRedirect(url, '', hash);
     request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(301)
       .expect(testNoCacheResponse)
       .expect((res) => {
@@ -115,6 +119,7 @@ describe('routers/go', function() {
     const endpoint = CampaignPlacementRepo.createCampaignRedirect(campaignId, '', hash);
     request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(301)
       .expect(testNoCacheResponse)
       .expect((res) => {
@@ -129,6 +134,7 @@ describe('routers/go', function() {
     const endpoint = CampaignPlacementRepo.createCampaignRedirect(campaignId, '', hash);
     request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(301)
       .expect(testNoCacheResponse)
       .expect((res) => {
@@ -143,6 +149,7 @@ describe('routers/go', function() {
     const endpoint = CampaignPlacementRepo.createCampaignRedirect(campaignId, '', hash);
     request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(301)
       .expect(testNoCacheResponse)
       .expect((res) => {

@@ -55,6 +55,7 @@ describe('routers/redir', function() {
     const endpoint = CampaignDeliveryRepo.createFallbackRedirect(url, '', event);
     await request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(301)
       .expect(testNoCacheResponse)
       .expect(async (res) => {
@@ -84,7 +85,7 @@ describe('routers/redir', function() {
     const promise = AnalyticsEvent.find({ e: 'click', uuid: event.uuid, cid: event.cid, pid: event.pid });
     await expect(promise).to.eventually.be.an('array').with.property('length', 1);
     const result = await promise;
-    expect(result[0].bot).to.contain('Googlebot');
+    expect(result[0].bot.value).to.equal('googlebot');
   });
 
   it('should redirect to a campaign url.', async function() {
@@ -97,6 +98,7 @@ describe('routers/redir', function() {
     const endpoint = CampaignDeliveryRepo.createCampaignRedirect('', event);
     await request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(301)
       .expect(testNoCacheResponse)
       .expect(async (res) => {
