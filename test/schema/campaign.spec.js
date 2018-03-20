@@ -393,4 +393,35 @@ describe('schema/campaign', function() {
     });
   });
 
+
+  describe('#externalLinks', function() {
+    let campaign;
+    before(function() {
+      campaign = generateCampaign(advertiser, placement);
+    });
+    it('should be an array.', function() {
+      expect(campaign.get('externalLinks')).to.be.an('array');
+    });
+  });
+
+  describe('#externalLinks.label', function() {
+    let campaign;
+    before(function() {
+      campaign = generateCampaign(advertiser, placement);
+    });
+    it('should be a string.', function() {
+      expect(campaign.get('externalLinks.0.label')).to.be.a('string');
+    });
+  });
+
+  describe('#externalLinks.url', function() {
+    let campaign;
+    before(function() {
+      campaign = generateCampaign(advertiser, placement);
+    });
+    it('should be a string.', function() {
+      expect(campaign.get('externalLinks.0.url')).to.be.a('string');
+    });
+  });
+
 });

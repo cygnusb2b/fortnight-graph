@@ -64,6 +64,25 @@ const schema = new Schema({
   },
   creatives: [CreativeSchema],
   criteria: CriteriaSchema,
+  externalLinks: [{
+    label: {
+      type: String,
+      required: false,
+    },
+    url: {
+      type: String,
+      required: true,
+      validate: {
+        validator(v) {
+          return validator.isURL(v, {
+            protocols: ['http', 'https'],
+            require_protocol: true,
+          });
+        },
+        message: 'Invalid external link URL for {VALUE}',
+      },
+    },
+  }],
 }, { timestamps: true });
 
 schema.index({ hash: 1 });
