@@ -3,6 +3,8 @@ const validator = require('validator');
 const CreativeSchema = require('./creative');
 const CriteriaSchema = require('./criteria');
 const Advertiser = require('../../models/advertiser');
+const uuid = require('uuid/v4');
+const uuidParse = require('uuid-parse');
 
 const { Schema } = mongoose;
 
@@ -11,6 +13,17 @@ const schema = new Schema({
     type: String,
     required: true,
     trim: true,
+  },
+  hash: {
+    type: String,
+    required: true,
+    default: uuid(),
+    validate: {
+      validator(v) {
+        return v === uuidParse.unparse(uuidParse.parse(v));
+      },
+      message: 'Invalid campaign hash for {VALUE}',
+    },
   },
   advertiserId: {
     type: Schema.Types.ObjectId,
@@ -53,6 +66,7 @@ const schema = new Schema({
   criteria: CriteriaSchema,
 }, { timestamps: true });
 
+schema.index({ hash: 1 });
 schema.index({ advertiserId: 1 });
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });

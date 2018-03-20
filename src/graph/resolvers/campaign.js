@@ -41,6 +41,15 @@ module.exports = {
       if (!record) throw new Error(`No campaign record found for ID ${id}.`);
       return record;
     },
+    /**
+     *
+     */
+    campaignHash: async (root, { input }) => {
+      const { hash } = input;
+      const record = await CampaignRepo.findByHash(hash);
+      if (!record) throw new Error(`No campaign record found for hash ${hash}.`);
+      return record;
+    },
 
     /**
      *
