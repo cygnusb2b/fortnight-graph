@@ -7,6 +7,8 @@ type Query {
 type Mutation {
   createAdvertiser(input: CreateAdvertiserInput!): Advertiser!
   updateAdvertiser(input: UpdateAdvertiserInput!): Advertiser!
+  addAdvertiserContact(input: AddContactInput!): Advertiser!
+  removeAdvertiserContact(input: RemoveContactInput!): Advertiser!
 }
 
 enum AdvertiserSortField {
@@ -56,7 +58,6 @@ input AdvertiserSortInput {
 
 input AdvertiserPayloadInput {
   name: String!
-  notify: NotificationListsInput
 }
 
 input CreateAdvertiserInput {

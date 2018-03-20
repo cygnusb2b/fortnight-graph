@@ -1,6 +1,7 @@
 const Promise = require('bluebird');
 const Advertiser = require('../models/advertiser');
 const Pagination = require('../classes/pagination');
+const Contact = require('../models/contact');
 const fixtures = require('../fixtures');
 const TypeAhead = require('../classes/type-ahead');
 
@@ -112,5 +113,40 @@ module.exports = {
     const results = this.generate(count);
     await Promise.all(results.all().map(model => model.save()));
     return results;
+  },
+
+  /**
+   * @param {string} id
+   * @param {string} type
+   * @param {string} contactId
+   * @return {Promise}
+   */
+  async addContact(id, type, contactId) {
+    await Contact.findById(contactId);
+    const criteria = { _id: id };
+    const key = `notify.${type}`;
+    const update = { $addToSet: { [key]: contactId } };
+    const options = { new: true, runValidators: true };
+    return Advertiser.findOneAndUpdate(criteria, update, options).then((document) => {
+      if (!document) throw new Error(`Unable to update advertiser: no record was found for ID '${id}'`);
+      return document;
+    });
+  },
+
+  /**
+   * @param {string} id
+   * @param {string} type
+   * @param {string} contactId
+   * @return {Promise}
+   */
+  async removeContact(id, type, contactId) {
+    const criteria = { _id: id };
+    const key = `notify.${type}`;
+    const update = { $pull: { [key]: contactId } };
+    const options = { new: true, runValidators: true };
+    return Advertiser.findOneAndUpdate(criteria, update, options).then((document) => {
+      if (!document) throw new Error(`Unable to update advertiser: no record was found for ID '${id}'`);
+      return document;
+    });
   },
 };

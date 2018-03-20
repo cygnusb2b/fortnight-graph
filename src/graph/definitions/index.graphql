@@ -1,5 +1,6 @@
 # import * from 'advertiser.graphql'
 # import * from 'campaign.graphql'
+# import * from 'contact.graphql'
 # import * from 'template.graphql'
 # import * from 'user.graphql'
 # import * from 'publisher.graphql'
@@ -7,6 +8,11 @@
 
 scalar Date
 scalar Cursor
+
+enum ContactTypes {
+  internal
+  external
+}
 
 type Query {
   ping: String!
@@ -42,21 +48,23 @@ input ImageUploadInput {
 }
 
 type NotificationLists {
-  internal: [NotificationEmail]
-  external: [NotificationEmail]
-}
-
-type NotificationEmail {
-  name: String
-  value: String!
+  internal: [Contact]
+  external: [Contact]
 }
 
 input NotificationListsInput {
-  internal: [NotificationEmailInput]
-  external: [NotificationEmailInput]
+  internal: [String]
+  external: [String]
 }
 
-input NotificationEmailInput {
-  name: String
-  value: String!
+input AddContactInput {
+  id: String!
+  type: ContactTypes!
+  contactId: String!
+}
+
+input RemoveContactInput {
+  id: String!
+  type: ContactTypes!
+  contactId: String!
 }

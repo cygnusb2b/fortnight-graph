@@ -135,5 +135,23 @@ module.exports = {
       const { campaignId, payload } = input;
       return CriteriaRepo.setFor(campaignId, payload);
     },
+
+    /**
+     *
+     */
+    addCampaignContact: (root, { input }, { auth }) => {
+      auth.check();
+      const { id, type, contactId } = input;
+      return CampaignRepo.addContact(id, type, contactId);
+    },
+
+    /**
+     *
+     */
+    removeCampaignContact: (root, { input }, { auth }) => {
+      auth.check();
+      const { id, type, contactId } = input;
+      return CampaignRepo.removeContact(id, type, contactId);
+    },
   },
 };

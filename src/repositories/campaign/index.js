@@ -2,6 +2,7 @@ const Promise = require('bluebird');
 const AdvertiserRepo = require('../advertiser');
 const PlacementRepo = require('../placement');
 const Campaign = require('../../models/campaign');
+const Contact = require('../../models/contact');
 const Pagination = require('../../classes/pagination');
 const fixtures = require('../../fixtures');
 
@@ -30,7 +31,6 @@ module.exports = {
     status,
     advertiserId,
     externalLinks,
-    notify,
   } = {}) {
     if (!id) return Promise.reject(new Error('Unable to update campaign: no ID was provided.'));
     const criteria = { _id: id };
@@ -39,7 +39,6 @@ module.exports = {
     if (status) update.$set.status = status;
     if (advertiserId) update.$set.advertiserId = advertiserId;
     if (externalLinks) update.$set.externalLinks = externalLinks;
-    if (notify) update.$set.notify = notify;
     const options = { new: true, runValidators: true };
     return Campaign.findOneAndUpdate(criteria, update, options).then((document) => {
       if (!document) throw new Error(`Unable to update campaign: no record was found for ID '${id}'`);
@@ -133,5 +132,40 @@ module.exports = {
     });
     await Promise.all(results.all().map(model => model.save()));
     return results;
+  },
+
+  /**
+   * @param {string} id
+   * @param {string} type
+   * @param {string} contactId
+   * @return {Promise}
+   */
+  async addContact(id, type, contactId) {
+    await Contact.findById(contactId);
+    const criteria = { _id: id };
+    const key = `notify.${type}`;
+    const update = { $addToSet: { [key]: contactId } };
+    const options = { new: true, runValidators: true };
+    return Campaign.findOneAndUpdate(criteria, update, options).then((document) => {
+      if (!document) throw new Error(`Unable to update advertiser: no record was found for ID '${id}'`);
+      return document;
+    });
+  },
+
+  /**
+   * @param {string} id
+   * @param {string} type
+   * @param {string} contactId
+   * @return {Promise}
+   */
+  async removeContact(id, type, contactId) {
+    const criteria = { _id: id };
+    const key = `notify.${type}`;
+    const update = { $pull: { [key]: contactId } };
+    const options = { new: true, runValidators: true };
+    return Campaign.findOneAndUpdate(criteria, update, options).then((document) => {
+      if (!document) throw new Error(`Unable to update advertiser: no record was found for ID '${id}'`);
+      return document;
+    });
   },
 };

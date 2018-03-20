@@ -74,5 +74,23 @@ module.exports = {
       const { id, payload } = input;
       return AdvertiserRepo.update(id, payload);
     },
+
+    /**
+     *
+     */
+    addAdvertiserContact: (root, { input }, { auth }) => {
+      auth.check();
+      const { id, type, contactId } = input;
+      return AdvertiserRepo.addContact(id, type, contactId);
+    },
+
+    /**
+     *
+     */
+    removeAdvertiserContact: (root, { input }, { auth }) => {
+      auth.check();
+      const { id, type, contactId } = input;
+      return AdvertiserRepo.removeContact(id, type, contactId);
+    },
   },
 };

@@ -83,11 +83,11 @@ describe('graph/resolvers/campaign', function() {
             notify {
               internal {
                 name
-                value
+                email
               }
               external {
                 name
-                value
+                email
               }
             }
             criteria {
@@ -151,7 +151,7 @@ describe('graph/resolvers/campaign', function() {
             notify {
               external {
                 name
-                value
+                email
               }
             }
             creatives {
@@ -299,9 +299,6 @@ describe('graph/resolvers/campaign', function() {
           advertiserId: advertiser.id,
           url: 'https://www.google.com',
           externalLinks: [ { label: 'test', url: 'https://goo.gl/404' } ],
-          notify: {
-            internal: [ { name: 'Developer', value: 'developer@southcomm.com' } ],
-          },
         };
         const input = { payload };
         const variables = { input };
@@ -340,11 +337,11 @@ describe('graph/resolvers/campaign', function() {
             notify {
               internal {
                 name
-                value
+                email
               }
               external {
                 name
-                value
+                email
               }
             }
           }
@@ -373,10 +370,6 @@ describe('graph/resolvers/campaign', function() {
         const advertiser = await createAdvertiser();
         payload.advertiserId = advertiser.id;
         payload.externalLinks = [ { label: 'test', url: 'https://google.com/404' } ];
-        payload.notify = {
-          internal: [ { name: 'dev', value: 'dev@southcomm.com' } ],
-          external: [ { name: 'test', value: 'test@test.com' } ],
-        };
         const input = { id, payload };
         const variables = { input };
         const promise = graphql({ query, variables, key: 'updateCampaign', loggedIn: true });
@@ -387,8 +380,6 @@ describe('graph/resolvers/campaign', function() {
         expect(data.status).to.equal(payload.status);
         expect(data.advertiser.id).to.equal(payload.advertiserId);
         expect(data.externalLinks[0].url).to.equal(payload.externalLinks[0].url);
-        expect(data.notify.internal[0].value).to.equal(payload.notify.internal[0].value);
-        expect(data.notify.external[0].name).to.equal(payload.notify.external[0].name);
         await expect(CampaignRepo.findById(data.id)).to.eventually.be.an('object').with.property('name', payload.name);
       });
     });
@@ -717,6 +708,22 @@ describe('graph/resolvers/campaign', function() {
         const found = await CampaignRepo.findById(campaignId);
         expect(found.criteria).to.be.an('object');
       });
+    });
+
+    describe('addContact', function() {
+      it('should reject when no user is logged-in.');
+      it('should reject when the campaign record is not found.');
+      it('should reject when the contact record is not found.');
+      it('should not reject when the contact is already added.');
+      it('should add the contact to the campaign.');
+    });
+
+    describe('removeContact', function() {
+      it('should reject when no user is logged-in.');
+      it('should reject when the campaign record is not found.');
+      it('should not reject when the contact record is not found.');
+      it('should not reject when the contact is already removed.');
+      it('should remove the contact from the campaign.');
     });
 
   });
