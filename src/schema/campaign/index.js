@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const CreativeSchema = require('./creative');
 const CriteriaSchema = require('./criteria');
+const EmailNotificationSchema = require('./notify');
 const Advertiser = require('../../models/advertiser');
 const uuid = require('uuid/v4');
 const uuidParse = require('uuid-parse');
@@ -83,6 +84,10 @@ const schema = new Schema({
       },
     },
   }],
+  notify: {
+    internal: [EmailNotificationSchema],
+    external: [EmailNotificationSchema],
+  },
 }, { timestamps: true });
 
 schema.index({ hash: 1 });
