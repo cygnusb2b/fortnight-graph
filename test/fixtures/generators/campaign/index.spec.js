@@ -27,6 +27,7 @@ describe('fixtures/generators/campaign', function() {
     { key: 'createdAt', cb: v => expect(v).be.a('date') },
     { key: 'updatedAt', cb: v => expect(v).be.a('date') },
     { key: 'externalLinks', cb: v => expect(v).to.be.an('array') },
+    { key: 'notify', cb: v => expect(v).to.be.an('object') },
   ];
 
   const advertiserId = () => '1234';

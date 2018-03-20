@@ -24,6 +24,20 @@ module.exports = ({ advertiserId, placementId }) => {
     return stack;
   };
 
+  const notify = () => {
+    const stack = [];
+    const num = faker.random.number({ min: 1, max: 5 });
+    for (let i = 0; i < num; i += 1) {
+      const first = faker.name.firstName();
+      const last = faker.name.lastName();
+      stack.push({
+        name: `${first} ${last}`,
+        value: faker.internet.email(),
+      });
+    }
+    return stack;
+  };
+
   const now = new Date();
   return {
     name: faker.random.words(),
@@ -40,5 +54,9 @@ module.exports = ({ advertiserId, placementId }) => {
     createdAt: now,
     updatedAt: now,
     externalLinks: externalLinks(),
+    notify: {
+      internal: notify(),
+      external: notify(),
+    },
   };
 };
