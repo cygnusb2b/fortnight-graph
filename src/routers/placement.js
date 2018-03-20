@@ -40,6 +40,7 @@ router.get('/:pid.:ext', (req, res) => {
     const protocol = NODE_ENV === 'production' ? 'https' : req.protocol;
     CampaignDeliveryRepo.findFor({
       userAgent: req.get('User-Agent'),
+      ipAddress: req.ip,
       requestURL: `${protocol}://${req.get('host')}`,
       placementId: pid,
       templateId: tid,

@@ -31,6 +31,7 @@ router.get('/:token', (req, res, next) => {
       bot,
       ua,
       ref: req.get('Referer'),
+      ip: req.ip,
     });
 
     return event.save().then(() => {
