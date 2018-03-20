@@ -2,7 +2,12 @@ const faker = require('faker');
 const creative = require('./creative');
 const criteria = require('./criteria');
 
-module.exports = ({ advertiserId, placementId }) => {
+module.exports = ({
+  advertiserId,
+  placementId,
+  internalContactIds = [],
+  externalContactIds = [],
+}) => {
   const creatives = () => {
     const stack = [];
     const num = faker.random.number({ min: 1, max: 5 });
@@ -19,20 +24,6 @@ module.exports = ({ advertiserId, placementId }) => {
       stack.push({
         label: faker.internet.domainWord(),
         url: faker.internet.url(),
-      });
-    }
-    return stack;
-  };
-
-  const notify = () => {
-    const stack = [];
-    const num = faker.random.number({ min: 1, max: 5 });
-    for (let i = 0; i < num; i += 1) {
-      const first = faker.name.firstName();
-      const last = faker.name.lastName();
-      stack.push({
-        name: `${first} ${last}`,
-        value: faker.internet.email(),
       });
     }
     return stack;
@@ -55,8 +46,8 @@ module.exports = ({ advertiserId, placementId }) => {
     updatedAt: now,
     externalLinks: externalLinks(),
     notify: {
-      internal: notify(),
-      external: notify(),
+      internal: internalContactIds,
+      external: externalContactIds,
     },
   };
 };

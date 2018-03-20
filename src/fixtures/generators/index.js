@@ -6,6 +6,7 @@ const creative = require('./campaign/creative');
 const criteria = require('./campaign/criteria');
 const user = require('./user');
 const template = require('./template');
+const contact = require('./contact');
 
 module.exports = {
   publisher,
@@ -16,4 +17,5 @@ module.exports = {
   criteria,
   user,
   template,
+  contact,
 };

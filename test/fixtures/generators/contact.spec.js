@@ -1,22 +1,17 @@
-const Generate = require('../../../src/fixtures/generators/advertiser');
+const Generate = require('../../../src/fixtures/generators/contact');
 
-describe('fixtures/generators/advertiser', function() {
+describe('fixtures/generators/contact', function() {
   it('should return a factory function', function(done) {
     expect(Generate).to.be.a('function');
     done();
   });
-
   const fields = [
-    { key: 'name', cb: v => expect(v).be.a('string') },
-    { key: 'createdAt', cb: v => expect(v).be.a('date') },
-    { key: 'updatedAt', cb: v => expect(v).be.a('date') },
-    { key: 'notify', cb: v => expect(v).to.be.an('object') },
+    { key: 'email', cb: v => expect(v).to.be.a('string') },
+    { key: 'givenName', cb: v => expect(v).to.be.a('string') },
+    { key: 'familyName', cb: v => expect(v).to.be.a('string') },
+    { key: 'name', cb: v => expect(v).to.be.a('string') },
   ];
-
-
-  const internalContactIds = ['1234'];
-  const externalContactIds = ['5678'];
-  const obj = Generate({ internalContactIds, externalContactIds });
+  const obj = Generate();
 
   it('should be an object', function(done) {
     expect(obj).to.be.an('object');
