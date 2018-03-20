@@ -58,10 +58,6 @@ const schema = new Schema({
       message: 'Invalid UUID for {VALUE}',
     },
   },
-  correlated: {
-    type: String,
-    default: false,
-  },
   pid: {
     type: Schema.Types.ObjectId,
     required: true,

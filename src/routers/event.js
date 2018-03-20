@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const Promise = require('bluebird');
 const { Router } = require('express');
 const { noCache } = require('helmet');
 const newrelic = require('../newrelic');
@@ -45,14 +44,7 @@ router.get('/:token/:event.gif', (req, res) => {
       ref: req.get('Referer'),
     });
 
-    const promises = [];
-    promises.push(doc.save());
-    if (event === 'load') {
-      // Mark the request as correlated.
-      promises.push(AnalyticsEvent.updateMany({ e: 'request', uuid }, { $set: { correlated: true } }, { safe: false }));
-    }
-
-    return Promise.all(promises).then(() => send(res, 200)).catch(e => send(res, 500, e));
+    return doc.save().then(() => send(res, 200)).catch(e => send(res, 500, e));
   });
 });
 
