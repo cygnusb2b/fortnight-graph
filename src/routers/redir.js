@@ -21,8 +21,7 @@ router.get('/:token', (req, res, next) => {
     } = payload;
     const ua = req.get('User-Agent');
 
-    const parsed = BotDetector.detect(ua);
-    const bot = parsed.detected ? parsed.value : undefined;
+    const bot = BotDetector.detect(ua);
     const event = new AnalyticsEvent({
       e: 'click',
       uuid,

@@ -136,7 +136,7 @@ describe('repositories/campaign/delivery', function() {
       expect(event.cid.toString()).to.equal(params.cid);
       expect(event.pid.toString()).to.equal(params.pid);
       expect(event.d).to.be.an.instanceOf(Date);
-      expect(event.bot).to.be.undefined;
+      expect(event.bot.detected).to.be.false;
       expect(event.ua.ua).to.equal(params.ua);
       expect(event.kv).to.deep.equal(params.kv);
       done();
@@ -156,7 +156,8 @@ describe('repositories/campaign/delivery', function() {
         ua: 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
       };
       const event = Repo.createRequestEvent(params);
-      expect(event.bot).to.contain('Googlebot');
+      expect(event.bot.detected).to.be.true;
+      expect(event.bot.value).to.equal('googlebot');
       done();
     });
   });

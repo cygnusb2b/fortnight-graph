@@ -148,9 +148,7 @@ module.exports = {
     ua,
     kv,
   }) {
-    const parsed = BotDetector.detect(ua);
-    const bot = parsed.detected ? parsed.value : undefined;
-
+    const bot = BotDetector.detect(ua);
     return new AnalyticsEvent({
       e: 'request',
       uuid: uuidv4(),

@@ -32,9 +32,7 @@ router.get('/:token/:event.gif', (req, res) => {
     const { uuid, pid, cid } = payload;
 
     const ua = req.get('User-Agent');
-    const parsed = BotDetector.detect(ua);
-    const bot = parsed.detected ? parsed.value : undefined;
-
+    const bot = BotDetector.detect(ua);
     const doc = new AnalyticsEvent({
       e: event,
       uuid,

@@ -2,6 +2,16 @@ const { Schema } = require('mongoose');
 const UAParser = require('ua-parser-js');
 const Utils = require('../../utils');
 
+const botSchema = new Schema({
+  detected: {
+    type: Boolean,
+    default: false,
+  },
+  reason: String,
+  weight: Number,
+  value: String,
+}, { _id: false });
+
 const browserSchema = new Schema({
   name: String,
   version: String,
@@ -60,7 +70,7 @@ const schema = new Schema({
     required: true,
   },
   bot: {
-    type: String,
+    type: botSchema,
   },
   ua: {
     type: uaSchema,

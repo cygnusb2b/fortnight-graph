@@ -70,6 +70,7 @@ describe('routers/event', function() {
     const endpoint = CampaignDeliveryRepo.createTracker('load', '', event);
     await request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(200)
       .expect(testImageResponse);
     await expect(AnalyticsEvent.find({
@@ -90,6 +91,7 @@ describe('routers/event', function() {
     const endpoint = CampaignDeliveryRepo.createTracker('view', '', event);
     await request(app)
       .get(endpoint)
+      .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(200)
       .expect(testImageResponse)
     await expect(AnalyticsEvent.find({
@@ -122,7 +124,7 @@ describe('routers/event', function() {
     });
     await expect(promise).to.eventually.be.an('array').with.property('length', 1);
     const result = await promise;
-    expect(result[0].bot).to.contain('Googlebot');
+    expect(result[0].bot.value).to.equal('googlebot');
   });
 
 });
