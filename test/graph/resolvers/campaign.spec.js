@@ -114,7 +114,7 @@ describe('graph/resolvers/campaign', function() {
         const promise = graphql({ query, variables, key: 'campaign', loggedIn: true });
         await expect(promise).to.eventually.be.an('object').with.property('id', id);
         const data = await promise;
-        expect(data).to.have.all.keys('id', 'name', 'createdAt', 'updatedAt', 'advertiser', 'status', 'url', 'creatives', 'criteria');
+        expect(data).to.have.all.keys('id', 'name', 'createdAt', 'updatedAt', 'advertiser', 'status', 'url', 'creatives', 'criteria', 'externalLinks');
       });
     });
 
@@ -312,6 +312,10 @@ describe('graph/resolvers/campaign', function() {
             advertiser {
               id
               name
+            }
+            externalLinks {
+              label
+              url
             }
           }
         }
