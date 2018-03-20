@@ -1,6 +1,6 @@
 const crawlers = require('crawler-user-agents/crawler-user-agents.json');
 
-const bots = crawlers.map(crawler => ({ regex: new RegExp(crawler.pattern), url: crawler.url }));
+const bots = crawlers.map(crawler => ({ regex: new RegExp(crawler.pattern, 'i'), url: crawler.url }));
 
 module.exports = {
   detect(ua) {
