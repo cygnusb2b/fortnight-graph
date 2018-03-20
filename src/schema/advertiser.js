@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const EmailNotificationSchema = require('./campaign/notify');
+const notifyPlugin = require('../plugins/notify');
 
 const { Schema } = mongoose;
 
@@ -10,11 +10,9 @@ const schema = new Schema({
     trim: true,
     unique: true,
   },
-  notify: {
-    internal: [EmailNotificationSchema],
-    external: [EmailNotificationSchema],
-  },
 }, { timestamps: true });
+
+schema.plugin(notifyPlugin);
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });

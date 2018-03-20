@@ -3,24 +3,36 @@ const Advertiser = require('../../../src/models/advertiser');
 const Campaign = require('../../../src/models/campaign');
 const Placement = require('../../../src/models/placement');
 const Publisher = require('../../../src/models/publisher');
+const Contact = require('../../../src/models/contact');
 const fixtures = require('../../../src/fixtures');
 const { testTrimmedField, testUniqueField, testRequiredField } = require('../../utils');
 
-const generateCampaign = (advertiser, placement) => {
+const generateCampaign = (advertiser, placement, internalContact, externalContact) => {
   return fixtures(Campaign, 1, {
     advertiserId: () => advertiser.id,
     placementId: () => placement.id,
+    internalContactIds: [
+      internalContact.id
+    ],
+    externalContactIds: [
+      externalContact.id
+    ],
   }).one();
 };
 
 describe('schema/campaign', function() {
   let advertiser;
   let placement;
+  let internalContact;
+  let externalContact;
   before(async function() {
     await Advertiser.remove({});
     await Campaign.remove({});
     await Placement.remove({});
     await Publisher.remove({});
+    await Contact.remove({});
+    internalContact = await fixtures(Contact, 1).one().save();
+    externalContact = await fixtures(Contact, 1).one().save();
     const publisher = await fixtures(Publisher, 1).one().save();
     advertiser = await fixtures(Advertiser, 1).one().save();
     placement = await fixtures(Placement, 1, {
@@ -32,17 +44,18 @@ describe('schema/campaign', function() {
     await Advertiser.remove();
     await Placement.remove();
     await Publisher.remove({});
+    await Contact.remove({});
   });
 
   it('should successfully save.', async function() {
-    const campaign = generateCampaign(advertiser, placement);
+    const campaign = generateCampaign(advertiser, placement, internalContact, externalContact);
     await expect(campaign.save()).to.be.fulfilled;
   });
 
   describe('#name', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser, placement);
+      campaign = generateCampaign(advertiser, placement, internalContact, externalContact);
     });
     it('should be trimmed.', function() {
       return testTrimmedField(Campaign, campaign, 'name');
@@ -57,7 +70,7 @@ describe('schema/campaign', function() {
   describe('#hash', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser, placement);
+      campaign = generateCampaign(advertiser, placement, internalContact, externalContact);
     });
     [null, undefined, ''].forEach((value) => {
       it(`should be required and be rejected when the value is '${value}'`, function() {
@@ -75,7 +88,7 @@ describe('schema/campaign', function() {
   describe('#advertiserId', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser, placement);
+      campaign = generateCampaign(advertiser, placement, internalContact, externalContact);
     });
     [null, undefined].forEach((value) => {
       it(`should be required and be rejected when the value is '${value}'`, function() {
@@ -98,7 +111,7 @@ describe('schema/campaign', function() {
   describe('#status', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser, placement);
+      campaign = generateCampaign(advertiser, placement, internalContact, externalContact);
     });
 
     [null, undefined].forEach((value) => {
@@ -122,7 +135,7 @@ describe('schema/campaign', function() {
   describe('#url', function() {
     let campaign;
     beforeEach(function() {
-      campaign = generateCampaign(advertiser, placement);
+      campaign = generateCampaign(advertiser, placement, internalContact, externalContact);
     });
 
     [null, undefined].forEach((value) => {
@@ -141,6 +154,20 @@ describe('schema/campaign', function() {
         await expect(campaign.save()).to.be.rejectedWith(Error, /Invalid campaign URL/);
       });
     });
+  });
+
+  describe('#notify', function() {
+    let campaign;
+    beforeEach(function() {
+      campaign = generateCampaign(advertiser, placement, internalContact, externalContact);
+    });
+
+    it('should be an object', function() {
+      expect(campaign.get('notify')).to.be.an('object');
+      expect(campaign.get('notify.internal')).to.be.an('array');
+      expect(campaign.get('notify.external')).to.be.an('array');
+    })
+
   });
 
 });

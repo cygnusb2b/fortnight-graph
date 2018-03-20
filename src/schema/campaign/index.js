@@ -2,12 +2,32 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const CreativeSchema = require('./creative');
 const CriteriaSchema = require('./criteria');
-const EmailNotificationSchema = require('./notify');
 const Advertiser = require('../../models/advertiser');
 const uuid = require('uuid/v4');
 const uuidParse = require('uuid-parse');
+const notifyPlugin = require('../../plugins/notify');
 
 const { Schema } = mongoose;
+
+const ExternalLinkSchema = {
+  label: {
+    type: String,
+    required: false,
+  },
+  url: {
+    type: String,
+    required: true,
+    validate: {
+      validator(v) {
+        return validator.isURL(v, {
+          protocols: ['http', 'https'],
+          require_protocol: true,
+        });
+      },
+      message: 'Invalid external link URL for {VALUE}',
+    },
+  },
+};
 
 const schema = new Schema({
   name: {
@@ -65,30 +85,10 @@ const schema = new Schema({
   },
   creatives: [CreativeSchema],
   criteria: CriteriaSchema,
-  externalLinks: [{
-    label: {
-      type: String,
-      required: false,
-    },
-    url: {
-      type: String,
-      required: true,
-      validate: {
-        validator(v) {
-          return validator.isURL(v, {
-            protocols: ['http', 'https'],
-            require_protocol: true,
-          });
-        },
-        message: 'Invalid external link URL for {VALUE}',
-      },
-    },
-  }],
-  notify: {
-    internal: [EmailNotificationSchema],
-    external: [EmailNotificationSchema],
-  },
+  externalLinks: [ExternalLinkSchema],
 }, { timestamps: true });
+
+schema.plugin(notifyPlugin);
 
 schema.index({ hash: 1 });
 schema.index({ advertiserId: 1 });
