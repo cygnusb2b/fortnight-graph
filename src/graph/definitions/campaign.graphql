@@ -68,10 +68,10 @@ type CampaignCreativeImage {
   fileSize: Int
   width: Int
   height: Int
-  focalPoint: ImagefocalPoint
+  focalPoint: ImageFocalPoint
 }
 
-type ImagefocalPoint {
+type ImageFocalPoint {
   x: Float!
   y: Float!
 }
@@ -125,7 +125,7 @@ input ClientUpdateCampaignInput {
 
 input ClientUpdateCampaignPayloadInput {
   url: String!
-  creatives: [CLientUpdateCampaignCreativeInput]
+  creatives: [ClientUpdateCampaignCreativeInput]
 }
 
 input AddCampaignCreativeInput {
@@ -165,7 +165,7 @@ input UpdateCampaignCreativeInput {
   payload: UpdateCampaignCreativePayloadInput
 }
 
-input CLientUpdateCampaignCreativeInput {
+input ClientUpdateCampaignCreativeInput {
   id: String!
   title: String
   teaser: String
