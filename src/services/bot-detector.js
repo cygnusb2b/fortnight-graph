@@ -1,4 +1,5 @@
 const crawlers = require('crawler-user-agents/crawler-user-agents.json');
+const validator = require('validator');
 const UAParser = require('ua-parser-js');
 
 const parser = new UAParser();
@@ -21,6 +22,11 @@ const backends = /^php|^java|^python-requests|^python|^ruby|^node|^wordpress/i;
  * that will prevent the detector from marking the `ua` as a bot.
  */
 module.exports = {
+  formatValue(v) {
+    if (!v) return '';
+    return validator.trim(String(v), ' /\\-_').toLowerCase();
+  },
+
   detect(ua) {
     const data = { detected: true };
 
@@ -34,7 +40,7 @@ module.exports = {
       data.reason = 'Matched a known bot pattern.';
       data.weight = 1;
       data.pattern = bot.regex.toString();
-      data.value = bot.regex.exec(ua).shift();
+      data.value = this.formatValue(bot.regex.exec(ua).shift());
       data.url = bot.url || undefined;
       return data;
     }
@@ -43,7 +49,7 @@ module.exports = {
       data.reason = 'Matched a common bot pattern.';
       data.weight = 0.9;
       data.pattern = generic.toString();
-      data.value = genericMatch.shift();
+      data.value = this.formatValue(genericMatch.shift());
       return data;
     }
 
@@ -52,7 +58,7 @@ module.exports = {
       data.reason = 'Matched a common backend pattern.';
       data.weight = 0.9;
       data.pattern = backends.toString();
-      data.value = backendMatch.shift();
+      data.value = this.formatValue(backendMatch.shift());
       return data;
     }
 

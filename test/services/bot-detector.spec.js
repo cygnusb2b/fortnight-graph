@@ -1,7 +1,30 @@
 const BotDetector = require('../../src/services/bot-detector');
+const sandbox = sinon.createSandbox();
 
 describe('services/bot-detector', function() {
+  describe('#formatValue', function() {
+    [
+      [undefined, ''],
+      [null, ''],
+      ['', ''],
+      [' ', ''],
+      ['Googlebot/', 'googlebot'],
+      ['-\Foo-Bar_/ ', 'foo-bar'],
+    ].forEach((values) => {
+      it(`should trim and lower case when the value is '${values[0]}'.`, function(done) {
+        expect(BotDetector.formatValue(values[0])).to.equal(values[1]);
+        done();
+      });
+    });
+  });
   describe('#detect', function() {
+    beforeEach(function() {
+      sandbox.spy(BotDetector, 'formatValue');
+    });
+    afterEach(function() {
+      sandbox.restore();
+    });
+
     ['', undefined, null].forEach((value) => {
       it(`should return true with a weight of 80% when the UA value is empty: '${value}'.`, function(done) {
         const result = BotDetector.detect(value);
@@ -64,6 +87,7 @@ describe('services/bot-detector', function() {
         expect(result.detected).to.be.true;
         expect(result.weight).to.equal(1);
         expect(result.reason).to.equal('Matched a known bot pattern.');
+        sinon.assert.calledOnce(BotDetector.formatValue);
         done();
       });
     });
@@ -90,6 +114,7 @@ describe('services/bot-detector', function() {
         expect(result.detected).to.be.true;
         expect(result.weight).to.equal(0.9);
         expect(result.reason).to.equal('Matched a common bot pattern.');
+        sinon.assert.calledOnce(BotDetector.formatValue);
         done();
       });
     });
@@ -111,6 +136,7 @@ describe('services/bot-detector', function() {
         expect(result.detected).to.be.true;
         expect(result.weight).to.equal(0.9);
         expect(result.reason).to.equal('Matched a common backend pattern.');
+        sinon.assert.calledOnce(BotDetector.formatValue);
         done();
       });
     });
