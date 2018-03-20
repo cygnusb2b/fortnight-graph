@@ -30,6 +30,7 @@ module.exports = {
     status,
     advertiserId,
     externalLinks,
+    notify,
   } = {}) {
     if (!id) return Promise.reject(new Error('Unable to update campaign: no ID was provided.'));
     const criteria = { _id: id };
@@ -38,6 +39,7 @@ module.exports = {
     if (status) update.$set.status = status;
     if (advertiserId) update.$set.advertiserId = advertiserId;
     if (externalLinks) update.$set.externalLinks = externalLinks;
+    if (notify) update.$set.notify = notify;
     const options = { new: true, runValidators: true };
     return Campaign.findOneAndUpdate(criteria, update, options).then((document) => {
       if (!document) throw new Error(`Unable to update campaign: no record was found for ID '${id}'`);

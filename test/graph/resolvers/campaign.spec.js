@@ -80,6 +80,16 @@ describe('graph/resolvers/campaign', function() {
               label
               url
             }
+            notify {
+              internal {
+                name
+                value
+              }
+              external {
+                name
+                value
+              }
+            }
             criteria {
               start
               end
@@ -114,7 +124,7 @@ describe('graph/resolvers/campaign', function() {
         const promise = graphql({ query, variables, key: 'campaign', loggedIn: true });
         await expect(promise).to.eventually.be.an('object').with.property('id', id);
         const data = await promise;
-        expect(data).to.have.all.keys('id', 'name', 'createdAt', 'updatedAt', 'advertiser', 'status', 'url', 'creatives', 'criteria', 'externalLinks');
+        expect(data).to.have.all.keys('id', 'name', 'createdAt', 'updatedAt', 'advertiser', 'status', 'url', 'creatives', 'criteria', 'externalLinks', 'notify');
       });
     });
 
@@ -138,6 +148,12 @@ describe('graph/resolvers/campaign', function() {
             }
             status
             url
+            notify {
+              external {
+                name
+                value
+              }
+            }
             creatives {
               id
               title
@@ -178,7 +194,7 @@ describe('graph/resolvers/campaign', function() {
         const promise = graphql({ query, variables, key: 'campaignHash', loggedIn: true });
         await expect(promise).to.eventually.be.an('object').with.property('hash', hash);
         const data = await promise;
-        expect(data).to.have.all.keys('hash', 'name', 'createdAt', 'updatedAt', 'advertiser', 'status', 'url', 'creatives');
+        expect(data).to.have.all.keys('hash', 'name', 'createdAt', 'updatedAt', 'advertiser', 'status', 'url', 'creatives', 'notify');
       });
     });
 
@@ -282,6 +298,10 @@ describe('graph/resolvers/campaign', function() {
           name: 'Test Campaign',
           advertiserId: advertiser.id,
           url: 'https://www.google.com',
+          externalLinks: [ { label: 'test', url: 'https://goo.gl/404' } ],
+          notify: {
+            internal: [ { name: 'Developer', value: 'developer@southcomm.com' } ],
+          },
         };
         const input = { payload };
         const variables = { input };
@@ -317,6 +337,16 @@ describe('graph/resolvers/campaign', function() {
               label
               url
             }
+            notify {
+              internal {
+                name
+                value
+              }
+              external {
+                name
+                value
+              }
+            }
           }
         }
       `;
@@ -343,6 +373,10 @@ describe('graph/resolvers/campaign', function() {
         const advertiser = await createAdvertiser();
         payload.advertiserId = advertiser.id;
         payload.externalLinks = [ { label: 'test', url: 'https://google.com/404' } ];
+        payload.notify = {
+          internal: [ { name: 'dev', value: 'dev@southcomm.com' } ],
+          external: [ { name: 'test', value: 'test@test.com' } ],
+        };
         const input = { id, payload };
         const variables = { input };
         const promise = graphql({ query, variables, key: 'updateCampaign', loggedIn: true });
@@ -353,6 +387,8 @@ describe('graph/resolvers/campaign', function() {
         expect(data.status).to.equal(payload.status);
         expect(data.advertiser.id).to.equal(payload.advertiserId);
         expect(data.externalLinks[0].url).to.equal(payload.externalLinks[0].url);
+        expect(data.notify.internal[0].value).to.equal(payload.notify.internal[0].value);
+        expect(data.notify.external[0].name).to.equal(payload.notify.external[0].name);
         await expect(CampaignRepo.findById(data.id)).to.eventually.be.an('object').with.property('name', payload.name);
       });
     });
