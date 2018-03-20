@@ -40,3 +40,23 @@ input ImageUploadInput {
   size: Int!
   type: String!
 }
+
+type NotificationLists {
+  internal: [NotificationEmail]
+  external: [NotificationEmail]
+}
+
+type NotificationEmail {
+  name: String
+  value: String!
+}
+
+input NotificationListsInput {
+  internal: [NotificationEmailInput]
+  external: [NotificationEmailInput]
+}
+
+input NotificationEmailInput {
+  name: String
+  value: String!
+}

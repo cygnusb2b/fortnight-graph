@@ -289,7 +289,16 @@ describe('graph/resolvers/advertiser', function() {
             campaigns {
               id
             }
-            campaignCount
+            notify {
+              internal {
+                name
+                value
+              }
+              external {
+                name
+                value
+              }
+            }
           }
         }
       `;
@@ -311,12 +320,18 @@ describe('graph/resolvers/advertiser', function() {
       });
       it('should update the advertiser.', async function() {
         const id = advertiser.id;
+        payload.notify = {
+          internal: [ { name: 'dev', value: 'dev@southcomm.com' } ],
+          external: [ { name: 'test', value: 'test@test.com' } ],
+        };
         const input = { id, payload };
         const variables = { input };
         const promise = graphql({ query, variables, key: 'updateAdvertiser', loggedIn: true });
         await expect(promise).to.eventually.be.an('object').with.property('id');
         const data = await promise;
         expect(data.name).to.equal(payload.name);
+        expect(data.notify.internal[0].value).to.equal(payload.notify.internal[0].value);
+        expect(data.notify.external[0].name).to.equal(payload.notify.external[0].name);
         await expect(AdvertiserRepo.findById(data.id)).to.eventually.be.an('object').with.property('name', payload.name);
       });
     });

@@ -10,6 +10,7 @@ describe('fixtures/generators/advertiser', function() {
     { key: 'name', cb: v => expect(v).be.a('string') },
     { key: 'createdAt', cb: v => expect(v).be.a('date') },
     { key: 'updatedAt', cb: v => expect(v).be.a('date') },
+    { key: 'notify', cb: v => expect(v).to.be.an('object') },
   ];
 
   const obj = Generate();

@@ -22,6 +22,7 @@ type Advertiser {
   updatedAt: Date
   campaigns: [Campaign]
   campaignCount: Int
+  notify: NotificationLists
 }
 
 type AdvertiserConnection {
@@ -55,6 +56,7 @@ input AdvertiserSortInput {
 
 input AdvertiserPayloadInput {
   name: String!
+  notify: NotificationListsInput
 }
 
 input CreateAdvertiserInput {

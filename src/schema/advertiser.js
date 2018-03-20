@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const EmailNotificationSchema = require('./campaign/notify');
 
 const { Schema } = mongoose;
 
@@ -8,6 +9,10 @@ const schema = new Schema({
     required: true,
     trim: true,
     unique: true,
+  },
+  notify: {
+    internal: [EmailNotificationSchema],
+    external: [EmailNotificationSchema],
   },
 }, { timestamps: true });
 
