@@ -101,6 +101,7 @@ module.exports = {
     templateId,
     requestURL,
     userAgent,
+    ipAddress,
     num = 1,
     vars = { custom: {}, fallback: {} },
   } = {}) {
@@ -127,6 +128,7 @@ module.exports = {
         pid: placement.id,
         ua: userAgent,
         kv: vars.custom,
+        ip: ipAddress,
       });
       events.push(event);
       const ad = this.buildAdFor({
@@ -147,6 +149,7 @@ module.exports = {
     pid,
     ua,
     kv,
+    ip,
   }) {
     const bot = BotDetector.detect(ua);
     return new AnalyticsEvent({
@@ -158,6 +161,7 @@ module.exports = {
       bot,
       ua,
       kv,
+      ip,
     });
   },
 

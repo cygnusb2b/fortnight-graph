@@ -42,6 +42,7 @@ router.get('/:token/:event.gif', (req, res) => {
       bot,
       ua,
       ref: req.get('Referer'),
+      ip: req.ip,
     });
 
     return doc.save().then(() => send(res, 200)).catch(e => send(res, 500, e));

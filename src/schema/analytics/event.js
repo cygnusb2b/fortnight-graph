@@ -72,6 +72,9 @@ const schema = new Schema({
   bot: {
     type: botSchema,
   },
+  ip: {
+    type: String,
+  },
   ua: {
     type: uaSchema,
     set(v) {
