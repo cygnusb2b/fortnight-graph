@@ -8,15 +8,23 @@ const bots = crawlers.map(crawler => ({ regex: new RegExp(crawler.pattern, 'i'),
 const generic = /bot|crawler|checker|fetcher|monitor|spider|browserkit|feed|proxy|downloader|scraper/i;
 const backends = /^php|^java|^python-requests|^python|^ruby|^node|^wordpress/i;
 
+const blacklist = [
+  // Opera News App Crawler
+  'Mozilla/5.0 (Linux; U; Android 4.4.3;) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30 Opera News/1.0',
+  // Bloomberg's disguised bot
+  'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1;)',
+];
+
 
 /**
  * Determining bot probability, in order of precedence.
  *
  * 1. If no `ua` is provided, 80%
- * 2. If the `ua` matches a known bot, 100%
- * 3. If the `ua` contains a generic, crawler-like term, 90%
- * 4. If the `ua` starts with a common backend name (like PHP), 90%
- * 5. If a `ua` is present, but a browser cannot be parsed, 70%
+ * 2. If the `ua` matches a blacklisted UA, 100%
+ * 3. If the `ua` matches a known bot, 100%
+ * 4. If the `ua` contains a generic, crawler-like term, 90%
+ * 5. If the `ua` starts with a common backend name (like PHP), 90%
+ * 6. If a `ua` is present, but a browser cannot be parsed, 70%
  *
  * For all of the above, an optional whitelist of user agents should also be allowed,
  * that will prevent the detector from marking the `ua` as a bot.
@@ -35,6 +43,13 @@ module.exports = {
       data.weight = 0.8;
       return data;
     }
+
+    if (blacklist.includes(ua)) {
+      data.reason = 'Matched a blacklisted agent.';
+      data.weight = 1;
+      return data;
+    }
+
     const bot = bots.find(b => b.regex.test(ua));
     if (bot) {
       data.reason = 'Matched a known bot pattern.';
