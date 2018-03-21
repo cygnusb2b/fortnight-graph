@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
 const passport = require('passport');
 const { graphqlExpress } = require('apollo-server-express');
 const Auth = require('../classes/auth');
@@ -34,6 +35,7 @@ const authenticate = (req, res, next) => {
 const router = Router();
 
 router.use(
+  helmet(),
   authenticate,
   bodyParser.json(),
   graphqlExpress(req => ({

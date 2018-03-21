@@ -12,8 +12,10 @@ const createCampaign = async () => {
 
 const testNoCacheResponse = (res) => {
   const headers = [
-    { key: 'cache-control', value:'no-store, no-cache, must-revalidate, proxy-revalidate' },
-    { key: 'expires', value: '0' },
+    { key: 'cache-control', value:'no-store, no-cache, must-revalidate' },
+    { key: 'expires', value: 'Sun, 23 Mar 2003 06:00:00 GMT' },
+    { key: 'last-modified', value: 'Sun, 23 Mar 2003 06:00:00 GMT' },
+    { key: 'x-content-type-options', value: 'nosniff' },
     { key: 'pragma', value: 'no-cache' },
   ];
   headers.forEach(header => expect(res.get(header.key)).to.equal(header.value));

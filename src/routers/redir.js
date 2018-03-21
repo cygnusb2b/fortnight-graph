@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken');
 const { Router } = require('express');
-const { noCache } = require('helmet');
+const noCacheEvents = require('../middleware/no-cache-events');
 const BotDetector = require('../services/bot-detector');
 const CampaignRepo = require('../repositories/campaign');
 const AnalyticsEvent = require('../models/analytics/event');
 
 const router = Router();
-router.use(noCache());
+router.use(noCacheEvents());
 
 router.get('/:token', (req, res, next) => {
   const { token } = req.params;

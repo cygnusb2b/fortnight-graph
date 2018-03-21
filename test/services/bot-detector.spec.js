@@ -93,6 +93,20 @@ describe('services/bot-detector', function() {
     });
 
     [
+      'Mozilla/5.0 (Linux; U; Android 4.4.3;) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30 Opera News/1.0',
+      'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1;)',
+    ].forEach((value) => {
+      it(`should return true with a weight of 100% when the UA is blacklisted: '${value}'.`, function(done) {
+        const result = BotDetector.detect(value);
+        expect(result).to.be.an('object');
+        expect(result.detected).to.be.true;
+        expect(result.weight).to.equal(1);
+        expect(result.reason).to.equal('Matched a blacklisted agent.');
+        done();
+      });
+    });
+
+    [
       'BLP_bbot/0.1',
       'Mozilla/5.0+(compatible; UptimeRobot/2.0; http://www.uptimerobot.com/)',
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:49.0) Gecko/20100101 Firefox/49.0 (FlipboardProxy/1.2; +http://flipboard.com/browserproxy)',
