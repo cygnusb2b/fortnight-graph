@@ -2,6 +2,7 @@ const paginationResolvers = require('./pagination');
 const AdvertiserRepo = require('../../repositories/advertiser');
 const PlacementRepo = require('../../repositories/placement');
 const CampaignRepo = require('../../repositories/campaign');
+const ClientRepo = require('../../repositories/campaign/client');
 const CreativeRepo = require('../../repositories/campaign/creative');
 const CriteriaRepo = require('../../repositories/campaign/criteria');
 
@@ -46,7 +47,7 @@ module.exports = {
      */
     campaignHash: async (root, { input }) => {
       const { hash } = input;
-      const record = await CampaignRepo.findByHash(hash);
+      const record = await ClientRepo.findByHash(hash);
       if (!record) throw new Error(`No campaign record found for hash ${hash}.`);
       return record;
     },
@@ -98,6 +99,22 @@ module.exports = {
       auth.check();
       const { campaignId, creativeId, payload } = input;
       return CreativeRepo.updateFor(campaignId, creativeId, payload);
+    },
+
+    /**
+     *
+     */
+    clientUpdateCampaign: async (root, { input }) => {
+      const { campaignId, payload } = input;
+      return ClientRepo.updateFor(campaignId, payload);
+    },
+
+    /**
+     *
+     */
+    clientAddCampaignCreative: (root, { input }) => {
+      const { campaignId, payload } = input;
+      return CreativeRepo.createFor(campaignId, payload);
     },
 
     /**
