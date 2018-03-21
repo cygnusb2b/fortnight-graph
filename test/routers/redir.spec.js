@@ -60,8 +60,8 @@ describe('routers/redir', function() {
       .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(301)
       .expect(testNoCacheResponse)
-      .expect(async (res) => {
-        expect(res.get('location')).to.equal(url);
+      .expect((res) => {
+        expect(res.get('location')).to.equal(CampaignDeliveryRepo.injectUTMParams(url, event));
       });
     await expect(AnalyticsEvent.find({ e: 'click', uuid: event.uuid, cid: event.cid, pid: event.pid })).to.eventually.be.an('array').with.property('length', 1);
   });
@@ -81,8 +81,8 @@ describe('routers/redir', function() {
       .set('User-Agent', 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html')
       .expect(301)
       .expect(testNoCacheResponse)
-      .expect(async (res) => {
-        expect(res.get('location')).to.equal(url);
+      .expect((res) => {
+        expect(res.get('location')).to.equal(CampaignDeliveryRepo.injectUTMParams(url, event));
       });
     const promise = AnalyticsEvent.find({ e: 'click', uuid: event.uuid, cid: event.cid, pid: event.pid });
     await expect(promise).to.eventually.be.an('array').with.property('length', 1);
@@ -103,7 +103,7 @@ describe('routers/redir', function() {
       .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
       .expect(301)
       .expect(testNoCacheResponse)
-      .expect(async (res) => {
+      .expect((res) => {
         expect(res.get('location')).to.equal(campaign1.url);
       });
       await expect(AnalyticsEvent.find({ e: 'click', uuid: event.uuid, cid: event.cid, pid: event.pid })).to.eventually.be.an('array').with.property('length', 1);
