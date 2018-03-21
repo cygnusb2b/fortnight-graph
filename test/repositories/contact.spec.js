@@ -199,6 +199,42 @@ describe('repositories/contact', function() {
       expect(res).to.be.an('object');
       expect(res.notify.internal).to.be.an('array').and.not.include(contactId);
     });
+
+    describe('#setContactsFor', function() {
+      let advertiser;
+      let contact;
+      let contactIds;
+      before(async function() {
+        advertiser = await createAdvertiser();
+        contact = await createContact();
+        contactIds = [ contact.id ];
+      });
+      it('should reject when invalid types are specified', async function() {
+        const advertiserId = advertiser.id;
+        const types = [false, null, undefined, '', 'does-not-exist'];
+        types.forEach(type => expect(Repo.setContactsFor(Advertiser, advertiserId, type)).to.be.rejectedWith(Error, /Invalid notification type/i));
+      });
+      it('should reject when the provided advertiser does not exist.', async function() {
+        const advertiserId = '507f1f77bcf86cd799439011';
+        const type = 'internal';
+        await expect(Repo.setContactsFor(Advertiser, advertiserId, type)).to.be.rejectedWith(Error, /no record was found/i);
+      });
+      it('should reject when the provided contact does not exist.', async function() {
+        const advertiserId = advertiser.id;
+        const cids = [ '507f1f77bcf86cd799439011' ];
+        const type = 'internal';
+        await expect(Repo.setContactsFor(Advertiser, advertiserId, type, cids)).to.be.rejectedWith(Error, /Validation/i);
+      });
+      it('should fulfill and set the contacts.', async function() {
+        const advertiserId = advertiser.id;
+        const type = 'internal';
+        const res = await Repo.setContactsFor(Advertiser, advertiserId, type, contactIds);
+        expect(res).to.be.an('object');
+        expect(res.notify.internal).to.be.an('array').and.include(contactIds[0]);
+      });
+
+    });
+
   });
 
 });

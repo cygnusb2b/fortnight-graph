@@ -14,6 +14,11 @@ module.exports = {
    */
   Campaign: {
     advertiser: campaign => AdvertiserRepo.findById(campaign.get('advertiserId')),
+    notify: async (campaign) => {
+      const internal = await ContactRepo.find({ _id: { $in: campaign.notify.internal } });
+      const external = await ContactRepo.find({ _id: { $in: campaign.notify.external } });
+      return { internal, external };
+    },
   },
 
   CampaignCriteria: {
@@ -154,6 +159,15 @@ module.exports = {
       auth.check();
       const { id, type, contactId } = input;
       return ContactRepo.removeContactFrom(Campaign, id, type, contactId);
+    },
+
+    /**
+     *
+     */
+    setCampaignContacts: (root, { input }, { auth }) => {
+      auth.check();
+      const { id, type, contactIds } = input;
+      return ContactRepo.setContactsFor(Campaign, id, type, contactIds);
     },
   },
 };

@@ -68,3 +68,9 @@ input RemoveContactInput {
   type: ContactTypes!
   contactId: String!
 }
+
+input SetContactsInput {
+  id: String!
+  type: ContactTypes!
+  contactIds: [String!]
+}

@@ -15,6 +15,7 @@ type Mutation {
   clientAddCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative!
   addCampaignContact(input: AddContactInput!): Campaign!
   removeCampaignContact(input: RemoveContactInput!): Campaign!
+  setCampaignContacts(input: SetContactsInput!): Campaign!
 }
 
 enum CampaignSortField {

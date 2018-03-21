@@ -94,5 +94,14 @@ module.exports = {
       const { id, type, contactId } = input;
       return ContactRepo.removeContactFrom(Advertiser, id, type, contactId);
     },
+
+    /**
+     *
+     */
+    setAdvertiserContacts: (root, { input }, { auth }) => {
+      auth.check();
+      const { id, type, contactIds } = input;
+      return ContactRepo.setContactsFor(Advertiser, id, type, contactIds);
+    },
   },
 };

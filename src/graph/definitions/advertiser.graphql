@@ -9,6 +9,7 @@ type Mutation {
   updateAdvertiser(input: UpdateAdvertiserInput!): Advertiser!
   addAdvertiserContact(input: AddContactInput!): Advertiser!
   removeAdvertiserContact(input: RemoveContactInput!): Advertiser!
+  setAdvertiserContacts(input: SetContactsInput!): Advertiser!
 }
 
 enum AdvertiserSortField {

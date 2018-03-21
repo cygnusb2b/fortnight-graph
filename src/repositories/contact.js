@@ -155,4 +155,23 @@ module.exports = {
       return document;
     });
   },
+
+  /**
+   * @param {Model} Model
+   * @param {string} id
+   * @param {string} type
+   * @param {Array} contactId
+   * @return {Promise}
+   */
+  async setContactsFor(Model, id, type, contactIds) {
+    if (!['internal', 'external'].includes(type)) throw new Error('Invalid notification type');
+    const criteria = { _id: id };
+    const key = `notify.${type}`;
+    const update = { $set: { [key]: contactIds } };
+    const options = { new: true, runValidators: true };
+    return Model.findOneAndUpdate(criteria, update, options).then((document) => {
+      if (!document) throw new Error(`Unable to update contact: no record was found for ID '${id}'`);
+      return document;
+    });
+  },
 };

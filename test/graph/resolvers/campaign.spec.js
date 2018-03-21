@@ -831,6 +831,62 @@ describe('graph/resolvers/campaign', function() {
       });
     });
 
+    describe('setContacts', function() {
+      let campaign;
+      let contact;
+      let contactIds;
+      before(async function() {
+        campaign = await createCampaign();
+        contact = await createContact();
+        contactIds = [ contact.id ];
+      });
+      const type = 'internal';
+      const query = `
+        mutation SetCampaignContacts($input: SetContactsInput!) {
+          setCampaignContacts(input: $input) {
+            id
+          }
+        }
+      `;
+
+      it('should reject when no user is logged-in', async function() {
+        const id = campaign.id;
+        const input = { id, type, contactIds };
+        const variables = { input };
+        await expect(graphql({ query, variables, key: 'setCampaignContacts', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
+      });
+      it('should reject when the campaign record is not found', async function() {
+        const id = '507f1f77bcf86cd799439011'
+        const input = { id, type, contactIds };
+        const variables = { input };
+        await expect(graphql({ query, variables, key: 'setCampaignContacts', loggedIn: true })).to.be.rejectedWith(Error, /no record was found/i);
+      });
+      it('should reject when the contact record is not found', async function() {
+        const id = campaign.id;
+        const cids = [ '507f1f77bcf86cd799439011' ];
+        const input = { id, type, contactIds: cids };
+        const variables = { input };
+        await expect(graphql({ query, variables, key: 'setCampaignContacts', loggedIn: true })).to.be.rejectedWith(Error, /no contact found/i);
+      });
+
+      it('should not reject when the contact is already added', async function() {
+        const id = campaign.id;
+        const input = { id, type, contactIds };
+        const variables = { input };
+        await graphql({ query, variables, key: 'setCampaignContacts', loggedIn: true });
+        const res = await graphql({ query, variables, key: 'setCampaignContacts', loggedIn: true });
+        expect(res).to.be.an('object');
+      });
+
+      it('should add the contact to the campaign', async function() {
+        const id = campaign.id;
+        const input = { id, type, contactIds };
+        const variables = { input };
+        const res = await graphql({ query, variables, key: 'setCampaignContacts', loggedIn: true });
+        expect(res).to.be.an('object');
+      });
+    });
+
 
   });
 });
