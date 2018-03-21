@@ -115,4 +115,44 @@ module.exports = {
     await Promise.all(results.all().map(model => model.save()));
     return results;
   },
+
+
+  /**
+   * @param {Model} Model
+   * @param {string} id
+   * @param {string} type
+   * @param {string} contactId
+   * @return {Promise}
+   */
+  async addContactTo(Model, id, type, contactId) {
+    if (!['internal', 'external'].includes(type)) throw new Error('Invalid notification type');
+    await Contact.findById(contactId);
+    const criteria = { _id: id };
+    const key = `notify.${type}`;
+    const update = { $addToSet: { [key]: contactId } };
+    const options = { new: true, runValidators: true };
+    return Model.findOneAndUpdate(criteria, update, options).then((document) => {
+      if (!document) throw new Error(`Unable to add contact: no record was found for ID '${id}'`);
+      return document;
+    });
+  },
+
+  /**
+   * @param {Model} Model
+   * @param {string} id
+   * @param {string} type
+   * @param {string} contactId
+   * @return {Promise}
+   */
+  async removeContactFrom(Model, id, type, contactId) {
+    if (!['internal', 'external'].includes(type)) throw new Error('Invalid notification type');
+    const criteria = { _id: id };
+    const key = `notify.${type}`;
+    const update = { $pull: { [key]: contactId } };
+    const options = { new: true, runValidators: true };
+    return Model.findOneAndUpdate(criteria, update, options).then((document) => {
+      if (!document) throw new Error(`Unable to remove contact: no record was found for ID '${id}'`);
+      return document;
+    });
+  },
 };

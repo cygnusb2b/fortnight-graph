@@ -1,5 +1,7 @@
 const CampaignRepo = require('../../repositories/campaign');
 const AdvertiserRepo = require('../../repositories/advertiser');
+const ContactRepo = require('../../repositories/contact');
+const Advertiser = require('../../models/advertiser');
 const paginationResolvers = require('./pagination');
 
 module.exports = {
@@ -81,7 +83,7 @@ module.exports = {
     addAdvertiserContact: (root, { input }, { auth }) => {
       auth.check();
       const { id, type, contactId } = input;
-      return AdvertiserRepo.addContact(id, type, contactId);
+      return ContactRepo.addContactTo(Advertiser, id, type, contactId);
     },
 
     /**
@@ -90,7 +92,7 @@ module.exports = {
     removeAdvertiserContact: (root, { input }, { auth }) => {
       auth.check();
       const { id, type, contactId } = input;
-      return AdvertiserRepo.removeContact(id, type, contactId);
+      return ContactRepo.removeContactFrom(Advertiser, id, type, contactId);
     },
   },
 };

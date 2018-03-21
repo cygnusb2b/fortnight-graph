@@ -5,6 +5,8 @@ const CampaignRepo = require('../../repositories/campaign');
 const ClientRepo = require('../../repositories/campaign/client');
 const CreativeRepo = require('../../repositories/campaign/creative');
 const CriteriaRepo = require('../../repositories/campaign/criteria');
+const ContactRepo = require('../../repositories/contact');
+const Campaign = require('../../models/campaign');
 
 module.exports = {
   /**
@@ -142,7 +144,7 @@ module.exports = {
     addCampaignContact: (root, { input }, { auth }) => {
       auth.check();
       const { id, type, contactId } = input;
-      return CampaignRepo.addContact(id, type, contactId);
+      return ContactRepo.addContactTo(Campaign, id, type, contactId);
     },
 
     /**
@@ -151,7 +153,7 @@ module.exports = {
     removeCampaignContact: (root, { input }, { auth }) => {
       auth.check();
       const { id, type, contactId } = input;
-      return CampaignRepo.removeContact(id, type, contactId);
+      return ContactRepo.removeContactFrom(Campaign, id, type, contactId);
     },
   },
 };
