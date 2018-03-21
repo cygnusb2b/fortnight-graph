@@ -1,31 +1,38 @@
-const CreativeRepo = require('./creative');
 const Campaign = require('../../models/campaign');
+
+const findCampaign = async (id) => {
+  if (!id) throw new Error('Unable to handle submission: no campaign ID was provided.');
+  const campaign = await Campaign.findById(id);
+  if (!campaign) throw new Error('Unable to handle submission: no campaign was found.');
+  return campaign;
+};
 
 module.exports = {
   /**
    *
-   * @param {string} cid
-   * @param {object} payload
-   * @param {string} payload.name
-   * @param {string} payload.advertiserId
+   * @param {string} hash
    * @return {Promise}
    */
-  async updateFor(id, { url, creatives } = {}) {
-    if (!id) return Promise.reject(new Error('Unable to update campaign: no ID was provided.'));
-    const criteria = { _id: id };
-    const update = { $set: { url } };
-    const options = { new: true, runValidators: true };
-    const campaign = await Campaign.findOneAndUpdate(criteria, update, options).then((document) => {
-      if (!document) throw new Error(`Unable to update campaign: no record was found for ID '${id}'`);
-      return document;
+  findByHash(hash) {
+    if (!hash) return Promise.reject(new Error('Unable to find campaign: no hash was provided.'));
+    return Campaign.findOne({ hash });
+  },
+
+  /**
+   *
+   */
+  async updateFor(campaignId, { url, creatives } = {}) {
+    const campaign = await findCampaign(campaignId);
+
+    campaign.url = url;
+
+    creatives.forEach((item) => {
+      const creative = campaign.creatives.id(item.id);
+      creative.set('title', item.title);
+      creative.set('teaser', item.teaser);
+      creative.set('image', item.image);
     });
-    creatives.forEach((creative) => {
-      const creativeId = creative.id;
-      CreativeRepo.updateFor(id, creativeId, creative).then((document) => {
-        if (!document) throw new Error(`Unable to update campaign creative: no record was found for ID '${id}'`);
-        return document;
-      });
-    });
-    return campaign;
+
+    return campaign.save();
   },
 };

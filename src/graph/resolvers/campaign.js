@@ -47,14 +47,8 @@ module.exports = {
      */
     campaignHash: async (root, { input }) => {
       const { hash } = input;
-      let record = await CampaignRepo.findByHash(hash);
+      const record = await ClientRepo.findByHash(hash);
       if (!record) throw new Error(`No campaign record found for hash ${hash}.`);
-      if (!record.creatives[0]) {
-        const campaignId = record.id;
-        const payload = { title: null, teaser: null, image: null };
-        await CreativeRepo.createFor(campaignId, payload);
-        record = await CampaignRepo.findByHash(hash);
-      }
       return record;
     },
 
@@ -113,6 +107,14 @@ module.exports = {
     clientUpdateCampaign: async (root, { input }) => {
       const { campaignId, payload } = input;
       return ClientRepo.updateFor(campaignId, payload);
+    },
+
+    /**
+     *
+     */
+    clientAddCampaignCreative: (root, { input }) => {
+      const { campaignId, payload } = input;
+      return CreativeRepo.createFor(campaignId, payload);
     },
 
     /**

@@ -12,6 +12,7 @@ type Mutation {
   removeCampaignCreative(input: RemoveCampaignCreativeInput!): String!
   setCampaignCriteria(input: SetCampaignCriteriaInput!): CampaignCriteria!
   clientUpdateCampaign(input: ClientUpdateCampaignInput!): Campaign!
+  clientAddCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative!
 }
 
 enum CampaignSortField {
