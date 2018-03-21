@@ -5,6 +5,8 @@ const CampaignRepo = require('../../repositories/campaign');
 const ClientRepo = require('../../repositories/campaign/client');
 const CreativeRepo = require('../../repositories/campaign/creative');
 const CriteriaRepo = require('../../repositories/campaign/criteria');
+const ContactRepo = require('../../repositories/contact');
+const Campaign = require('../../models/campaign');
 
 module.exports = {
   /**
@@ -12,6 +14,11 @@ module.exports = {
    */
   Campaign: {
     advertiser: campaign => AdvertiserRepo.findById(campaign.get('advertiserId')),
+    notify: async (campaign) => {
+      const internal = await ContactRepo.find({ _id: { $in: campaign.notify.internal } });
+      const external = await ContactRepo.find({ _id: { $in: campaign.notify.external } });
+      return { internal, external };
+    },
   },
 
   CampaignCriteria: {
@@ -134,6 +141,33 @@ module.exports = {
       auth.check();
       const { campaignId, payload } = input;
       return CriteriaRepo.setFor(campaignId, payload);
+    },
+
+    /**
+     *
+     */
+    addCampaignContact: (root, { input }, { auth }) => {
+      auth.check();
+      const { id, type, contactId } = input;
+      return ContactRepo.addContactTo(Campaign, id, type, contactId);
+    },
+
+    /**
+     *
+     */
+    removeCampaignContact: (root, { input }, { auth }) => {
+      auth.check();
+      const { id, type, contactId } = input;
+      return ContactRepo.removeContactFrom(Campaign, id, type, contactId);
+    },
+
+    /**
+     *
+     */
+    setCampaignContacts: (root, { input }, { auth }) => {
+      auth.check();
+      const { id, type, contactIds } = input;
+      return ContactRepo.setContactsFor(Campaign, id, type, contactIds);
     },
   },
 };

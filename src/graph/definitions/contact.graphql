@@ -1,0 +1,71 @@
+type Query {
+  allContacts(pagination: PaginationInput = {}, sort: ContactSortInput = {}): ContactConnection!
+  searchContacts(pagination: PaginationInput = {}, search: ContactSearchInput!): ContactConnection!
+  contact(input: ModelIdInput!): Contact!
+}
+
+type Mutation {
+  createContact(input: CreateContactInput!): Contact!
+  updateContact(input: UpdateContactInput!): Contact!
+}
+
+enum ContactSortField {
+  name
+  createdAt
+  updatedAt
+}
+
+type Contact {
+  id: String!
+  name: String!
+  email: String!
+  givenName: String
+  familyName: String
+}
+
+type ContactConnection {
+  totalCount: Int!
+  edges: [ContactEdge]!
+  pageInfo: PageInfo!
+}
+
+type ContactEdge {
+  node: Contact!
+  cursor: Cursor!
+}
+
+input ContactSearchInput {
+  typeahead: ContactTypeAheadInput!
+}
+
+input ContactTypeAheadInput {
+  field: ContactTypeAheadField!
+  term: String!
+}
+
+enum ContactTypeAheadField {
+  name
+  email
+}
+
+input ContactSortInput {
+  field: ContactSortField! = createdAt
+  order: Int! = -1
+}
+
+input ContactPayloadInput {
+  email: String!
+  givenName: String
+  familyName: String
+}
+
+input CreateContactInput {
+  payload: ContactPayloadInput!
+}
+
+input UpdateContactInput {
+  id: String!
+  payload: ContactPayloadInput!
+}
+
+

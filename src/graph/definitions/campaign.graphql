@@ -13,6 +13,9 @@ type Mutation {
   setCampaignCriteria(input: SetCampaignCriteriaInput!): CampaignCriteria!
   clientUpdateCampaign(input: ClientUpdateCampaignInput!): Campaign!
   clientAddCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative!
+  addCampaignContact(input: AddContactInput!): Campaign!
+  removeCampaignContact(input: RemoveContactInput!): Campaign!
+  setCampaignContacts(input: SetContactsInput!): Campaign!
 }
 
 enum CampaignSortField {
@@ -40,6 +43,7 @@ type Campaign {
   creatives: [CampaignCreative]
   criteria: CampaignCriteria
   externalLinks: [ExternalLink]
+  notify: NotificationLists
 }
 
 type CampaignCreative {
@@ -112,6 +116,7 @@ input CreateCampaignPayloadInput {
   advertiserId: String!
   url: String!
   externalLinks: [ExternalLinkInput]
+  notify: NotificationListsInput
 }
 
 input UpdateCampaignInput {
@@ -120,7 +125,7 @@ input UpdateCampaignInput {
 }
 
 input UpdateCampaignPayloadInput {
-  name: String!
+  name: String
   url: String
   status: CampaignStatus
   advertiserId: String

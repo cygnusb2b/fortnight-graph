@@ -141,7 +141,7 @@ const fallback = `
 module.exports = () => {
   const now = new Date();
   return {
-    name: faker.random.words(),
+    name: faker.random.words(3),
     html,
     fallback,
     createdAt: now,

@@ -8,8 +8,9 @@ const user = require('./user');
 const template = require('./template');
 const publisher = require('./publisher');
 const placement = require('./placement');
+const contact = require('./contact');
 
-module.exports = deepAssign(advertiser, campaign, user, template, publisher, placement, {
+module.exports = deepAssign(advertiser, campaign, user, template, publisher, placement, contact, {
   /**
    *
    */

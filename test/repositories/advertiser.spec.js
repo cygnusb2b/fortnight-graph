@@ -1,10 +1,15 @@
 require('../connections');
 const Repo = require('../../src/repositories/advertiser');
+const ContactRepo = require('../../src/repositories/contact');
 const Model = require('../../src/models/advertiser');
 const Utils = require('../utils');
 
 const createAdvertiser = async () => {
   const results = await Repo.seed();
+  return results.one();
+};
+const createContact = async () => {
+  const results = await ContactRepo.seed();
   return results.one();
 };
 

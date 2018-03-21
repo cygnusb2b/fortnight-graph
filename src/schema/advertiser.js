@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const notifyPlugin = require('../plugins/notify');
 
 const { Schema } = mongoose;
 
@@ -10,6 +11,8 @@ const schema = new Schema({
     unique: true,
   },
 }, { timestamps: true });
+
+schema.plugin(notifyPlugin);
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });

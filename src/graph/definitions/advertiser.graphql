@@ -7,6 +7,9 @@ type Query {
 type Mutation {
   createAdvertiser(input: CreateAdvertiserInput!): Advertiser!
   updateAdvertiser(input: UpdateAdvertiserInput!): Advertiser!
+  addAdvertiserContact(input: AddContactInput!): Advertiser!
+  removeAdvertiserContact(input: RemoveContactInput!): Advertiser!
+  setAdvertiserContacts(input: SetContactsInput!): Advertiser!
 }
 
 enum AdvertiserSortField {
@@ -22,6 +25,7 @@ type Advertiser {
   updatedAt: Date
   campaigns: [Campaign]
   campaignCount: Int
+  notify: NotificationLists
 }
 
 type AdvertiserConnection {

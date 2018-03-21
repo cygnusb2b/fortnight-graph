@@ -2,7 +2,12 @@ const faker = require('faker');
 const creative = require('./creative');
 const criteria = require('./criteria');
 
-module.exports = ({ advertiserId, placementId }) => {
+module.exports = ({
+  advertiserId,
+  placementId,
+  internalContactIds = [],
+  externalContactIds = [],
+}) => {
   const creatives = () => {
     const stack = [];
     const num = faker.random.number({ min: 1, max: 5 });
@@ -40,5 +45,9 @@ module.exports = ({ advertiserId, placementId }) => {
     createdAt: now,
     updatedAt: now,
     externalLinks: externalLinks(),
+    notify: {
+      internal: internalContactIds,
+      external: externalContactIds,
+    },
   };
 };

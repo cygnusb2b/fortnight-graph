@@ -3,6 +3,7 @@ const Campaign = require('./campaign');
 const Placement = require('./placement');
 const Publisher = require('./publisher');
 const User = require('./user');
+const Contact = require('./contact');
 const Template = require('./template');
 const AnalyticsRequest = require('./analytics/request');
 const AnalyticsLoad = require('./analytics/load');
@@ -17,6 +18,7 @@ module.exports = {
   Placement,
   Publisher,
   User,
+  Contact,
   Template,
   AnalyticsRequest,
   AnalyticsLoad,
