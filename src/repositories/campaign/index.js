@@ -2,7 +2,6 @@ const Promise = require('bluebird');
 const AdvertiserRepo = require('../advertiser');
 const PlacementRepo = require('../placement');
 const Campaign = require('../../models/campaign');
-const Contact = require('../../models/contact');
 const Pagination = require('../../classes/pagination');
 const fixtures = require('../../fixtures');
 
@@ -132,42 +131,5 @@ module.exports = {
     });
     await Promise.all(results.all().map(model => model.save()));
     return results;
-  },
-
-  /**
-   * @param {string} id
-   * @param {string} type
-   * @param {string} contactId
-   * @return {Promise}
-   */
-  async addContact(id, type, contactId) {
-    if (!['internal', 'external'].includes(type)) throw new Error('Invalid notification type');
-    await Contact.findById(contactId);
-    const criteria = { _id: id };
-    const key = `notify.${type}`;
-    const update = { $addToSet: { [key]: contactId } };
-    const options = { new: true, runValidators: true };
-    return Campaign.findOneAndUpdate(criteria, update, options).then((document) => {
-      if (!document) throw new Error(`Unable to update advertiser: no record was found for ID '${id}'`);
-      return document;
-    });
-  },
-
-  /**
-   * @param {string} id
-   * @param {string} type
-   * @param {string} contactId
-   * @return {Promise}
-   */
-  async removeContact(id, type, contactId) {
-    if (!['internal', 'external'].includes(type)) throw new Error('Invalid notification type');
-    const criteria = { _id: id };
-    const key = `notify.${type}`;
-    const update = { $pull: { [key]: contactId } };
-    const options = { new: true, runValidators: true };
-    return Campaign.findOneAndUpdate(criteria, update, options).then((document) => {
-      if (!document) throw new Error(`Unable to update advertiser: no record was found for ID '${id}'`);
-      return document;
-    });
   },
 };
