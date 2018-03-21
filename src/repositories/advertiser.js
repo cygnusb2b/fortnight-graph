@@ -23,11 +23,10 @@ module.exports = {
    * @param {string} payload.name
    * @return {Promise}
    */
-  update(id, { name, notify } = {}) {
+  update(id, { name } = {}) {
     if (!id) return Promise.reject(new Error('Unable to update advertiser: no ID was provided.'));
     const criteria = { _id: id };
     const update = { $set: { name } };
-    if (notify) update.$set.notify = notify;
     const options = { new: true, runValidators: true };
     return Advertiser.findOneAndUpdate(criteria, update, options).then((document) => {
       if (!document) throw new Error(`Unable to update advertiser: no record was found for ID '${id}'`);
