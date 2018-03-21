@@ -1,6 +1,7 @@
 const createError = require('http-errors');
 const Promise = require('bluebird');
 const uuidv4 = require('uuid/v4');
+const { URL } = require('url');
 const { isURL } = require('validator');
 const jwt = require('jsonwebtoken');
 const Campaign = require('../../models/campaign');
@@ -210,9 +211,19 @@ module.exports = {
     return `${requestURL}/redir/${token}`;
   },
 
+  injectUTMParams(url, event) {
+    const parsed = new URL(url);
+    const { uuid, pid } = event;
+    const params = `utm_source=fortnight&utm_medium=fallback&utm_campaign=${pid}&utm_content=${uuid}`;
+    parsed.search = parsed.search ? `${parsed.search}&${params}` : params;
+    return parsed.href;
+  },
+
   createFallbackRedirect(url, requestURL, event) {
     // @todo This should somehow notify that there's a problem with the URL.
     if (!isURL(String(url), { require_protocol: true })) return url;
+
+    const injected = this.injectUTMParams(url, event);
 
     const { uuid, pid, cid } = event;
     const secret = process.env.TRACKER_SECRET;
@@ -220,7 +231,7 @@ module.exports = {
       uuid,
       pid,
       cid,
-      url,
+      url: injected,
     };
     const token = jwt.sign(payload, secret, { noTimestamp: true });
     return `${requestURL}/redir/${token}`;

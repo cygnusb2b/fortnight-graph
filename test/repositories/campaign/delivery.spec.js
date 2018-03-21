@@ -319,6 +319,7 @@ describe('repositories/campaign/delivery', function() {
   describe('#createFallbackRedirect', function() {
     beforeEach(function() {
       sandbox.spy(jwt, 'sign');
+      sandbox.spy(Repo, 'injectUTMParams');
     });
     afterEach(function() {
       sandbox.restore();
@@ -343,8 +344,9 @@ describe('repositories/campaign/delivery', function() {
       const redirect = Repo.createFallbackRedirect(url, requestURL, event);
 
       expect(redirect).to.match(/^http:\/\/foo\.com\/redir\/.*$/);
+      sinon.assert.calledOnce(Repo.injectUTMParams);
       sinon.assert.calledOnce(jwt.sign);
-      sinon.assert.calledWith(jwt.sign, Object.assign(event, { url }), sinon.match.any, { noTimestamp: true });
+      sinon.assert.calledWith(jwt.sign, Object.assign(event, { url: Repo.injectUTMParams(url, event) }), sinon.match.any, { noTimestamp: true });
       done();
     });
 
@@ -686,6 +688,29 @@ describe('repositories/campaign/delivery', function() {
       sinon.assert.calledOnce(Repo.fillWithFallbacks);
       sinon.assert.calledOnce(Repo.createRequestEvent);
       sinon.assert.calledOnce(Repo.buildAdFor);
+    });
+  });
+
+  describe('#injectUTMParams', function() {
+    it('should inject the params when the source URL does not have a query string.', function(done) {
+      const url = 'http://www.google.com';
+      const event = {
+        pid: '5ab00ccdfd9ea400012760df',
+        uuid: 'db1a4977-6ef8-4039-959d-99f95b839eae',
+      };
+      const injected = Repo.injectUTMParams(url, event);
+      expect(injected).to.equal(`${url}/?utm_source=fortnight&utm_medium=fallback&utm_campaign=${event.pid}&utm_content=${event.uuid}`)
+      done();
+    });
+    it('should inject the params when the source URL has a query string.', function(done) {
+      const url = 'http://www.google.com?foo=bar&baz=blek';
+      const event = {
+        pid: '5ab00ccdfd9ea400012760df',
+        uuid: 'db1a4977-6ef8-4039-959d-99f95b839eae',
+      };
+      const injected = Repo.injectUTMParams(url, event);
+      expect(injected).to.equal(`http://www.google.com/?foo=bar&baz=blek&utm_source=fortnight&utm_medium=fallback&utm_campaign=${event.pid}&utm_content=${event.uuid}`)
+      done();
     });
   });
 
