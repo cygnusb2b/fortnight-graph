@@ -2,6 +2,25 @@
 
 ## Request Types
 
+## Overview of all Events
+```js
+db.getCollection('analytics-events').aggregate([
+  {
+    // Date will track data after load headers and blacklisting were applied.
+    $match: { 'bot.detected': false, d: { $gt: ISODate('2018-03-21 02:23:45.867Z') } },
+  },
+  {
+    $group: {
+      _id: '$e',
+      n: { $sum: 1 },
+    },
+  },
+  {
+    $sort: { n: -1 },
+  },
+]);
+```
+
 ## Detection and Weighting
 Bots are initially detected via the `User-Agent` request header. An agent will be flagged as a bot when one of these conditions are met (processed in-order):
 1. No value was provided with the request. A weight of `0.8` is applied.
@@ -26,7 +45,7 @@ Here's the query for the above table:
 ```js
 db.getCollection('analytics-events').aggregate([
   {
-    $match: { e: 'click', 'bot.detected': true },
+    $match: { e: 'click', 'bot.detected': true, d: { $gt: ISODate('2018-03-21 02:23:45.867Z') } },
   },
   {
     $group: {
@@ -68,6 +87,7 @@ db.getCollection('analytics-events').aggregate([
       e: 'click',
       'bot.detected': true,
       ref: { $exists: true },
+      d: { $gt: ISODate('2018-03-21 02:23:45.867Z') },
     },
   },
   {
@@ -104,6 +124,7 @@ db.getCollection('analytics-events').aggregate([
       'bot.detected': false,
       ref: { $exists: false },
       ip: { $exists: true },
+      d: { $gt: ISODate('2018-03-21 02:23:45.867Z') }
     },
   },
   {
@@ -191,7 +212,8 @@ Other examples tend to be server backends, as the IPs normally resolve to AWS or
 
   db.getCollection('analytics-events').aggregate([
     {
-      $match: { 'bot.detected': false },
+      // Date will track data after load headers and blacklisting were applied.
+      $match: { 'bot.detected': false, d: { $gt: ISODate('2018-03-21 02:23:45.867Z') } },
     },
     {
       $group: {
@@ -233,6 +255,230 @@ Other examples tend to be server backends, as the IPs normally resolve to AWS or
       return agg;
     }, {});
     lines.push(`"${row.browser}","${row.version}",${counts.request || 0},${counts.load || 0},${counts.view || 0},${counts.click || 0}`);
+  });
+  const csv = lines.join('\n');
+  print(csv);
+})(db);
+```
+
+### Excluding Versions
+```js
+(function(db) {
+  const lines = [];
+  lines.push('"Browser","Version","Requests","Loads","Views","Clicks"');
+
+  const supported = [
+    { name: 'Chrome', from: '50' },
+    { name: 'Edge', from: '12' },
+    { name: 'Firefox', from: '50' },
+    { name: 'GSA', from: '1' },
+    { name: 'IE', from: '11' },
+    { name: 'Mobile Safari', from: '7' },
+    { name: 'Opera', from: '40' },
+    { name: 'Safari', from: '7' },
+    { name: 'Samsung Browser', from: '1' },
+    { name: 'Silk', from: '60' },
+    { name: 'Vivaldi', from: '1' },
+    { name: 'UCBrowser', from: '10' },
+    { name: 'QQBrowser', from: '8' },
+  ];
+
+  const $or = supported.map((browser) => {
+    return { 'ua.browser.name': browser.name, 'ua.browser.major': { $gte: browser.from } };
+  });
+
+  db.getCollection('analytics-events').aggregate([
+    {
+      // Date will track data after load headers and blacklisting were applied.
+      $match: {
+        'bot.detected': false,
+        d: { $gt: ISODate('2018-03-21 02:23:45.867Z') },
+        $or,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          event: '$e',
+          browser: '$ua.browser.name',
+          version: '$ua.browser.major',
+        },
+        n: { $sum: 1 },
+      },
+    },
+
+    {
+      $group: {
+        _id: {
+          browser: '$_id.browser',
+          version: '$_id.version',
+        },
+        events: { $push: { name: '$_id.event', n: '$n' } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        browser: '$_id.browser',
+        version: '$_id.version',
+        events: 1,
+      },
+    },
+    {
+      $sort: {
+        browser: 1,
+        version: -1,
+      },
+    },
+  ], { collation: { locale: 'en_US', numericOrdering: true } }).forEach((row) => {
+    const counts = row.events.reduce((agg, event) => {
+      agg[event.name] = event.n;
+      return agg;
+    }, {});
+    lines.push(`"${row.browser}","${row.version}",${counts.request || 0},${counts.load || 0},${counts.view || 0},${counts.click || 0}`);
+  });
+  const csv = lines.join('\n');
+  print(csv);
+})(db);
+```
+
+```js
+(function(db) {
+  const supported = [
+    { name: 'Chrome', from: '50' },
+    { name: 'Edge', from: '12' },
+    { name: 'Firefox', from: '50' },
+    { name: 'GSA', from: '1' },
+    { name: 'IE', from: '11' },
+    { name: 'Mobile Safari', from: '7' },
+    { name: 'Opera', from: '40' },
+    { name: 'Safari', from: '7' },
+    { name: 'Samsung Browser', from: '1' },
+    { name: 'Silk', from: '60' },
+    { name: 'Vivaldi', from: '1' },
+    { name: 'UCBrowser', from: '10' },
+    { name: 'QQBrowser', from: '8' },
+  ];
+
+  const $or = supported.map((browser) => {
+    return { 'ua.browser.name': browser.name, 'ua.browser.major': { $gte: browser.from } };
+  });
+
+  const results = db.getCollection('analytics-events').aggregate([
+    {
+      // Date will track data after load headers and blacklisting were applied.
+      $match: { 'bot.detected': false, d: { $gt: ISODate('2018-03-21 02:23:45.867Z') }, $or },
+    },
+    {
+      $group: {
+        _id: '$e',
+        n: { $sum: 1 },
+      },
+    },
+    {
+      $sort: { n: -1 },
+    },
+  ]).toArray();
+  print(results);
+})(db);
+```
+
+
+```js
+db.getCollection('analytics-events').aggregate([
+  {
+    $match: {
+      e: 'click',
+      'bot.detected': false,
+      ref: { $exists: true },
+      d: { $gt: ISODate('2018-03-21 02:23:45.867Z') },
+    },
+  },
+  {
+    $group: {
+      _id: null,
+      n: { $sum: 1 },
+    },
+  },
+]);
+```
+
+```js
+(function(db) {
+  const lines = [];
+  lines.push('"Publisher ID","Publisher","Placement ID","Placement","Day","Requests","Loads","Views","Clicks"');
+
+  db.getCollection('analytics-events').aggregate([
+    {
+      // Date will track data after load headers and blacklisting were applied.
+      $match: { 'bot.detected': false, d: { $gt: ISODate('2018-03-21 02:23:45.867Z') } },
+    },
+    {
+      $group: {
+        _id: {
+          event: '$e',
+          pid: '$pid',
+          day: { $dateToString: { format: '%Y-%m-%d', date: '$d' } },
+        },
+        n: { $sum: 1 },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          pid: '$_id.pid',
+          day: '$_id.day',
+        },
+        events: { $push: { name: '$_id.event', n: '$n' } },
+      },
+    },
+    {
+      $lookup: {
+        from: 'placements',
+        localField: '_id.pid',
+        foreignField: '_id',
+        as: '_id.placement',
+      },
+    },
+    {
+      $unwind: '$_id.placement',
+    },
+    {
+      $lookup: {
+        from: 'publishers',
+        localField: '_id.placement.publisherId',
+        foreignField: '_id',
+        as: '_id.placement.publisher',
+      },
+    },
+    {
+      $unwind: '$_id.placement.publisher',
+    },
+    {
+      $project: {
+        _id: 0,
+        publisherId: '$_id.placement.publisher._id',
+        publisher: '$_id.placement.publisher.name',
+        placementId: '$_id.placement._id',
+        placement: '$_id.placement.name',
+        day: '$_id.day',
+        count: '$n',
+        events: '$events',
+      },
+    },
+    {
+      $sort: {
+        date: -1,
+        publisher: 1,
+        placement: 1,
+      },
+    }
+  ]).forEach((row) => {
+    const counts = row.events.reduce((agg, event) => {
+      agg[event.name] = event.n;
+      return agg;
+    }, {});
+    lines.push(`"${row.publisherId.valueOf()}","${row.publisher}","${row.placementId.valueOf()}","${row.placement}","${row.day}",${counts.request || 0},${counts.load || 0},${counts.view || 0},${counts.click || 0}`);
   });
   const csv = lines.join('\n');
   print(csv);
