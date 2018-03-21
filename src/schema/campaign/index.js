@@ -9,7 +9,7 @@ const notifyPlugin = require('../../plugins/notify');
 
 const { Schema } = mongoose;
 
-const ExternalLinkSchema = {
+const externalLinkSchema = new Schema({
   label: {
     type: String,
     required: false,
@@ -27,7 +27,7 @@ const ExternalLinkSchema = {
       message: 'Invalid external link URL for {VALUE}',
     },
   },
-};
+});
 
 const schema = new Schema({
   name: {
@@ -85,7 +85,7 @@ const schema = new Schema({
   },
   creatives: [CreativeSchema],
   criteria: CriteriaSchema,
-  externalLinks: [ExternalLinkSchema],
+  externalLinks: [externalLinkSchema],
 }, { timestamps: true });
 
 schema.plugin(notifyPlugin);
