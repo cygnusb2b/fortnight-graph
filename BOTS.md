@@ -5,10 +5,11 @@
 ## Detection and Weighting
 Bots are initially detected via the `User-Agent` request header. An agent will be flagged as a bot when one of these conditions are met (processed in-order):
 1. No value was provided with the request. A weight of `0.8` is applied.
-2. The value matches a known bot match pattern (e.g. GoogleBot). A weight of `1` is applied.
-3. The value contains a generic, crawler like term (e.g 'bot' or 'spider'). A weight of `0.9` is applied.
-4. The value starts with a common backend programing language (e.g. 'php' or 'java'). A weight of `0.9` is applied.
-5. The value cannot be parsed into a common browser name (e.g. 'Chrome' or 'Firefox'). A weight of `0.7` is applied.
+2. The value matches a blacklisted agent. A weight of `1.0` is applied.
+3. The value matches a known bot match pattern (e.g. GoogleBot). A weight of `1` is applied.
+4. The value contains a generic, crawler like term (e.g 'bot' or 'spider'). A weight of `0.9` is applied.
+5. The value starts with a common backend programing language (e.g. 'php' or 'java'). A weight of `0.9` is applied.
+6. The value cannot be parsed into a common browser name (e.g. 'Chrome' or 'Firefox'). A weight of `0.7` is applied.
 
 ## Referrer
 When clicking (i.e. sending a `click` event), bots will _won't_ send a `Referer` header.
