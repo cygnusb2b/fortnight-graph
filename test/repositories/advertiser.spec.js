@@ -1,10 +1,15 @@
 require('../connections');
 const Repo = require('../../src/repositories/advertiser');
+const ContactRepo = require('../../src/repositories/contact');
 const Model = require('../../src/models/advertiser');
 const Utils = require('../utils');
 
 const createAdvertiser = async () => {
   const results = await Repo.seed();
+  return results.one();
+};
+const createContact = async () => {
+  const results = await ContactRepo.seed();
   return results.one();
 };
 
@@ -127,6 +132,72 @@ describe('repositories/advertiser', function() {
     it('remove the requested advertiser.', async function() {
       await expect(Repo.removeById(advertiser.id)).to.be.fulfilled;
       await expect(Repo.findById(advertiser.id)).to.be.fulfilled.and.eventually.be.null;
+    });
+  });
+
+  describe('#addContact', function() {
+    let advertiser;
+    let contact;
+    before(async function() {
+      advertiser = await createAdvertiser();
+      contact = await createContact();
+    });
+    it('should reject when invalid types are specified', async function() {
+      const advertiserId = advertiser.id;
+      const types = [false, null, undefined, '', 'does-not-exist'];
+      types.forEach(type => expect(Repo.addContact(advertiserId, type)).to.be.rejectedWith(Error, /Invalid notification type/i));
+    });
+    it('should reject when the provided advertiser does not exist.', async function() {
+      const advertiserId = '507f1f77bcf86cd799439011';
+      const type = 'internal';
+      await expect(Repo.addContact(advertiserId, type)).to.be.rejectedWith(Error, /Validation/i);
+    });
+    it('should reject when the provided contact does not exist.', async function() {
+      const advertiserId = advertiser.id;
+      const contactId = '507f1f77bcf86cd799439011';
+      const type = 'internal';
+      await expect(Repo.addContact(advertiserId, type, contactId)).to.be.rejectedWith(Error, /Validation/i);
+    });
+    it('should fulfill and add the contact.', async function() {
+      const advertiserId = advertiser.id;
+      const contactId = contact.id;
+      const type = 'internal';
+      const res = await Repo.addContact(advertiserId, type, contactId);
+      expect(res).to.be.an('object');
+      expect(res.notify.internal).to.be.an('array').and.include(contactId);
+    });
+  });
+
+  describe('#removeContact', function() {
+    let advertiser;
+    let contact;
+    before(async function() {
+      advertiser = await createAdvertiser();
+      contact = await createContact();
+    });
+    it('should reject when invalid types are specified', async function() {
+      const advertiserId = advertiser.id;
+      const types = [false, null, undefined, '', 'does-not-exist'];
+      types.forEach(type => expect(Repo.removeContact(advertiserId, type)).to.be.rejectedWith(Error, /Invalid notification type/i));
+    });
+    it('should reject when the provided advertiser does not exist.', async function() {
+      const advertiserId = '507f1f77bcf86cd799439011';
+      const type = 'internal';
+      await expect(Repo.removeContact(advertiserId, type)).to.be.rejectedWith(Error, /no record was found/i);
+    });
+    it('should not reject when the provided contact does not exist.', async function() {
+      const advertiserId = advertiser.id;
+      const contactId = '507f1f77bcf86cd799439011';
+      const type = 'internal';
+      await expect(Repo.removeContact(advertiserId, type, contactId)).to.eventually.be.an('object');
+    });
+    it('should fulfill and remove the contact.', async function() {
+      const advertiserId = advertiser.id;
+      const contactId = contact.id;
+      const type = 'internal';
+      const res = await Repo.removeContact(advertiserId, type, contactId);
+      expect(res).to.be.an('object');
+      expect(res.notify.internal).to.be.an('array').and.not.include(contactId);
     });
   });
 });

@@ -141,6 +141,7 @@ module.exports = {
    * @return {Promise}
    */
   async addContact(id, type, contactId) {
+    if (!['internal', 'external'].includes(type)) throw new Error('Invalid notification type');
     await Contact.findById(contactId);
     const criteria = { _id: id };
     const key = `notify.${type}`;
@@ -159,6 +160,7 @@ module.exports = {
    * @return {Promise}
    */
   async removeContact(id, type, contactId) {
+    if (!['internal', 'external'].includes(type)) throw new Error('Invalid notification type');
     const criteria = { _id: id };
     const key = `notify.${type}`;
     const update = { $pull: { [key]: contactId } };

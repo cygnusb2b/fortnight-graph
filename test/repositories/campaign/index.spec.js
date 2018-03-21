@@ -1,12 +1,17 @@
 require('../../connections');
 const Repo = require('../../../src/repositories/campaign');
 const Model = require('../../../src/models/campaign');
+const ContactRepo = require('../../../src/repositories/contact');
 const AdvertiserRepo = require('../../../src/repositories/advertiser');
 const PlacementRepo = require('../../../src/repositories/placement');
 const Utils = require('../../utils');
 
 const createCampaign = async () => {
   const results = await Repo.seed();
+  return results.one();
+};
+const createContact = async () => {
+  const results = await ContactRepo.seed();
   return results.one();
 };
 
@@ -167,6 +172,72 @@ describe('repositories/campaign', function() {
     it('remove the requested campaign.', async function() {
       await expect(Repo.removeById(campaign.id)).to.be.fulfilled;
       await expect(Repo.findById(campaign.id)).to.be.fulfilled.and.eventually.be.null;
+    });
+  });
+
+  describe('#addContact', function() {
+    let campaign;
+    let contact;
+    before(async function() {
+      campaign = await createCampaign();
+      contact = await createContact();
+    });
+    it('should reject when invalid types are specified', async function() {
+      const campaignId = campaign.id;
+      const types = [false, null, undefined, '', 'does-not-exist'];
+      types.forEach(type => expect(Repo.addContact(campaignId, type)).to.be.rejectedWith(Error, /Invalid notification type/i));
+    });
+    it('should reject when the provided campaign does not exist.', async function() {
+      const campaignId = '507f1f77bcf86cd799439011';
+      const type = 'internal';
+      await expect(Repo.addContact(campaignId, type)).to.be.rejectedWith(Error, /Validation/i);
+    });
+    it('should reject when the provided contact does not exist.', async function() {
+      const campaignId = campaign.id;
+      const contactId = '507f1f77bcf86cd799439011';
+      const type = 'internal';
+      await expect(Repo.addContact(campaignId, type, contactId)).to.be.rejectedWith(Error, /Validation/i);
+    });
+    it('should fulfill and add the contact.', async function() {
+      const campaignId = campaign.id;
+      const contactId = contact.id;
+      const type = 'internal';
+      const res = await Repo.addContact(campaignId, type, contactId);
+      expect(res).to.be.an('object');
+      expect(res.notify.internal).to.be.an('array').and.include(contactId);
+    });
+  });
+
+  describe('#removeContact', function() {
+    let campaign;
+    let contact;
+    before(async function() {
+      campaign = await createCampaign();
+      contact = await createContact();
+    });
+    it('should reject when invalid types are specified', async function() {
+      const campaignId = campaign.id;
+      const types = [false, null, undefined, '', 'does-not-exist'];
+      types.forEach(type => expect(Repo.removeContact(campaignId, type)).to.be.rejectedWith(Error, /Invalid notification type/i));
+    });
+    it('should reject when the provided campaign does not exist.', async function() {
+      const campaignId = '507f1f77bcf86cd799439011';
+      const type = 'internal';
+      await expect(Repo.removeContact(campaignId, type)).to.be.rejectedWith(Error, /no record was found/i);
+    });
+    it('should not reject when the provided contact does not exist.', async function() {
+      const campaignId = campaign.id;
+      const contactId = '507f1f77bcf86cd799439011';
+      const type = 'internal';
+      await expect(Repo.removeContact(campaignId, type, contactId)).to.eventually.be.an('object');
+    });
+    it('should fulfill and remove the contact.', async function() {
+      const campaignId = campaign.id;
+      const contactId = contact.id;
+      const type = 'internal';
+      const res = await Repo.removeContact(campaignId, type, contactId);
+      expect(res).to.be.an('object');
+      expect(res.notify.internal).to.be.an('array').and.not.include(contactId);
     });
   });
 });
