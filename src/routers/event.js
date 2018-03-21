@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { Router } = require('express');
-const { noCache } = require('helmet');
+const noCacheEvents = require('../middleware/no-cache-events');
 const newrelic = require('../newrelic');
 const BotDetector = require('../services/bot-detector');
 const AnalyticsEvent = require('../models/analytics/event');
@@ -8,7 +8,8 @@ const AnalyticsEvent = require('../models/analytics/event');
 const emptyGif = Buffer.from('R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==', 'base64');
 
 const router = Router();
-router.use(noCache());
+router.use(noCacheEvents());
+
 
 const events = ['load', 'view'];
 
@@ -21,6 +22,7 @@ const send = (res, status, err) => {
 };
 
 router.get('/:token/:event.gif', (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
   res.set('Content-Type', 'image/gif');
   const { token, event } = req.params;
 

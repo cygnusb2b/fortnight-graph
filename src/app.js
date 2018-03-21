@@ -1,14 +1,10 @@
 const express = require('express');
-const helmet = require('helmet');
 const passport = require('passport');
 const authStrategies = require('./auth-strategies');
 const loadRouters = require('./routers');
 
 const app = express();
 app.set('trust proxy', 'loopback, linklocal, uniquelocal');
-
-// Global middlewares.
-app.use(helmet());
 
 // Set the auth strategies
 passport.use(authStrategies.bearer);
