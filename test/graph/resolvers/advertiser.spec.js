@@ -42,6 +42,7 @@ describe('graph/resolvers/advertiser', function() {
           advertiser(input: $input) {
             id
             name
+            logo
             createdAt
             updatedAt
             campaigns {
@@ -70,7 +71,7 @@ describe('graph/resolvers/advertiser', function() {
         const promise = graphql({ query, variables, key: 'advertiser', loggedIn: true });
         await expect(promise).to.eventually.be.an('object').with.property('id', id);
         const data = await promise;
-        expect(data).to.have.all.keys('id', 'name', 'createdAt', 'updatedAt', 'campaigns', 'campaignCount');
+        expect(data).to.have.all.keys('id', 'name', 'logo', 'createdAt', 'updatedAt', 'campaigns', 'campaignCount');
       });
     });
 
@@ -251,6 +252,7 @@ describe('graph/resolvers/advertiser', function() {
           createAdvertiser(input: $input) {
             id
             name
+            logo
             createdAt
             updatedAt
             campaigns {
@@ -290,6 +292,7 @@ describe('graph/resolvers/advertiser', function() {
           updateAdvertiser(input: $input) {
             id
             name
+            logo
             createdAt
             updatedAt
             campaigns {
