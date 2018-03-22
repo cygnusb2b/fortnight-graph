@@ -62,6 +62,7 @@ describe('graph/resolvers/campaign', function() {
             advertiser {
               id
               name
+              logo
             }
             status
             url
@@ -151,6 +152,7 @@ describe('graph/resolvers/campaign', function() {
             advertiser {
               id
               name
+              logo
             }
             status
             url
@@ -335,6 +337,7 @@ describe('graph/resolvers/campaign', function() {
             advertiser {
               id
               name
+              logo
             }
             externalLinks {
               label

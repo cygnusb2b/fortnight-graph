@@ -8,6 +8,7 @@ describe('fixtures/generators/advertiser', function() {
 
   const fields = [
     { key: 'name', cb: v => expect(v).be.a('string') },
+    { key: 'logo', cb: v => expect(v).to.be.a('string') },
     { key: 'createdAt', cb: v => expect(v).be.a('date') },
     { key: 'updatedAt', cb: v => expect(v).be.a('date') },
     { key: 'notify', cb: v => expect(v).to.be.an('object') },
