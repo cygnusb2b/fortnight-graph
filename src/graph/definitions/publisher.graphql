@@ -18,6 +18,7 @@ enum PublisherSortField {
 type Publisher {
   id: String!
   name: String!
+  logo: String
   updatedAt: Date
   createdAt: Date
 }
@@ -53,6 +54,7 @@ input PublisherSortInput {
 
 input PublisherPayloadInput {
   name: String!
+  logo: String
 }
 
 input CreatePublisherInput {

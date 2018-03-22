@@ -26,6 +26,7 @@ module.exports = {
    */
   update(id, {
     name,
+    description,
     url,
     status,
     advertiserId,
@@ -35,6 +36,7 @@ module.exports = {
     const criteria = { _id: id };
     const update = { $set: { name } };
     if (url) update.$set.url = url;
+    if (description) update.$set.description = description;
     if (status) update.$set.status = status;
     if (advertiserId) update.$set.advertiserId = advertiserId;
     if (externalLinks) update.$set.externalLinks = externalLinks;

@@ -35,6 +35,11 @@ const schema = new Schema({
     required: true,
     trim: true,
   },
+  description: {
+    type: String,
+    required: false,
+    trim: false,
+  },
   hash: {
     type: String,
     required: true,

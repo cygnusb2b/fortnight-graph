@@ -10,7 +10,7 @@ const SETTINGS = {
   globalSecret: '$2a$12$f6y.1RLxgHO/G8TU84rN/OnTwUiozKoih/nkf5BnXi75SAjYQ.ak6',
   saltRounds: 5, // For user secret bcrypt.
   namespace: 'b966dde2-9ca8-11e7-abc4-cec278b6b50a', // Namespace for UUIDv5.
-  expires: 60 * 60, // One hour, in seconds.
+  expires: 60 * 60 * 24, // One day, in seconds.
   idPrefix: 'session:id', // Cache prefix.
   userPrefix: 'session:user', // Cache prefix.
 };

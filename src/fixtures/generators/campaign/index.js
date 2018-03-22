@@ -32,6 +32,7 @@ module.exports = ({
   const now = new Date();
   return {
     name: faker.random.words(),
+    description: faker.lorem.paragraph(),
     url: faker.internet.url(),
     advertiserId: advertiserId(),
     status: faker.helpers.randomize([

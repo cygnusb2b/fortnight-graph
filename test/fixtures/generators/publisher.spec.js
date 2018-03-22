@@ -7,6 +7,7 @@ describe('fixtures/generators/publisher', function() {
   });
   const fields = [
     { key: 'name', cb: v => expect(v).be.a('string') },
+    { key: 'logo', cb: v => expect(v).be.a('string') },
     { key: 'createdAt', cb: v => expect(v).be.a('date') },
     { key: 'updatedAt', cb: v => expect(v).be.a('date') },
   ];

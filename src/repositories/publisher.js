@@ -19,7 +19,7 @@ module.exports = {
     if (!id) return Promise.reject(new Error('Unable to update publisher: no ID was provided.'));
     const criteria = { _id: id };
     const $set = {};
-    ['name'].forEach((key) => {
+    ['name', 'logo'].forEach((key) => {
       const value = payload[key];
       if (typeof value !== 'undefined') $set[key] = value;
     });

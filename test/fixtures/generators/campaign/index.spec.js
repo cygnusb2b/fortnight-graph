@@ -14,6 +14,7 @@ describe('fixtures/generators/campaign', function() {
 
   const fields = [
     { key: 'name', cb: v => expect(v).be.a('string') },
+    { key: 'description', cb: v => expect(v).be.a('string') },
     { key: 'url', cb: v => expect(v).be.a('string') },
     { key: 'advertiserId', cb: v => expect(v).to.equal('1234') },
     { key: 'creatives', cb: v => expect(v).be.an('array') },
