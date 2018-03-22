@@ -35,6 +35,7 @@ describe('graph/resolvers/publisher', function() {
           publisher(input: $input) {
             id
             name
+            logo
             createdAt
             updatedAt
           }
@@ -59,7 +60,7 @@ describe('graph/resolvers/publisher', function() {
         const promise = graphql({ query, variables, key: 'publisher', loggedIn: true });
         await expect(promise).to.eventually.be.an('object').with.property('id', id);
         const data = await promise;
-        expect(data).to.have.all.keys('id', 'name', 'createdAt', 'updatedAt');
+        expect(data).to.have.all.keys('id', 'name', 'createdAt', 'updatedAt', 'logo');
       });
     });
 
@@ -242,6 +243,7 @@ describe('graph/resolvers/publisher', function() {
           createPublisher(input: $input) {
             id
             name
+            logo
             createdAt
             updatedAt
           }
@@ -249,13 +251,13 @@ describe('graph/resolvers/publisher', function() {
       `;
 
       it('should reject when no user is logged-in.', async function() {
-        const payload = { name: 'Test Publisher' };
+        const payload = { name: 'Test Publisher', logo: 'https://some.url/image.png' };
         const input = { payload };
         const variables = { input };
         await expect(graphql({ query, variables, key: 'createPublisher', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
       });
       it('should create the publisher.', async function() {
-        const payload = { name: 'Test Publisher' };
+        const payload = { name: 'Test Publisher', logo: 'https://some.url/image.png' };
         const input = { payload };
         const variables = { input };
         const promise = graphql({ query, variables, key: 'createPublisher', loggedIn: true });
@@ -276,6 +278,7 @@ describe('graph/resolvers/publisher', function() {
           updatePublisher(input: $input) {
             id
             name
+            logo
             createdAt
             updatedAt
           }
@@ -283,6 +286,7 @@ describe('graph/resolvers/publisher', function() {
       `;
       const payload = {
         name: 'Updated Publisher Name',
+        logo: 'https://some.url/image.png',
       };
 
       it('should reject when no user is logged-in.', async function() {
