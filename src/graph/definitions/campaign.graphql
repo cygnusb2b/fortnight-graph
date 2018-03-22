@@ -34,6 +34,7 @@ enum CampaignStatus {
 type Campaign {
   id: String!
   name: String!
+  description: String
   hash: String!
   createdAt: Date
   updatedAt: Date
@@ -113,6 +114,7 @@ input CreateCampaignInput {
 
 input CreateCampaignPayloadInput {
   name: String!
+  description: String
   advertiserId: String!
   url: String!
   externalLinks: [ExternalLinkInput]
@@ -126,6 +128,7 @@ input UpdateCampaignInput {
 
 input UpdateCampaignPayloadInput {
   name: String
+  description: String
   url: String
   status: CampaignStatus
   advertiserId: String

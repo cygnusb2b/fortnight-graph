@@ -355,6 +355,7 @@ describe('graph/resolvers/campaign', function() {
       `;
       const payload = {
         name: 'Updated Campaign Name',
+        description: 'Fancy client-facing description',
         url: 'https://someupdatedurl.com',
         status: 'Deleted',
       };
