@@ -5,8 +5,57 @@ const Template = require('../models/template');
 const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
 
+const buildFields = ({ uuid, pid, cid }) => encodeURIComponent(JSON.stringify({ uuid, pid, cid }));
+
+const extractFields = (context) => {
+  const { data } = context;
+  const { root } = data || {};
+  const { pid, uuid, campaign } = root || {};
+  const cid = campaign ? campaign.id : undefined;
+  return { uuid, pid, cid };
+};
+
+const buildAttrs = keyValues => keyValues.map(o => `data-fortnight-${o.key}="${o.value}"`).join(' ');
+
 handlebars.registerHelper('moment-format', (date, format) => moment(date).format(format));
 handlebars.registerHelper('get-timestamp', () => (new Date()).getTime());
+
+handlebars.registerHelper('build-container-attributes', (context) => {
+  const { uuid, pid, cid } = extractFields(context);
+  const keyValues = [
+    { key: 'action', value: 'view' },
+    { key: 'fields', value: buildFields({ uuid, pid, cid }) },
+    { key: 'timestamp', value: (new Date()).getTime() },
+  ];
+
+  const attrs = buildAttrs(keyValues);
+  return new handlebars.SafeString(attrs);
+});
+
+handlebars.registerHelper('tracked-link', function trackedLink(context) {
+  const { hash } = context;
+  const { uuid, pid, cid } = extractFields(context);
+  const keyValues = [
+    { key: 'action', value: 'click' },
+    { key: 'fields', value: buildFields({ uuid, pid, cid }) },
+  ];
+  const attrs = [];
+  attrs.push(Object.keys(hash).map(name => `${name}="${hash[name]}"`).join(' '));
+  attrs.push(buildAttrs(keyValues));
+
+  return new handlebars.SafeString(`<a ${attrs.join(' ')}>${context.fn(this)}</a>`);
+});
+
+handlebars.registerHelper('build-beacon', (context) => {
+  const { uuid, pid, cid } = extractFields(context);
+  const keyValues = [
+    { key: 'uuid', value: uuid },
+    { key: 'pid', value: pid },
+    { key: 'cid', value: cid },
+  ];
+  const fields = keyValues.filter(o => o.value).map(o => `${o.key}: '${o.value}'`).join(', ');
+  return new handlebars.SafeString(`<script>if (window.fortnight) { fortnight('event', 'load', { ${fields} }, { transport: 'beacon' }); }</script>`);
+});
 
 module.exports = {
   /**

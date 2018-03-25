@@ -49,21 +49,25 @@ describe('schema/template', function() {
         return testRequiredField(Template, template, 'html', value);
       });
     });
-    it('should be rejected when the {{{ beacon }}} var is missing.', async function() {
-      template.html = '<div>{{ href }}</div>';
-      await expect(template.save()).to.be.rejectedWith(Error, 'The {{{ beacon }}} merge variable must be present, exactly one time.');
+    it('should be rejected when the {{build-beacon}} helper is missing.', async function() {
+      template.html = '<div {{build-container-attributes}}>{{#tracked-link href=href}}{{/tracked-link}}</div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{build-beacon}} helper must be present, exactly one time.');
     });
-    it('should be rejected when the {{{ beacon }}} var is missing.', async function() {
-      template.html = '<div>{{ beacon }}{{ href }}</div>';
-      await expect(template.save()).to.be.rejectedWith(Error, 'The {{{ beacon }}} merge variable must be present, exactly one time.');
+    it('should be rejected when more than one {{build-beacon}} helpers are present.', async function() {
+      template.html = '<div {{build-container-attributes}}>{{#tracked-link href=href}}{{/tracked-link}}{{build-beacon}}{{build-beacon}}</div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{build-beacon}} helper must be present, exactly one time.');
     });
-    it('should be rejected when more than one {{{ beacon }}} var is present.', async function() {
-      template.html = '<div>{{ href }}{{{beacon}}} {{{  beacon   }}}</div>';
-      await expect(template.save()).to.be.rejectedWith(Error, 'The {{{ beacon }}} merge variable must be present, exactly one time.');
+    it('should be rejected when the {{build-container-attributes}} helper is missing.', async function() {
+      template.html = '<div>{{#tracked-link href=href}}{{/tracked-link}}{{build-beacon}}</div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{build-container-attributes}} helper must be present, exactly one time.');
     });
-    it('should be rejected when the {{ href }} var is missing.', async function() {
-      template.html = '<div>{{{ beacon }}}</div>';
-      await expect(template.save()).to.be.rejectedWith(Error, 'The {{ href }} merge variable must be present.');
+    it('should be rejected when more than one {{build-container-attributes}} helpers are present.', async function() {
+      template.html = '<div {{build-container-attributes}}>{{#tracked-link href=href}}{{/tracked-link}}{{build-beacon}}<span {{build-container-attributes}}></span></div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{build-container-attributes}} helper must be present, exactly one time.');
+    });
+    it('should be rejected when the {{#tracked-link href=href}} helper is missing.', async function() {
+      template.html = '<div {{build-container-attributes}}>{{build-beacon}}</div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{#tracked-link href=href}}{{/tracked-link}} helper must be present.');
     });
   });
 
@@ -78,17 +82,25 @@ describe('schema/template', function() {
         await expect(template.save()).to.be.fulfilled;
       });
     });
-    it('should be rejected when the {{{ beacon }}} var is missing.', async function() {
-      template.fallback = '<div></div>';
-      await expect(template.save()).to.be.rejectedWith(Error, 'The {{{ beacon }}} merge variable must be present, exactly one time.');
+    it('should be rejected when the {{build-beacon}} helper is missing.', async function() {
+      template.fallback = '<div {{build-container-attributes}}>{{#tracked-link href=url}}{{/tracked-link}}</div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{build-beacon}} helper must be present, exactly one time.');
     });
-    it('should be rejected when more than one {{{ beacon }}} var is present.', async function() {
-      template.fallback = '<div>{{{beacon}}} {{{  beacon   }}}</div>';
-      await expect(template.save()).to.be.rejectedWith(Error, 'The {{{ beacon }}} merge variable must be present, exactly one time.');
+    it('should be rejected when more than one {{build-beacon}} helpers are present.', async function() {
+      template.fallback = '<div {{build-container-attributes}}>{{#tracked-link href=url}}{{/tracked-link}}{{build-beacon}}{{build-beacon}}</div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{build-beacon}} helper must be present, exactly one time.');
     });
-    it('should be rejected when the {{ url }} var is missing.', async function() {
-      template.fallback = '<div>{{{ beacon }}}</div>';
-      await expect(template.save()).to.be.rejectedWith(Error, 'The {{ url }} merge variable must be present.');
+    it('should be rejected when the {{build-container-attributes}} helper is missing.', async function() {
+      template.fallback = '<div>{{#tracked-link href=url}}{{/tracked-link}}{{build-beacon}}</div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{build-container-attributes}} helper must be present, exactly one time.');
+    });
+    it('should be rejected when more than one {{build-container-attributes}} helpers are present.', async function() {
+      template.fallback = '<div {{build-container-attributes}}>{{#tracked-link href=url}}{{/tracked-link}}{{build-beacon}}<span {{build-container-attributes}}></span></div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{build-container-attributes}} helper must be present, exactly one time.');
+    });
+    it('should be rejected when the {{#tracked-link href=url}} helper is missing.', async function() {
+      template.fallback = '<div {{build-container-attributes}}>{{build-beacon}}</div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{#tracked-link href=url}}{{/tracked-link}} helper must be present.');
     });
   });
 

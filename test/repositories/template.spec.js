@@ -83,7 +83,7 @@ describe('repositories/template', function() {
     });
     it('should return the updated model object.', async function() {
       const id = template.id;
-      const payload = { name: 'New Name', html: '<div>{{{ beacon }}}{{ href }}</div>' };
+      const payload = { name: 'New Name', html: '<div {{build-container-attributes}}>{{build-beacon}}{{#tracked-link href=href}}{{/tracked-link}}</div>' };
       const promise = Repo.update(id, payload);
       await expect(promise).to.eventually.be.an.instanceOf(Model);
       const updated = await promise;
@@ -180,13 +180,105 @@ describe('repositories/template', function() {
       expect(Repo.render(source, data)).to.equal(expected);
       done();
     });
-    it('should handle date formats.', function(done) {
-      const source = `<div>{{moment-format campaign.createdAt 'ddd, MMM Do YYYY'}}</div>`;
-      const expected = `<div>Thu, Mar 1st 2018</div>`;
-      const createdAt = new Date(1519921042000);
-      const data = { campaign: { createdAt } };
-      expect(Repo.render(source, data)).to.equal(expected);
-      done();
+
+    describe('#moment-format helper', function() {
+      it('should handle date formats.', function(done) {
+        const source = `<div>{{moment-format campaign.createdAt 'ddd, MMM Do YYYY'}}</div>`;
+        const expected = `<div>Thu, Mar 1st 2018</div>`;
+        const createdAt = new Date(1519921042000);
+        const data = { campaign: { createdAt } };
+        expect(Repo.render(source, data)).to.equal(expected);
+        done();
+      });
     });
+
+    describe('#build-container-attributes helper', function() {
+      it('should inject the proper attributes.', function(done) {
+        const source = '<div {{build-container-attributes}}>Foo</div>';
+        const data = {
+          pid: '5678',
+          uuid: 'abcd',
+          campaign: { id: '1234' },
+        };
+        const fields = encodeURIComponent(JSON.stringify({
+          uuid: data.uuid,
+          pid: data.pid,
+          cid: data.campaign.id,
+        }));
+        const expected = `<div data-fortnight-action="view" data-fortnight-fields="${fields}" data-fortnight-timestamp="`;
+        expect(Repo.render(source, data).indexOf(expected)).to.equal(0);
+        done();
+      });
+      it('should still render when no attributes are provided.', function(done) {
+        const source = '<div {{build-container-attributes}}>Foo</div>';
+        const fields = encodeURIComponent(JSON.stringify({}));
+        const expected = `<div data-fortnight-action="view" data-fortnight-fields="${fields}" data-fortnight-timestamp="`;
+        expect(Repo.render(source).indexOf(expected)).to.equal(0);
+        done();
+      });
+    });
+
+    describe('#tracked-link helper', function() {
+      it('should create the proper tracked link.', function(done) {
+        const source = '{{#tracked-link href=href title=creative.title}}<span>Foo Bar</span>{{/tracked-link}}';
+        const data = {
+          href: 'https://www.google.com',
+          pid: '5678',
+          uuid: 'abcd',
+          campaign: { id: '1234' },
+          creative: { title: 'Cool creative' },
+        };
+        const fields = encodeURIComponent(JSON.stringify({
+          uuid: data.uuid,
+          pid: data.pid,
+          cid: data.campaign.id,
+        }));
+        const expected = `<a title="Cool creative" href="https://www.google.com" data-fortnight-action="click" data-fortnight-fields="${fields}"><span>Foo Bar</span></a>`;
+        expect(Repo.render(source, data)).to.equal(expected);
+        done();
+      });
+      it('should create the proper tracked link when no tracking attributes are provided.', function(done) {
+        const source = '{{#tracked-link href=href title=creative.title}}<span>Foo Bar</span>{{/tracked-link}}';
+        const data = {
+          href: 'https://www.google.com',
+          creative: { title: 'Cool creative' },
+        };
+        const fields = encodeURIComponent(JSON.stringify({}));
+        const expected = `<a title="Cool creative" href="https://www.google.com" data-fortnight-action="click" data-fortnight-fields="${fields}"><span>Foo Bar</span></a>`;
+        expect(Repo.render(source, data)).to.equal(expected);
+        done();
+      });
+    });
+
+    describe('#build-beacon helper', function() {
+      it('should inject the proper attributes.', function(done) {
+        const source = '{{build-beacon}}';
+        const data = {
+          pid: '5678',
+          uuid: 'abcd',
+          campaign: { id: '1234' },
+        };
+        const expected = `<script>if (window.fortnight) { fortnight('event', 'load', { uuid: 'abcd', pid: '5678', cid: '1234' }, { transport: 'beacon' }); }</script>`;
+        expect(Repo.render(source, data)).to.equal(expected);
+        done();
+      });
+      it('should inject the proper attributes, when no campaign is present.', function(done) {
+        const source = '{{build-beacon}}';
+        const data = {
+          pid: '5678',
+          uuid: 'abcd',
+        };
+        const expected = `<script>if (window.fortnight) { fortnight('event', 'load', { uuid: 'abcd', pid: '5678' }, { transport: 'beacon' }); }</script>`;
+        expect(Repo.render(source, data)).to.equal(expected);
+        done();
+      });
+      it('should still render when no attributes are provided.', function(done) {
+        const source = '{{build-beacon}}';
+        const expected = `<script>if (window.fortnight) { fortnight('event', 'load', {  }, { transport: 'beacon' }); }</script>`;
+        expect(Repo.render(source)).to.equal(expected);
+        done();
+      });
+    });
+
   });
 });
