@@ -24,8 +24,8 @@ describe('services/event-handler', function() {
       campaign = await createCampaign();
     });
     after(async function() {
-      PlacementRepo.remove();
-      CampaignRepo.remove();
+      await PlacementRepo.remove();
+      await CampaignRepo.remove();
     });
 
     beforeEach(function() {

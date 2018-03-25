@@ -3,6 +3,7 @@ const { Router } = require('express');
 const noCacheEvents = require('../middleware/no-cache-events');
 const newrelic = require('../newrelic');
 const BotDetector = require('../services/bot-detector');
+const EventHandler = require('../services/event-handler');
 const AnalyticsEvent = require('../models/analytics/event');
 
 const emptyGif = Buffer.from('R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==', 'base64');
@@ -20,6 +21,25 @@ const send = (res, status, err) => {
   res.status(status);
   res.send(emptyGif);
 };
+
+const trackEvent = (req, res) => {
+  const { action } = req.params;
+  // Track the event, but don't await so the response is fast.
+  EventHandler.track({
+    action,
+    fields: req.query,
+    ua: req.get('User-Agent'),
+    ip: req.ip,
+    ref: req.get('Referer'),
+  }).catch(newrelic.noticeError);
+
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Content-Type', 'image/gif');
+  send(res, 200);
+};
+
+router.get('/:action.gif', trackEvent);
+router.post('/:action.gif', trackEvent);
 
 router.get('/:token/:event.gif', (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
