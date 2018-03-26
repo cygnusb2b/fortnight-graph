@@ -69,6 +69,10 @@ describe('schema/template', function() {
       template.html = '<div {{build-container-attributes}}>{{build-beacon}}</div>';
       await expect(template.save()).to.be.rejectedWith(Error, 'The {{#tracked-link href=href}}{{/tracked-link}} helper must be present.');
     });
+    it('should be rejected when more than one {{build-ua-beacon}} helpers are present.', async function() {
+      template.html = '<div {{build-container-attributes}}>{{#tracked-link href=href}}{{/tracked-link}}{{build-beacon}}<span>{{build-ua-beacon}}{{build-ua-beacon}}</span></div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{build-ua-beacon}} helper is optional, but can only be used once.');
+    });
   });
 
   describe('#fallback', function() {
@@ -101,6 +105,10 @@ describe('schema/template', function() {
     it('should be rejected when the {{#tracked-link href=url}} helper is missing.', async function() {
       template.fallback = '<div {{build-container-attributes}}>{{build-beacon}}</div>';
       await expect(template.save()).to.be.rejectedWith(Error, 'The {{#tracked-link href=url}}{{/tracked-link}} helper must be present.');
+    });
+    it('should be rejected when more than one {{build-ua-beacon}} helpers are present.', async function() {
+      template.fallback = '<div {{build-container-attributes}}>{{#tracked-link href=url}}{{/tracked-link}}{{build-beacon}}<span>{{build-ua-beacon}}{{build-ua-beacon}}</span></div>';
+      await expect(template.save()).to.be.rejectedWith(Error, 'The {{build-ua-beacon}} helper is optional, but can only be used once.');
     });
   });
 

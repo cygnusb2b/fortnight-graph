@@ -7,6 +7,14 @@ const validateBeacon = (v) => {
   return true;
 };
 
+const validateUABeacon = (v) => {
+  const results = v.match(/{{build-ua-beacon}}/g);
+  if (!results) return true; // Optional
+  // But if present, only allow one time.
+  if (results.length > 1) return false;
+  return true;
+};
+
 const validateContainerAttrs = (v) => {
   const results = v.match(/{{build-container-attributes}}/g);
   if (!results) return false;
@@ -39,6 +47,12 @@ const schema = new Schema({
       },
       {
         validator(v) {
+          return validateUABeacon(v);
+        },
+        message: 'The {{build-ua-beacon}} helper is optional, but can only be used once.',
+      },
+      {
+        validator(v) {
           return /{{#tracked-link href=href/g.test(v);
         },
         message: 'The {{#tracked-link href=href}}{{/tracked-link}} helper must be present.',
@@ -61,6 +75,13 @@ const schema = new Schema({
           return validateBeacon(v);
         },
         message: 'The {{build-beacon}} helper must be present, exactly one time.',
+      },
+      {
+        validator(v) {
+          if (!v) return true;
+          return validateUABeacon(v);
+        },
+        message: 'The {{build-ua-beacon}} helper is optional, but can only be used once.',
       },
       {
         validator(v) {
