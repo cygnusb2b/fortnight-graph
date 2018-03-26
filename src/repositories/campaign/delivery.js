@@ -243,18 +243,21 @@ module.exports = {
     requestURL,
     event,
   }) {
-    const { cid } = event;
+    const { cid, pid, uuid } = event;
     const ad = this.createEmptyAd(cid);
     const trackers = this.createTrackers(requestURL, event);
     const beacon = this.createImgBeacon(trackers);
 
     if (template.fallback) {
-      let vars = {};
+      let vars = {
+        pid,
+        uuid,
+        beacon,
+      };
       if (fallbackVars) {
         const url = this.createFallbackRedirect(fallbackVars.url, requestURL, event);
-        vars = Object.assign({}, fallbackVars, { url });
+        vars = Object.assign({}, fallbackVars, { url }, vars);
       }
-      vars.beacon = beacon;
       ad.html = TemplateRepo.render(template.fallback, vars);
     } else {
       ad.html = beacon;
@@ -298,7 +301,10 @@ module.exports = {
     const trackers = this.createTrackers(requestURL, event);
     const beacon = this.createImgBeacon(trackers);
 
+    const { uuid, pid } = event;
     const vars = {
+      uuid,
+      pid,
       beacon,
       href,
       campaign,

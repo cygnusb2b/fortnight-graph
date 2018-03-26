@@ -158,7 +158,10 @@ describe('graph/resolvers/template', function() {
         await expect(graphql({ query, variables, key: 'createTemplate', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
       });
       it('should create the template.', async function() {
-        const payload = { name: 'Test Template', html: '<div>{{{ beacon }}}{{ href }}</div>', fallback: '<section>{{{ beacon }}} {{ url }}</section>' };
+        const payload = {
+          name: 'Test Template',
+          html: '<div {{build-container-attributes}}>{{build-beacon}}{{#tracked-link href=href}}{{/tracked-link}}</div>',
+          fallback: '<section {{build-container-attributes}}>{{build-beacon}}{{#tracked-link href=url}}{{/tracked-link}}</section>' };
         const input = { payload };
         const variables = { input };
         const promise = graphql({ query, variables, key: 'createTemplate', loggedIn: true });
@@ -192,8 +195,8 @@ describe('graph/resolvers/template', function() {
       `;
       const payload = {
         name: 'Updated Template Name',
-        html: '<div>New stuff! {{{ beacon }}} {{ href }}</div>',
-        fallback: '<section>Fallback! {{{ beacon }}} {{ url }}</section>'
+        html: '<div {{build-container-attributes}}>New stuff!{{build-beacon}}{{#tracked-link href=href}}{{/tracked-link}}</div>',
+        fallback: '<section {{build-container-attributes}}>Fallback! {{build-beacon}}{{#tracked-link href=url}}{{/tracked-link}}</section>'
       };
 
       it('should reject when no user is logged-in.', async function() {

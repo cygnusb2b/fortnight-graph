@@ -1,7 +1,22 @@
 const { Schema } = require('mongoose');
 
 const validateBeacon = (v) => {
-  const results = v.match(/{{{\s*?beacon\s*?}}}/g);
+  const results = v.match(/{{build-beacon}}/g);
+  if (!results) return false;
+  if (results.length > 1) return false;
+  return true;
+};
+
+const validateUABeacon = (v) => {
+  const results = v.match(/{{build-ua-beacon}}/g);
+  if (!results) return true; // Optional
+  // But if present, only allow one time.
+  if (results.length > 1) return false;
+  return true;
+};
+
+const validateContainerAttrs = (v) => {
+  const results = v.match(/{{build-container-attributes}}/g);
   if (!results) return false;
   if (results.length > 1) return false;
   return true;
@@ -20,15 +35,27 @@ const schema = new Schema({
     validate: [
       {
         validator(v) {
-          return validateBeacon(v);
+          return validateContainerAttrs(v);
         },
-        message: 'The {{{ beacon }}} merge variable must be present, exactly one time.',
+        message: 'The {{build-container-attributes}} helper must be present, exactly one time.',
       },
       {
         validator(v) {
-          return /{{\s*?href\s*?}}/g.test(v);
+          return validateBeacon(v);
         },
-        message: 'The {{ href }} merge variable must be present.',
+        message: 'The {{build-beacon}} helper must be present, exactly one time.',
+      },
+      {
+        validator(v) {
+          return validateUABeacon(v);
+        },
+        message: 'The {{build-ua-beacon}} helper is optional, but can only be used once.',
+      },
+      {
+        validator(v) {
+          return /{{#tracked-link href=href/g.test(v);
+        },
+        message: 'The {{#tracked-link href=href}}{{/tracked-link}} helper must be present.',
       },
     ],
   },
@@ -38,16 +65,30 @@ const schema = new Schema({
       {
         validator(v) {
           if (!v) return true;
-          return validateBeacon(v);
+          return validateContainerAttrs(v);
         },
-        message: 'The {{{ beacon }}} merge variable must be present, exactly one time.',
+        message: 'The {{build-container-attributes}} helper must be present, exactly one time.',
       },
       {
         validator(v) {
           if (!v) return true;
-          return /{{\s*?url\s*?}}/g.test(v);
+          return validateBeacon(v);
         },
-        message: 'The {{ url }} merge variable must be present.',
+        message: 'The {{build-beacon}} helper must be present, exactly one time.',
+      },
+      {
+        validator(v) {
+          if (!v) return true;
+          return validateUABeacon(v);
+        },
+        message: 'The {{build-ua-beacon}} helper is optional, but can only be used once.',
+      },
+      {
+        validator(v) {
+          if (!v) return true;
+          return /{{#tracked-link href=url/g.test(v);
+        },
+        message: 'The {{#tracked-link href=url}}{{/tracked-link}} helper must be present.',
       },
     ],
   },

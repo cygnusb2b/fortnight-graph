@@ -3,21 +3,20 @@ const faker = require('faker');
 const html = `
 {{!-- Load More Template Style --}}
 
-<div class="item" data-fortnight-timestamp="{{get-timestamp}}" data-bvo-width="33" data-bvo-item-id="{{ campaign.id }}" data-bvo-item-type="platform-content">
+<div {{build-container-attributes}} class="item" data-bvo-width="33" data-bvo-item-id="{{ campaign.id }}" data-bvo-item-type="platform-content">
   {{#if creative.image}}
     <div class="element" data-bvo-type="field.image" data-bvo-value-wrap-element="span" data-bvo-linkable="true" data-bvo-width="100"
       data-bvo-position="left" data-bvo-param-field-key="primaryImage" data-bvo-param-fallback-keys="" data-bvo-param-convert-breaks="false"
       data-bvo-param-filter="" data-bvo-param-is-fragment="false" data-bvo-param-fragment-url="" data-bvo-param-aspect-ratio="16:9"
       data-bvo-param-fit="contain" data-bvo-template-name="platform-content.primary-image">
-      <a href="{{ href }}"
-        title="{{ creative.title }}" target="_self">
+      {{#tracked-link href=href title=creative.title}}
         <noscript>
           <img class="img-responsive" src="{{ creative.image.src }}"
             alt="{{ creative.image.alt }}" title="{{ creative.image.alt }}" style="opacity:1;">
         </noscript>
         <img id="{{ creative.image.id }}" class="img-responsive" data-bvo-src="{{ creative.image.src }}"
           alt="{{ creative.image.alt }}" title="{{ creative.image.alt }}">
-      </a>
+      {{/tracked-link}}
     </div>
   {{/if}}
 
@@ -26,12 +25,11 @@ const html = `
     <div class="element" data-bvo-type="field" data-bvo-value-wrap-element="h3" data-bvo-linkable="true" data-bvo-width="100"
       data-bvo-position="left" data-bvo-param-field-key="shortName" data-bvo-param-fallback-keys="nameWebsite,name" data-bvo-param-convert-breaks="false"
       data-bvo-param-filter="" data-bvo-param-is-fragment="false" data-bvo-param-fragment-url="" data-bvo-template-name="platform-content.shortName">
-      <a href="{{ href }}"
-        title="{{ creative.title }}" target="_self">
+      {{#tracked-link href=href title=creative.title}}
         <h3 class="value" data-bvo-item-id="{{ campaign.id }}" data-bvo-item-type="platform-content">
           {{ creative.title }}
         </h3>
-      </a>
+      {{/tracked-link}}
     </div>
 
 
@@ -65,6 +63,8 @@ const html = `
       </div>
     </div>
   </div>
+  {{build-beacon}}
+  {{build-ua-beacon}}
   {{{ beacon }}}
 </div>
 `;
@@ -72,21 +72,20 @@ const html = `
 const fallback = `
 {{!-- Load More Template Style --}}
 
-<div class="item" data-fortnight-timestamp="{{get-timestamp}}" data-bvo-width="33" data-bvo-item-id="{{ contentId }}" data-bvo-item-type="platform-content">
+<div {{build-container-attributes}} class="item" data-bvo-width="33" data-bvo-item-id="{{ contentId }}" data-bvo-item-type="platform-content">
   {{#if image.src}}
     <div class="element" data-bvo-type="field.image" data-bvo-value-wrap-element="span" data-bvo-linkable="true" data-bvo-width="100"
       data-bvo-position="left" data-bvo-param-field-key="primaryImage" data-bvo-param-fallback-keys="" data-bvo-param-convert-breaks="false"
       data-bvo-param-filter="" data-bvo-param-is-fragment="false" data-bvo-param-fragment-url="" data-bvo-param-aspect-ratio="16:9"
       data-bvo-param-fit="contain" data-bvo-template-name="platform-content.primary-image">
-      <a href="{{ url }}"
-        title="{{ title }}" target="_self">
+      {{#tracked-link href=url title=title}}
         <noscript>
           <img class="img-responsive" src="{{ image.src }}"
             alt="{{ image.alt }}" title="{{ image.alt }}" style="opacity:1;">
         </noscript>
         <img id="{{ image.id }}" class="img-responsive" data-bvo-src="{{ image.src }}"
           alt="{{ image.alt }}" title="{{ image.alt }}">
-      </a>
+      {{/tracked-link}}
     </div>
   {{/if}}
 
@@ -95,12 +94,11 @@ const fallback = `
     <div class="element" data-bvo-type="field" data-bvo-value-wrap-element="h3" data-bvo-linkable="true" data-bvo-width="100"
       data-bvo-position="left" data-bvo-param-field-key="shortName" data-bvo-param-fallback-keys="nameWebsite,name" data-bvo-param-convert-breaks="false"
       data-bvo-param-filter="" data-bvo-param-is-fragment="false" data-bvo-param-fragment-url="" data-bvo-template-name="platform-content.shortName">
-      <a href="{{ url }}"
-        title="{{ title }}" target="_self">
+      {{#tracked-link href=url title=title}}
         <h3 class="value" data-bvo-item-id="{{ contentId }}" data-bvo-item-type="platform-content">
           {{ title }}
         </h3>
-      </a>
+      {{/tracked-link}}
     </div>
 
 
@@ -134,6 +132,7 @@ const fallback = `
       </div>
     </div>
   </div>
+  {{build-beacon}}
   {{{ beacon }}}
 </div>
 `;

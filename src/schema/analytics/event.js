@@ -46,7 +46,15 @@ const schema = new Schema({
   e: {
     type: String,
     required: true,
-    enum: ['request', 'load', 'view', 'click'],
+    enum: [
+      'request',
+      'load',
+      'load-js',
+      'view',
+      'view-js',
+      'click',
+      'click-js',
+    ],
   },
   uuid: {
     type: String,
