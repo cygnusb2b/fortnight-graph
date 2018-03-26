@@ -218,7 +218,7 @@ describe('repositories/campaign/placement', function() {
       // Check payload, but not sig here.
       const decoded = jwt.decode(token);
       expect(decoded).to.be.an('object');
-      expect(decoded.iat).to.be.a('number').gt(0);
+      expect(decoded).to.not.have.property('iat');
       expect(decoded.hash).to.equal('abcd');
       expect(decoded.cid).to.equal('1234');
       done();
@@ -245,7 +245,7 @@ describe('repositories/campaign/placement', function() {
       // Check payload, but not sig here.
       const decoded = jwt.decode(token);
       expect(decoded).to.be.an('object');
-      expect(decoded.iat).to.be.a('number').gt(0);
+      expect(decoded).to.not.have.property('iat');
       expect(decoded.hash).to.equal('abcd');
       expect(decoded.url).to.equal('http://www.redirect-to.com');
       done();
