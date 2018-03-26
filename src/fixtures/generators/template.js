@@ -64,6 +64,7 @@ const html = `
     </div>
   </div>
   {{build-beacon}}
+  {{build-ua-beacon}}
   {{{ beacon }}}
 </div>
 `;

@@ -280,5 +280,33 @@ describe('repositories/template', function() {
       });
     });
 
+    describe('#build-ua-beacon helper', function() {
+      it('should inject the proper attributes.', function(done) {
+        const source = '{{build-ua-beacon}}';
+        const data = {
+          pid: '5678',
+          campaign: { id: '1234' },
+        };
+        const expected = `<script>if (window.ga) { ga('send', 'event', 'Fortnight', 'load', '5678', '1234'); }</script>`;
+        expect(Repo.render(source, data)).to.equal(expected);
+        done();
+      });
+      it('should inject the proper attributes, when no campaign is present.', function(done) {
+        const source = '{{build-ua-beacon}}';
+        const data = {
+          pid: '5678',
+        };
+        const expected = `<script>if (window.ga) { ga('send', 'event', 'Fortnight', 'load', '5678', ''); }</script>`;
+        expect(Repo.render(source, data)).to.equal(expected);
+        done();
+      });
+      it('should still render when no attributes are provided.', function(done) {
+        const source = '{{build-ua-beacon}}';
+        const expected = `<script>if (window.ga) { ga('send', 'event', 'Fortnight', 'load', '', ''); }</script>`;
+        expect(Repo.render(source)).to.equal(expected);
+        done();
+      });
+    });
+
   });
 });
