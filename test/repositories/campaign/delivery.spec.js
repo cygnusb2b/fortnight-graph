@@ -671,24 +671,26 @@ describe('repositories/campaign/delivery', function() {
       });
     });
 
-    it('should should record the proper request event.', async function() {
-      await AnalyticsEvent.remove();
-      const placementId = placement.id;
-      const templateId = template.id;
-      const num = 1;
+    // Remove once requests are no longer saved.
 
-      const promise = Repo.findFor({ placementId, templateId, requestURL, num });
-      await expect(promise).to.be.fulfilled;
-      const ads = await promise;
-      const result = await AnalyticsEvent.findOne({ pid: placementId });
-      expect(result).to.be.an('object');
+    // it('should should record the proper request event.', async function() {
+    //   await AnalyticsEvent.remove();
+    //   const placementId = placement.id;
+    //   const templateId = template.id;
+    //   const num = 1;
 
-      sinon.assert.calledOnce(Repo.getPlacementAndTemplate);
-      sinon.assert.calledOnce(Repo.queryCampaigns);
-      sinon.assert.calledOnce(Repo.fillWithFallbacks);
-      sinon.assert.calledOnce(Repo.createRequestEvent);
-      sinon.assert.calledOnce(Repo.buildAdFor);
-    });
+    //   const promise = Repo.findFor({ placementId, templateId, requestURL, num });
+    //   await expect(promise).to.be.fulfilled;
+    //   const ads = await promise;
+    //   const result = await AnalyticsEvent.findOne({ pid: placementId });
+    //   expect(result).to.be.an('object');
+
+    //   sinon.assert.calledOnce(Repo.getPlacementAndTemplate);
+    //   sinon.assert.calledOnce(Repo.queryCampaigns);
+    //   sinon.assert.calledOnce(Repo.fillWithFallbacks);
+    //   sinon.assert.calledOnce(Repo.createRequestEvent);
+    //   sinon.assert.calledOnce(Repo.buildAdFor);
+    // });
   });
 
   describe('#injectUTMParams', function() {
