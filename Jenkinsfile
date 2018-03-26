@@ -52,6 +52,12 @@ node {
           -H 'Content-Type: application/json' \
           -d '{ \"deployment\": { \"revision\": \"${env.BUILD_NUMBER}\", \"user\": \"jenkins\" } }'"
       }
+      stage('Notify Sentry') {
+        sh "curl https://sentry.as3.io/api/hooks/release/builtin/10/28030b8c0f65250244855e5b85483ad830692a84fc389727757bc2fac27f33e3/ \
+          -X POST \
+          -H 'Content-Type: application/json' \
+          -d '{\"version\": \"${env.BUILD_NUMBER}\"}'"
+      }
     } catch (e) {
       slackSend color: 'bad', message: "Failed deploying ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|View>)"
       throw e
