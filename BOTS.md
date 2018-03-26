@@ -6,8 +6,7 @@
 ```js
 db.getCollection('analytics-events').aggregate([
   {
-    // Date will track data after load headers and blacklisting were applied.
-    $match: { 'bot.detected': false, d: { $gt: ISODate('2018-03-21 02:23:45.867Z') } },
+    $match: { 'bot.detected': false },
   },
   {
     $group: {
@@ -19,6 +18,409 @@ db.getCollection('analytics-events').aggregate([
     $sort: { n: -1 },
   },
 ]);
+
+// Overview of `-js` events.
+db.getCollection('analytics-events').aggregate([
+  {
+    $match: {
+      e: { $in: ['view-js', 'load-js', 'click-js'] },
+      'bot.detected': false,
+    },
+  },
+  {
+    $group: {
+      _id: '$e',
+      n: { $sum: 1 },
+    },
+  },
+  {
+    $sort: { n: -1 },
+  },
+]);
+
+// Grouped by potential bot
+db.getCollection('analytics-events').aggregate([
+  {
+    $match: {
+      e: { $in: ['view-js', 'load-js', 'click-js'] },
+      'bot.detected': true,
+    },
+  },
+  {
+    $group: {
+      _id: '$e',
+      n: { $sum: 1 },
+      agents: { $addToSet: '$ua.ua' },
+    },
+  },
+  {
+    $sort: { n: -1 },
+  },
+]);
+
+// New vs Old Tracking Analysis, by Browser.
+(function(db) {
+
+  const lines = [];
+  lines.push('"Browser","Browser Version","Loads","Loads (New)","Loads [Bot]","Loads (New) [Bot]","Views","Views (New)","Views [Bot]","Views (New) [Bot]","Clicks","Clicks (New)","Clicks [Bot]","Clicks (New) [Bot]"');
+  db.getCollection('analytics-events').aggregate([
+    {
+      $match: {
+        e: { $ne: 'request' },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          e: '$e',
+          browser: '$ua.browser.name',
+          version: '$ua.browser.major',
+          bot: '$bot.detected',
+        },
+        n: { $sum: 1 },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          browser: '$_id.browser',
+          version: '$_id.version',
+        },
+        events: { $push: { bot: '$_id.bot', name: '$_id.e', n: '$n' } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        browser: '$_id.browser',
+        version: '$_id.version',
+        events: 1,
+      },
+    },
+    {
+      $sort: { browser: 1, version: -1 },
+    },
+  ], { collation: { locale: 'en_US', numericOrdering: true } }).forEach((row) => {
+    const counts = row.events.reduce((agg, event) => {
+      const bot = event.bot ? 'bot' : 'not-bot';
+      if (!agg[bot]) {
+        agg[bot] = {};
+      }
+      agg[bot][event.name] = event.n;
+      return agg;
+    }, {});
+
+    const line = [];
+    line.push(`"${row.browser || 'Unknown'}"`);
+    line.push(`"${row.version || 'Unknown'}"`);
+
+    line.push(counts['not-bot'] ? counts['not-bot']['load'] || 0 : 0);
+    line.push(counts['not-bot'] ? counts['not-bot']['load-js'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['load'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['load-js'] || 0 : 0);
+
+    line.push(counts['not-bot'] ? counts['not-bot']['view'] || 0 : 0);
+    line.push(counts['not-bot'] ? counts['not-bot']['view-js'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['view'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['view-js'] || 0 : 0);
+
+    line.push(counts['not-bot'] ? counts['not-bot']['click'] || 0 : 0);
+    line.push(counts['not-bot'] ? counts['not-bot']['click-js'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['click'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['click-js'] || 0 : 0);
+
+    lines.push(line.join(','));
+  });
+  const csv = lines.join('\n');
+  print(csv);
+})(db);
+
+// New vs Old Tracking Analysis, by Browser and OS.
+(function(db) {
+
+  const lines = [];
+  lines.push('"Browser","Browser Version","OS","OS Version","Loads","Loads (New)","Loads [Bot]","Loads (New) [Bot]","Views","Views (New)","Views [Bot]","Views (New) [Bot]","Clicks","Clicks (New)","Clicks [Bot]","Clicks (New) [Bot]"');
+  db.getCollection('analytics-events').aggregate([
+    {
+      $match: {
+        e: { $ne: 'request' },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          e: '$e',
+          browser: '$ua.browser.name',
+          version: '$ua.browser.major',
+          os: '$ua.os.name',
+          osVersion: '$ua.os.version',
+          bot: '$bot.detected',
+        },
+        n: { $sum: 1 },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          browser: '$_id.browser',
+          version: '$_id.version',
+          os: '$_id.os',
+          osVersion: '$_id.osVersion',
+        },
+        events: { $push: { bot: '$_id.bot', name: '$_id.e', n: '$n' } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        browser: '$_id.browser',
+        version: '$_id.version',
+        os: '$_id.os',
+        osVersion: '$_id.osVersion',
+        events: 1,
+      },
+    },
+    {
+      $sort: { browser: 1, version: -1, os: 1, osVersion: -1 },
+    },
+  ], { collation: { locale: 'en_US', numericOrdering: true } }).forEach((row) => {
+    const counts = row.events.reduce((agg, event) => {
+      const bot = event.bot ? 'bot' : 'not-bot';
+      if (!agg[bot]) {
+        agg[bot] = {};
+      }
+      agg[bot][event.name] = event.n;
+      return agg;
+    }, {});
+
+    const line = [];
+    line.push(`"${row.browser || 'Unknown'}"`);
+    line.push(`"${row.version || 'Unknown'}"`);
+    line.push(`"${row.os || 'Unknown'}"`);
+    line.push(`"${row.osVersion || 'Unknown'}"`);
+
+    line.push(counts['not-bot'] ? counts['not-bot']['load'] || 0 : 0);
+    line.push(counts['not-bot'] ? counts['not-bot']['load-js'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['load'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['load-js'] || 0 : 0);
+
+    line.push(counts['not-bot'] ? counts['not-bot']['view'] || 0 : 0);
+    line.push(counts['not-bot'] ? counts['not-bot']['view-js'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['view'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['view-js'] || 0 : 0);
+
+    line.push(counts['not-bot'] ? counts['not-bot']['click'] || 0 : 0);
+    line.push(counts['not-bot'] ? counts['not-bot']['click-js'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['click'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['click-js'] || 0 : 0);
+
+    lines.push(line.join(','));
+  });
+  const csv = lines.join('\n');
+  print(csv);
+})(db);
+
+// New vs Old Tracking Analysis, by Publisher and Placement.
+(function(db) {
+
+  const lines = [];
+  lines.push('"Publisher","Placement","Loads","Loads (New)","Loads [Bot]","Loads (New) [Bot]","Views","Views (New)","Views [Bot]","Views (New) [Bot]","Clicks","Clicks (New)","Clicks [Bot]","Clicks (New) [Bot]"');
+  db.getCollection('analytics-events').aggregate([
+    {
+      $match: {
+        e: { $ne: 'request' },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          e: '$e',
+          pid: '$pid',
+          bot: '$bot.detected',
+        },
+        n: { $sum: 1 },
+      },
+    },
+    {
+      $group: {
+        _id: '$_id.pid',
+        events: { $push: { bot: '$_id.bot', name: '$_id.e', n: '$n' } },
+      },
+    },
+    {
+      $lookup: {
+        from: 'placements',
+        localField: '_id',
+        foreignField: '_id',
+        as: '_id',
+      },
+    },
+    { $unwind: '$_id' },
+    {
+      $lookup: {
+        from: 'publishers',
+        localField: '_id.publisherId',
+        foreignField: '_id',
+        as: '_id.publisher',
+      },
+    },
+    { $unwind: '$_id.publisher' },
+    {
+      $project: {
+        _id: 0,
+        publisher: '$_id.publisher.name',
+        placement: '$_id.name',
+        events: 1,
+      },
+    },
+    {
+      $sort: { publisher: 1, placement: 1 },
+    },
+  ]).forEach((row) => {
+    const counts = row.events.reduce((agg, event) => {
+      const bot = event.bot ? 'bot' : 'not-bot';
+      if (!agg[bot]) {
+        agg[bot] = {};
+      }
+      agg[bot][event.name] = event.n;
+      return agg;
+    }, {});
+
+    const line = [];
+    line.push(`"${row.publisher || 'Unknown'}"`);
+    line.push(`"${row.placement || 'Unknown'}"`);
+
+    line.push(counts['not-bot'] ? counts['not-bot']['load'] || 0 : 0);
+    line.push(counts['not-bot'] ? counts['not-bot']['load-js'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['load'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['load-js'] || 0 : 0);
+
+    line.push(counts['not-bot'] ? counts['not-bot']['view'] || 0 : 0);
+    line.push(counts['not-bot'] ? counts['not-bot']['view-js'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['view'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['view-js'] || 0 : 0);
+
+    line.push(counts['not-bot'] ? counts['not-bot']['click'] || 0 : 0);
+    line.push(counts['not-bot'] ? counts['not-bot']['click-js'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['click'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['click-js'] || 0 : 0);
+
+    lines.push(line.join(','));
+  });
+  const csv = lines.join('\n');
+  print(csv);
+})(db);
+
+// New vs Old Tracking Analysis - the Kitchen Sink
+(function(db) {
+
+  const lines = [];
+  lines.push('"Browser","Browser Version","OS","OS Version","Publisher","Placement","Loads","Loads (New)","Loads [Bot]","Loads (New) [Bot]","Views","Views (New)","Views [Bot]","Views (New) [Bot]","Clicks","Clicks (New)","Clicks [Bot]","Clicks (New) [Bot]"');
+  db.getCollection('analytics-events').aggregate([
+    {
+      $match: {
+        e: { $ne: 'request' },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          e: '$e',
+          pid: '$pid',
+          browser: '$ua.browser.name',
+          version: '$ua.browser.major',
+          os: '$ua.os.name',
+          osVersion: '$ua.os.version',
+          bot: '$bot.detected',
+        },
+        n: { $sum: 1 },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          pid: '$_id.pid',
+          browser: '$_id.browser',
+          version: '$_id.version',
+          os: '$_id.os',
+          osVersion: '$_id.osVersion',
+        },
+        events: { $push: { bot: '$_id.bot', name: '$_id.e', n: '$n' } },
+      },
+    },
+    {
+      $lookup: {
+        from: 'placements',
+        localField: '_id.pid',
+        foreignField: '_id',
+        as: '_id.placement',
+      },
+    },
+    { $unwind: '$_id' },
+    {
+      $lookup: {
+        from: 'publishers',
+        localField: '_id.placement.publisherId',
+        foreignField: '_id',
+        as: '_id.publisher',
+      },
+    },
+    { $unwind: '$_id.publisher' },
+    {
+      $project: {
+        _id: 0,
+        browser: '$_id.browser',
+        version: '$_id.version',
+        os: '$_id.os',
+        osVersion: '$_id.osVersion',
+        placement: '$_id.placement.name',
+        publisher: '$_id.publisher.name',
+        events: 1,
+      },
+    },
+    {
+      $sort: { browser: 1, version: -1, os: 1, osVersion: -1 },
+    },
+  ], { collation: { locale: 'en_US', numericOrdering: true } }).forEach((row) => {
+    const counts = row.events.reduce((agg, event) => {
+      const bot = event.bot ? 'bot' : 'not-bot';
+      if (!agg[bot]) {
+        agg[bot] = {};
+      }
+      agg[bot][event.name] = event.n;
+      return agg;
+    }, {});
+
+    const line = [];
+    line.push(`"${row.browser || 'Unknown'}"`);
+    line.push(`"${row.version || 'Unknown'}"`);
+    line.push(`"${row.os || 'Unknown'}"`);
+    line.push(`"${row.osVersion || 'Unknown'}"`);
+    line.push(`"${row.publisher || 'Unknown'}"`);
+    line.push(`"${row.placement || 'Unknown'}"`);
+
+    line.push(counts['not-bot'] ? counts['not-bot']['load'] || 0 : 0);
+    line.push(counts['not-bot'] ? counts['not-bot']['load-js'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['load'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['load-js'] || 0 : 0);
+
+    line.push(counts['not-bot'] ? counts['not-bot']['view'] || 0 : 0);
+    line.push(counts['not-bot'] ? counts['not-bot']['view-js'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['view'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['view-js'] || 0 : 0);
+
+    line.push(counts['not-bot'] ? counts['not-bot']['click'] || 0 : 0);
+    line.push(counts['not-bot'] ? counts['not-bot']['click-js'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['click'] || 0 : 0);
+    line.push(counts['bot'] ? counts['bot']['click-js'] || 0 : 0);
+
+    lines.push(line.join(','));
+  });
+  const csv = lines.join('\n');
+  print(csv);
+})(db);
+
+
 ```
 
 ## Detection and Weighting

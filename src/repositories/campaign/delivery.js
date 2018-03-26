@@ -1,5 +1,4 @@
 const createError = require('http-errors');
-const Promise = require('bluebird');
 const uuidv4 = require('uuid/v4');
 const { URL } = require('url');
 const { isURL } = require('validator');
@@ -141,7 +140,8 @@ module.exports = {
       });
       ads.push(ad);
     });
-    await Promise.all(events.map(event => event.save()));
+    // Disable saving request events.
+    // await Promise.all(events.map(event => event.save()));
     return ads;
   },
 
