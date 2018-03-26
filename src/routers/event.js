@@ -18,6 +18,9 @@ const send = (res, status, err) => {
   if (err) {
     newrelic.noticeError(err);
   }
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Content-Type', 'image/gif');
+
   res.status(status);
   res.send(emptyGif);
 };
@@ -32,9 +35,6 @@ const trackEvent = (req, res) => {
     ip: req.ip,
     ref: req.get('Referer'),
   }).catch(newrelic.noticeError);
-
-  res.set('Access-Control-Allow-Origin', '*');
-  res.set('Content-Type', 'image/gif');
   send(res, 200);
 };
 
@@ -42,8 +42,6 @@ router.get('/:action.gif', trackEvent);
 router.post('/:action.gif', trackEvent);
 
 router.get('/:token/:event.gif', (req, res) => {
-  res.set('Access-Control-Allow-Origin', '*');
-  res.set('Content-Type', 'image/gif');
   const { token, event } = req.params;
 
   if (!events.includes(event)) {
