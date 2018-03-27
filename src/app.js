@@ -13,7 +13,15 @@ passport.use(authStrategies.bearer);
 // Initialize passport auth.
 app.use(passport.initialize());
 
-app.use(express.static('public'));
+app.use(express.static('public', {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.set('Access-Control-Allow-Origin', '*');
+      res.set('Timing-Allow-Origin', '*');
+      res.set('Status', '200');
+    }
+  },
+}));
 
 loadRouters(app);
 
