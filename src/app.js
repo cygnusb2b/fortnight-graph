@@ -20,6 +20,10 @@ app.use(express.static('public', {
       res.set('Timing-Allow-Origin', '*');
       res.set('Status', '200');
     }
+    if (path.endsWith('.js.map')) {
+      res.set('Access-Control-Allow-Origin', '*');
+      res.set('Status', '200');
+    }
   },
 }));
 
