@@ -1,0 +1,15 @@
+type Query {
+  reportCampaignSummary(input: CampaignHashInput!): CampaignSummary!
+}
+
+type CampaignSummary {
+  views: Int!
+  clicks: Int!
+  days: [CampaignSummaryDay!]!
+}
+
+type CampaignSummaryDay {
+  date: Date!
+  views: Int!
+  clicks: Int!
+}
