@@ -9,29 +9,40 @@ const template = require('./template');
 const publisher = require('./publisher');
 const placement = require('./placement');
 const contact = require('./contact');
+const report = require('./report');
 
-module.exports = deepAssign(advertiser, campaign, user, template, publisher, placement, contact, {
-  /**
-   *
-   */
-  Date: DateType,
-  Cursor: CursorType,
-
-  /**
-   *
-   */
-  Query: {
+module.exports = deepAssign(
+  advertiser,
+  campaign,
+  user,
+  template,
+  publisher,
+  placement,
+  contact,
+  report,
+  {
     /**
      *
      */
-    ping: () => 'pong',
+    Date: DateType,
+    Cursor: CursorType,
 
     /**
      *
      */
-    signImageUpload: (root, { input }) => {
-      const { name, type } = input;
-      return ImageRepo.signUpload(name, type);
+    Query: {
+      /**
+       *
+       */
+      ping: () => 'pong',
+
+      /**
+       *
+       */
+      signImageUpload: (root, { input }) => {
+        const { name, type } = input;
+        return ImageRepo.signUpload(name, type);
+      },
     },
   },
-});
+);
