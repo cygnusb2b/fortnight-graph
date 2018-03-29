@@ -61,7 +61,7 @@ describe('routers/redir', function() {
       .expect(301)
       .expect(testNoCacheResponse)
       .expect((res) => {
-        expect(res.get('location')).to.equal(CampaignDeliveryRepo.injectUTMParams(url, event));
+        expect(res.get('location')).to.equal(url);
       });
     await expect(AnalyticsEvent.find({ e: 'click', uuid: event.uuid, cid: event.cid, pid: event.pid })).to.eventually.be.an('array').with.property('length', 1);
   });
@@ -82,7 +82,7 @@ describe('routers/redir', function() {
       .expect(301)
       .expect(testNoCacheResponse)
       .expect((res) => {
-        expect(res.get('location')).to.equal(CampaignDeliveryRepo.injectUTMParams(url, event));
+        expect(res.get('location')).to.equal(url);
       });
     const promise = AnalyticsEvent.find({ e: 'click', uuid: event.uuid, cid: event.cid, pid: event.pid });
     await expect(promise).to.eventually.be.an('array').with.property('length', 1);
