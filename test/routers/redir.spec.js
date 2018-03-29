@@ -38,10 +38,10 @@ describe('routers/redir', function() {
     expect(router).itself.to.respondTo('use');
     done();
   });
-  it('should return a 403 when a bad token is provided.', function(done) {
+  it('should return a 500 when a bad token is provided.', function(done) {
     request(app)
       .get('/redir/bad-token-value')
-      .expect(403)
+      .expect(500)
       .expect(testNoCacheResponse)
       .end(done);
   });
@@ -55,6 +55,7 @@ describe('routers/redir', function() {
     }
 
     const endpoint = CampaignDeliveryRepo.createFallbackRedirect(url, '', event);
+
     await request(app)
       .get(endpoint)
       .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0')
@@ -63,31 +64,6 @@ describe('routers/redir', function() {
       .expect((res) => {
         expect(res.get('location')).to.equal(url);
       });
-    await expect(AnalyticsEvent.find({ e: 'click', uuid: event.uuid, cid: event.cid, pid: event.pid })).to.eventually.be.an('array').with.property('length', 1);
-  });
-
-  it('should redirect to a fallback URL and track a bot', async function() {
-
-    const url = 'http://redirect-to-me.com';
-    const event = {
-      uuid: '92e998a7-e596-4747-a233-09108938c8d3',
-      pid: '5a9db9fb9fb64eb206ddf84a',
-      cid: '5a9db9fb9fb64eb206ddf848',
-    }
-
-    const endpoint = CampaignDeliveryRepo.createFallbackRedirect(url, '', event);
-    await request(app)
-      .get(endpoint)
-      .set('User-Agent', 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html')
-      .expect(301)
-      .expect(testNoCacheResponse)
-      .expect((res) => {
-        expect(res.get('location')).to.equal(url);
-      });
-    const promise = AnalyticsEvent.find({ e: 'click', uuid: event.uuid, cid: event.cid, pid: event.pid });
-    await expect(promise).to.eventually.be.an('array').with.property('length', 1);
-    const result = await promise;
-    expect(result[0].bot.value).to.equal('googlebot');
   });
 
   it('should redirect to a campaign url.', async function() {
@@ -106,6 +82,5 @@ describe('routers/redir', function() {
       .expect((res) => {
         expect(res.get('location')).to.equal(campaign1.url);
       });
-      await expect(AnalyticsEvent.find({ e: 'click', uuid: event.uuid, cid: event.cid, pid: event.pid })).to.eventually.be.an('array').with.property('length', 1);
   });
 });
