@@ -162,6 +162,21 @@ describe('repositories/template', function() {
     })
   });
 
+  describe('#getFallbackFallback', function() {
+    it('should render the fallback fallback (without UA) when no args are sent.', function(done) {
+      expect(Repo.getFallbackFallback()).to.equal('<div style="width:1px;height:1px;" {{build-container-attributes}}>{{build-beacon}}</div>');
+      done();
+    });
+    it('should render the fallback fallback without UA.', function(done) {
+      expect(Repo.getFallbackFallback(false)).to.equal('<div style="width:1px;height:1px;" {{build-container-attributes}}>{{build-beacon}}</div>');
+      done();
+    });
+    it('should render the fallback fallback with UA.', function(done) {
+      expect(Repo.getFallbackFallback(true)).to.equal('<div style="width:1px;height:1px;" {{build-container-attributes}}>{{build-beacon}}{{build-ua-beacon}}</div>');
+      done();
+    });
+  });
+
   describe('#render', function() {
     it('should render basic variables.', function(done) {
       const source = `
@@ -258,7 +273,7 @@ describe('repositories/template', function() {
           uuid: 'abcd',
           campaign: { id: '1234' },
         };
-        const expected = `<script>if (window.fortnight) { fortnight('event', 'load', { uuid: 'abcd', pid: '5678', cid: '1234' }, { transport: 'beacon' }); }</script>`;
+        const expected = `<script>fortnight('event', 'load', { uuid: 'abcd', pid: '5678', cid: '1234' }, { transport: 'beacon' });</script>`;
         expect(Repo.render(source, data)).to.equal(expected);
         done();
       });
@@ -268,13 +283,13 @@ describe('repositories/template', function() {
           pid: '5678',
           uuid: 'abcd',
         };
-        const expected = `<script>if (window.fortnight) { fortnight('event', 'load', { uuid: 'abcd', pid: '5678' }, { transport: 'beacon' }); }</script>`;
+        const expected = `<script>fortnight('event', 'load', { uuid: 'abcd', pid: '5678' }, { transport: 'beacon' });</script>`;
         expect(Repo.render(source, data)).to.equal(expected);
         done();
       });
       it('should still render when no attributes are provided.', function(done) {
         const source = '{{build-beacon}}';
-        const expected = `<script>if (window.fortnight) { fortnight('event', 'load', {  }, { transport: 'beacon' }); }</script>`;
+        const expected = `<script>fortnight('event', 'load', {  }, { transport: 'beacon' });</script>`;
         expect(Repo.render(source)).to.equal(expected);
         done();
       });

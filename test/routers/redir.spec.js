@@ -1,4 +1,5 @@
 require('../connections');
+const jwt = require('jsonwebtoken');
 const app = require('../../src/app');
 const CampaignDeliveryRepo = require('../../src/repositories/campaign/delivery');
 const CampaignRepo = require('../../src/repositories/campaign');
@@ -54,7 +55,15 @@ describe('routers/redir', function() {
       cid: '5a9db9fb9fb64eb206ddf848',
     }
 
-    const endpoint = CampaignDeliveryRepo.createFallbackRedirect(url, '', event);
+    const { uuid, pid, cid } = event;
+    const payload = {
+      uuid,
+      pid,
+      cid,
+      url,
+    };
+    const token = jwt.sign(payload, 'somesecret', { noTimestamp: true });
+    const endpoint = `/redir/${token}`;
 
     await request(app)
       .get(endpoint)

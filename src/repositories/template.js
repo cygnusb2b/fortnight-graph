@@ -54,7 +54,7 @@ handlebars.registerHelper('build-beacon', (context) => {
     { key: 'cid', value: cid },
   ];
   const fields = keyValues.filter(o => o.value).map(o => `${o.key}: '${o.value}'`).join(', ');
-  return new handlebars.SafeString(`<script>if (window.fortnight) { fortnight('event', 'load', { ${fields} }, { transport: 'beacon' }); }</script>`);
+  return new handlebars.SafeString(`<script>fortnight('event', 'load', { ${fields} }, { transport: 'beacon' });</script>`);
 });
 
 handlebars.registerHelper('build-ua-beacon', (context) => {
@@ -157,5 +157,16 @@ module.exports = {
   render(source, data) {
     const template = handlebars.compile(source);
     return template(data);
+  },
+
+  /**
+   * Returns a handlebars template to use when no fallback is provided.
+   *
+   * @param {boolean} withUa Whether or not to include the UA beacon.
+   * @return string
+   */
+  getFallbackFallback(withUA = false) {
+    const ua = withUA ? '{{build-ua-beacon}}' : '';
+    return `<div style="width:1px;height:1px;" {{build-container-attributes}}>{{build-beacon}}${ua}</div>`;
   },
 };

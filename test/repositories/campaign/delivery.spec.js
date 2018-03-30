@@ -32,16 +32,6 @@ const createTemplate = async () => {
   return results.one();
 }
 
-const testImageBeacon = (html) => {
-  let pattern = /^<div data-fortnight-type="placement"><img data-fortnight-view="pending" data-fortnight-beacon="http:\/\/www\.foo\.com\/e\/[a-zA-Z0-9._-]+\/view.gif" src="http:\/\/www\.foo\.com\/e\/[a-zA-Z0-9._-]+\/load.gif"><\/div>$/;
-  expect(html).to.match(pattern);
-};
-
-const testContainsImageBeacon = (html) => {
-  let pattern = /<div data-fortnight-type="placement"><img data-fortnight-view="pending" data-fortnight-beacon="http:\/\/www\.foo\.com\/e\/[a-zA-Z0-9._-]+\/view.gif" src="http:\/\/www\.foo\.com\/e\/[a-zA-Z0-9._-]+\/load.gif"><\/div>/;
-  expect(html).to.match(pattern);
-};
-
 describe('repositories/campaign/delivery', function() {
   before(async function() {
     await CampaignRepo.remove();
@@ -316,40 +306,6 @@ describe('repositories/campaign/delivery', function() {
     });
   });
 
-  describe('#createFallbackRedirect', function() {
-    beforeEach(function() {
-      sandbox.spy(jwt, 'sign');
-    });
-    afterEach(function() {
-      sandbox.restore();
-    });
-
-    [undefined, '', '/foo/path.jpg', 'www.google.com', null].forEach((value) => {
-      it(`should pass the URL back, as-is, when the url value is '${value}'`, function(done) {
-        expect(Repo.createFallbackRedirect(value)).to.equal(value);
-        sinon.assert.notCalled(jwt.sign);
-        done();
-      });
-    });
-
-    it('should return the fallback redirect URL.', function(done) {
-      const url = 'http://www.redirect-to.com';
-      const requestURL = 'http://foo.com';
-      const event = {
-        uuid: '92e998a7-e596-4747-a233-09108938c8d4',
-        pid: '5aa03a87be66ee000110c13b',
-        cid: '5aabc20d62a17f0001bbcba4',
-      };
-      const redirect = Repo.createFallbackRedirect(url, requestURL, event);
-
-      expect(redirect).to.match(/^http:\/\/foo\.com\/redir\/.*$/);
-      sinon.assert.calledOnce(jwt.sign);
-      sinon.assert.calledWith(jwt.sign, Object.assign(event, { url }), sinon.match.any, { noTimestamp: true });
-      done();
-    });
-
-  });
-
   describe('#fillWithFallbacks', function() {
     it('should leave campaign array untouched when length is >= limit', function(done) {
       const campaigns = [{ id: '1234' }];
@@ -391,6 +347,14 @@ describe('repositories/campaign/delivery', function() {
   });
 
   describe('#buildFallbackFor', function() {
+    beforeEach(function() {
+      sandbox.spy(TemplateRepo, 'render');
+      sandbox.spy(TemplateRepo, 'getFallbackFallback');
+    });
+    afterEach(function() {
+      sandbox.restore();
+    });
+
     ['', undefined, null, false].forEach((fallback) => {
       it(`should return an empty ad object when the template fallback is '${fallback}'`, function (done) {
         const template = { fallback };
@@ -400,10 +364,6 @@ describe('repositories/campaign/delivery', function() {
           pid: '5aa03a87be66ee000110c13b',
           cid: '5aabc20d62a17f0001bbcba4',
         };
-
-
-        const trackers = Repo.createTrackers(requestURL, event);
-        const beacon = Repo.createImgBeacon(trackers);
 
         const expected = {
           campaignId: event.cid,
@@ -417,7 +377,11 @@ describe('repositories/campaign/delivery', function() {
         });
         expect(result).to.be.an('object');
         ['campaignId, creativeId, fallback'].forEach(k => expect(result[k]).to.equal(expected[k]));
-        testImageBeacon(result.html);
+        expect(result.html.length).to.be.gt(0);
+        sinon.assert.calledOnce(TemplateRepo.render);
+        sinon.assert.calledOnce(TemplateRepo.getFallbackFallback);
+        sinon.assert.calledWith(TemplateRepo.getFallbackFallback, true);
+        sinon.assert.calledWith(TemplateRepo.render, TemplateRepo.getFallbackFallback(true), { uuid: event.uuid, pid: event.pid });
         done();
       });
     });
@@ -450,16 +414,13 @@ describe('repositories/campaign/delivery', function() {
     });
 
     it('should render the ad with the fallback template and beacon.', function(done) {
-      const template = { fallback: '<div>{{ foo }}</div>{{{ beacon }}}' };
+      const template = { fallback: '<div>{{ foo }}</div>{{build-beacon}}' };
       const requestURL = 'http://www.foo.com';
       const event = {
         uuid: '92e998a7-e596-4747-a233-09108938c8d4',
         pid: '5aa03a87be66ee000110c13b',
         cid: '5aabc20d62a17f0001bbcba4',
       };
-
-      const trackers = Repo.createTrackers(requestURL, event);
-      const beacon = Repo.createImgBeacon(trackers);
 
       const expected = {
         campaignId: event.cid,
@@ -477,7 +438,36 @@ describe('repositories/campaign/delivery', function() {
       expect(result).to.be.an('object');
       ['campaignId, creativeId, fallback'].forEach(k => expect(result[k]).to.equal(expected[k]));
       expect(result.html).to.match(/^<div>Variable here!<\/div>/);
-      testContainsImageBeacon(result.html)
+      expect(result.html).to.match(/<script>fortnight\('event', 'load', { uuid: '92e998a7-e596-4747-a233-09108938c8d4', pid: '5aa03a87be66ee000110c13b' }, { transport: 'beacon' }\);<\/script>/);
+      done();
+    });
+
+    it('should render the ad with the fallback template and beacon, when no vars are sent.', function(done) {
+      const template = { fallback: '<div>{{ foo }}</div>{{build-beacon}}' };
+      const requestURL = 'http://www.foo.com';
+      const event = {
+        uuid: '92e998a7-e596-4747-a233-09108938c8d4',
+        pid: '5aa03a87be66ee000110c13b',
+        cid: '5aabc20d62a17f0001bbcba4',
+      };
+
+      const expected = {
+        campaignId: event.cid,
+        creativeId: null,
+        fallback: true,
+      };
+      const fallbackVars = undefined;
+
+      const result = Repo.buildFallbackFor({
+        template,
+        fallbackVars,
+        requestURL,
+        event,
+      });
+      expect(result).to.be.an('object');
+      ['campaignId, creativeId, fallback'].forEach(k => expect(result[k]).to.equal(expected[k]));
+      expect(result.html).to.match(/^<div><\/div>/);
+      expect(result.html).to.match(/<script>fortnight\('event', 'load', { uuid: '92e998a7-e596-4747-a233-09108938c8d4', pid: '5aa03a87be66ee000110c13b' }, { transport: 'beacon' }\);<\/script>/);
       done();
     });
 
@@ -548,7 +538,7 @@ describe('repositories/campaign/delivery', function() {
 
       const result = Repo.buildAdFor(params);
       sinon.assert.calledOnce(Repo.buildFallbackFor);
-      sinon.assert.notCalled(TemplateRepo.render);
+      sinon.assert.calledOnce(TemplateRepo.render);
       done();
     });
 
@@ -568,7 +558,7 @@ describe('repositories/campaign/delivery', function() {
 
         const result = Repo.buildAdFor(params);
         sinon.assert.calledOnce(Repo.buildFallbackFor);
-        sinon.assert.notCalled(TemplateRepo.render);
+        sinon.assert.calledOnce(TemplateRepo.render);
         done();
       });
     });
@@ -595,9 +585,6 @@ describe('repositories/campaign/delivery', function() {
         html: `<div>${campaign.id}</div><span>${creative.id}</span>`,
       };
       expect(Repo.buildAdFor(params)).to.deep.equal(expected);
-      sinon.assert.calledOnce(Repo.createCampaignRedirect);
-      sinon.assert.calledOnce(Repo.createTrackers);
-      sinon.assert.calledOnce(Repo.createImgBeacon);
       sinon.assert.calledOnce(TemplateRepo.render);
       sinon.assert.notCalled(Repo.buildFallbackFor);
 
