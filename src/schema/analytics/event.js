@@ -54,6 +54,7 @@ const schema = new Schema({
       'view-js',
       'click',
       'click-js',
+      'contextmenu-js',
     ],
   },
   uuid: {
