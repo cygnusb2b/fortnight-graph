@@ -1,49 +1,36 @@
 const jwt = require('jsonwebtoken');
 const { Router } = require('express');
 const noCacheEvents = require('../middleware/no-cache-events');
-const BotDetector = require('../services/bot-detector');
 const CampaignRepo = require('../repositories/campaign');
-const AnalyticsEvent = require('../models/analytics/event');
 
 const router = Router();
 router.use(noCacheEvents());
 
+/**
+ * @deprecated
+ */
 router.get('/:token', (req, res, next) => {
   const { token } = req.params;
 
-  jwt.verify(token, process.env.TRACKER_SECRET, { algorithms: 'HS256' }, (err, payload) => {
-    if (err) return res.status(403).send(err.message);
-    const {
-      uuid,
-      pid,
-      cid,
-      url,
-    } = payload;
-    const ua = req.get('User-Agent');
+  /**
+   * NOTE: using `decode` instead of `verify` is intentional.
+   * This method of tracking is deprecated, and is only maintained to support URLs
+   * that are still in the wild.
+   *
+   * No analytics events will be tracked: this is also intentional.
+   */
+  const { payload } = jwt.decode(token, { complete: true });
+  const {
+    cid,
+    url,
+  } = payload;
 
-    const bot = BotDetector.detect(ua);
-    const event = new AnalyticsEvent({
-      e: 'click',
-      uuid,
-      pid,
-      cid,
-      d: new Date(),
-      bot,
-      ua,
-      ref: req.get('Referer'),
-      ip: req.ip,
-    });
-
-    return event.save().then(() => {
-      if (url) {
-        // Redirect immediately.
-        res.redirect(301, url);
-      } else {
-        // Find campaign's URL and redirect.
-        CampaignRepo.findById(cid).then(c => res.redirect(301, c.url)).catch(next);
-      }
-    }).catch(next);
-  });
+  if (url) {
+    // Redirect immediately.
+    res.redirect(301, url);
+  } else {
+    CampaignRepo.findById(cid).then(c => res.redirect(301, c.url)).catch(next);
+  }
 });
 
 module.exports = router;

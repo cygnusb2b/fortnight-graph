@@ -1,41 +1,21 @@
-const jwt = require('jsonwebtoken');
 const { Router } = require('express');
 const { noCache } = require('helmet');
-const BotDetector = require('../services/bot-detector');
-const CampaignRepo = require('../repositories/campaign');
-const AnalyticsClick = require('../models/analytics/click');
-const AnalyticsBot = require('../models/analytics/bot');
 
 const router = Router();
 router.use(noCache());
 
-router.get('/:token', (req, res, next) => {
+/**
+ * @deprecated
+ * This router only exists to maintain URLs that are in the wild.
+ * This simply redirects to the `redir` route (also deprecated) to
+ * handle the logic.
+ *
+ * @todo Eventually turn this into a 410 response.
+ */
+router.get('/:token', (req, res) => {
   const { token } = req.params;
-
-  jwt.verify(token, process.env.TRACKER_SECRET, { algorithms: 'HS256' }, (err, payload) => {
-    if (err) return res.status(403).send(err.message);
-    const { cid, hash, url } = payload;
-    const last = new Date();
-
-    const bot = BotDetector.detect(req.get('User-Agent'));
-    const model = bot.detected ? new AnalyticsBot({
-      cid,
-      hash,
-      last,
-      value: bot.value,
-      e: 'click',
-    }) : new AnalyticsClick({ cid, hash, last });
-
-    return model.aggregateSave().then(() => {
-      if (url) {
-        // Redirect immediately.
-        res.redirect(301, url);
-      } else {
-        // Find campaign's URL and redirect.
-        CampaignRepo.findById(cid).then(c => res.redirect(301, c.url)).catch(next);
-      }
-    }).catch(next);
-  });
+  const url = `${req.protocol}://${req.get('host')}/redir/${token}`;
+  res.redirect(301, url);
 });
 
 module.exports = router;

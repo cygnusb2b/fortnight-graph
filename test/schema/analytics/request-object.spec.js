@@ -2,7 +2,6 @@ require('../../connections');
 const { ObjectId } = require('mongoose').Types;
 const Utils = require('../../../src/utils');
 const AnalyticsRequestObject = require('../../../src/models/analytics/request-object');
-const CampaignPlacementRepo = require('../../../src/repositories/campaign/placement');
 
 
 const sandbox = sinon.createSandbox();

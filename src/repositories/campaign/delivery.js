@@ -1,7 +1,5 @@
 const createError = require('http-errors');
 const uuidv4 = require('uuid/v4');
-const { URL } = require('url');
-const { isURL } = require('validator');
 const jwt = require('jsonwebtoken');
 const Campaign = require('../../models/campaign');
 const Template = require('../../models/template');
@@ -184,6 +182,9 @@ module.exports = {
     };
   },
 
+  /**
+   * @deprecated In favor of JS tracking.
+   */
   createTrackers(requestURL, event) {
     return {
       load: this.createTracker('load', requestURL, event),
@@ -191,6 +192,9 @@ module.exports = {
     };
   },
 
+  /**
+   * @deprecated In favor of JS tracking.
+   */
   createTracker(type, requestURL, event) {
     const secret = process.env.TRACKER_SECRET;
     const { uuid, pid, cid } = event;
@@ -199,40 +203,20 @@ module.exports = {
     return `${requestURL}/e/${token}/${type}.gif`;
   },
 
+  /**
+   * @deprecated In favor of JS tracking.
+   */
   createImgBeacon(trackers) {
     return `<div data-fortnight-type="placement"><img data-fortnight-view="pending" data-fortnight-beacon="${trackers.view}" src="${trackers.load}"></div>`;
   },
 
+  /**
+   * @deprecated Will need to be re-evaluated. Should not use tokens.
+   */
   createCampaignRedirect(requestURL, event) {
     const { uuid, pid, cid } = event;
     const secret = process.env.TRACKER_SECRET;
     const payload = { uuid, pid, cid };
-    const token = jwt.sign(payload, secret, { noTimestamp: true });
-    return `${requestURL}/redir/${token}`;
-  },
-
-  injectUTMParams(url, event) {
-    const parsed = new URL(url);
-    const { uuid, pid } = event;
-    const params = `utm_source=fortnight&utm_medium=fallback&utm_campaign=${pid}&utm_content=${uuid}`;
-    parsed.search = parsed.search ? `${parsed.search}&${params}` : params;
-    return parsed.href;
-  },
-
-  createFallbackRedirect(url, requestURL, event) {
-    // @todo This should somehow notify that there's a problem with the URL.
-    if (!isURL(String(url), { require_protocol: true })) return url;
-
-    const injected = this.injectUTMParams(url, event);
-
-    const { uuid, pid, cid } = event;
-    const secret = process.env.TRACKER_SECRET;
-    const payload = {
-      uuid,
-      pid,
-      cid,
-      url: injected,
-    };
     const token = jwt.sign(payload, secret, { noTimestamp: true });
     return `${requestURL}/redir/${token}`;
   },
@@ -249,18 +233,14 @@ module.exports = {
     const beacon = this.createImgBeacon(trackers);
 
     if (template.fallback) {
-      let vars = {
+      const vars = Object.assign({}, Object(fallbackVars), {
         pid,
         uuid,
-        beacon,
-      };
-      if (fallbackVars) {
-        const url = this.createFallbackRedirect(fallbackVars.url, requestURL, event);
-        vars = Object.assign({}, fallbackVars, { url }, vars);
-      }
+        beacon, // @deprecated Will be removed.
+      });
       ad.html = TemplateRepo.render(template.fallback, vars);
     } else {
-      ad.html = beacon;
+      ad.html = TemplateRepo.render(TemplateRepo.getFallbackFallback(true), { pid, uuid });
     }
     return ad;
   },
@@ -292,12 +272,21 @@ module.exports = {
     }
     const ad = this.createEmptyAd(campaign.id);
 
+    /**
+     * @todo There is a known bug with creative rotation. Likely because of the `0` arg.
+     */
     // Rotate the creative randomly. Eventually weighting could be added.
     const index = Utils.randomBetween(0, count - 1);
     const creative = campaign.get(`creatives.${index}`);
 
+    /**
+     * Disable creating a campaign redirect URL.
+     * Eventually this should be added back for external URLs that we do not control.
+     * The redirect should be used for tracking "good" bots _only_.
+     * It should not be used for click analytics.
+     */
+    // const href = this.createCampaignRedirect(requestURL, event);
     // Render the template.
-    const href = this.createCampaignRedirect(requestURL, event);
     const trackers = this.createTrackers(requestURL, event);
     const beacon = this.createImgBeacon(trackers);
 
@@ -305,8 +294,8 @@ module.exports = {
     const vars = {
       uuid,
       pid,
-      beacon,
-      href,
+      beacon, // @deprecated Will be removed.
+      href: campaign.url,
       campaign,
       creative,
     };
