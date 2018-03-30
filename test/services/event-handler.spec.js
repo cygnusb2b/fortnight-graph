@@ -124,5 +124,68 @@ describe('services/event-handler', function() {
       sinon.assert.calledOnce(BotDetector.detect);
     });
 
+    it('should fulfill the contextmenu event with a campaign', async function() {
+      const fields = {
+        pid: placement.id,
+        uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
+        cid: campaign.id,
+      };
+      const promise = EventHandler.track({ action: 'contextmenu', fields });
+      await expect(promise).to.be.fulfilled;
+      sinon.assert.calledOnce(BotDetector.detect);
+    });
+
+    it('should fulfill the contextmenu event without a campaign', async function() {
+      const fields = {
+        pid: placement.id,
+        uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
+      };
+      const promise = EventHandler.track({ action: 'contextmenu', fields });
+      await expect(promise).to.be.fulfilled;
+      sinon.assert.calledOnce(BotDetector.detect);
+    });
+
+    it('should fulfill the load event with a campaign', async function() {
+      const fields = {
+        pid: placement.id,
+        uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
+        cid: campaign.id,
+      };
+      const promise = EventHandler.track({ action: 'load', fields });
+      await expect(promise).to.be.fulfilled;
+      sinon.assert.calledOnce(BotDetector.detect);
+    });
+
+    it('should fulfill the load event without a campaign', async function() {
+      const fields = {
+        pid: placement.id,
+        uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
+      };
+      const promise = EventHandler.track({ action: 'load', fields });
+      await expect(promise).to.be.fulfilled;
+      sinon.assert.calledOnce(BotDetector.detect);
+    });
+
+    it('should fulfill the click event with a campaign', async function() {
+      const fields = {
+        pid: placement.id,
+        uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
+        cid: campaign.id,
+      };
+      const promise = EventHandler.track({ action: 'click', fields });
+      await expect(promise).to.be.fulfilled;
+      sinon.assert.calledOnce(BotDetector.detect);
+    });
+
+    it('should fulfill the click event without a campaign', async function() {
+      const fields = {
+        pid: placement.id,
+        uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
+      };
+      const promise = EventHandler.track({ action: 'click', fields });
+      await expect(promise).to.be.fulfilled;
+      sinon.assert.calledOnce(BotDetector.detect);
+    });
+
   });
 });

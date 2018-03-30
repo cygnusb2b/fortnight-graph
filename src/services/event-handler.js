@@ -4,7 +4,7 @@ const Placement = require('../models/placement');
 const Campaign = require('../models/campaign');
 const AnalyticsEvent = require('../models/analytics/event');
 
-const actions = ['load', 'view', 'click'];
+const actions = ['load', 'view', 'click', 'contextmenu'];
 const mongoId = /[a-f0-9]{24}/;
 
 module.exports = {
