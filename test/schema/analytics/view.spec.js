@@ -1,7 +1,6 @@
 require('../../connections');
 const moment = require('moment');
 const AnalyticsView = require('../../../src/models/analytics/view');
-const CampaignPlacementRepo = require('../../../src/repositories/campaign/placement');
 
 const sandbox = sinon.createSandbox();
 
