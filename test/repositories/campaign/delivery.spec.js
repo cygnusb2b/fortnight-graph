@@ -152,6 +152,39 @@ describe('repositories/campaign/delivery', function() {
     });
   });
 
+  describe('#selectCampaigns', function() {
+    it('should return an empty array when no campains are found.', function(done) {
+      expect(Repo.selectCampaigns([], 1)).to.be.an('array').with.property('length', 0);
+      done();
+    });
+    it('should return an empty array when no campains are found with a limit greater than 1', function(done) {
+      expect(Repo.selectCampaigns([], 10)).to.be.an('array').with.property('length', 0);
+      done();
+    });
+    it('should return an array with one item.', function(done) {
+      const campaigns = ['1', '2', '3', '4'];
+      const r = Repo.selectCampaigns(campaigns, 1);
+      expect(r).to.be.an('array').with.property('length', 1);
+      expect(campaigns.includes(r[0]));
+      done();
+    });
+    it('should return an array with two items.', function(done) {
+      const campaigns = ['1', '2', '3', '4'];
+      const r = Repo.selectCampaigns(campaigns, 2);
+      expect(r).to.be.an('array').with.property('length', 2);
+      expect(campaigns.includes(r[0]));
+      expect(campaigns.includes(r[1]));
+      done();
+    });
+    it('should return an array with one item when the limit is 2', function(done) {
+      const campaigns = ['1'];
+      const r = Repo.selectCampaigns(campaigns, 2);
+      expect(r).to.be.an('array').with.property('length', 1);
+      expect(campaigns.includes(r[0]));
+      done();
+    });
+  });
+
   describe('#queryCampaigns', function() {
     let placement1;
     let placement2;
@@ -196,6 +229,7 @@ describe('repositories/campaign/delivery', function() {
     });
     beforeEach(function () {
       sandbox.spy(Utils, 'cleanValues');
+      sandbox.spy(Repo, 'selectCampaigns');
     });
     afterEach(function() {
       sinon.assert.calledOnce(Utils.cleanValues);
@@ -211,6 +245,7 @@ describe('repositories/campaign/delivery', function() {
       await expect(promise).to.eventually.be.an('array');
       const result = await promise;
       expect(result.length).to.equal(0);
+      sinon.assert.calledOnce(Repo.selectCampaigns);
     });
     it('should return four campaigns when using placement1 and just start date', async function() {
       const params = {
@@ -222,6 +257,7 @@ describe('repositories/campaign/delivery', function() {
       await expect(promise).to.eventually.be.an('array');
       const result = await promise;
       expect(result.length).to.equal(4);
+      sinon.assert.calledOnce(Repo.selectCampaigns);
     });
     it('should return three campaigns when using placement1 and current date is outside end date', async function() {
       const params = {
@@ -233,6 +269,7 @@ describe('repositories/campaign/delivery', function() {
       await expect(promise).to.eventually.be.an('array');
       const result = await promise;
       expect(result.length).to.equal(3);
+      sinon.assert.calledOnce(Repo.selectCampaigns);
     });
     it('should return two campaigns when using placement2 and just start date', async function() {
       const params = {
@@ -244,6 +281,7 @@ describe('repositories/campaign/delivery', function() {
       await expect(promise).to.eventually.be.an('array');
       const result = await promise;
       expect(result.length).to.equal(2);
+      sinon.assert.calledOnce(Repo.selectCampaigns);
     });
     it('should return three campaigns when using placement1 with start date and sectionId kv', async function() {
       const params = {
@@ -256,6 +294,7 @@ describe('repositories/campaign/delivery', function() {
       await expect(promise).to.eventually.be.an('array');
       const result = await promise;
       expect(result.length).to.equal(3);
+      sinon.assert.calledOnce(Repo.selectCampaigns);
     });
     it('should return one campaigns when using placement1 with start date and sectionId+x kv', async function() {
       const params = {
@@ -268,6 +307,7 @@ describe('repositories/campaign/delivery', function() {
       await expect(promise).to.eventually.be.an('array');
       const result = await promise;
       expect(result.length).to.equal(1);
+      sinon.assert.calledOnce(Repo.selectCampaigns);
     });
     it('should return zero campaigns when using placement1 with start date and sectionId kv with invalid value', async function() {
       const params = {
@@ -280,6 +320,7 @@ describe('repositories/campaign/delivery', function() {
       await expect(promise).to.eventually.be.an('array');
       const result = await promise;
       expect(result.length).to.equal(0);
+      sinon.assert.calledOnce(Repo.selectCampaigns);
     });
   });
 
@@ -506,6 +547,50 @@ describe('repositories/campaign/delivery', function() {
     });
   });
 
+  describe('#getCreativeFor', function() {
+    let campaign;
+    before(async function() {
+      campaign = await createCampaign();
+      campaign.set('creatives', []);
+    });
+    after(async function() {
+      await CampaignRepo.remove();
+    });
+
+    it('should return null when no creatives are found.', function(done) {
+      expect(Repo.getCreativeFor(campaign)).to.be.null;
+      done();
+    });
+
+    it('should always return a creative when only one creative is set.', function(done) {
+      campaign.set('creatives.0', {});
+      const creative = Repo.getCreativeFor(campaign);
+      expect(creative).to.be.an('object');
+      expect(creative.get('id')).to.equal(campaign.get('creatives.0.id'));
+      done();
+    });
+
+    it('should randomize the creatives.', function(done) {
+      campaign.creatives.push({});
+      campaign.creatives.push({});
+      campaign.creatives.push({});
+      campaign.creatives.push({});
+      const ids = campaign.creatives.map(creative => creative.id);
+
+      const found = [];
+      for (let i = 0; i < 5; i += 1) {
+        let creative = Repo.getCreativeFor(campaign);
+        expect(ids.includes(creative.id)).to.be.true;
+        if (!found.includes(creative.id)) {
+          found.push(creative.id);
+        }
+      }
+      expect(found.length).to.be.gt(1);
+      done();
+    });
+
+  })
+
   describe('#buildAdFor', function() {
     let campaign;
     beforeEach(function() {
@@ -513,6 +598,7 @@ describe('repositories/campaign/delivery', function() {
       sandbox.spy(Repo, 'createTrackers');
       sandbox.spy(Repo, 'createCampaignRedirect');
       sandbox.spy(Repo, 'createImgBeacon');
+      sandbox.spy(Repo, 'getCreativeFor');
       sandbox.spy(TemplateRepo, 'render');
     });
     afterEach(function() {
@@ -521,6 +607,9 @@ describe('repositories/campaign/delivery', function() {
     before(async function() {
       campaign = await createCampaign();
       campaign.set('creatives', []);
+    });
+    after(async function() {
+      await CampaignRepo.remove();
     });
 
     it('should build a fallback when the creatives are empty.', function(done) {
@@ -537,6 +626,8 @@ describe('repositories/campaign/delivery', function() {
       };
 
       const result = Repo.buildAdFor(params);
+      sinon.assert.calledOnce(Repo.getCreativeFor);
+      sinon.assert.calledWith(Repo.getCreativeFor, campaign);
       sinon.assert.calledOnce(Repo.buildFallbackFor);
       sinon.assert.calledOnce(TemplateRepo.render);
       done();
@@ -585,6 +676,8 @@ describe('repositories/campaign/delivery', function() {
         html: `<div>${campaign.id}</div><span>${creative.id}</span>`,
       };
       expect(Repo.buildAdFor(params)).to.deep.equal(expected);
+      sinon.assert.calledOnce(Repo.getCreativeFor);
+      sinon.assert.calledWith(Repo.getCreativeFor, campaign);
       sinon.assert.calledOnce(TemplateRepo.render);
       sinon.assert.notCalled(Repo.buildFallbackFor);
 

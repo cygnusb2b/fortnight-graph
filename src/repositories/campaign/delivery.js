@@ -1,6 +1,7 @@
 const createError = require('http-errors');
 const uuidv4 = require('uuid/v4');
 const jwt = require('jsonwebtoken');
+const _ = require('lodash');
 const Campaign = require('../../models/campaign');
 const Template = require('../../models/template');
 const Placement = require('../../models/placement');
@@ -33,7 +34,7 @@ module.exports = {
    * @param {number} params.limit
    * @return {Promise}
    */
-  queryCampaigns({
+  async queryCampaigns({
     startDate,
     placementId,
     keyValues,
@@ -59,7 +60,21 @@ module.exports = {
         'criteria.kvs': { $elemMatch: { key, value: kvs[key] } },
       });
     });
-    return Campaign.find(criteria).limit(limit);
+    const campaigns = await Campaign.find(criteria);
+    return this.selectCampaigns(campaigns, limit);
+  },
+
+  /**
+   * Selects the campaigns to return.
+   * Shuffles the campaigns and returns the number based on the limit.
+   *
+   * @param {array} campaigns
+   * @param {number} limit
+   * @return {array}
+   */
+  selectCampaigns(campaigns, limit) {
+    const shuffled = _.shuffle(campaigns);
+    return shuffled.slice(0, limit);
   },
 
   /**
@@ -245,6 +260,20 @@ module.exports = {
     return ad;
   },
 
+  /**
+   * Rotates a campaign's creatives randomly.
+   * Eventually could use some sort of weighting criteria.
+   *
+   * @param {Campaign} campaign
+   * @return {?Creative}
+   */
+  getCreativeFor(campaign) {
+    const count = campaign.get('creatives.length');
+    if (!count) return null;
+    const index = _.random(count - 1);
+    return campaign.get(`creatives.${index}`);
+  },
+
   buildAdFor({
     campaign,
     template,
@@ -260,8 +289,8 @@ module.exports = {
         event,
       });
     }
-    const count = campaign.get('creatives.length');
-    if (!count) {
+    const creative = this.getCreativeFor(campaign);
+    if (!creative) {
       // No creative found. Send fallback.
       return this.buildFallbackFor({
         template,
@@ -270,14 +299,8 @@ module.exports = {
         event,
       });
     }
-    const ad = this.createEmptyAd(campaign.id);
 
-    /**
-     * @todo There is a known bug with creative rotation. Likely because of the `0` arg.
-     */
-    // Rotate the creative randomly. Eventually weighting could be added.
-    const index = Utils.randomBetween(0, count - 1);
-    const creative = campaign.get(`creatives.${index}`);
+    const ad = this.createEmptyAd(campaign.id);
 
     /**
      * Disable creating a campaign redirect URL.
