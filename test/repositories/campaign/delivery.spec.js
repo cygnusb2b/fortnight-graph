@@ -506,6 +506,50 @@ describe('repositories/campaign/delivery', function() {
     });
   });
 
+  describe('#getCreativeFor', function() {
+    let campaign;
+    before(async function() {
+      campaign = await createCampaign();
+      campaign.set('creatives', []);
+    });
+    after(async function() {
+      await CampaignRepo.remove();
+    });
+
+    it('should return null when no creatives are found.', function(done) {
+      expect(Repo.getCreativeFor(campaign)).to.be.null;
+      done();
+    });
+
+    it('should always return a creative when only one creative is set.', function(done) {
+      campaign.set('creatives.0', {});
+      const creative = Repo.getCreativeFor(campaign);
+      expect(creative).to.be.an('object');
+      expect(creative.get('id')).to.equal(campaign.get('creatives.0.id'));
+      done();
+    });
+
+    it('should randomize the creatives.', function(done) {
+      campaign.creatives.push({});
+      campaign.creatives.push({});
+      campaign.creatives.push({});
+      campaign.creatives.push({});
+      const ids = campaign.creatives.map(creative => creative.id);
+
+      const found = [];
+      for (let i = 0; i < 5; i += 1) {
+        let creative = Repo.getCreativeFor(campaign);
+        expect(ids.includes(creative.id)).to.be.true;
+        if (!found.includes(creative.id)) {
+          found.push(creative.id);
+        }
+      }
+      expect(found.length).to.be.gt(1);
+      done();
+    });
+
+  })
+
   describe('#buildAdFor', function() {
     let campaign;
     beforeEach(function() {
@@ -513,6 +557,7 @@ describe('repositories/campaign/delivery', function() {
       sandbox.spy(Repo, 'createTrackers');
       sandbox.spy(Repo, 'createCampaignRedirect');
       sandbox.spy(Repo, 'createImgBeacon');
+      sandbox.spy(Repo, 'getCreativeFor');
       sandbox.spy(TemplateRepo, 'render');
     });
     afterEach(function() {
@@ -521,6 +566,9 @@ describe('repositories/campaign/delivery', function() {
     before(async function() {
       campaign = await createCampaign();
       campaign.set('creatives', []);
+    });
+    after(async function() {
+      await CampaignRepo.remove();
     });
 
     it('should build a fallback when the creatives are empty.', function(done) {
@@ -537,6 +585,8 @@ describe('repositories/campaign/delivery', function() {
       };
 
       const result = Repo.buildAdFor(params);
+      sinon.assert.calledOnce(Repo.getCreativeFor);
+      sinon.assert.calledWith(Repo.getCreativeFor, campaign);
       sinon.assert.calledOnce(Repo.buildFallbackFor);
       sinon.assert.calledOnce(TemplateRepo.render);
       done();
@@ -585,6 +635,8 @@ describe('repositories/campaign/delivery', function() {
         html: `<div>${campaign.id}</div><span>${creative.id}</span>`,
       };
       expect(Repo.buildAdFor(params)).to.deep.equal(expected);
+      sinon.assert.calledOnce(Repo.getCreativeFor);
+      sinon.assert.calledWith(Repo.getCreativeFor, campaign);
       sinon.assert.calledOnce(TemplateRepo.render);
       sinon.assert.notCalled(Repo.buildFallbackFor);
 
