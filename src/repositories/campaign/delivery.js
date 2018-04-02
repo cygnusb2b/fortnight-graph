@@ -1,7 +1,7 @@
 const createError = require('http-errors');
 const uuidv4 = require('uuid/v4');
 const jwt = require('jsonwebtoken');
-const _ = require('lodash/number');
+const _ = require('lodash');
 const Campaign = require('../../models/campaign');
 const Template = require('../../models/template');
 const Placement = require('../../models/placement');
@@ -34,7 +34,7 @@ module.exports = {
    * @param {number} params.limit
    * @return {Promise}
    */
-  queryCampaigns({
+  async queryCampaigns({
     startDate,
     placementId,
     keyValues,
@@ -60,7 +60,21 @@ module.exports = {
         'criteria.kvs': { $elemMatch: { key, value: kvs[key] } },
       });
     });
-    return Campaign.find(criteria).limit(limit);
+    const campaigns = await Campaign.find(criteria);
+    return this.selectCampaigns(campaigns, limit);
+  },
+
+  /**
+   * Selects the campaigns to return.
+   * Shuffles the campaigns and returns the number based on the limit.
+   *
+   * @param {array} campaigns
+   * @param {number} limit
+   * @return {array}
+   */
+  selectCampaigns(campaigns, limit) {
+    const shuffled = _.shuffle(campaigns);
+    return shuffled.slice(0, limit);
   },
 
   /**
