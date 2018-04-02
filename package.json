@@ -59,6 +59,7 @@
     "helmet": "^3.11.0",
     "http-errors": "^1.6.2",
     "jsonwebtoken": "^8.1.1",
+    "lodash": "^4.17.5",
     "moment": "^2.20.1",
     "mongoose": "^5.0.1",
     "newrelic": "^2.9.1",
