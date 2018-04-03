@@ -43,7 +43,7 @@ const schema = new Schema({
   hash: {
     type: String,
     required: true,
-    default: uuid(),
+    default: () => uuid(),
     validate: {
       validator(v) {
         return v === uuidParse.unparse(uuidParse.parse(v));
@@ -95,7 +95,7 @@ const schema = new Schema({
 
 schema.plugin(notifyPlugin);
 
-schema.index({ hash: 1 });
+schema.index({ hash: 1 }, { unique: true });
 schema.index({ advertiserId: 1 });
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
