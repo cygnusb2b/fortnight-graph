@@ -43,7 +43,10 @@ const schema = new Schema({
   hash: {
     type: String,
     required: true,
-    default: uuid(),
+    unique: true,
+    default() {
+      return uuid();
+    },
     validate: {
       validator(v) {
         return v === uuidParse.unparse(uuidParse.parse(v));
