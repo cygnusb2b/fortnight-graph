@@ -36,7 +36,7 @@ module.exports = {
 
     let creativeId;
     if (cid) {
-      const campaign = await Campaign.findOne({ _id: cid }, { _id: 1, creatives: 1 });
+      const campaign = await Campaign.findOne({ _id: cid }, { _id: 1, 'creatives._id': 1 });
       if (!campaign) throw new Error(`No campaign was found for id '${cid}'`);
       if (cre) {
         const creative = campaign.creatives.id(cre);

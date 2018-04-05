@@ -119,6 +119,7 @@ describe('services/event-handler', function() {
         pid: placement.id,
         uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
         cid: campaign.id,
+        cre: campaign.get('creatives.0.id'),
       };
       const promise = EventHandler.track({ action: 'view', fields });
       await expect(promise).to.be.fulfilled;
@@ -163,6 +164,7 @@ describe('services/event-handler', function() {
         pid: placement.id,
         uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
         cid: campaign.id,
+        cre: campaign.get('creatives.0.id'),
       };
       const promise = EventHandler.track({ action: 'contextmenu', fields });
       await expect(promise).to.be.fulfilled;
@@ -184,6 +186,7 @@ describe('services/event-handler', function() {
         pid: placement.id,
         uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
         cid: campaign.id,
+        cre: campaign.get('creatives.0.id'),
       };
       const promise = EventHandler.track({ action: 'load', fields });
       await expect(promise).to.be.fulfilled;
@@ -205,6 +208,7 @@ describe('services/event-handler', function() {
         pid: placement.id,
         uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
         cid: campaign.id,
+        cre: campaign.get('creatives.0.id'),
       };
       const promise = EventHandler.track({ action: 'click', fields });
       await expect(promise).to.be.fulfilled;
