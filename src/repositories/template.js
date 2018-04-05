@@ -5,14 +5,25 @@ const Template = require('../models/template');
 const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
 
-const buildFields = ({ uuid, pid, cid }) => encodeURIComponent(JSON.stringify({ uuid, pid, cid }));
+const buildFields = fields => encodeURIComponent(JSON.stringify(fields));
 
 const extractFields = (context) => {
   const { data } = context;
   const { root } = data || {};
-  const { pid, uuid, campaign } = root || {};
+  const {
+    pid,
+    uuid,
+    campaign,
+    creative,
+  } = root || {};
   const cid = campaign ? campaign.id : undefined;
-  return { uuid, pid, cid };
+  const cre = creative ? creative.id : undefined;
+  return {
+    uuid,
+    pid,
+    cid,
+    cre,
+  };
 };
 
 const buildAttrs = keyValues => keyValues.map(o => `data-fortnight-${o.key}="${o.value}"`).join(' ');
@@ -21,10 +32,10 @@ handlebars.registerHelper('moment-format', (date, format) => moment(date).format
 handlebars.registerHelper('get-timestamp', () => (new Date()).getTime());
 
 handlebars.registerHelper('build-container-attributes', (context) => {
-  const { uuid, pid, cid } = extractFields(context);
+  const fields = extractFields(context);
   const keyValues = [
     { key: 'action', value: 'view' },
-    { key: 'fields', value: buildFields({ uuid, pid, cid }) },
+    { key: 'fields', value: buildFields(fields) },
     { key: 'timestamp', value: (new Date()).getTime() },
   ];
 
@@ -34,10 +45,10 @@ handlebars.registerHelper('build-container-attributes', (context) => {
 
 handlebars.registerHelper('tracked-link', function trackedLink(context) {
   const { hash } = context;
-  const { uuid, pid, cid } = extractFields(context);
+  const fields = extractFields(context);
   const keyValues = [
     { key: 'action', value: 'click' },
-    { key: 'fields', value: buildFields({ uuid, pid, cid }) },
+    { key: 'fields', value: buildFields(fields) },
   ];
   const attrs = [];
   attrs.push(Object.keys(hash).map(name => `${name}="${hash[name]}"`).join(' '));
@@ -47,14 +58,10 @@ handlebars.registerHelper('tracked-link', function trackedLink(context) {
 });
 
 handlebars.registerHelper('build-beacon', (context) => {
-  const { uuid, pid, cid } = extractFields(context);
-  const keyValues = [
-    { key: 'uuid', value: uuid },
-    { key: 'pid', value: pid },
-    { key: 'cid', value: cid },
-  ];
-  const fields = keyValues.filter(o => o.value).map(o => `${o.key}: '${o.value}'`).join(', ');
-  return new handlebars.SafeString(`<script>fortnight('event', 'load', { ${fields} }, { transport: 'beacon' });</script>`);
+  const fields = extractFields(context);
+  const keyValues = Object.keys(fields).map(key => ({ key, value: fields[key] }));
+  const fieldsObj = keyValues.filter(o => o.value).map(o => `${o.key}: '${o.value}'`).join(', ');
+  return new handlebars.SafeString(`<script>fortnight('event', 'load', { ${fieldsObj} }, { transport: 'beacon' });</script>`);
 });
 
 handlebars.registerHelper('build-ua-beacon', (context) => {
