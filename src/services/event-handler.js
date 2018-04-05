@@ -19,17 +19,30 @@ module.exports = {
     if (!actions.includes(action)) throw new Error(`The provided action '${action}' is not supported.`);
 
     // Validate required fields.
-    const { pid, uuid, cid } = fields;
+    const {
+      pid,
+      uuid,
+      cid,
+      cre,
+    } = fields;
     if (!pid || !mongoId.test(pid)) throw new Error(`The provided pid '${pid}' is invalid.`);
     if (!uuid || !Utils.uuid.is(uuid)) throw new Error(`The provided uuid '${uuid}' is invalid.`);
     if (cid && !mongoId.test(cid)) throw new Error(`The provided cid '${cid}' is invalid.`);
+    if (cre && !mongoId.test(cre)) throw new Error(`The provided cre '${cre}' is invalid.`);
 
-    // Validate that the placement and campaign (if set) exist.
+    // Validate that the placement, campaign, and creatives exists.
     const placement = await Placement.findOne({ _id: pid }, { _id: 1 });
     if (!placement) throw new Error(`No placement was found for id '${pid}'`);
+
+    let creativeId;
     if (cid) {
-      const campaign = await Campaign.findOne({ _id: cid }, { _id: 1 });
+      const campaign = await Campaign.findOne({ _id: cid }, { _id: 1, 'creatives._id': 1 });
       if (!campaign) throw new Error(`No campaign was found for id '${cid}'`);
+      if (cre) {
+        const creative = campaign.creatives.id(cre);
+        if (!creative) throw new Error(`No creative was found for cid '${cid}' and cre '${cre}'`);
+        creativeId = creative.id;
+      }
     }
 
     // Insert the event.
@@ -39,6 +52,7 @@ module.exports = {
       uuid,
       pid,
       cid,
+      cre: creativeId,
       d: new Date(),
       bot,
       ua,

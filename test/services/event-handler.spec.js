@@ -84,6 +84,17 @@ describe('services/event-handler', function() {
       await expect(promise).to.be.rejectedWith(Error, `The provided cid '1234' is invalid.`);
     });
 
+    it('should reject when the cre is provided but is invalid.', async function() {
+      const fields = {
+        pid: '5ab2b3c4b0997c0001c0c716',
+        uuid: 'db1a4977-6ef8-4039-959d-99f95b839eae',
+        cid: '5ab2b3c4b0997c0001c0c716',
+        cre: '1234',
+      };
+      const promise = EventHandler.track({ action: 'view', fields });
+      await expect(promise).to.be.rejectedWith(Error, `The provided cre '1234' is invalid.`);
+    });
+
     it('should reject when the placement cannot be found.', async function() {
       const fields = {
         pid: '5ab2b3c4b0997c0001c0c716',
@@ -108,10 +119,34 @@ describe('services/event-handler', function() {
         pid: placement.id,
         uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
         cid: campaign.id,
+        cre: campaign.get('creatives.0.id'),
       };
       const promise = EventHandler.track({ action: 'view', fields });
       await expect(promise).to.be.fulfilled;
       sinon.assert.calledOnce(BotDetector.detect);
+    });
+
+    it('should fulfill with a campaign and creative', async function() {
+      const fields = {
+        pid: placement.id,
+        uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
+        cid: campaign.id,
+        cre: campaign.get('creatives.0.id'),
+      };
+      const promise = EventHandler.track({ action: 'view', fields });
+      await expect(promise).to.be.fulfilled;
+      sinon.assert.calledOnce(BotDetector.detect);
+    });
+
+    it('should reject with a found campaign and and unfound creative', async function() {
+      const fields = {
+        pid: placement.id,
+        uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
+        cid: campaign.id,
+        cre: '5ab2b3c4b0997c0001c0c716',
+      };
+      const promise = EventHandler.track({ action: 'view', fields });
+      await expect(promise).to.be.rejectedWith(Error, `No creative was found for cid '${fields.cid}' and cre '${fields.cre}'`);
     });
 
     it('should fulfill without a campaign', async function() {
@@ -129,6 +164,7 @@ describe('services/event-handler', function() {
         pid: placement.id,
         uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
         cid: campaign.id,
+        cre: campaign.get('creatives.0.id'),
       };
       const promise = EventHandler.track({ action: 'contextmenu', fields });
       await expect(promise).to.be.fulfilled;
@@ -150,6 +186,7 @@ describe('services/event-handler', function() {
         pid: placement.id,
         uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
         cid: campaign.id,
+        cre: campaign.get('creatives.0.id'),
       };
       const promise = EventHandler.track({ action: 'load', fields });
       await expect(promise).to.be.fulfilled;
@@ -171,6 +208,7 @@ describe('services/event-handler', function() {
         pid: placement.id,
         uuid:'db1a4977-6ef8-4039-959d-99f95b839eae',
         cid: campaign.id,
+        cre: campaign.get('creatives.0.id'),
       };
       const promise = EventHandler.track({ action: 'click', fields });
       await expect(promise).to.be.fulfilled;
