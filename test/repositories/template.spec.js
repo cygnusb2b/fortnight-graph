@@ -208,7 +208,7 @@ describe('repositories/template', function() {
     });
 
     describe('#build-container-attributes helper', function() {
-      it('should inject the proper attributes.', function(done) {
+      it('should inject the proper attributes with a campaign.', function(done) {
         const source = '<div {{build-container-attributes}}>Foo</div>';
         const data = {
           pid: '5678',
@@ -219,6 +219,24 @@ describe('repositories/template', function() {
           uuid: data.uuid,
           pid: data.pid,
           cid: data.campaign.id,
+        }));
+        const expected = `<div data-fortnight-action="view" data-fortnight-fields="${fields}" data-fortnight-timestamp="`;
+        expect(Repo.render(source, data).indexOf(expected)).to.equal(0);
+        done();
+      });
+      it('should inject the proper attributes with a campaign and creative.', function(done) {
+        const source = '<div {{build-container-attributes}}>Foo</div>';
+        const data = {
+          pid: '5678',
+          uuid: 'abcd',
+          campaign: { id: '1234' },
+          creative: { id: '5678' },
+        };
+        const fields = encodeURIComponent(JSON.stringify({
+          uuid: data.uuid,
+          pid: data.pid,
+          cid: data.campaign.id,
+          cre: data.creative.id,
         }));
         const expected = `<div data-fortnight-action="view" data-fortnight-fields="${fields}" data-fortnight-timestamp="`;
         expect(Repo.render(source, data).indexOf(expected)).to.equal(0);
@@ -241,12 +259,13 @@ describe('repositories/template', function() {
           pid: '5678',
           uuid: 'abcd',
           campaign: { id: '1234' },
-          creative: { title: 'Cool creative' },
+          creative: { id: '5678', title: 'Cool creative' },
         };
         const fields = encodeURIComponent(JSON.stringify({
           uuid: data.uuid,
           pid: data.pid,
           cid: data.campaign.id,
+          cre: data.creative.id,
         }));
         const expected = `<a title="Cool creative" href="https://www.google.com" data-fortnight-action="click" data-fortnight-fields="${fields}"><span>Foo Bar</span></a>`;
         expect(Repo.render(source, data)).to.equal(expected);
@@ -266,7 +285,7 @@ describe('repositories/template', function() {
     });
 
     describe('#build-beacon helper', function() {
-      it('should inject the proper attributes.', function(done) {
+      it('should inject the proper attributes with a campaign.', function(done) {
         const source = '{{build-beacon}}';
         const data = {
           pid: '5678',
@@ -274,6 +293,18 @@ describe('repositories/template', function() {
           campaign: { id: '1234' },
         };
         const expected = `<script>fortnight('event', 'load', { uuid: 'abcd', pid: '5678', cid: '1234' }, { transport: 'beacon' });</script>`;
+        expect(Repo.render(source, data)).to.equal(expected);
+        done();
+      });
+      it('should inject the proper attributes with a campaign and creative.', function(done) {
+        const source = '{{build-beacon}}';
+        const data = {
+          pid: '5678',
+          uuid: 'abcd',
+          campaign: { id: '1234' },
+          creative: { id: '5678' },
+        };
+        const expected = `<script>fortnight('event', 'load', { uuid: 'abcd', pid: '5678', cid: '1234', cre: '5678' }, { transport: 'beacon' });</script>`;
         expect(Repo.render(source, data)).to.equal(expected);
         done();
       });
