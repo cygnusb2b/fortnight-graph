@@ -1,5 +1,6 @@
-const mongoose = require('../src/mongoose');
-const redis = require('../src/redis');
+const mongoose = require('mongoose');
+const connection = require('../src/connections/mongoose');
+const redis = require('../src/connections/redis');
 const models = require('../src/models');
 
 const index = Model => new Promise((resolve, reject) => {
@@ -16,8 +17,8 @@ const indexes = Promise.all(Object.keys(models).map(name => index(models[name]))
 
 const connect = () => Promise.all([
   new Promise((resolve, reject) => {
-    mongoose.connection.on('connected', resolve);
-    mongoose.connection.on('error', reject);
+    connection.on('connected', resolve);
+    connection.on('error', reject);
   }),
   new Promise((resolve, reject) => {
     redis.on('connect', () => {
@@ -33,7 +34,7 @@ const connect = () => Promise.all([
 
 const disconnect = () => Promise.all([
   new Promise((resolve, reject) => {
-    mongoose.connection.on('disconnected', resolve);
+    connection.on('disconnected', resolve);
     mongoose.disconnect((err) => {
       if (err) reject(err);
     });

@@ -1,5 +1,5 @@
-const mongoose = require('./mongoose');
-const redis = require('./redis');
+const mongoose = require('./connections/mongoose');
+const redis = require('./connections/redis');
 const app = require('./app');
 
 /**

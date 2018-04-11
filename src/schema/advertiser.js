@@ -1,8 +1,6 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
 const notifyPlugin = require('../plugins/notify');
 const validator = require('validator');
-
-const { Schema } = mongoose;
 
 const schema = new Schema({
   name: {
