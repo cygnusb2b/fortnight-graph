@@ -12,4 +12,5 @@ type CampaignSummaryDay {
   date: Date!
   views: Int!
   clicks: Int!
+  ctr: Float!
 }
