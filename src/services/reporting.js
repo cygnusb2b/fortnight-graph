@@ -19,12 +19,19 @@ const fillDayData = (date, days) => {
     const d = days[i];
     if (d.date === day) {
       d.date = moment(day).toDate();
+      d.ctr = ((d.clicks / d.views) * 100).toFixed(2);
       return d;
     }
   }
   const views = 0;
   const clicks = 0;
-  return { date: moment(day).toDate(), views, clicks };
+  const ctr = 0;
+  return {
+    date: moment(day).toDate(),
+    views,
+    clicks,
+    ctr,
+  };
 };
 
 module.exports = {
