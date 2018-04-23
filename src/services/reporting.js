@@ -259,6 +259,7 @@ module.exports = {
       },
       {
         $project: {
+          id: '$_id',
           cre: '$_id.cre',
           days: '$days',
           views: '$views',
@@ -335,7 +336,9 @@ module.exports = {
     const dates = createDateRange(start, end);
     for (let i = 0; i < out.creatives.length; i += 1) {
       const id = out.creatives[i]._id;
-      out.creatives[i].creative = creativesById[id];
+      out.creatives[i].title = creativesById[id].title;
+      out.creatives[i].teaser = creativesById[id].teaser;
+      out.creatives[i].image = creativesById[id].image;
       out.creatives[i].days = dates.map(d => fillDayData(d, out.creatives[i].days));
     }
     return out;
