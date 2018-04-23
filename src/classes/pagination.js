@@ -66,7 +66,7 @@ class Pagination {
   }
 
   getTotalCount() {
-    return this.Model.find().comment(this.createComment('getTotalCount')).count();
+    return this.Model.find(this.criteria).comment(this.createComment('getTotalCount')).count();
   }
 
   async getEndCursor() {
