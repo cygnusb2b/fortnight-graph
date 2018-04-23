@@ -1,16 +1,56 @@
 type Query {
   reportCampaignSummary(input: CampaignHashInput!): CampaignSummary!
+  reportCampaignCreativeBreakdown(input: CampaignHashInput!): CampaignCreativeBreakdown!
 }
 
 type CampaignSummary {
   views: Int!
   clicks: Int!
-  days: [CampaignSummaryDay!]!
+  ctr: Float!
+  days: [DaySummary!]!
 }
 
-type CampaignSummaryDay {
+type DaySummary {
   date: Date!
   views: Int!
   clicks: Int!
   ctr: Float!
+}
+
+type CampaignCreativeBreakdown {
+  creatives: [CreativeSummary!]
+  views: Int!
+  clicks: Int!
+  ctr: Float!
+}
+
+type CreativeSummary {
+  creative: CampaignCreative!
+  views: Int!
+  clicks: Int!
+  ctr: Float!
+  days: [DaySummary!]!
+}
+
+type CampaignCreative {
+  id: String!
+  title: String
+  teaser: String
+  image: CampaignCreativeImage
+}
+
+type CampaignCreativeImage {
+  id: String!
+  src: String!
+  filePath: String!
+  mimeType: String
+  fileSize: Int
+  width: Int
+  height: Int
+  focalPoint: ImageFocalPoint
+}
+
+type ImageFocalPoint {
+  x: Float!
+  y: Float!
 }

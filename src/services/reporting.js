@@ -19,7 +19,6 @@ const fillDayData = (date, days) => {
     const d = days[i];
     if (d.date === day) {
       d.date = moment(day).toDate();
-      d.ctr = ((d.clicks / d.views) * 100).toFixed(2);
       return d;
     }
   }
@@ -69,9 +68,47 @@ module.exports = {
         $sort: { date: 1 },
       },
       {
+        $project: {
+          date: '$_id',
+          views: '$views',
+          clicks: '$clicks',
+          ctr: {
+            $let: {
+              vars: {
+                factor: {
+                  $pow: [10, 2],
+                },
+              },
+              in: {
+                $let: {
+                  vars: {
+                    num: { $multiply: ['$$factor', { $multiply: [{ $divide: ['$clicks', '$views'] }, 100] }] },
+                  },
+                  in: {
+                    $switch: {
+                      branches: [
+                        { case: { $gte: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $add: [{ $floor: '$$num' }, 1.0] }, '$$factor'] } },
+                        { case: { $lt: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $floor: '$$num' }, '$$factor'] } },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      {
         $group: {
           _id: null,
-          days: { $push: { date: '$_id', views: '$views', clicks: '$clicks' } },
+          days: {
+            $push: {
+              date: '$date',
+              views: '$views',
+              clicks: '$clicks',
+              ctr: '$ctr',
+            },
+          },
           views: { $sum: '$views' },
           clicks: { $sum: '$clicks' },
         },
@@ -82,6 +119,30 @@ module.exports = {
           days: 1,
           views: 1,
           clicks: 1,
+          ctr: {
+            $let: {
+              vars: {
+                factor: {
+                  $pow: [10, 2],
+                },
+              },
+              in: {
+                $let: {
+                  vars: {
+                    num: { $multiply: ['$$factor', { $multiply: [{ $divide: ['$clicks', '$views'] }, 100] }] },
+                  },
+                  in: {
+                    $switch: {
+                      branches: [
+                        { case: { $gte: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $add: [{ $floor: '$$num' }, 1.0] }, '$$factor'] } },
+                        { case: { $lt: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $floor: '$$num' }, '$$factor'] } },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     ];
@@ -89,6 +150,194 @@ module.exports = {
     const out = results[0];
     const dates = createDateRange(start, end);
     out.days = dates.map(d => fillDayData(d, out.days));
+    return out;
+  },
+  async campaignCreativeBreakdown(hash) {
+    const campaign = await Campaign.findOne({ hash });
+    if (!campaign) throw new Error(`No campaign record found for hash '${hash}'`);
+    const cid = campaign.get('id');
+    const creatives = campaign.get('creatives');
+    const creativeIds = [];
+    const creativesById = [];
+    creatives.forEach((creative) => {
+      creativeIds.push(creative._id);
+      creativesById[creative._id] = creative;
+    });
+    const start = moment(campaign.get('criteria.start')).startOf('day');
+    const end = campaign.get('criteria.end')
+      ? moment(campaign.get('criteria.end')).endOf('day')
+      : moment().endOf('day');
+    const pipeline = [
+      {
+        $match: {
+          e: { $in: ['load-js', 'view-js', 'click-js', 'contextmenu-js'] },
+          d: { $gte: start.toDate(), $lte: end.toDate() },
+          cid: ObjectId(cid),
+          cre: { $exists: true },
+        },
+      },
+      {
+        $project: {
+          date: { $dateToString: { format: '%Y-%m-%d', date: '$d' } },
+          e: '$e',
+          cid: '$cid',
+          cre: '$cre',
+        },
+      },
+      {
+        $group: {
+          _id: {
+            e: '$e',
+            date: '$date',
+            cre: '$cre',
+          },
+          n: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: false,
+          date: '$_id.date',
+          cre: '$_id.cre',
+          view: { $cond: [{ $eq: ['$_id.e', 'view-js'] }, '$n', 0] },
+          click: { $cond: [{ $eq: ['$_id.e', 'click-js'] }, '$n', 0] },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            date: '$date',
+            cre: '$cre',
+          },
+          views: { $sum: '$view' },
+          clicks: { $sum: '$click' },
+        },
+      },
+      {
+        $project: {
+          _id: false,
+          date: '$_id.date',
+          cre: '$_id.cre',
+          views: '$views',
+          clicks: '$clicks',
+          ctr: {
+            $let: {
+              vars: {
+                factor: {
+                  $pow: [10, 2],
+                },
+              },
+              in: {
+                $let: {
+                  vars: {
+                    num: { $multiply: ['$$factor', { $multiply: [{ $divide: ['$clicks', '$views'] }, 100] }] },
+                  },
+                  in: {
+                    $switch: {
+                      branches: [
+                        { case: { $gte: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $add: [{ $floor: '$$num' }, 1.0] }, '$$factor'] } },
+                        { case: { $lt: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $floor: '$$num' }, '$$factor'] } },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $sort: { date: 1 },
+      },
+      {
+        $group: {
+          _id: '$cre',
+          days: { $push: '$$ROOT' },
+          clicks: { $sum: '$clicks' },
+          views: { $sum: '$views' },
+        },
+      },
+      {
+        $project: {
+          cre: '$_id.cre',
+          days: '$days',
+          views: '$views',
+          clicks: '$clicks',
+          ctr: {
+            $let: {
+              vars: {
+                factor: {
+                  $pow: [10, 2],
+                },
+              },
+              in: {
+                $let: {
+                  vars: {
+                    num: { $multiply: ['$$factor', { $multiply: [{ $divide: ['$clicks', '$views'] }, 100] }] },
+                  },
+                  in: {
+                    $switch: {
+                      branches: [
+                        { case: { $gte: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $add: [{ $floor: '$$num' }, 1.0] }, '$$factor'] } },
+                        { case: { $lt: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $floor: '$$num' }, '$$factor'] } },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          creatives: { $push: '$$ROOT' },
+          clicks: { $sum: '$clicks' },
+          views: { $sum: '$views' },
+        },
+      },
+      {
+        $project: {
+          _id: false,
+          creatives: '$creatives',
+          views: '$views',
+          clicks: '$clicks',
+          ctr: {
+            $let: {
+              vars: {
+                factor: {
+                  $pow: [10, 2],
+                },
+              },
+              in: {
+                $let: {
+                  vars: {
+                    num: { $multiply: ['$$factor', { $multiply: [{ $divide: ['$clicks', '$views'] }, 100] }] },
+                  },
+                  in: {
+                    $switch: {
+                      branches: [
+                        { case: { $gte: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $add: [{ $floor: '$$num' }, 1.0] }, '$$factor'] } },
+                        { case: { $lt: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $floor: '$$num' }, '$$factor'] } },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    ];
+    const results = await Analytics.aggregate(pipeline);
+    const out = results[0];
+    const dates = createDateRange(start, end);
+    for (let i = 0; i < out.creatives.length; i += 1) {
+      const id = out.creatives[i]._id;
+      out.creatives[i].creative = creativesById[id];
+      out.creatives[i].days = dates.map(d => fillDayData(d, out.creatives[i].days));
+    }
     return out;
   },
 };
