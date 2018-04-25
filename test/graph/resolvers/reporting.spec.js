@@ -231,8 +231,16 @@ describe('graph/resolvers/reporting', function() {
         await expect(promise).to.eventually.be.an('object').with.property('views', viewCount);
         const data = await promise;
         expect(data).to.have.all.keys('views', 'clicks', 'ctr', 'creatives');
-        expect(data.creatives).to.be.an('array');
-        expect(data.creatives[0].days.length).to.equal(8);
+      });
+      it('should work for non-terminating campaigns.', async function() {
+        const campaign = await createCampaignAndBreakdownData(viewCount, clickCount, false);
+        const hash = campaign.hash;
+        const input = { hash };
+        const variables = { input };
+        const promise = graphql({ query, variables, key: 'reportCampaignCreativeBreakdown', loggedIn: false });
+        await expect(promise).to.eventually.be.an('object').with.property('views', viewCount);
+        const data = await promise;
+        expect(data).to.have.all.keys('views', 'clicks', 'ctr', 'creatives');
       });
     });
   });
