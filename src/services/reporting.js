@@ -32,6 +32,30 @@ const fillDayData = (date, days) => {
     ctr,
   };
 };
+const getCtrProject = () => ({
+  $let: {
+    vars: {
+      factor: {
+        $pow: [10, 2],
+      },
+    },
+    in: {
+      $let: {
+        vars: {
+          num: { $multiply: ['$$factor', { $multiply: [{ $divide: ['$clicks', '$views'] }, 100] }] },
+        },
+        in: {
+          $switch: {
+            branches: [
+              { case: { $gte: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $add: [{ $floor: '$$num' }, 1.0] }, '$$factor'] } },
+              { case: { $lt: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $floor: '$$num' }, '$$factor'] } },
+            ],
+          },
+        },
+      },
+    },
+  },
+});
 
 module.exports = {
   async campaignSummary(hash) {
@@ -72,30 +96,7 @@ module.exports = {
           date: '$_id',
           views: '$views',
           clicks: '$clicks',
-          ctr: {
-            $let: {
-              vars: {
-                factor: {
-                  $pow: [10, 2],
-                },
-              },
-              in: {
-                $let: {
-                  vars: {
-                    num: { $multiply: ['$$factor', { $multiply: [{ $divide: ['$clicks', '$views'] }, 100] }] },
-                  },
-                  in: {
-                    $switch: {
-                      branches: [
-                        { case: { $gte: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $add: [{ $floor: '$$num' }, 1.0] }, '$$factor'] } },
-                        { case: { $lt: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $floor: '$$num' }, '$$factor'] } },
-                      ],
-                    },
-                  },
-                },
-              },
-            },
-          },
+          ctr: getCtrProject(),
         },
       },
       {
@@ -220,30 +221,7 @@ module.exports = {
           cre: '$_id.cre',
           views: '$views',
           clicks: '$clicks',
-          ctr: {
-            $let: {
-              vars: {
-                factor: {
-                  $pow: [10, 2],
-                },
-              },
-              in: {
-                $let: {
-                  vars: {
-                    num: { $multiply: ['$$factor', { $multiply: [{ $divide: ['$clicks', '$views'] }, 100] }] },
-                  },
-                  in: {
-                    $switch: {
-                      branches: [
-                        { case: { $gte: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $add: [{ $floor: '$$num' }, 1.0] }, '$$factor'] } },
-                        { case: { $lt: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $floor: '$$num' }, '$$factor'] } },
-                      ],
-                    },
-                  },
-                },
-              },
-            },
-          },
+          ctr: getCtrProject(),
         },
       },
       {
@@ -264,30 +242,7 @@ module.exports = {
           days: '$days',
           views: '$views',
           clicks: '$clicks',
-          ctr: {
-            $let: {
-              vars: {
-                factor: {
-                  $pow: [10, 2],
-                },
-              },
-              in: {
-                $let: {
-                  vars: {
-                    num: { $multiply: ['$$factor', { $multiply: [{ $divide: ['$clicks', '$views'] }, 100] }] },
-                  },
-                  in: {
-                    $switch: {
-                      branches: [
-                        { case: { $gte: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $add: [{ $floor: '$$num' }, 1.0] }, '$$factor'] } },
-                        { case: { $lt: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $floor: '$$num' }, '$$factor'] } },
-                      ],
-                    },
-                  },
-                },
-              },
-            },
-          },
+          ctr: getCtrProject(),
         },
       },
       {
@@ -304,30 +259,7 @@ module.exports = {
           creatives: '$creatives',
           views: '$views',
           clicks: '$clicks',
-          ctr: {
-            $let: {
-              vars: {
-                factor: {
-                  $pow: [10, 2],
-                },
-              },
-              in: {
-                $let: {
-                  vars: {
-                    num: { $multiply: ['$$factor', { $multiply: [{ $divide: ['$clicks', '$views'] }, 100] }] },
-                  },
-                  in: {
-                    $switch: {
-                      branches: [
-                        { case: { $gte: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $add: [{ $floor: '$$num' }, 1.0] }, '$$factor'] } },
-                        { case: { $lt: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $floor: '$$num' }, '$$factor'] } },
-                      ],
-                    },
-                  },
-                },
-              },
-            },
-          },
+          ctr: getCtrProject(),
         },
       },
     ];
