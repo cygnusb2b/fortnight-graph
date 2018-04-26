@@ -14,10 +14,13 @@ type Authentication {
 type User {
   id: String!
   email: String!
+  role: String!
   givenName: String
   familyName: String
   logins: Int
   photoURL: String
+  createdAt: Date
+  updatedAt: Date
 }
 
 type Query {
