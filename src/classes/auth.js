@@ -26,6 +26,11 @@ class Auth {
     return this.hasRole('Admin');
   }
 
+  checkAdmin() {
+    this.check();
+    if (!this.isAdmin()) throw new Error('You do not have permission to access this resource.');
+  }
+
   check() {
     if (!this.isValid()) throw new Error('You must be logged-in to access this resource.');
   }
