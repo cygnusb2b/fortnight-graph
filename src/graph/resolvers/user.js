@@ -71,7 +71,7 @@ module.exports = {
       throw new Error('Only administrators can change passwords for other users.');
     },
 
-      /**
+    /**
      *
      */
     updateCurrentUserProfile: async (root, { input }, { auth }) => {
