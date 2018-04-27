@@ -13,12 +13,15 @@ const externalLinkSchema = new Schema({
   label: {
     type: String,
     required: false,
+    trim: true,
   },
   url: {
     type: String,
     required: true,
+    trim: true,
     validate: {
       validator(v) {
+        if (!v) return false;
         return validator.isURL(v, {
           protocols: ['http', 'https'],
           require_protocol: true,
