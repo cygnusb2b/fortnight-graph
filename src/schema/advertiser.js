@@ -14,8 +14,10 @@ const schema = new Schema({
   logo: {
     type: String,
     required: false,
+    trim: true,
     validate: {
       validator(v) {
+        if (!v) return true;
         return validator.isURL(v, {
           protocols: ['https'],
           require_protocol: true,
