@@ -21,6 +21,8 @@ type Contact {
   email: String!
   givenName: String
   familyName: String
+  createdAt: Date
+  updatedAt: Date
 }
 
 type ContactConnection {
