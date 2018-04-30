@@ -34,19 +34,11 @@ describe('classes/type-ahead', function() {
     it('should respond to the function', function() {
       expect(TypeAhead).itself.to.respondTo('buildRegexQuery');
     });
-    it('should always return a regular expression', function(done) {
-      const bads = [ undefined, '', null, false, true, new Error() ];
-      expect(TypeAhead.buildRegexQuery()).to.be.an.instanceOf(RegExp);
-      bads.forEach(i => expect(TypeAhead.buildRegexQuery(i)).to.be.an.instanceOf(RegExp))
-      done();
-    });
-    it('should escape expression sensitive characters.', function(done) {
-      const bads = [ '-', '[', ']', '/', '{', '}', '(', ')', '*', '+', '?', '.', '\\', '^', '$', '|' ];
-      bads.forEach(s => {
-        const expected = new RegExp(`^\\${s}`, 'i');
-        expect(TypeAhead.buildRegexQuery(s)).to.eql(expected);
+    [undefined, '', null, false, true].forEach((value) => {
+      it(`should return a regular expression when the value is '${value}'`, function(done) {
+        expect(TypeAhead.buildRegexQuery(value)).to.be.an.instanceOf(RegExp);
+        done();
       });
-      done();
     });
   });
 });

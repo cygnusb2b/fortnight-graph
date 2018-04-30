@@ -50,6 +50,7 @@
     "crawler-user-agents": "https://github.com/monperrus/crawler-user-agents.git#master",
     "deep-assign": "^2.0.0",
     "dotenv": "^4.0.0",
+    "escape-string-regexp": "^1.0.5",
     "express": "^4.16.2",
     "faker": "^4.1.0",
     "graphql": "^0.13.1",

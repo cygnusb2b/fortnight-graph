@@ -38,6 +38,7 @@ type Campaign {
   hash: String!
   createdAt: Date
   updatedAt: Date
+  isNew: Boolean!
   advertiser: Advertiser!
   status: CampaignStatus!
   url: String!

@@ -14,10 +14,13 @@ type Authentication {
 type User {
   id: String!
   email: String!
+  role: String!
   givenName: String
   familyName: String
   logins: Int
   photoURL: String
+  createdAt: Date
+  updatedAt: Date
 }
 
 type Query {
@@ -29,6 +32,19 @@ type Mutation {
   createUser(input: CreateUserInput!): User
   loginUser(input: LoginInput!): Authentication
   deleteSession: String
+  changeUserPassword(input: ChangeUserPasswordInput!): User
+  updateCurrentUserProfile(input: CurrentUserProfileInput!): User
+}
+
+input ChangeUserPasswordInput {
+  id: String!
+  value: String!
+  confirm: String!
+}
+
+input CurrentUserProfileInput {
+  givenName: String!
+  familyName: String!
 }
 
 input NewUserPayloadInput {
