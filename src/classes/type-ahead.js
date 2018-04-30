@@ -24,7 +24,7 @@ class TypeAhead {
       start = '^';
       end = '$';
     }
-    return new RegExp(`${start}${escapeRegex(term)}${end}`, 'i');
+    return new RegExp(`${start}${escapeRegex(String(term))}${end}`, 'i');
   }
 }
 
