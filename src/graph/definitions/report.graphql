@@ -34,19 +34,3 @@ type CreativeSummary {
   ctr: Float!
   days: [DaySummary!]!
 }
-
-type CampaignCreativeImage {
-  id: String!
-  src: String!
-  filePath: String!
-  mimeType: String
-  fileSize: Int
-  width: Int
-  height: Int
-  focalPoint: ImageFocalPoint
-}
-
-type ImageFocalPoint {
-  x: Float!
-  y: Float!
-}
