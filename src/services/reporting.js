@@ -33,28 +33,7 @@ const fillDayData = (date, days) => {
   };
 };
 const getCtrProject = () => ({
-  $let: {
-    vars: {
-      factor: {
-        $pow: [10, 2],
-      },
-    },
-    in: {
-      $let: {
-        vars: {
-          num: { $multiply: ['$$factor', { $multiply: [{ $divide: ['$clicks', '$views'] }, 100] }] },
-        },
-        in: {
-          $switch: {
-            branches: [
-              { case: { $gte: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $add: [{ $floor: '$$num' }, 1.0] }, '$$factor'] } },
-              { case: { $lt: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $floor: '$$num' }, '$$factor'] } },
-            ],
-          },
-        },
-      },
-    },
-  },
+  $divide: [{ $floor: { $multiply: [10000, { $divide: ['$clicks', '$views'] }] } }, 100],
 });
 
 module.exports = {
@@ -120,30 +99,7 @@ module.exports = {
           days: 1,
           views: 1,
           clicks: 1,
-          ctr: {
-            $let: {
-              vars: {
-                factor: {
-                  $pow: [10, 2],
-                },
-              },
-              in: {
-                $let: {
-                  vars: {
-                    num: { $multiply: ['$$factor', { $multiply: [{ $divide: ['$clicks', '$views'] }, 100] }] },
-                  },
-                  in: {
-                    $switch: {
-                      branches: [
-                        { case: { $gte: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $add: [{ $floor: '$$num' }, 1.0] }, '$$factor'] } },
-                        { case: { $lt: ['$$num', { $add: [{ $floor: '$$num' }, 0.5] }] }, then: { $divide: [{ $floor: '$$num' }, '$$factor'] } },
-                      ],
-                    },
-                  },
-                },
-              },
-            },
-          },
+          ctr: getCtrProject(),
         },
       },
     ];
