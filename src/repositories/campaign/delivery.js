@@ -48,6 +48,7 @@ module.exports = {
         {
           $or: [
             { 'criteria.end': { $exists: false } },
+            { 'criteria.end': null },
             { 'criteria.end': { $gt: startDate } },
           ],
         },
