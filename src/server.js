@@ -1,6 +1,9 @@
 const mongoose = require('./mongoose');
 const redis = require('./redis');
 const app = require('./app');
+const elastic = require('./elastic');
+
+elastic.checkConnection();
 
 /**
  * Export these so that can be exited.
@@ -11,4 +14,5 @@ module.exports = {
   app,
   mongoose,
   redis,
+  elastic: elastic.client,
 };
