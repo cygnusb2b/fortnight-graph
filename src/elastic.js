@@ -10,7 +10,7 @@ const checkConnection = throttle(async () => {
   try {
     // eslint-disable-next-line no-await-in-loop
     const health = await client.cluster.health({});
-    process.stdout.write(`Successfully connected to ElasticSearch: ${JSON.stringify(health)}\n`);
+    process.stdout.write(`🔎 🔎 🔎 Successful connection to ElasticSearch with health ${JSON.stringify(health)}\n`);
   } catch (e) {
     process.stdout.write('Unable to connect to ElasticSearch. Retrying...\n');
     checkConnection();

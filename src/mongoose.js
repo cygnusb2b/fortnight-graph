@@ -10,7 +10,7 @@ mongoose.connect(MONGO_DSN, {
   ignoreUndefined: true,
   promiseLibrary: bluebird,
 }).then(() => {
-  process.stdout.write(`Successful MongoDB connection to '${MONGO_DSN}'\n`);
+  process.stdout.write(`🛢️ 🛢️ 🛢️ Successful MongoDB connection to '${MONGO_DSN}'\n`);
   return mongoose;
 });
 
