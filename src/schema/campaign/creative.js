@@ -12,5 +12,10 @@ module.exports = new Schema({
     type: String,
     trim: true,
   },
+  status: {
+    type: String,
+    default: 'Active',
+    enum: ['Draft', 'Active'],
+  },
   image: ImageSchema,
 });
