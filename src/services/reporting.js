@@ -33,7 +33,7 @@ const fillDayData = (date, days) => {
   };
 };
 const getCtrProject = () => ({
-  $divide: [{ $floor: { $multiply: [10000, { $divide: ['$clicks', '$views'] }] } }, 100],
+  $cond: [{ $eq: ['$views', 0] }, 0.00, { $divide: [{ $floor: { $multiply: [10000, { $divide: ['$clicks', '$views'] }] } }, 100] }],
 });
 
 module.exports = {
@@ -222,6 +222,7 @@ module.exports = {
     const results = await Analytics.aggregate(pipeline);
     const out = results[0];
     const dates = createDateRange(start, end);
+    if (!out) throw new Error(`No results found for hash '${hash}'`);
     for (let i = 0; i < out.creatives.length; i += 1) {
       const id = out.creatives[i]._id;
       out.creatives[i].title = creativesById[id].title;
