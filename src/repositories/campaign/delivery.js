@@ -291,7 +291,7 @@ module.exports = {
       });
     }
     const creative = this.getCreativeFor(campaign);
-    if (!creative) {
+    if (!creative || creative.status === 'Draft') {
       // No creative found. Send fallback.
       return this.buildFallbackFor({
         template,
