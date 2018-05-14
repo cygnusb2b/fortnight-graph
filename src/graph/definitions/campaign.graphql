@@ -10,6 +10,7 @@ type Mutation {
   updateCampaign(input: UpdateCampaignInput!): Campaign!
   addCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative!
   updateCampaignCreative(input: UpdateCampaignCreativeInput!): CampaignCreative!
+  updateCampaignCreativeDetails(input: UpdateCampaignCreativeDetailsInput!): CampaignCreative!
   removeCampaignCreative(input: RemoveCampaignCreativeInput!): String!
   setCampaignCriteria(input: SetCampaignCriteriaInput!): CampaignCriteria!
   clientUpdateCampaign(input: ClientUpdateCampaignInput!): Campaign!
@@ -200,6 +201,18 @@ input UpdateCampaignCreativeInput {
   campaignId: String!
   creativeId: String!
   payload: UpdateCampaignCreativePayloadInput
+}
+
+input UpdateCampaignCreativeDetailsInput {
+  campaignId: String!
+  creativeId: String!
+  payload: UpdateCampaignCreativeDetailsPayloadInput
+}
+
+input UpdateCampaignCreativeDetailsPayloadInput {
+  title: String
+  teaser: String
+  status: CampaignCreativeStatus!
 }
 
 input CampaignCreativeStatusInput {

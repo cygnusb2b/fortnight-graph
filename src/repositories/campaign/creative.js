@@ -60,6 +60,26 @@ module.exports = {
   },
 
   /**
+   * @param {string} campaignId
+   * @param {object} payload
+   * @param {string} payload.title
+   * @return {Promise}
+   */
+  async updateDetailsFor(campaignId, creativeId, { title, teaser, status } = {}) {
+    const campaign = await findCampaign(campaignId);
+    const creative = campaign.creatives.id(creativeId);
+    if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
+    creative.set({
+      title,
+      teaser,
+      status,
+    });
+
+    await campaign.save();
+    return campaign.creatives.id(creativeId);
+  },
+
+  /**
    *
    * @param {string} campaignId
    * @param {string} creativeId
