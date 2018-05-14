@@ -49,6 +49,16 @@ module.exports = {
       if (!record) throw new Error(`No campaign record found for ID ${id}.`);
       return record;
     },
+
+    /**
+     *
+     */
+    campaignCreative: (root, { input }, { auth }) => {
+      auth.check();
+      const { campaignId, creativeId } = input;
+      return CreativeRepo.findFor(campaignId, creativeId);
+    },
+
     /**
      *
      */

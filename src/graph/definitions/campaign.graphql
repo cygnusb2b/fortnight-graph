@@ -2,6 +2,7 @@ type Query {
   allCampaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
   campaign(input: ModelIdInput!): Campaign!
   campaignHash(input: CampaignHashInput!): Campaign!
+  campaignCreative(input: CampaignCreativeInput): CampaignCreative!
 }
 
 type Mutation {
@@ -105,6 +106,11 @@ type CampaignConnection {
 type CampaignEdge {
   node: Campaign!
   cursor: Cursor!
+}
+
+input CampaignCreativeInput {
+  campaignId: String!
+  creativeId: String!
 }
 
 input CampaignHashInput {

@@ -76,6 +76,18 @@ module.exports = {
   },
 
   /**
+   *
+   * @param {string} campaignId
+   * @param {string} creativeId
+   */
+  async findFor(campaignId, creativeId) {
+    const campaign = await findCampaign(campaignId);
+    const creative = campaign.creatives.id(creativeId);
+    if (!creative) throw new Error('No creative was found for the provided ID.');
+    return creative;
+  },
+
+  /**
    * @param {string} campaignId
    * @param {string} creativeId
    * @return {Promise}
