@@ -131,6 +131,15 @@ module.exports = {
     /**
      *
      */
+    updateCampaignCreativeImage: async (root, { input }, { auth }) => {
+      auth.check();
+      const { campaignId, creativeId, payload } = input;
+      return CreativeRepo.updateImageFor(campaignId, creativeId, payload);
+    },
+
+    /**
+     *
+     */
     campaignCreativeStatus: async (root, { input }, { auth }) => {
       auth.check();
       const { campaignId, creativeId, status } = input;

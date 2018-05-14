@@ -80,6 +80,38 @@ module.exports = {
   },
 
   /**
+   * @param {string} campaignId
+   * @param {string} creativeId
+   * @param {object} payload
+   */
+  async updateImageFor(campaignId, creativeId, {
+    src,
+    filePath,
+    mimeType,
+    fileSize,
+    width,
+    height,
+    focalPoint,
+  } = {}) {
+    const campaign = await findCampaign(campaignId);
+    const creative = campaign.creatives.id(creativeId);
+    if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
+
+    creative.set('image', {
+      src,
+      filePath,
+      mimeType,
+      fileSize,
+      width,
+      height,
+      focalPoint,
+    });
+
+    await campaign.save();
+    return campaign.creatives.id(creativeId);
+  },
+
+  /**
    *
    * @param {string} campaignId
    * @param {string} creativeId
