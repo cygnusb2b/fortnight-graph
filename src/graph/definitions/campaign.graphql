@@ -2,6 +2,7 @@ type Query {
   allCampaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
   campaign(input: ModelIdInput!): Campaign!
   campaignHash(input: CampaignHashInput!): Campaign!
+  campaignCreative(input: CampaignCreativeInput): CampaignCreative!
 }
 
 type Mutation {
@@ -9,6 +10,8 @@ type Mutation {
   updateCampaign(input: UpdateCampaignInput!): Campaign!
   addCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative!
   updateCampaignCreative(input: UpdateCampaignCreativeInput!): CampaignCreative!
+  updateCampaignCreativeDetails(input: UpdateCampaignCreativeDetailsInput!): CampaignCreative!
+  updateCampaignCreativeImage(input: UpdateCampaignCreativeImageInput!): CampaignCreative!
   removeCampaignCreative(input: RemoveCampaignCreativeInput!): String!
   setCampaignCriteria(input: SetCampaignCriteriaInput!): CampaignCriteria!
   clientUpdateCampaign(input: ClientUpdateCampaignInput!): Campaign!
@@ -16,6 +19,7 @@ type Mutation {
   addCampaignContact(input: AddContactInput!): Campaign!
   removeCampaignContact(input: RemoveContactInput!): Campaign!
   setCampaignContacts(input: SetContactsInput!): Campaign!
+  campaignCreativeStatus(input: CampaignCreativeStatusInput!): CampaignCreative!
 }
 
 enum CampaignSortField {
@@ -52,7 +56,13 @@ type CampaignCreative {
   id: String!
   title: String
   teaser: String
+  status: CampaignCreativeStatus
   image: CampaignCreativeImage
+}
+
+enum CampaignCreativeStatus {
+  Draft
+  Active
 }
 
 type CampaignCriteria {
@@ -98,6 +108,11 @@ type CampaignConnection {
 type CampaignEdge {
   node: Campaign!
   cursor: Cursor!
+}
+
+input CampaignCreativeInput {
+  campaignId: String!
+  creativeId: String!
 }
 
 input CampaignHashInput {
@@ -174,6 +189,7 @@ input ImageFocalPointInput {
 input AddCampaignCreativePayloadInput {
   title: String
   teaser: String
+  status: CampaignCreativeStatus
   image: CampaignCreativeImageInput
 }
 
@@ -188,6 +204,30 @@ input UpdateCampaignCreativeInput {
   payload: UpdateCampaignCreativePayloadInput
 }
 
+input UpdateCampaignCreativeDetailsInput {
+  campaignId: String!
+  creativeId: String!
+  payload: UpdateCampaignCreativeDetailsPayloadInput
+}
+
+input UpdateCampaignCreativeDetailsPayloadInput {
+  title: String
+  teaser: String
+  status: CampaignCreativeStatus
+}
+
+input UpdateCampaignCreativeImageInput {
+  campaignId: String!
+  creativeId: String!
+  payload: CampaignCreativeImageInput!
+}
+
+input CampaignCreativeStatusInput {
+  campaignId: String!
+  creativeId: String!
+  status: CampaignCreativeStatus!
+}
+
 input ClientUpdateCampaignCreativeInput {
   id: String!
   title: String
@@ -198,6 +238,7 @@ input ClientUpdateCampaignCreativeInput {
 input UpdateCampaignCreativePayloadInput {
   title: String
   teaser: String
+  status: CampaignCreativeStatus
   image: CampaignCreativeImageInput
 }
 

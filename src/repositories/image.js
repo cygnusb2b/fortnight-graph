@@ -16,11 +16,11 @@ module.exports = {
     const acceptable = ['image/png', 'image/jpeg', 'image/webm'];
     if (!acceptable.includes(type)) return Promise.reject(new Error('Unable to sign upload: invalid file type.'));
 
-    const key = `${uuidv4()}/${filename}`;
+    const id = uuidv4();
     const expires = 120;
     const params = {
       Bucket: 'fortnight-materials',
-      Key: key,
+      Key: `${id}/${filename}`,
       ACL: 'public-read',
       Expires: expires,
       ContentType: type,
@@ -30,7 +30,7 @@ module.exports = {
         if (err) {
           reject(err);
         } else {
-          resolve({ url, key, expires });
+          resolve({ url, key: `${id}/${encodeURIComponent(filename)}`, expires });
         }
       });
     });

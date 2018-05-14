@@ -49,6 +49,16 @@ module.exports = {
       if (!record) throw new Error(`No campaign record found for ID ${id}.`);
       return record;
     },
+
+    /**
+     *
+     */
+    campaignCreative: (root, { input }, { auth }) => {
+      auth.check();
+      const { campaignId, creativeId } = input;
+      return CreativeRepo.findFor(campaignId, creativeId);
+    },
+
     /**
      *
      */
@@ -106,6 +116,34 @@ module.exports = {
       auth.check();
       const { campaignId, creativeId, payload } = input;
       return CreativeRepo.updateFor(campaignId, creativeId, payload);
+    },
+
+    /**
+     *
+     */
+    updateCampaignCreativeDetails: async (root, { input }, { auth }) => {
+      auth.check();
+      const { campaignId, creativeId, payload } = input;
+      const { title, teaser, status } = payload;
+      return CreativeRepo.updateDetailsFor(campaignId, creativeId, { title, teaser, status });
+    },
+
+    /**
+     *
+     */
+    updateCampaignCreativeImage: async (root, { input }, { auth }) => {
+      auth.check();
+      const { campaignId, creativeId, payload } = input;
+      return CreativeRepo.updateImageFor(campaignId, creativeId, payload);
+    },
+
+    /**
+     *
+     */
+    campaignCreativeStatus: async (root, { input }, { auth }) => {
+      auth.check();
+      const { campaignId, creativeId, status } = input;
+      return CreativeRepo.setStatusFor(campaignId, creativeId, status);
     },
 
     /**
