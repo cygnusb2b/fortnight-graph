@@ -56,7 +56,7 @@ type CampaignCreative {
   id: String!
   title: String
   teaser: String
-  status: CampaignCreativeStatus!
+  status: CampaignCreativeStatus
   image: CampaignCreativeImage
 }
 
@@ -189,7 +189,7 @@ input ImageFocalPointInput {
 input AddCampaignCreativePayloadInput {
   title: String
   teaser: String
-  status: CampaignCreativeStatus!
+  status: CampaignCreativeStatus
   image: CampaignCreativeImageInput
 }
 
@@ -213,7 +213,7 @@ input UpdateCampaignCreativeDetailsInput {
 input UpdateCampaignCreativeDetailsPayloadInput {
   title: String
   teaser: String
-  status: CampaignCreativeStatus!
+  status: CampaignCreativeStatus
 }
 
 input UpdateCampaignCreativeImageInput {
@@ -238,7 +238,7 @@ input ClientUpdateCampaignCreativeInput {
 input UpdateCampaignCreativePayloadInput {
   title: String
   teaser: String
-  status: CampaignCreativeStatus!
+  status: CampaignCreativeStatus
   image: CampaignCreativeImageInput
 }
 
