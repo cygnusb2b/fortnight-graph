@@ -16,6 +16,7 @@ type Mutation {
   addCampaignContact(input: AddContactInput!): Campaign!
   removeCampaignContact(input: RemoveContactInput!): Campaign!
   setCampaignContacts(input: SetContactsInput!): Campaign!
+  campaignCreativeStatus(input: CampaignCreativeStatusInput!): CampaignCreative!
 }
 
 enum CampaignSortField {
@@ -193,6 +194,12 @@ input UpdateCampaignCreativeInput {
   campaignId: String!
   creativeId: String!
   payload: UpdateCampaignCreativePayloadInput
+}
+
+input CampaignCreativeStatusInput {
+  campaignId: String!
+  creativeId: String!
+  status: CampaignCreativeStatus!
 }
 
 input ClientUpdateCampaignCreativeInput {

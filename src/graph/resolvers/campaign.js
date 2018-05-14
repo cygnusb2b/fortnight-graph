@@ -111,6 +111,15 @@ module.exports = {
     /**
      *
      */
+    campaignCreativeStatus: async (root, { input }, { auth }) => {
+      auth.check();
+      const { campaignId, creativeId, status } = input;
+      return CreativeRepo.setStatusFor(campaignId, creativeId, status);
+    },
+
+    /**
+     *
+     */
     clientUpdateCampaign: async (root, { input }) => {
       const { campaignId, payload } = input;
       return ClientRepo.updateFor(campaignId, payload);
