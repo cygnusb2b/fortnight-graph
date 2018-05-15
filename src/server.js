@@ -3,8 +3,6 @@ const redis = require('./redis');
 const app = require('./app');
 const elastic = require('./elastic');
 
-elastic.checkConnection();
-
 /**
  * Export these so that can be exited.
  * @todo Implement a graceful shutdown for these!
@@ -14,5 +12,5 @@ module.exports = {
   app,
   mongoose,
   redis,
-  elastic: elastic.client,
+  elastic,
 };
