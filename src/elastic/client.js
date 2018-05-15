@@ -1,18 +1,21 @@
 const { Client } = require('elasticsearch');
 
-const ElasticClient = ({ host }) => {
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const ElasticClient = (options) => {
+  const client = new Client(options);
   let connected = false;
-  const client = new Client({ host });
 
   return {
     async connect() {
-      if (connected) return client;
-      try {
-        await client.cluster.health({});
-        connected = true;
-        return client;
-      } catch (e) {
-        setTimeout(() => this.connect(), 3000);
+      if (!connected) {
+        try {
+          await client.cluster.health({});
+          connected = true;
+        } catch (e) {
+          await delay(3000);
+          await this.connect();
+        }
       }
     },
   };
