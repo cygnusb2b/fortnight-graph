@@ -28,6 +28,20 @@ const schema = new Schema({
   },
 }, { timestamps: true });
 
+schema.pre('save', async function updatePlacements() {
+  if (this.isModified('name')) {
+    // This isn't as efficient as calling `updateMany`, but the ElasticSearch
+    // plugin will not fire properly otherwise.
+    // As such, do not await the update.
+    const Placement = mongoose.model('placement');
+    const docs = await Placement.find({ publisherId: this.id });
+    docs.forEach((doc) => {
+      doc.set('publisherName', this.name);
+      doc.save();
+    });
+  }
+});
+
 setEntityFields(schema, 'name');
 applyElasticPlugin(schema, 'publishers');
 
