@@ -19,6 +19,7 @@ services:
       MONGO_DSN: mongodb://mongo:27017/fortnight
       REDIS_DSN: redis://redis:6379/0
       ELASTIC_HOST: http://elasticsearch:9200
+      ELASTIC_INDEX: fortnight
       PORT: ${GRAPH_APP_PORT-8100}
       MONGOOSE_DEBUG: ${MONGOOSE_DEBUG}
       DEBUG: ${DEBUG}
@@ -32,7 +33,7 @@ services:
     ports:
       - "${GRAPH_DB_PORT-8101}:27017"
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    build: ./elasticsearch
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
