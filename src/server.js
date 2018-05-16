@@ -38,10 +38,14 @@ const initialize = async () => {
   });
 };
 
+const mapAndSync = async (Model) => {
+  await Model.esCreateMapping().then(() => console.info(`Mapping for ${Model.modelName} complete.`));
+  await Model.esSynchronize().then(() => console.info(`Syncing for ${Model.modelName} complete.`));
+
+};
+
 initialize().then(() => process.stdout.write(`🔍 🔍 🔍 Successful ElasticSearch connection to '${ELASTIC_HOST}'\n`)).then(() => {
-  Advertiser.esSynchronize().then(function () {
-    console.log('SYNC');
-  });
+  mapAndSync(Advertiser);
 });
 
 

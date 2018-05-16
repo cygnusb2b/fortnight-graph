@@ -13,6 +13,18 @@ const schema = new Schema({
     unique: true,
     es_indexed: true,
     es_type: 'text',
+    es_analyzer: 'default',
+    es_fields: {
+      edgeGrams: {
+        type: 'text',
+        analyzer: 'entity_starts_with',
+        search_analyzer: 'entity_starts_with_search',
+      },
+      ngrams: {
+        type: 'text',
+        analyzer: 'entity_tri_gram',
+      },
+    },
   },
   logo: {
     type: String,
