@@ -10,7 +10,7 @@ const { ELASTIC_INDEX } = process.env;
 const mapMsg = Model => `ElasticSearch mappings for '${Model.modelName}' successfully set.`;
 const syncMsg = Model => `ElasticSearch populate for '${Model.modelName}' complete.`;
 
-const initialize = async (elastic, recreate = true) => {
+const initialize = async (elastic, recreate = false) => {
   const messages = [];
   if (recreate === true) {
     await elastic.deleteIndex(ELASTIC_INDEX);
