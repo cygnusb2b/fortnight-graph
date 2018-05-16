@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const notifyPlugin = require('../plugins/notify');
 const validator = require('validator');
-const applyElastic = require('../elastic/mongoose');
+const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 
 const { Schema } = mongoose;
 
@@ -11,28 +11,6 @@ const schema = new Schema({
     required: true,
     trim: true,
     unique: true,
-    es_indexed: true,
-    es_type: 'text',
-    es_analyzer: 'default',
-    es_fields: {
-      exact: {
-        type: 'text',
-        analyzer: 'entity_exact',
-      },
-      edge: {
-        type: 'text',
-        analyzer: 'entity_starts_with',
-        search_analyzer: 'entity_starts_with_search',
-      },
-      ngram: {
-        type: 'text',
-        analyzer: 'entity_tri_gram',
-      },
-      phonetic: {
-        type: 'text',
-        analyzer: 'entity_sounds_like',
-      },
-    },
   },
   logo: {
     type: String,
@@ -52,7 +30,9 @@ const schema = new Schema({
 }, { timestamps: true });
 
 schema.plugin(notifyPlugin);
-applyElastic(schema);
+
+setEntityFields(schema, 'name');
+applyElasticPlugin(schema);
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
