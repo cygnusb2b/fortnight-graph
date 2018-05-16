@@ -6,6 +6,8 @@ const applyElasticPlugin = (schema) => {
     client,
     index: 'fortnight',
   });
+  const { options } = schema;
+  options.es_enabled = true;
 };
 
 const setEntityFields = (schema, name) => {
