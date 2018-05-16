@@ -29,6 +29,20 @@ const schema = new Schema({
   },
 }, { timestamps: true });
 
+schema.pre('save', async function updateCampaigns() {
+  if (this.isModified('name')) {
+    // This isn't as efficient as calling `updateMany`, but the ElasticSearch
+    // plugin will not fire properly otherwise.
+    // As such, do not await the update.
+    const Campaign = mongoose.model('campaign');
+    const docs = await Campaign.find({ advertiserId: this.id });
+    docs.forEach((doc) => {
+      doc.set('advertiserName', this.name);
+      doc.save();
+    });
+  }
+});
+
 schema.plugin(notifyPlugin);
 
 setEntityFields(schema, 'name');
