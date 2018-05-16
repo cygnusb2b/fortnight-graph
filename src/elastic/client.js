@@ -23,15 +23,18 @@ const ElasticClient = (options) => {
       }
     },
 
-    async createIndex(index, body) {
+    async indexExists(index) {
       await this.connect();
-      const exists = await this.client.indices.exists({ index });
+      return this.client.indices.exists({ index });
+    },
+
+    async createIndex(index, body) {
+      const exists = await this.indexExists(index);
       if (!exists) await this.client.indices.create({ index, body });
     },
 
     async deleteIndex(index) {
-      await this.connect();
-      const exists = await this.client.indices.exists({ index });
+      const exists = await this.indexExists(index);
       if (exists) await this.client.indices.delete({ index });
     },
 
