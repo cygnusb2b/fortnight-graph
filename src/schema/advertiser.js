@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const notifyPlugin = require('../plugins/notify');
 const validator = require('validator');
+const applyElastic = require('../elastic/mongoose');
 
 const { Schema } = mongoose;
 
@@ -10,6 +11,8 @@ const schema = new Schema({
     required: true,
     trim: true,
     unique: true,
+    es_indexed: true,
+    es_type: 'text',
   },
   logo: {
     type: String,
@@ -29,6 +32,7 @@ const schema = new Schema({
 }, { timestamps: true });
 
 schema.plugin(notifyPlugin);
+applyElastic(schema);
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
