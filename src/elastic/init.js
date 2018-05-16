@@ -1,47 +1,24 @@
 const Promise = require('bluebird');
-const filter = require('./filters');
-const analyzers = require('./analyzers');
-const tokenizers = require('./tokenizers');
-const charFilters = require('./char-filters');
 const models = require('./models');
 
-const { ELASTIC_INDEX } = process.env;
+const emitMap = (index, type) => process.stdout.write(`ElasticSearch mappings for '${index}/${type}' successfully set.\n`);
+const emitSync = (index, type) => process.stdout.write(`ElasticSearch populate for '${index}/${type}' complete.\n`);
 
-const mapMsg = Model => `ElasticSearch mappings for '${Model.modelName}' successfully set.`;
-const syncMsg = Model => `ElasticSearch populate for '${Model.modelName}' complete.`;
-
-const initialize = async (elastic, recreate = false) => {
-  const messages = [];
+const initializeFor = async (Model, elastic, recreate = false) => {
+  const { index, type } = Model.esOptions();
   if (recreate) {
-    await elastic.deleteIndex(ELASTIC_INDEX);
+    await elastic.deleteIndex(index);
   }
-  const exists = await elastic.indexExists(ELASTIC_INDEX);
-  await elastic.createIndex(ELASTIC_INDEX, {
-    settings: {
-      index: {
-        analysis: {
-          filter,
-          analyzer: {
-            default: analyzers.entity_name,
-            default_search: analyzers.entity_name,
-            ...analyzers,
-          },
-          tokenizer: tokenizers,
-          char_filter: charFilters,
-        },
-      },
-    },
-  });
-
+  const exists = await elastic.indexExists(index);
   if (!exists) {
-    const promises = [];
-    // The index previously did not exist. Map and populate all models.
-    models.forEach((Model) => {
-      promises.push(Model.esCreateMapping().then(() => messages.push(mapMsg(Model))));
-      promises.push(Model.esSynchronize().then(() => messages.push(syncMsg(Model))));
-    });
-    await Promise.all(promises).then(() => process.stdout.write(`${messages.join('\n')}\n`));
+    // Create mappings for the model in Elastic.
+    await Model.esCreateMapping().then(() => emitMap(index, type));
+    // Populate/sync the data from MongoDB to Elastic.
+    await Model.esSynchronize().then(() => emitSync(index, type));
   }
 };
+
+const initialize = (elastic, recreate = false) => Promise
+  .all(models.map(Model => initializeFor(Model, elastic, recreate)));
 
 module.exports = initialize;
