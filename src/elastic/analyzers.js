@@ -67,4 +67,23 @@ module.exports = {
     ],
     char_filter: ['html_strip', 'remove_special_chars', 'force_dashes'],
   },
+  email_address: {
+    type: 'custom',
+    tokenizer: 'classic',
+    filter: [
+      'lowercase',
+      'asciifolding',
+    ],
+    char_filter: ['html_strip'],
+  },
+  email_address_starts_with: {
+    type: 'custom',
+    tokenizer: 'classic',
+    filter: [
+      'lowercase',
+      'asciifolding',
+      'starts_with',
+    ],
+    char_filter: ['html_strip'],
+  },
 };

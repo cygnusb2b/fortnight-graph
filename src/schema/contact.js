@@ -19,6 +19,19 @@ const schema = new Schema({
         message: 'Invalid email address {VALUE}',
       },
     ],
+    es_indexed: true,
+    es_type: 'text',
+    es_analyzer: 'email_address',
+    es_fields: {
+      raw: {
+        type: 'keyword',
+      },
+      edge: {
+        type: 'text',
+        analyzer: 'email_address_starts_with',
+        search_analyzer: 'email_address',
+      },
+    },
   },
   name: {
     type: String,
