@@ -34,6 +34,17 @@ module.exports = {
     ],
     char_filter: ['html_strip', 'remove_special_chars', 'force_dashes'],
   },
+  entity_sounds_like: {
+    type: 'custom',
+    tokenizer: 'classic',
+    filter: [
+      'word_delimiter_preserved',
+      'lowercase',
+      'asciifolding',
+      'sounds_like',
+    ],
+    char_filter: ['html_strip', 'remove_special_chars', 'force_dashes'],
+  },
   entity_starts_with: {
     type: 'custom',
     tokenizer: 'classic',

@@ -15,14 +15,18 @@ const schema = new Schema({
     es_type: 'text',
     es_analyzer: 'default',
     es_fields: {
-      edgeGrams: {
+      edge: {
         type: 'text',
         analyzer: 'entity_starts_with',
         search_analyzer: 'entity_starts_with_search',
       },
-      ngrams: {
+      ngram: {
         type: 'text',
         analyzer: 'entity_tri_gram',
+      },
+      phonetic: {
+        type: 'text',
+        analyzer: 'entity_sounds_like',
       },
     },
   },

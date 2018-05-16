@@ -21,4 +21,7 @@ module.exports = {
     min_gram: 1,
     max_gram: 10,
   },
+  sounds_like: {
+    type: 'phonetic',
+  },
 };

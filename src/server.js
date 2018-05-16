@@ -29,6 +29,7 @@ const initialize = async () => {
             entity_starts_with: analyzers.entity_starts_with,
             entity_starts_with_search: analyzers.entity_starts_with_search,
             default_search: analyzers.entity_name,
+            entity_sounds_like: analyzers.entity_sounds_like,
           },
           tokenizer: tokenizers,
           char_filter: charFilters,
