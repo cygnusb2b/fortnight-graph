@@ -15,19 +15,16 @@ module.exports = {
     return publisher.save();
   },
 
-  update(id, payload = {}) {
-    if (!id) return Promise.reject(new Error('Unable to update publisher: no ID was provided.'));
-    const criteria = { _id: id };
-    const $set = {};
+  async update(id, payload = {}) {
+    if (!id) throw new Error('Unable to update publisher: no ID was provided.');
+    const publisher = await this.findById(id);
+    if (!publisher) throw new Error(`Unable to update publisher: no record was found for ID '${id}'`);
+
     ['name', 'logo'].forEach((key) => {
       const value = payload[key];
-      if (typeof value !== 'undefined') $set[key] = value;
+      if (typeof value !== 'undefined') publisher[key] = value;
     });
-    const options = { new: true, runValidators: true };
-    return Publisher.findOneAndUpdate(criteria, { $set }, options).then((document) => {
-      if (!document) throw new Error(`Unable to update publisher: no record was found for ID '${id}'`);
-      return document;
-    });
+    return publisher.save();
   },
 
   /**
