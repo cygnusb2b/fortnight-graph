@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const CreativeSchema = require('./creative');
 const CriteriaSchema = require('./criteria');
-const Advertiser = require('../../models/advertiser');
 const uuid = require('uuid/v4');
 const uuidParse = require('uuid-parse');
 const notifyPlugin = require('../../plugins/notify');
@@ -63,12 +62,15 @@ const schema = new Schema({
     required: true,
     validate: {
       async validator(v) {
-        const doc = await Advertiser.findOne({ _id: v }, { _id: 1 });
+        const doc = await mongoose.model('advertiser').findOne({ _id: v }, { _id: 1 });
         if (doc) return true;
         return false;
       },
       message: 'No advertiser found for ID {VALUE}',
     },
+  },
+  advertiserName: {
+    type: String,
   },
   status: {
     type: String,
@@ -100,9 +102,17 @@ const schema = new Schema({
   externalLinks: [externalLinkSchema],
 }, { timestamps: true });
 
+schema.pre('save', async function setAdvertiserName() {
+  if (this.isModified('advertiserId') || !this.advertiserName) {
+    const advertiser = await mongoose.model('advertiser').findOne({ _id: this.advertiserId }, { name: 1 });
+    this.advertiserName = advertiser.name;
+  }
+});
+
 schema.plugin(notifyPlugin);
 
 setEntityFields(schema, 'name');
+setEntityFields(schema, 'advertiserName');
 applyElasticPlugin(schema, 'campaigns');
 
 schema.index({ hash: 1 });
