@@ -6,6 +6,7 @@ const Advertiser = require('../../models/advertiser');
 const uuid = require('uuid/v4');
 const uuidParse = require('uuid-parse');
 const notifyPlugin = require('../../plugins/notify');
+const { applyElasticPlugin, setEntityFields } = require('../../elastic/mongoose');
 
 const { Schema } = mongoose;
 
@@ -100,6 +101,9 @@ const schema = new Schema({
 }, { timestamps: true });
 
 schema.plugin(notifyPlugin);
+
+setEntityFields(schema, 'name');
+applyElasticPlugin(schema, 'campaigns');
 
 schema.index({ hash: 1 });
 schema.index({ advertiserId: 1 });
