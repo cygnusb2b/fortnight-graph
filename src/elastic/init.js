@@ -3,14 +3,12 @@ const filter = require('./filters');
 const analyzers = require('./analyzers');
 const tokenizers = require('./tokenizers');
 const charFilters = require('./char-filters');
-const models = require('../models');
+const models = require('./models');
 
 const { ELASTIC_INDEX } = process.env;
 
-const outputMapping = name => process.stdout.write(`ElasticSearch mappings for '${name}' successfully set.\n`);
-const outputSynchro = name => process.stdout.write(`ElasticSearch populate for '${name}' complete.\n`);
-
-const searchModels = ['Advertiser'];
+const mapMsg = Model => `ElasticSearch mappings for '${Model.modelName}' successfully set.`;
+const syncMsg = Model => `ElasticSearch populate for '${Model.modelName}' complete.`;
 
 const initialize = async (elastic, recreate = true) => {
   const messages = [];
@@ -38,12 +36,11 @@ const initialize = async (elastic, recreate = true) => {
   if (!exists) {
     const promises = [];
     // The index previously did not exist. Map and populate all models.
-    searchModels.forEach((name) => {
-      const Model = models[name];
-      promises.push(Model.esCreateMapping().then(() => outputMapping(name)));
-      promises.push(Model.esSynchronize().then(() => outputSynchro(name)));
+    models.forEach((Model) => {
+      promises.push(Model.esCreateMapping().then(() => messages.push(mapMsg(Model))));
+      promises.push(Model.esSynchronize().then(() => messages.push(syncMsg(Model))));
     });
-    await Promise.all(promises);
+    await Promise.all(promises).then(() => process.stdout.write(`${messages.join('\n')}\n`));
   }
 };
 
