@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const uuidv4 = require('uuid/v4');
 const uuidv5 = require('uuid/v5');
 const bcrypt = require('bcrypt');
-const redis = require('../redis');
+const redis = require('../connections/redis');
 
 const SETTINGS = {
   // @todo Rotate the global secrets?

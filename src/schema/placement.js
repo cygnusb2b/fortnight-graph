@@ -1,7 +1,5 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
 const Publisher = require('../models/publisher');
-
-const { Schema } = mongoose;
 
 const schema = new Schema({
   name: {

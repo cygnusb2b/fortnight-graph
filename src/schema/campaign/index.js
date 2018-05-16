@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
 const validator = require('validator');
 const CreativeSchema = require('./creative');
 const CriteriaSchema = require('./criteria');
@@ -6,8 +6,6 @@ const Advertiser = require('../../models/advertiser');
 const uuid = require('uuid/v4');
 const uuidParse = require('uuid-parse');
 const notifyPlugin = require('../../plugins/notify');
-
-const { Schema } = mongoose;
 
 const externalLinkSchema = new Schema({
   label: {
