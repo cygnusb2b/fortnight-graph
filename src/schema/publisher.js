@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 
 const { Schema } = mongoose;
 
@@ -26,6 +27,9 @@ const schema = new Schema({
     },
   },
 }, { timestamps: true });
+
+setEntityFields(schema, 'name');
+applyElasticPlugin(schema, 'publishers');
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
