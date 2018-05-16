@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 
 const { Schema } = mongoose;
 
@@ -42,6 +43,9 @@ schema.pre('save', function setName(next) {
   this.name = `${this.givenName} ${this.familyName}`;
   next();
 });
+
+setEntityFields(schema, 'name');
+applyElasticPlugin(schema, 'contacts');
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
