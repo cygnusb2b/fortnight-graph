@@ -4,7 +4,10 @@ const app = require('./app');
 const elastic = require('./elastic');
 const initElastic = require('./elastic/init');
 
-initElastic(elastic).then(() => process.stdout.write(`🔍 🔍 🔍 ElasticSearch connection to '${process.env.ELASTIC_HOST}' is ready.\n`));
+const { ELASTIC_INDEX_RECREATE, ELASTIC_HOST } = process.env;
+
+initElastic(elastic, ELASTIC_INDEX_RECREATE)
+  .then(() => process.stdout.write(`🔍 🔍 🔍 ElasticSearch connection to '${ELASTIC_HOST}' is ready.\n`));
 
 /**
  * Export these so that can be exited.

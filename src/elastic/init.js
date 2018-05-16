@@ -12,7 +12,7 @@ const syncMsg = Model => `ElasticSearch populate for '${Model.modelName}' comple
 
 const initialize = async (elastic, recreate = false) => {
   const messages = [];
-  if (recreate === true) {
+  if (recreate) {
     await elastic.deleteIndex(ELASTIC_INDEX);
   }
   const exists = await elastic.indexExists(ELASTIC_INDEX);

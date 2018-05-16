@@ -20,6 +20,7 @@ services:
       REDIS_DSN: redis://redis:6379/0
       ELASTIC_HOST: http://elasticsearch:9200
       ELASTIC_INDEX: fortnight
+      ELASTIC_INDEX_RECREATE: ${ELASTIC_INDEX_RECREATE}
       PORT: ${GRAPH_APP_PORT-8100}
       MONGOOSE_DEBUG: ${MONGOOSE_DEBUG}
       DEBUG: ${DEBUG}
