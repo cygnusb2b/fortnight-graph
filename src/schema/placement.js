@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Publisher = require('../models/publisher');
+const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 
 const { Schema } = mongoose;
 
@@ -21,7 +22,21 @@ const schema = new Schema({
       message: 'No publisher found for ID {VALUE}',
     },
   },
+  publisherName: {
+    type: String,
+  },
 }, { timestamps: true });
+
+schema.pre('save', async function setPublisherName() {
+  if (this.isModified('publisherId') || !this.publisherName) {
+    const publisher = await Publisher.findOne({ _id: this.publisherId }, { name: 1 });
+    this.publisherName = publisher.name;
+  }
+});
+
+setEntityFields(schema, 'name');
+setEntityFields(schema, 'publisherName');
+applyElasticPlugin(schema, 'placements');
 
 schema.index({ publisherId: 1, name: 1 }, { unique: true });
 schema.index({ name: 1, _id: 1 }, { unique: true });
