@@ -32,7 +32,7 @@ const schema = new Schema({
 schema.plugin(notifyPlugin);
 
 setEntityFields(schema, 'name');
-applyElasticPlugin(schema);
+applyElasticPlugin(schema, 'advertisers');
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
