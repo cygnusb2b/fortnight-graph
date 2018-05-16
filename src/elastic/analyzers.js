@@ -6,7 +6,6 @@ module.exports = {
       'word_delimiter_preserved',
       'lowercase',
       'asciifolding',
-      'apostrophe',
       'english_stop',
       'unique',
     ],
