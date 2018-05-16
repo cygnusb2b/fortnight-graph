@@ -86,9 +86,9 @@ const schema = new Schema({
   url: {
     type: String,
     trim: true,
-    required: true,
     validate: {
       validator(v) {
+        if (!v) return true;
         return validator.isURL(v, {
           protocols: ['http', 'https'],
           require_protocol: true,
