@@ -15,6 +15,10 @@ const schema = new Schema({
     es_type: 'text',
     es_analyzer: 'default',
     es_fields: {
+      exact: {
+        type: 'text',
+        analyzer: 'entity_exact',
+      },
       edge: {
         type: 'text',
         analyzer: 'entity_starts_with',

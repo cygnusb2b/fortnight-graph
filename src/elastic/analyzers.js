@@ -11,7 +11,7 @@ module.exports = {
     ],
     char_filter: ['html_strip', 'remove_special_chars', 'force_dashes'],
   },
-  // @todo This might not be needed if we search `entity_name` with and.
+  // @todo Strip dashes.
   entity_exact: {
     type: 'custom',
     tokenizer: 'keyword',
@@ -19,7 +19,7 @@ module.exports = {
       'lowercase',
       'asciifolding',
     ],
-    char_filter: ['html_strip'],
+    char_filter: ['html_strip', 'remove_special_chars', 'force_dashes'],
   },
   entity_tri_gram: {
     type: 'custom',
