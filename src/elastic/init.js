@@ -12,7 +12,11 @@ const outputSynchro = name => process.stdout.write(`ElasticSearch populate for '
 
 const searchModels = ['Advertiser'];
 
-const initialize = async (elastic) => {
+const initialize = async (elastic, recreate = true) => {
+  const messages = [];
+  if (recreate === true) {
+    await elastic.deleteIndex(ELASTIC_INDEX);
+  }
   const exists = await elastic.indexExists(ELASTIC_INDEX);
   await elastic.createIndex(ELASTIC_INDEX, {
     settings: {
