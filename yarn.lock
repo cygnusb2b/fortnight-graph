@@ -2852,6 +2852,10 @@ mongodb@3.0.1:
   dependencies:
     mongodb-core "3.0.1"
 
+mongoose-elasticsearch-xp@^5.4.1:
+  version "5.4.1"
+  resolved "https://registry.yarnpkg.com/mongoose-elasticsearch-xp/-/mongoose-elasticsearch-xp-5.4.1.tgz#48a99537380cb16b4a4eeced9506663ce1d34dbb"
+
 mongoose-legacy-pluralize@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/mongoose-legacy-pluralize/-/mongoose-legacy-pluralize-1.0.1.tgz#31ae25db45c30f1448c0f93f52769e903367c701"
