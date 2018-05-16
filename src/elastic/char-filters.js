@@ -11,4 +11,9 @@ module.exports = {
     replacement: '-',
     flags: 'UNICODE_CHARACTER_CLASS',
   },
+  strip_dashes: {
+    type: 'pattern_replace',
+    pattern: '[-]+',
+    replacement: '',
+  },
 };
