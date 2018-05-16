@@ -1,3 +1,4 @@
+const Promise = require('bluebird');
 const filter = require('./filters');
 const analyzers = require('./analyzers');
 const tokenizers = require('./tokenizers');
@@ -7,9 +8,12 @@ const models = require('../models');
 const { ELASTIC_INDEX } = process.env;
 
 const outputMapping = name => process.stdout.write(`ElasticSearch mappings for '${name}' successfully set.\n`);
+const outputSynchro = name => process.stdout.write(`ElasticSearch populate for '${name}' complete.\n`);
+
+const searchModels = ['Advertiser'];
 
 const initialize = async (elastic) => {
-  await elastic.connect();
+  const exists = await elastic.indexExists(ELASTIC_INDEX);
   await elastic.createIndex(ELASTIC_INDEX, {
     settings: {
       index: {
@@ -26,8 +30,17 @@ const initialize = async (elastic) => {
       },
     },
   });
-  const mappings = Promise.all(['Advertiser'].map(name => models[name].esCreateMapping().then(() => outputMapping(name))));
-  await mappings;
+
+  if (!exists) {
+    const promises = [];
+    // The index previously did not exist. Map and populate all models.
+    searchModels.forEach((name) => {
+      const Model = models[name];
+      promises.push(Model.esCreateMapping().then(() => outputMapping(name)));
+      promises.push(Model.esSynchronize().then(() => outputSynchro(name)));
+    });
+    await Promise.all(promises);
+  }
 };
 
 module.exports = initialize;
