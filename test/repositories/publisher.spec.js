@@ -41,23 +41,8 @@ describe('repositories/publisher', function() {
       publisher = await createPublisher();
     });
 
-    let spy;
-    beforeEach(function(done) {
-      spy = sinon.spy(Model, 'findOneAndUpdate');
-      done();
-    });
-    afterEach(function(done) {
-      if (spy.called) {
-        sinon.assert.calledOnce(spy);
-        sinon.assert.calledWith(spy, sinon.match.any, sinon.match.any, { new: true, runValidators: true });
-      }
-      spy.restore();
-      done();
-    });
-
     it('should return a rejected promise when no ID is provided.', async function() {
       await expect(Repo.update()).to.be.rejectedWith(Error, 'Unable to update publisher: no ID was provided.');
-      sinon.assert.notCalled(spy);
     });
     it('should return a rejected promise when the ID cannot be found.', async function() {
       const id = '507f1f77bcf86cd799439011';
@@ -73,13 +58,11 @@ describe('repositories/publisher', function() {
       ['name', 'html'].forEach((value) => {
         expect(updated[value]).to.equal(publisher[value]);
       });
-      sinon.assert.calledWith(spy, { _id: id });
     });
     it('should return a rejected promise when valiation fails.', async function() {
       const id = publisher.id;
       const payload = { name: '' };
       await expect(Repo.update(id, payload)).to.be.rejectedWith(Error, /validation/i);
-      sinon.assert.calledWith(spy, { _id: id });
     });
     it('should return the updated model object.', async function() {
       const id = publisher.id;
@@ -91,8 +74,6 @@ describe('repositories/publisher', function() {
       ['name'].forEach((value) => {
         expect(updated[value]).to.equal(payload[value]);
       });
-
-      sinon.assert.calledWith(spy, { _id: id });
     });
   });
 
