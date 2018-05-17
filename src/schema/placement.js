@@ -1,7 +1,6 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
+const connection = require('../mongoose');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
-
-const { Schema } = mongoose;
 
 const schema = new Schema({
   name: {
@@ -14,7 +13,7 @@ const schema = new Schema({
     required: true,
     validate: {
       async validator(v) {
-        const doc = await mongoose.model('publisher').findOne({ _id: v }, { _id: 1 });
+        const doc = await connection.model('publisher').findOne({ _id: v }, { _id: 1 });
         if (doc) return true;
         return false;
       },
@@ -28,7 +27,7 @@ const schema = new Schema({
 
 schema.pre('save', async function setPublisherName() {
   if (this.isModified('publisherId') || !this.publisherName) {
-    const publisher = await mongoose.model('publisher').findOne({ _id: this.publisherId }, { name: 1 });
+    const publisher = await connection.model('publisher').findOne({ _id: this.publisherId }, { name: 1 });
     this.publisherName = publisher.name;
   }
 });

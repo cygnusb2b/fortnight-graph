@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
+const connection = require('../../mongoose');
 const validator = require('validator');
 const CreativeSchema = require('./creative');
 const CriteriaSchema = require('./criteria');
@@ -6,8 +7,6 @@ const uuid = require('uuid/v4');
 const uuidParse = require('uuid-parse');
 const notifyPlugin = require('../../plugins/notify');
 const { applyElasticPlugin, setEntityFields } = require('../../elastic/mongoose');
-
-const { Schema } = mongoose;
 
 const externalLinkSchema = new Schema({
   label: {
@@ -62,7 +61,7 @@ const schema = new Schema({
     required: true,
     validate: {
       async validator(v) {
-        const doc = await mongoose.model('advertiser').findOne({ _id: v }, { _id: 1 });
+        const doc = await connection.model('advertiser').findOne({ _id: v }, { _id: 1 });
         if (doc) return true;
         return false;
       },
@@ -104,7 +103,7 @@ const schema = new Schema({
 
 schema.pre('save', async function setAdvertiserName() {
   if (this.isModified('advertiserId') || !this.advertiserName) {
-    const advertiser = await mongoose.model('advertiser').findOne({ _id: this.advertiserId }, { name: 1 });
+    const advertiser = await connection.model('advertiser').findOne({ _id: this.advertiserId }, { name: 1 });
     this.advertiserName = advertiser.name;
   }
 });

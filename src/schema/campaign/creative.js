@@ -1,7 +1,5 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
 const ImageSchema = require('./image');
-
-const { Schema } = mongoose;
 
 module.exports = new Schema({
   title: {

@@ -1,8 +1,7 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
+const connection = require('../mongoose');
 const validator = require('validator');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
-
-const { Schema } = mongoose;
 
 const schema = new Schema({
   name: {
@@ -33,7 +32,7 @@ schema.pre('save', async function updatePlacements() {
     // This isn't as efficient as calling `updateMany`, but the ElasticSearch
     // plugin will not fire properly otherwise.
     // As such, do not await the update.
-    const Placement = mongoose.model('placement');
+    const Placement = connection.model('placement');
     const docs = await Placement.find({ publisherId: this.id });
     docs.forEach((doc) => {
       doc.set('publisherName', this.name);

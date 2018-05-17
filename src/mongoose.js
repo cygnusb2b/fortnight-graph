@@ -6,13 +6,10 @@ const { MONGO_DSN, MONGOOSE_DEBUG } = process.env;
 mongoose.set('debug', Boolean(MONGOOSE_DEBUG));
 mongoose.Promise = bluebird;
 
-mongoose.connect(MONGO_DSN, {
+const connection = mongoose.createConnection(MONGO_DSN, {
   // autoIndex: process.env.NODE_ENV !== 'production',
   ignoreUndefined: true,
   promiseLibrary: bluebird,
-}).then(() => {
-  output.write(`🛢️ 🛢️ 🛢️ Successful MongoDB connection to '${MONGO_DSN}'`);
-  return mongoose;
 });
-
-module.exports = mongoose;
+connection.once('open', () => output.write(`🛢️ 🛢️ 🛢️ Successful MongoDB connection to '${MONGO_DSN}'`));
+module.exports = connection;

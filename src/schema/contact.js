@@ -1,8 +1,6 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
 const validator = require('validator');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
-
-const { Schema } = mongoose;
 
 const schema = new Schema({
   email: {
