@@ -45,7 +45,7 @@ module.exports = {
     const type = 'external';
     const key = 'campaign.created';
     const html = emailTemplates.render(type, key, { campaign });
-    const subject = `[Fortnight] A new campaign was created!`;
+    const subject = '[Fortnight] A new campaign was created!';
     const to = await resolveAddresses(campaign.get('notify.external'));
     if (!to) return Promise.resolve();
     return send({ to, subject, html });
