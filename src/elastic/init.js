@@ -18,7 +18,12 @@ const initializeFor = async (Model, elastic, recreate = false) => {
   }
 };
 
-const initialize = (elastic, recreate = false) => Promise
-  .all(models.map(Model => initializeFor(Model, elastic, recreate)));
+let promises;
+const initialize = (elastic, recreate = false) => {
+  if (!promises) {
+    promises = Promise.all(models.map(Model => initializeFor(Model, elastic, recreate)));
+  }
+  return promises;
+};
 
 module.exports = initialize;
