@@ -5,8 +5,8 @@ const fs = require('fs');
 const baseUri = process.env.BASE_URL || 'https://fortnight.as3.io/manage';
 
 handlebars.registerHelper('moment-format', (date, format) => moment(date).format(format));
-handlebars.registerHelper('link-to', (...arguments) => {
-  const rest = arguments.filter(el => typeof el === 'string').join('/');
+handlebars.registerHelper('link-to', (...parts) => {
+  const rest = parts.filter(el => typeof el === 'string').join('/');
   return `${baseUri}/${rest}`;
 });
 
