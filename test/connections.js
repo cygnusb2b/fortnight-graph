@@ -1,6 +1,8 @@
 const mongoose = require('../src/mongoose');
 const redis = require('../src/redis');
 const models = require('../src/models');
+const elastic = require('../src/elastic');
+const initElastic = require('../src/elastic/init');
 
 const index = Model => new Promise((resolve, reject) => {
   Model.on('index', (err) => {
@@ -27,6 +29,7 @@ const connect = () => Promise.all([
       reject(err);
     });
   }),
+  initElastic(elastic, true),
 ]);
 
 
@@ -47,10 +50,14 @@ const disconnect = () => Promise.all([
     });
     redis.quit();
   }),
+  elastic.disconnect(),
 ]);
 
 before(async function() {
+  this.timeout(30000);
+  console.info('Global connections are being establised...');
   await connect();
+  console.info('Connections established.');
 });
 
 after(async function() {
