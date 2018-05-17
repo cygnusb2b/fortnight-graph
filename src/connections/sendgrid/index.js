@@ -37,6 +37,7 @@ module.exports = {
     const advertiser = await AdvertiserRepo.findById(campaign.get('advertiserId'));
     const subject = `[Fortnight] A new campaign was created for ${advertiser.name}`;
     const to = await resolveAddresses(campaign.get('notify.internal'));
+    if (!to) return Promise.resolve();
     return send({ to, subject, html });
   },
 
@@ -46,6 +47,7 @@ module.exports = {
     const html = emailTemplates.render(type, key, { campaign });
     const subject = `[Fortnight] A new campaign was created!`;
     const to = await resolveAddresses(campaign.get('notify.external'));
+    if (!to) return Promise.resolve();
     return send({ to, subject, html });
   },
 };

@@ -7,6 +7,7 @@ const CreativeRepo = require('../../repositories/campaign/creative');
 const CriteriaRepo = require('../../repositories/campaign/criteria');
 const ContactRepo = require('../../repositories/contact');
 const Campaign = require('../../models/campaign');
+const mailer = require('../../connections/sendgrid');
 
 /* eslint-disable no-param-reassign */
 const appendContacts = async (payload, user) => {
@@ -118,6 +119,8 @@ module.exports = {
       payload.criteria = { start: payload.startDate };
       payload.notify = await appendContacts(input.payload, auth.user);
       const campaign = await CampaignRepo.create(payload);
+      await mailer.sendInternalCampaignCreated({ campaign });
+      await mailer.sendExternalCampaignCreated({ campaign });
       return campaign;
     },
 
