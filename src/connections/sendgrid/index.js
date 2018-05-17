@@ -22,18 +22,15 @@ const send = ({ to, subject, html }) => {
   };
 
   /* istanbul ignore if */
-  if (process.env.NODE_ENV !== 'test') {
-    return sgMail.send(payload);
-  }
-  return Promise.resolve(payload);
+  if (process.env.NODE_ENV === 'test') return Promise.resolve(payload);
+
+  return sgMail.send(payload);
 };
 
 module.exports = {
 
   async sendInternalCampaignCreated({ campaign }) {
-    const type = 'internal';
-    const key = 'campaign.created';
-    const html = emailTemplates.render(type, key, { campaign });
+    const html = emailTemplates.render('internal', 'campaign.created', { campaign });
     const advertiser = await AdvertiserRepo.findById(campaign.get('advertiserId'));
     const subject = `[Fortnight] A new campaign was created for ${advertiser.name}`;
     const to = await resolveAddresses(campaign.get('notify.internal'));
@@ -42,9 +39,7 @@ module.exports = {
   },
 
   async sendExternalCampaignCreated({ campaign }) {
-    const type = 'external';
-    const key = 'campaign.created';
-    const html = emailTemplates.render(type, key, { campaign });
+    const html = emailTemplates.render('external', 'campaign.created', { campaign });
     const subject = '[Fortnight] A new campaign was created!';
     const to = await resolveAddresses(campaign.get('notify.external'));
     if (!to) return Promise.resolve();
