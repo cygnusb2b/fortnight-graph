@@ -5,6 +5,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const ElasticClient = (options) => {
   const client = new Client(options);
   let connected = false;
+  let delayed;
 
   return {
     get client() {
@@ -13,11 +14,14 @@ const ElasticClient = (options) => {
 
     async connect() {
       if (!connected) {
+        if (delayed) {
+          await delayed;
+        }
         try {
-          await client.cluster.health({});
+          await client.ping();
           connected = true;
         } catch (e) {
-          await delay(3000);
+          delayed = delay(3000);
           await this.connect();
         }
       }
