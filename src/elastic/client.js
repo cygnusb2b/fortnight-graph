@@ -27,6 +27,10 @@ const ElasticClient = (options) => {
       }
     },
 
+    async disconnect() {
+      return this.client.close();
+    },
+
     async indexExists(index) {
       await this.connect();
       return this.client.indices.exists({ index });
