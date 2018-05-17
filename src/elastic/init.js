@@ -1,8 +1,9 @@
 const Promise = require('bluebird');
 const models = require('./models');
+const output = require('../output');
 
-const emitMap = (index, type) => process.stdout.write(`ElasticSearch mappings for '${index}/${type}' successfully set.\n`);
-const emitSync = (index, type) => process.stdout.write(`ElasticSearch populate for '${index}/${type}' complete.\n`);
+const emitMap = (index, type) => output.write(`ElasticSearch mappings for '${index}/${type}' successfully set.`);
+const emitSync = (index, type) => output.write(`ElasticSearch populate for '${index}/${type}' complete.`);
 
 const initializeFor = async (Model, elastic, recreate = false) => {
   const { index, type } = Model.esOptions();
