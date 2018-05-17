@@ -51,6 +51,20 @@ module.exports = {
   },
 
   /**
+   * Find an Contact record by email.
+   *
+   * Will return a rejected promise if no email was provided.
+   * Will NOT reject the promise if the record cannnot be found.
+   *
+   * @param {string} id
+   * @return {Promise}
+   */
+  findByEmail(email) {
+    if (!email) return Promise.reject(new Error('Unable to find contact: no email was provided.'));
+    return Contact.findOne({ email });
+  },
+
+  /**
    * @param {object} criteria
    * @return {Promise}
    */

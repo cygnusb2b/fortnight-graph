@@ -10,6 +10,9 @@
     "pretest": "yarn run posttest && $npm_package_docker_test_install",
     "posttest": "$npm_package_docker_test_down && $npm_package_docker_test_prune",
     "test": "$npm_package_docker_test_test",
+    "pretest:watch": "yarn run posttest:watch && $npm_package_docker_test_install",
+    "posttest:watch": "$npm_package_docker_test_down && $npm_package_docker_test_prune",
+    "test:watch": "$npm_package_docker_test_watch",
     "prestart": "$npm_package_docker_dev_install",
     "start": "$npm_package_docker_dev_up",
     "stop": "$npm_package_docker_dev_down",
@@ -22,6 +25,7 @@
     "postcoverage": "$npm_package_docker_test_down && $npm_package_docker_test_prune",
     "test:ci": "yarn run lint:run && ./node_modules/.bin/mocha --reporter mocha-junit-reporter --reporter-options mochaFile=./coverage/test-results.xml",
     "test:run": "yarn run lint:run && ./node_modules/.bin/mocha --reporter spec",
+    "test:watch:run": "./node_modules/.bin/mocha --reporter min --watch",
     "lint:run": "./node_modules/.bin/eslint \"src/**/*.js\"",
     "coverage:run": "./node_modules/.bin/nyc yarn run test:ci"
   },
@@ -33,7 +37,8 @@
     },
     "test": {
       "install": "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run --no-deps --entrypoint yarn test",
-      "test": "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run test",
+      "test": "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run --entrypoint yarn test run test:run",
+      "watch": "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run --entrypoint yarn test run test:watch:run",
       "coverage": "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run --entrypoint yarn test run coverage:run",
       "lint": "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run --entrypoint yarn test run lint:run",
       "down": "docker-compose -p fortnightgraphtest -f test/docker-compose.yml down",
@@ -41,6 +46,7 @@
     }
   },
   "dependencies": {
+    "@sendgrid/mail": "^6.2.1",
     "apollo-server-express": "^1.3.2",
     "aws-sdk": "^2.186.0",
     "base64-url": "^2.1.0",
@@ -68,6 +74,7 @@
     "passport": "^0.4.0",
     "passport-http-bearer": "^1.0.1",
     "redis": "^2.8.0",
+    "sendgrid": "^5.2.3",
     "shortid": "^2.2.8",
     "ua-parser-js": "^0.7.17",
     "uuid": "^3.2.1",

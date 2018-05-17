@@ -1,7 +1,5 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
 const Placement = require('../../models/placement');
-
-const { Schema } = mongoose;
 
 module.exports = new Schema({
   start: {

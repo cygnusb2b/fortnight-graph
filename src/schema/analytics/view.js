@@ -1,5 +1,5 @@
-const analyticsPlugin = require('../../plugins/analytics');
 const { Schema } = require('mongoose');
+const analyticsPlugin = require('../../plugins/analytics');
 
 const schema = new Schema({
   cid: {

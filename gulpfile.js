@@ -41,6 +41,22 @@ gulp.task('lint', function (cb) {
 
 gulp.task('default', ['watch', 'serve']);
 
+gulp.task('test', function(cb) {
+  if (node) {
+    node.kill();
+  }
+
+  node = spawn('./node_modules/.bin/mocha', ['--reporter', 'min', '--watch'], { stdio: 'inherit' });
+
+  node.on('close', function (code) {
+    if (code === 8) {
+      cb(code);
+      console.log('Error detected, waiting for changes...');
+    }
+  });
+  cb();
+});
+
 // clean up if an error goes unhandled.
 process.on('exit', function () {
   if (node) node.kill()
