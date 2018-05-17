@@ -29,4 +29,23 @@ const send = ({ to, subject, html }) => {
 };
 
 module.exports = {
+
+  async sendInternalCampaignCreated({ campaign }) {
+    const type = 'internal';
+    const key = 'campaign.created';
+    const html = emailTemplates.render(type, key, { campaign });
+    const advertiser = await AdvertiserRepo.findById(campaign.get('advertiserId'));
+    const subject = `[Fortnight] A new campaign was created for ${advertiser.name}`;
+    const to = await resolveAddresses(campaign.get('notify.internal'));
+    return send({ to, subject, html });
+  },
+
+  async sendExternalCampaignCreated({ campaign }) {
+    const type = 'external';
+    const key = 'campaign.created';
+    const html = emailTemplates.render(type, key, { campaign });
+    const subject = `[Fortnight] A new campaign was created!`;
+    const to = await resolveAddresses(campaign.get('notify.external'));
+    return send({ to, subject, html });
+  },
 };
