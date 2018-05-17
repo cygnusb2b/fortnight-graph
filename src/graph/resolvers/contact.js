@@ -5,6 +5,12 @@ module.exports = {
   /**
    *
    */
+  Contact: {
+    name: contact => `${contact.givenName} ${contact.familyName}`,
+  },
+  /**
+   *
+   */
   ContactConnection: paginationResolvers.connection,
 
   /**
