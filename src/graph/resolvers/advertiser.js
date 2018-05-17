@@ -11,6 +11,11 @@ module.exports = {
   Advertiser: {
     campaigns: advertiser => CampaignRepo.findForAdvertiser(advertiser.id),
     campaignCount: advertiser => CampaignRepo.findForAdvertiser(advertiser.id).count(),
+    notify: async (advertiser) => {
+      const internal = await ContactRepo.find({ _id: { $in: advertiser.notify.internal } });
+      const external = await ContactRepo.find({ _id: { $in: advertiser.notify.external } });
+      return { internal, external };
+    },
   },
 
   /**
