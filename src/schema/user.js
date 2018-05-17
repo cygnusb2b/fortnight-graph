@@ -1,9 +1,7 @@
+const { Schema } = require('mongoose');
 const bcrypt = require('bcrypt');
-const mongoose = require('mongoose');
 const validator = require('validator');
 const crypto = require('crypto');
-
-const { Schema } = mongoose;
 
 const schema = new Schema({
   email: {
