@@ -49,6 +49,14 @@ module.exports = {
     /**
      *
      */
+    autocompleteAdvertisers: async (root, { pagination, phrase }, { auth }) => {
+      auth.check();
+      return AdvertiserRepo.autocomplete(phrase, { pagination });
+    },
+
+    /**
+     *
+     */
     searchAdvertisers: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
       return AdvertiserRepo.search(phrase, { pagination });
