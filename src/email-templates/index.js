@@ -1,14 +1,5 @@
-const handlebars = require('handlebars');
-const moment = require('moment');
 const fs = require('fs');
-
-const baseUri = process.env.BASE_URL || 'https://fortnight.as3.io/manage';
-
-handlebars.registerHelper('moment-format', (date, format) => moment(date).format(format));
-handlebars.registerHelper('link-to', (...parts) => {
-  const rest = parts.filter(el => typeof el === 'string').join('/');
-  return `${baseUri}/${rest}`;
-});
+const handlebars = require('../handlebars');
 
 const templates = {};
 
