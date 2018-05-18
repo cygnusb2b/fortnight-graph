@@ -4,7 +4,7 @@ const Pagination = require('../classes/pagination');
 const SearchPagination = require('../classes/elastic/pagination');
 const elastic = require('../elastic');
 const fixtures = require('../fixtures');
-const { buildEntityNameQuery } = require('../elastic/utils');
+const { buildEntityNameQuery, buildEntityAutocomplete, paginateSearch } = require('../elastic/utils');
 
 module.exports = {
   /**
@@ -93,19 +93,8 @@ module.exports = {
    * @return {SearchPagination}
    */
   search(phrase, { pagination } = {}) {
-    if (/[a-f0-9]{24}/.test(phrase)) {
-      const criteria = { _id: phrase };
-      return this.paginate({ pagination, criteria });
-    }
-    const { index, type } = Advertiser.esOptions();
     const query = buildEntityNameQuery(phrase);
-    const params = {
-      index,
-      type,
-      body: { query },
-      searchType: 'dfs_query_then_fetch',
-    };
-    return new SearchPagination(Advertiser, elastic.client, { params, pagination });
+    return paginateSearch(Advertiser, phrase, query, { pagination });
   },
 
   /**
