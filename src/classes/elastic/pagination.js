@@ -111,7 +111,7 @@ class Pagination {
       const body = this.getSearchBody();
       const params = this.getSearchParams();
 
-      body.size = 5;
+      body.size = 1;
       body.search_after = after;
 
       const results = await this.client.search({ ...params, body });
