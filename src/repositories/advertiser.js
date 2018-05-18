@@ -1,8 +1,9 @@
 const Promise = require('bluebird');
 const Advertiser = require('../models/advertiser');
 const Pagination = require('../classes/pagination');
+const SearchPagination = require('../classes/elastic/pagination');
+const elastic = require('../elastic');
 const fixtures = require('../fixtures');
-const TypeAhead = require('../classes/type-ahead');
 
 module.exports = {
   /**
@@ -85,15 +86,37 @@ module.exports = {
   /**
    * Searches & Paginates all Advertiser models.
    *
-   * @param {object} params
+   * @param {string} phrase The search phrase.
+   * @param {object} params The search parameters.
    * @param {object.object} params.pagination The pagination parameters.
-   * @param {object.object} params.search The search parameters.
-   * @return {Pagination}
+   * @return {SearchPagination}
    */
-  search({ pagination, search } = {}) {
-    const { typeahead } = search;
-    const { criteria, sort } = TypeAhead.getCriteria(typeahead);
-    return new Pagination(Advertiser, { criteria, pagination, sort });
+  search(phrase, { pagination } = {}) {
+    if (/[a-f0-9]{24}/.test(phrase)) {
+      const criteria = { _id: phrase };
+      return this.paginate({ pagination, criteria });
+    }
+    const { index, type } = Advertiser.esOptions();
+    const query = {
+      bool: {
+        should: [
+          { match: { 'name.exact': { query: phrase, boost: 10 } } },
+          { match: { name: { query: phrase, operator: 'and', boost: 5 } } },
+          { match: { 'name.phonetic': { query: phrase, boost: 3 } } },
+          { match: { 'name.edge': { query: phrase, operator: 'and', boost: 2 } } },
+          { match: { 'name.edge': { query: phrase, boost: 1 } } },
+          { match: { 'name.ngram': { query: phrase, operator: 'and', boost: 0.5 } } },
+          { match: { 'name.ngram': { query: phrase } } },
+        ],
+      },
+    };
+    const params = {
+      index,
+      type,
+      body: { query },
+      searchType: 'dfs_query_then_fetch',
+    };
+    return new SearchPagination(Advertiser, elastic.client, { params, pagination });
   },
 
   /**

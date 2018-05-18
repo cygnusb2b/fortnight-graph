@@ -3,8 +3,6 @@ const AdvertiserRepo = require('../../repositories/advertiser');
 const ContactRepo = require('../../repositories/contact');
 const Advertiser = require('../../models/advertiser');
 const paginationResolvers = require('./pagination');
-const elastic = require('../../elastic');
-const SearchPagination = require('../../classes/elastic/pagination');
 
 module.exports = {
   /**
@@ -53,32 +51,7 @@ module.exports = {
      */
     searchAdvertisers: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      if (/[a-f0-9]{24}/.test(phrase)) {
-        const criteria = { _id: phrase };
-        return AdvertiserRepo.paginate({ pagination, criteria });
-      }
-
-      const { index, type } = Advertiser.esOptions();
-      const query = {
-        bool: {
-          should: [
-            { match: { 'name.exact': { query: phrase, boost: 10 } } },
-            { match: { name: { query: phrase, operator: 'and', boost: 5 } } },
-            { match: { 'name.phonetic': { query: phrase, boost: 3 } } },
-            { match: { 'name.edge': { query: phrase, operator: 'and', boost: 2 } } },
-            { match: { 'name.edge': { query: phrase, boost: 1 } } },
-            { match: { 'name.ngram': { query: phrase, operator: 'and', boost: 0.5 } } },
-            { match: { 'name.ngram': { query: phrase } } },
-          ],
-        },
-      };
-      const params = {
-        index,
-        type,
-        body: { query },
-        searchType: 'dfs_query_then_fetch',
-      };
-      return new SearchPagination(Advertiser, elastic.client, { params, pagination });
+      return AdvertiserRepo.search(phrase, { pagination });
     },
   },
 
