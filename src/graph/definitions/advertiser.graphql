@@ -1,6 +1,6 @@
 type Query {
   allAdvertisers(pagination: PaginationInput = {}, sort: AdvertiserSortInput = {}): AdvertiserConnection!
-  searchAdvertisers(pagination: PaginationInput = {}, search: AdvertiserSearchInput!): AdvertiserConnection!
+  searchAdvertisers(pagination: PaginationInput = {}, phrase: String!): AdvertiserConnection!
   advertiser(input: ModelIdInput!): Advertiser!
 }
 
