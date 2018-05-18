@@ -18,7 +18,7 @@ const ElasticClient = (options) => {
           await delayed;
         }
         try {
-          await client.ping();
+          await client.cluster.health({});
           connected = true;
         } catch (e) {
           delayed = delay(3000);
