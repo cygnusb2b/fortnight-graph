@@ -53,7 +53,11 @@ module.exports = {
      */
     searchAdvertisers: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      // @todo If the phrase matches an ID, return the model as an array.
+      if (/[a-f0-9]{24}/.test(phrase)) {
+        const criteria = { _id: phrase };
+        return AdvertiserRepo.paginate({ pagination, criteria });
+      }
+
       const { index, type } = Advertiser.esOptions();
       const query = {
         bool: {
@@ -68,7 +72,6 @@ module.exports = {
           ],
         },
       };
-
       const params = {
         index,
         type,
