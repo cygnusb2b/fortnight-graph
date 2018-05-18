@@ -49,6 +49,7 @@
     "body-parser": "^1.18.2",
     "crawler-user-agents": "https://github.com/monperrus/crawler-user-agents.git#master",
     "deep-assign": "^2.0.0",
+    "deepmerge": "^2.1.0",
     "dotenv": "^4.0.0",
     "elasticsearch": "^15.0.0",
     "escape-string-regexp": "^1.0.5",
