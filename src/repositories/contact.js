@@ -74,7 +74,7 @@ module.exports = {
     } catch (e) {
       return this.create({ givenName, familyName, email });
     }
-  }
+  },
 
   /**
    * @param {object} criteria
