@@ -119,8 +119,8 @@ module.exports = {
       payload.criteria = { start: payload.startDate };
       payload.notify = await appendContacts(input.payload, auth.user);
       const campaign = await CampaignRepo.create(payload);
-      await mailer.sendInternalCampaignCreated({ campaign });
-      await mailer.sendExternalCampaignCreated({ campaign });
+      mailer.sendInternalCampaignCreated({ campaign });
+      mailer.sendExternalCampaignCreated({ campaign });
       return campaign;
     },
 
