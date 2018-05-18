@@ -50,6 +50,28 @@ const ElasticClient = (options) => {
       await this.connect();
       return this.client.indices.putSettings({ index, body });
     },
+
+    async search(index, type, body, opts = {}) {
+      await this.connect();
+      const params = {
+        ...opts,
+        index,
+        type,
+        body,
+      };
+      return this.client.search(params);
+    },
+
+    async count(index, type, body, opts = {}) {
+      await this.connect();
+      const params = {
+        ...opts,
+        index,
+        type,
+        body,
+      };
+      return this.client.count(params);
+    },
   };
 };
 
