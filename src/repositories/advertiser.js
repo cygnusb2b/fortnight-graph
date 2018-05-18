@@ -75,10 +75,11 @@ module.exports = {
    * @param {object} params
    * @param {object.object} params.pagination The pagination parameters.
    * @param {object.object} params.sort The sort parameters.
+   * @param {object.object} params.criteria Additional query criteria to apply.
    * @return {Pagination}
    */
-  paginate({ pagination, sort } = {}) {
-    return new Pagination(Advertiser, { pagination, sort });
+  paginate({ pagination, sort, criteria } = {}) {
+    return new Pagination(Advertiser, { pagination, sort, criteria });
   },
 
   /**
