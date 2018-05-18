@@ -38,9 +38,17 @@ module.exports = {
     /**
      *
      */
-    searchPublishers: (root, { pagination, search }, { auth }) => {
+    searchPublishers: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return PublisherRepo.search({ pagination, search });
+      return PublisherRepo.search(phrase, { pagination });
+    },
+
+    /**
+     *
+     */
+    autocompletePublishers: async (root, { pagination, phrase }, { auth }) => {
+      auth.check();
+      return PublisherRepo.autocomplete(phrase, { pagination });
     },
   },
 

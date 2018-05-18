@@ -2,7 +2,7 @@ const Promise = require('bluebird');
 const Publisher = require('../models/publisher');
 const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
-const TypeAhead = require('../classes/type-ahead');
+const { buildEntityNameQuery, buildEntityAutocomplete, paginateSearch } = require('../elastic/utils');
 
 module.exports = {
   /**
@@ -95,16 +95,20 @@ module.exports = {
   },
 
   /**
-   * Searches & Paginates all Advertiser models.
+   * Searches & Paginates all Publisher models.
    *
-   * @param {object} params
+   * @param {string} phrase The search phrase.
+   * @param {object} params The search parameters.
    * @param {object.object} params.pagination The pagination parameters.
-   * @param {object.object} params.search The search parameters.
-   * @return {Pagination}
+   * @return {SearchPagination}
    */
-  search({ pagination, search } = {}) {
-    const { typeahead } = search;
-    const { criteria, sort } = TypeAhead.getCriteria(typeahead);
-    return new Pagination(Publisher, { criteria, pagination, sort });
+  search(phrase, { pagination } = {}) {
+    const query = buildEntityNameQuery(phrase);
+    return paginateSearch(Publisher, phrase, query, { pagination });
+  },
+
+  autocomplete(phrase, { pagination } = {}) {
+    const query = buildEntityAutocomplete(phrase);
+    return paginateSearch(Publisher, phrase, query, { pagination });
   },
 };

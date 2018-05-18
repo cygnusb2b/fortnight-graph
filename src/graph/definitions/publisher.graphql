@@ -1,6 +1,7 @@
 type Query {
   allPublishers(pagination: PaginationInput = {}, sort: PublisherSortInput = {}): PublisherConnection!
-  searchPublishers(pagination: PaginationInput = {}, search: PublisherSearchInput!): PublisherConnection!
+  searchPublishers(pagination: PaginationInput = {}, phrase: String!): PublisherConnection!
+  autocompletePublishers(pagination: PaginationInput = {}, phrase: String!): PublisherConnection!
   publisher(input: ModelIdInput!): Publisher!
 }
 
