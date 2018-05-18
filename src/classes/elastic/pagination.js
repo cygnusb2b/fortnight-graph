@@ -27,7 +27,7 @@ class Pagination {
     // Set the limit and parse the after value.
     const { first, after } = pagination;
     this.first = first || 10;
-    this.after = JSON.parse(after);
+    this.after = after ? JSON.parse(after) : null;
   }
 
   /**
