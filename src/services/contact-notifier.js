@@ -1,7 +1,7 @@
 const sgMail = require('@sendgrid/mail');
-const emailTemplates = require('../../email-templates');
-const ContactRepo = require('../../repositories/contact');
-const AdvertiserRepo = require('../../repositories/advertiser');
+const emailTemplates = require('../email-templates');
+const ContactRepo = require('../repositories/contact');
+const AdvertiserRepo = require('../repositories/advertiser');
 
 const resolveAddresses = async (ids) => {
   const contacts = await ContactRepo.find({ _id: { $in: ids } });

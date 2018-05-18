@@ -7,26 +7,18 @@ const CreativeRepo = require('../../repositories/campaign/creative');
 const CriteriaRepo = require('../../repositories/campaign/criteria');
 const ContactRepo = require('../../repositories/contact');
 const Campaign = require('../../models/campaign');
-const mailer = require('../../connections/sendgrid');
+const contactNotifier = require('../../services/contact-notifier');
 
-/* eslint-disable no-param-reassign */
-const appendContacts = async (payload, user) => {
-  const advertiser = await AdvertiserRepo.findById(payload.advertiserId);
-  payload.notify = {
+const getNotifyDefaults = async (advertiserId, user) => {
+  const advertiser = await AdvertiserRepo.findById(advertiserId);
+  const notify = {
     internal: await advertiser.get('notify.internal'),
     external: await advertiser.get('notify.external'),
   };
-  const { email } = user;
-  let contact = await ContactRepo.findByEmail(email);
-  if (!contact) {
-    const { givenName, familyName } = user;
-    contact = await ContactRepo.create({ givenName, familyName, email });
-  }
-  payload.notify.internal.push(contact.id);
-
-  return payload;
+  const contact = await ContactRepo.getOrCreateFor(user);
+  notify.internal.push(contact.id);
+  return notify;
 };
-/* eslint-enable no-param-reassign */
 
 module.exports = {
   /**
@@ -117,10 +109,10 @@ module.exports = {
       auth.check();
       const { payload } = input;
       payload.criteria = { start: payload.startDate };
-      payload.notify = await appendContacts(input.payload, auth.user);
+      payload.notify = await getNotifyDefaults(payload.advertiserId, auth.user);
       const campaign = await CampaignRepo.create(payload);
-      mailer.sendInternalCampaignCreated({ campaign });
-      mailer.sendExternalCampaignCreated({ campaign });
+      contactNotifier.sendInternalCampaignCreated({ campaign });
+      contactNotifier.sendExternalCampaignCreated({ campaign });
       return campaign;
     },
 
