@@ -4,6 +4,7 @@ const ContactRepo = require('../../repositories/contact');
 const Advertiser = require('../../models/advertiser');
 const paginationResolvers = require('./pagination');
 const elastic = require('../../elastic');
+const SearchPagination = require('../../classes/elastic/pagination');
 
 module.exports = {
   /**
@@ -52,7 +53,6 @@ module.exports = {
      */
     searchAdvertisers: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-
       // @todo If the phrase matches an ID, return the model as an array.
       const { index, type } = Advertiser.esOptions();
       const query = {
@@ -69,46 +69,13 @@ module.exports = {
         },
       };
 
-      const totalCount = await elastic.count(index, type, { query });
-
-      const { first, after } = pagination;
-      const results = await elastic.search(index, type, {
-        size: first || 20,
-        query,
-        search_after: after || undefined,
-        sort: [
-          { _score: 'desc' },
-          { _id: 'desc' },
-        ],
-      }, { searchType: 'dfs_query_then_fetch' });
-
-      const { total, hits } = results.hits;
-
-      const mapped = hits.reduce((obj, hit) => ({
-        ...obj,
-        [hit._id]: {
-          score: hit._score, // eslint-disable-line no-underscore-dangle
-          sort: hit.sort,
-        },
-      }), {});
-
-      const mapVal = (doc, prop) => mapped[doc._id.toString()][prop];
-
-      const advertisers = await Advertiser.find({ _id: { $in: Object.keys(mapped) } });
-      const sorted = advertisers.sort((a, b) => mapVal(b, 'score') - mapVal(a, 'score'));
-
-      return {
-        getTotalCount: () => totalCount.count,
-        getEdges: () => sorted.map(node => ({
-          node,
-          cursor: mapVal(node, 'sort'),
-        })),
-        hasNextPage: () => (total >= totalCount.count),
-        getEndCursor: () => {
-          const last = hits[total - 1];
-          return last ? JSON.stringify(last.sort) : null;
-        },
+      const params = {
+        index,
+        type,
+        body: { query },
+        searchType: 'dfs_query_then_fetch',
       };
+      return new SearchPagination(Advertiser, elastic.client, { params, pagination });
     },
   },
 
