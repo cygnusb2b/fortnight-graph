@@ -4,6 +4,7 @@ const Pagination = require('../classes/pagination');
 const SearchPagination = require('../classes/elastic/pagination');
 const elastic = require('../elastic');
 const fixtures = require('../fixtures');
+const { buildEntityNameQuery } = require('../elastic/utils');
 
 module.exports = {
   /**
@@ -97,19 +98,7 @@ module.exports = {
       return this.paginate({ pagination, criteria });
     }
     const { index, type } = Advertiser.esOptions();
-    const query = {
-      bool: {
-        should: [
-          { match: { 'name.exact': { query: phrase, boost: 10 } } },
-          { match: { name: { query: phrase, operator: 'and', boost: 5 } } },
-          { match: { 'name.phonetic': { query: phrase, boost: 3 } } },
-          { match: { 'name.edge': { query: phrase, operator: 'and', boost: 2 } } },
-          { match: { 'name.edge': { query: phrase, boost: 1 } } },
-          { match: { 'name.ngram': { query: phrase, operator: 'and', boost: 0.5 } } },
-          { match: { 'name.ngram': { query: phrase } } },
-        ],
-      },
-    };
+    const query = buildEntityNameQuery(phrase);
     const params = {
       index,
       type,
