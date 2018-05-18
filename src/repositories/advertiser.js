@@ -1,8 +1,6 @@
 const Promise = require('bluebird');
 const Advertiser = require('../models/advertiser');
 const Pagination = require('../classes/pagination');
-const SearchPagination = require('../classes/elastic/pagination');
-const elastic = require('../elastic');
 const fixtures = require('../fixtures');
 const { buildEntityNameQuery, buildEntityAutocomplete, paginateSearch } = require('../elastic/utils');
 
