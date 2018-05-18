@@ -40,4 +40,15 @@ module.exports = {
       },
     };
   },
+
+  buildEntityAutocomplete(query) {
+    return {
+      bool: {
+        should: [
+          { match: { 'name.edge': { query, operator: 'and', boost: 2 } } },
+          { match: { 'name.edge': { query } } },
+        ],
+      },
+    };
+  },
 };

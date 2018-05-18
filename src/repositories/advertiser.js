@@ -97,6 +97,11 @@ module.exports = {
     return paginateSearch(Advertiser, phrase, query, { pagination });
   },
 
+  autocomplete(phrase, { pagination } = {}) {
+    const query = buildEntityAutocomplete(phrase);
+    return paginateSearch(Advertiser, phrase, query, { pagination });
+  },
+
   /**
    *
    * @param {number} [count=1]
