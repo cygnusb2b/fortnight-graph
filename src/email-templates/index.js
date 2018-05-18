@@ -4,12 +4,11 @@ const handlebars = require('../handlebars');
 const templates = {};
 
 module.exports = {
-  render(type = 'internal', key, data = {}) {
-    const ref = `${type}.${key}`;
-    if (!templates[ref]) {
-      const html = fs.readFileSync(`src/email-templates/${type}/${key}.hbs`, 'utf8');
-      templates[ref] = handlebars.compile(html);
+  render(key, data = {}) {
+    if (!templates[key]) {
+      const html = fs.readFileSync(`src/email-templates/${key}.hbs`, 'utf8');
+      templates[key] = handlebars.compile(html);
     }
-    return templates[ref](data);
+    return templates[key](data);
   },
 };
