@@ -2,7 +2,7 @@ const Promise = require('bluebird');
 const Contact = require('../models/contact');
 const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
-const { buildEntityNameQuery, paginateSearch } = require('../elastic/utils');
+const { buildEntityNameQuery, paginateSearch, buildEntityAutocomplete } = require('../elastic/utils');
 
 module.exports = {
   /**
@@ -99,6 +99,14 @@ module.exports = {
     const query = buildEntityNameQuery(phrase);
     const { should } = query.bool;
     should.push({ match: { email: { query: phrase, boost: 5 } } });
+    should.push({ match: { 'email.edge': { query: phrase, operator: 'and', boost: 2 } } });
+    should.push({ match: { 'email.edge': { query: phrase, boost: 1 } } });
+    return paginateSearch(Contact, phrase, query, { pagination });
+  },
+
+  autocomplete(phrase, { pagination } = {}) {
+    const query = buildEntityAutocomplete(phrase);
+    const { should } = query.bool;
     should.push({ match: { 'email.edge': { query: phrase, operator: 'and', boost: 2 } } });
     should.push({ match: { 'email.edge': { query: phrase, boost: 1 } } });
     return paginateSearch(Contact, phrase, query, { pagination });

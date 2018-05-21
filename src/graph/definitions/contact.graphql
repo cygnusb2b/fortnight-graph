@@ -1,6 +1,7 @@
 type Query {
   allContacts(pagination: PaginationInput = {}, sort: ContactSortInput = {}): ContactConnection!
   searchContacts(pagination: PaginationInput = {}, phrase: String!): ContactConnection!
+  autocompleteContacts(pagination: PaginationInput = {}, phrase: String!): ContactConnection!
   contact(input: ModelIdInput!): Contact!
 }
 

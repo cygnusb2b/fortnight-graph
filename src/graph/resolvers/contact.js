@@ -42,6 +42,14 @@ module.exports = {
       auth.check();
       return ContactRepo.search(phrase, { pagination });
     },
+
+    /**
+     *
+     */
+    autocompleteContacts: (root, { pagination, phrase }, { auth }) => {
+      auth.check();
+      return ContactRepo.autocomplete(phrase, { pagination });
+    },
   },
 
   /**
