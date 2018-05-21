@@ -38,9 +38,9 @@ module.exports = {
     /**
      *
      */
-    searchContacts: (root, { pagination, search }, { auth }) => {
+    searchContacts: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return ContactRepo.search({ pagination, search });
+      return ContactRepo.search(phrase, { pagination });
     },
   },
 
