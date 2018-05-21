@@ -42,8 +42,8 @@ describe('classes/pagination', function() {
       const pagination = { first: 5 };
       const paginated = new Pagination(Advertiser, { sort, pagination });
       const promise = await expect(paginated.getEdges()).to.eventually.be.an('array');
-      const results = await promise;
-      expect(results.map(model => model.id)).to.deep.equal(ids);
+      const edges = await promise;
+      expect(edges.map(edge => edge.node.id)).to.deep.equal(ids);
     });
   });
 
