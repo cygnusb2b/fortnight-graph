@@ -76,6 +76,14 @@ module.exports = {
       auth.check();
       return CampaignRepo.paginate({ pagination, sort });
     },
+
+    /**
+     *
+     */
+    searchCampaigns: (root, { pagination, phrase }, { auth }) => {
+      auth.check();
+      return CampaignRepo.search(phrase, { pagination });
+    },
   },
 
   /**

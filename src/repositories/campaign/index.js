@@ -4,6 +4,7 @@ const PlacementRepo = require('../placement');
 const Campaign = require('../../models/campaign');
 const Pagination = require('../../classes/pagination');
 const fixtures = require('../../fixtures');
+const { buildMultipleEntityNameQuery, paginateSearch } = require('../../elastic/utils');
 
 module.exports = {
   /**
@@ -110,6 +111,19 @@ module.exports = {
    */
   paginate({ pagination, sort } = {}) {
     return new Pagination(Campaign, { pagination, sort });
+  },
+
+  /**
+   * Searches & Paginates all Campaign models.
+   *
+   * @param {string} phrase The search phrase.
+   * @param {object} params The search parameters.
+   * @param {object.object} params.pagination The pagination parameters.
+   * @return {SearchPagination}
+   */
+  search(phrase, { pagination } = {}) {
+    const query = buildMultipleEntityNameQuery(phrase, ['name', 'advertiserName']);
+    return paginateSearch(Campaign, phrase, query, { pagination });
   },
 
   /**
