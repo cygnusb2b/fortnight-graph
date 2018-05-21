@@ -88,6 +88,7 @@ module.exports = {
     createCampaign: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
+      payload.criteria = { start: payload.startDate };
       return CampaignRepo.create(payload);
     },
 

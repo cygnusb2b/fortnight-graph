@@ -134,7 +134,7 @@ input CreateCampaignPayloadInput {
   advertiserId: String!
   url: String
   externalLinks: [ExternalLinkInput]
-  notify: NotificationListsInput
+  startDate: Date
 }
 
 input UpdateCampaignInput {
