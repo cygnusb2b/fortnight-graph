@@ -26,6 +26,45 @@ const entityNameDefinitions = {
   },
 };
 
+const entityAutocompleteDefinitions = {
+  edgeAnd: {
+    suffix: 'edge', props: { operator: 'and', boost: 2 },
+  },
+  edgeOr: {
+    suffix: 'edge', props: { boost: 1 },
+  },
+};
+
+const entityNameQuery = (definitions, query, fieldName) => {
+  const should = [];
+  Object.keys(definitions).forEach((name) => {
+    const def = definitions[name];
+
+    const { suffix, props } = def;
+    props.query = query;
+
+    const field = suffix ? `${fieldName}.${suffix}` : fieldName;
+    should.push({ match: { [field]: props } });
+  });
+  return { bool: { should } };
+};
+
+const entityMultiNameQuery = (definitions, query, fieldNames) => {
+  const should = [];
+  Object.keys(definitions).forEach((name) => {
+    const def = definitions[name];
+    const { suffix, props } = def;
+    const match = {
+      ...props,
+      query,
+      type: 'cross_fields',
+      fields: fieldNames.map(field => (suffix ? `${field}.${suffix}` : field)),
+    };
+    should.push({ multi_match: match });
+  });
+  return { bool: { should } };
+};
+
 module.exports = {
   /**
    *
@@ -50,44 +89,24 @@ module.exports = {
   },
 
   buildEntityNameQuery(query, fieldName = 'name') {
-    const should = [];
-    Object.keys(entityNameDefinitions).forEach((name) => {
-      const def = entityNameDefinitions[name];
-
-      const { suffix, props } = def;
-      props.query = query;
-
-      const field = suffix ? `${fieldName}.${suffix}` : fieldName;
-      should.push({ match: { [field]: props } });
-    });
-    return { bool: { should } };
+    return entityNameQuery(entityNameDefinitions, query, fieldName);
   },
 
   buildMultipleEntityNameQuery(query, fieldNames) {
-    const should = [];
-    Object.keys(entityNameDefinitions).forEach((name) => {
-      const def = entityNameDefinitions[name];
-      const { suffix, props } = def;
-      const match = {
-        ...props,
-        query,
-        type: 'cross_fields',
-        fields: fieldNames.map(field => (suffix ? `${field}.${suffix}` : field)),
-      };
-      should.push({ multi_match: match });
-    });
-    console.dir(should, { depth: 5 });
-    return { bool: { should } };
+    return entityMultiNameQuery(entityNameDefinitions, query, fieldNames);
   },
 
-  buildEntityAutocomplete(query) {
-    return {
-      bool: {
-        should: [
-          { match: { 'name.edge': { query, operator: 'and', boost: 2 } } },
-          { match: { 'name.edge': { query } } },
-        ],
-      },
-    };
+  buildEntityAutocomplete(query, fieldName = 'name') {
+    return entityNameQuery(entityAutocompleteDefinitions, query, fieldName);
   },
+
+  buildMultipleEntityAutocomplete(query, fieldNames) {
+    return entityMultiNameQuery(entityAutocompleteDefinitions, query, fieldNames);
+  },
+
+  /**
+   * @private
+   */
+  entityNameQuery,
+  entityMultiNameQuery,
 };
