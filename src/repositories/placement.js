@@ -3,7 +3,7 @@ const Placement = require('../models/placement');
 const PublisherRepo = require('./publisher');
 const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
-const TypeAhead = require('../classes/type-ahead');
+const { buildMultipleEntityNameQuery, paginateSearch } = require('../elastic/utils');
 
 module.exports = {
   /**
@@ -100,16 +100,15 @@ module.exports = {
   },
 
   /**
-   * Searches & Paginates all Advertiser models.
+   * Searches & Paginates all Placement models.
    *
-   * @param {object} params
+   * @param {string} phrase The search phrase.
+   * @param {object} params The search parameters.
    * @param {object.object} params.pagination The pagination parameters.
-   * @param {object.object} params.search The search parameters.
-   * @return {Pagination}
+   * @return {SearchPagination}
    */
-  search({ pagination, search } = {}) {
-    const { typeahead } = search;
-    const { criteria, sort } = TypeAhead.getCriteria(typeahead);
-    return new Pagination(Placement, { criteria, pagination, sort });
+  search(phrase, { pagination } = {}) {
+    const query = buildMultipleEntityNameQuery(phrase, ['name', 'publisherName']);
+    return paginateSearch(Placement, phrase, query, { pagination });
   },
 };

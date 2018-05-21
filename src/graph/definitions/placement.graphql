@@ -1,6 +1,6 @@
 type Query {
   allPlacements(pagination: PaginationInput = {}, sort: PlacementSortInput = {}): PlacementConnection!
-  searchPlacements(pagination: PaginationInput = {}, search: PlacementSearchInput!): PlacementConnection!
+  searchPlacements(pagination: PaginationInput = {}, phrase: String!): PlacementConnection!
   placement(input: ModelIdInput!): Placement!
 }
 
