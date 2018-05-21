@@ -18,8 +18,8 @@ const indexes = Promise.all(Object.keys(models).map(name => index(models[name]))
 
 const connect = () => Promise.all([
   new Promise((resolve, reject) => {
-    mongoose.connection.on('connected', resolve);
-    mongoose.connection.on('error', reject);
+    mongoose.on('connected', resolve);
+    mongoose.on('error', reject);
   }),
   new Promise((resolve, reject) => {
     redis.on('connect', () => {
@@ -36,8 +36,8 @@ const connect = () => Promise.all([
 
 const disconnect = () => Promise.all([
   new Promise((resolve, reject) => {
-    mongoose.connection.on('disconnected', resolve);
-    mongoose.disconnect((err) => {
+    mongoose.on('disconnected', resolve);
+    mongoose.close((err) => {
       if (err) reject(err);
     });
   }),
