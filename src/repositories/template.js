@@ -4,6 +4,7 @@ const moment = require('moment');
 const Template = require('../models/template');
 const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
+const { buildEntityNameQuery, paginateSearch } = require('../elastic/utils');
 
 const buildFields = fields => encodeURIComponent(JSON.stringify(fields));
 
@@ -144,6 +145,19 @@ module.exports = {
    */
   paginate({ pagination, sort } = {}) {
     return new Pagination(Template, { pagination, sort });
+  },
+
+  /**
+   * Searches & Paginates all Template models.
+   *
+   * @param {string} phrase The search phrase.
+   * @param {object} params The search parameters.
+   * @param {object.object} params.pagination The pagination parameters.
+   * @return {SearchPagination}
+   */
+  search(phrase, { pagination } = {}) {
+    const query = buildEntityNameQuery(phrase);
+    return paginateSearch(Template, phrase, query, { pagination });
   },
 
   /**
