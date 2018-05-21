@@ -307,6 +307,7 @@ describe('graph/resolvers/campaign', function() {
           advertiserId: advertiser.id,
           url: 'https://www.google.com',
           externalLinks: [ { label: 'test', url: 'https://goo.gl/404' } ],
+          startDate: Date.now(),
         };
         const input = { payload };
         const variables = { input };
