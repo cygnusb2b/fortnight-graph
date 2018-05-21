@@ -3,7 +3,7 @@ const Placement = require('../models/placement');
 const PublisherRepo = require('./publisher');
 const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
-const { buildMultipleEntityNameQuery, paginateSearch } = require('../elastic/utils');
+const { buildMultipleEntityNameQuery, paginateSearch, buildMultipleEntityAutocomplete } = require('../elastic/utils');
 
 module.exports = {
   /**
@@ -109,6 +109,11 @@ module.exports = {
    */
   search(phrase, { pagination } = {}) {
     const query = buildMultipleEntityNameQuery(phrase, ['name', 'publisherName']);
+    return paginateSearch(Placement, phrase, query, { pagination });
+  },
+
+  autocomplete(phrase, { pagination } = {}) {
+    const query = buildMultipleEntityAutocomplete(phrase, ['name', 'publisherName']);
     return paginateSearch(Placement, phrase, query, { pagination });
   },
 };

@@ -50,6 +50,14 @@ module.exports = {
       auth.check();
       return PlacementRepo.search(phrase, { pagination });
     },
+
+    /**
+     *
+     */
+    autocompletePlacements: async (root, { pagination, phrase }, { auth }) => {
+      auth.check();
+      return PlacementRepo.autocomplete(phrase, { pagination });
+    },
   },
 
   /**
