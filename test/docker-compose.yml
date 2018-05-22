@@ -1,6 +1,7 @@
 version: '3'
 services:
   test:
+    tty: true
     build: ../
     volumes:
       - ../:/app:cached

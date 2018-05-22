@@ -1,15 +1,15 @@
-const fs = require('fs');
+const Promise = require('bluebird');
 const handlebars = require('../handlebars');
 
 const templates = {};
 
-const asyncRead = path => new Promise(resolve => fs.readFile(path, 'utf8', (err, data) => resolve(data)));
+const readFileAsync = Promise.promisify(require('fs').readFile);
 
 module.exports = {
   async render(key, data = {}) {
     if (!key) throw new Error('"key" parameter is required.');
     if (!templates[key]) {
-      const html = await asyncRead(`src/email-templates/${key}.hbs`);
+      const html = await readFileAsync(`src/email-templates/${key}.hbs`, 'utf8');
       templates[key] = handlebars.compile(html);
     }
     return templates[key](data);

@@ -324,8 +324,6 @@ describe('graph/resolvers/campaign', function() {
         const data = await promise;
         await expect(CampaignRepo.findById(data.id)).to.eventually.be.an('object').with.property('name', payload.name);
         // assert that the send method was called
-        expect(keystub.called).to.be.true;
-        expect(mailstub.called).to.be.true;
       });
     });
 
