@@ -72,6 +72,7 @@ module.exports = {
     tokenizer: 'classic',
     filter: [
       'lowercase',
+      'word_delimiter',
       'asciifolding',
     ],
     char_filter: ['html_strip'],
@@ -81,6 +82,7 @@ module.exports = {
     tokenizer: 'classic',
     filter: [
       'lowercase',
+      'word_delimiter',
       'asciifolding',
       'starts_with',
     ],
