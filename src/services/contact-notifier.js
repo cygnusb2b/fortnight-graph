@@ -24,9 +24,6 @@ const send = ({ to, subject, html }) => {
     html,
   };
 
-  /* istanbul ignore if */
-  if (process.env.NODE_ENV === 'test') return Promise.resolve(payload);
-
   sgMail.setApiKey(key);
   return sgMail.send(payload);
 };

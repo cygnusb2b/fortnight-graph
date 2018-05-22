@@ -68,12 +68,9 @@ module.exports = {
    * Returns a contact, or creates one.
    */
   async getOrCreateFor({ email, givenName, familyName }) {
-    try {
-      const existing = await this.findByEmail(email);
-      return existing;
-    } catch (e) {
-      return this.create({ givenName, familyName, email });
-    }
+    const existing = await this.findByEmail(email);
+    if (!existing) return this.create({ givenName, familyName, email });
+    return existing;
   },
 
   /**
