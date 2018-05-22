@@ -138,12 +138,6 @@ describe('schema/campaign', function() {
       campaign = generateCampaign(advertiser, placement, internalContact, externalContact);
     });
 
-    [null, undefined].forEach((value) => {
-      it(`should be required and be rejected when the value is '${value}'`, function() {
-        return testRequiredField(Campaign, campaign, 'url', value);
-      });
-    });
-
     it('should be trimmed.', function() {
       return testTrimmedField(Campaign, campaign, 'url', { value: ' http://somedomain.com  ', expected: 'http://somedomain.com' });
     });

@@ -34,6 +34,14 @@ module.exports = {
       auth.check();
       return TemplateRepo.paginate({ pagination, sort });
     },
+
+    /**
+     *
+     */
+    searchTemplates: async (root, { pagination, phrase }, { auth }) => {
+      auth.check();
+      return TemplateRepo.search(phrase, { pagination });
+    },
   },
 
   /**

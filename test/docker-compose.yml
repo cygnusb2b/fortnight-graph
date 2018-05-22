@@ -8,11 +8,14 @@ services:
     depends_on:
       - redis
       - mongo
+      - elasticsearch
     entrypoint: yarn run test:run
     environment:
       NODE_ENV: test
       MONGO_DSN: mongodb://mongo:27017/fortnight
       REDIS_DSN: redis://redis:6379/0
+      ELASTIC_HOST: http://elasticsearch:9200
+      ELASTIC_INDEX_PREFIX: fortnight
       TRACKER_SECRET: ${TRACKER_SECRET-thiskeynotusedbuttests}
       PORT: 8100
   redis:
@@ -23,6 +26,15 @@ services:
     image: mongo:3.6
     volumes:
       - mongodb:/data/db
+  elasticsearch:
+    build: ../elasticsearch
+    environment:
+      - cluster.name=docker-cluster-test
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
 
 volumes:
   node_modules:
@@ -35,6 +47,11 @@ volumes:
       io.as3.discard: "true"
       io.as3.env: "test"
   redis:
+    labels:
+      io.as3.appname: "fortnight-graph"
+      io.as3.discard: "true"
+      io.as3.env: "test"
+  esdata:
     labels:
       io.as3.appname: "fortnight-graph"
       io.as3.discard: "true"

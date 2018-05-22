@@ -1,5 +1,6 @@
 type Query {
   allTemplates(pagination: PaginationInput = {}, sort: TemplateSortInput = {}): TemplateConnection!
+  searchTemplates(pagination: PaginationInput = {}, phrase: String!): TemplateConnection!
   template(input: ModelIdInput!): Template!
 }
 

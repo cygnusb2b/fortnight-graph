@@ -42,6 +42,7 @@ module.exports = {
   }) {
     const criteria = {
       status: 'Active',
+      url: { $exists: true, $ne: null },
       'criteria.start': { $lte: startDate },
       'criteria.placementIds': placementId,
       $and: [

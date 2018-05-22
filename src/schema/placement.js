@@ -1,7 +1,6 @@
-const mongoose = require('mongoose');
-const Publisher = require('../models/publisher');
-
-const { Schema } = mongoose;
+const { Schema } = require('mongoose');
+const connection = require('../mongoose');
+const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 
 const schema = new Schema({
   name: {
@@ -14,14 +13,28 @@ const schema = new Schema({
     required: true,
     validate: {
       async validator(v) {
-        const doc = await Publisher.findOne({ _id: v }, { _id: 1 });
+        const doc = await connection.model('publisher').findOne({ _id: v }, { _id: 1 });
         if (doc) return true;
         return false;
       },
       message: 'No publisher found for ID {VALUE}',
     },
   },
+  publisherName: {
+    type: String,
+  },
 }, { timestamps: true });
+
+schema.pre('save', async function setPublisherName() {
+  if (this.isModified('publisherId') || !this.publisherName) {
+    const publisher = await connection.model('publisher').findOne({ _id: this.publisherId }, { name: 1 });
+    this.publisherName = publisher.name;
+  }
+});
+
+setEntityFields(schema, 'name');
+setEntityFields(schema, 'publisherName');
+applyElasticPlugin(schema, 'placements');
 
 schema.index({ publisherId: 1, name: 1 }, { unique: true });
 schema.index({ name: 1, _id: 1 }, { unique: true });

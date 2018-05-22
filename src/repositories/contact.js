@@ -2,7 +2,7 @@ const Promise = require('bluebird');
 const Contact = require('../models/contact');
 const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
-const TypeAhead = require('../classes/type-ahead');
+const { buildEntityNameQuery, paginateSearch, buildEntityAutocomplete } = require('../elastic/utils');
 
 module.exports = {
   /**
@@ -90,15 +90,26 @@ module.exports = {
   /**
    * Searches & Paginates all Contact models.
    *
-   * @param {object} params
+   * @param {string} phrase The search phrase.
+   * @param {object} params The search parameters.
    * @param {object.object} params.pagination The pagination parameters.
-   * @param {object.object} params.search The search parameters.
-   * @return {Pagination}
+   * @return {SearchPagination}
    */
-  search({ pagination, search } = {}) {
-    const { typeahead } = search;
-    const { criteria, sort } = TypeAhead.getCriteria(typeahead);
-    return new Pagination(Contact, { criteria, pagination, sort });
+  search(phrase, { pagination } = {}) {
+    const query = buildEntityNameQuery(phrase);
+    const { should } = query.bool;
+    should.push({ match: { email: { query: phrase, boost: 5 } } });
+    should.push({ match: { 'email.edge': { query: phrase, operator: 'and', boost: 2 } } });
+    should.push({ match: { 'email.edge': { query: phrase, boost: 1 } } });
+    return paginateSearch(Contact, phrase, query, { pagination });
+  },
+
+  autocomplete(phrase, { pagination } = {}) {
+    const query = buildEntityAutocomplete(phrase);
+    const { should } = query.bool;
+    should.push({ match: { 'email.edge': { query: phrase, operator: 'and', boost: 2 } } });
+    should.push({ match: { 'email.edge': { query: phrase, boost: 1 } } });
+    return paginateSearch(Contact, phrase, query, { pagination });
   },
 
   /**

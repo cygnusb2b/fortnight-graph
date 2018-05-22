@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const { expect } = require('chai');
 const Pagination = require('../src/classes/pagination');
+const SearchPagination = require('../src/classes/elastic/pagination');
 const Promise = require('bluebird');
 
 const runAuthExpect = (res) => {
@@ -100,11 +101,9 @@ module.exports = {
    */
   testSearch(Repo) {
     const pagination = { first: 5 };
-    const search = { typeahead: { field: 'name', term: 'test' } };
-    const paginated = Repo.search({ pagination, search });
-    expect(paginated).to.be.an.instanceOf(Pagination);
-    expect(paginated.Model).to.be.a('function');
-    expect(Repo.search).to.throw(Error, /Cannot destructure property/);
+    const phrase = 'John';
+    const paginated = Repo.search(phrase, { pagination });
+    expect(paginated).to.be.an.instanceOf(SearchPagination);
   },
 
   async testTrimmedField(Model, document, field, { value = ' Trim Me ', expected = 'Trim Me', property } = {}) {

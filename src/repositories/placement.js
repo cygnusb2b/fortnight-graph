@@ -3,7 +3,7 @@ const Placement = require('../models/placement');
 const PublisherRepo = require('./publisher');
 const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
-const TypeAhead = require('../classes/type-ahead');
+const { buildMultipleEntityNameQuery, paginateSearch, buildMultipleEntityAutocomplete } = require('../elastic/utils');
 
 module.exports = {
   /**
@@ -16,19 +16,16 @@ module.exports = {
     return placement.save();
   },
 
-  update(id, payload = {}) {
-    if (!id) return Promise.reject(new Error('Unable to update placement: no ID was provided.'));
-    const criteria = { _id: id };
-    const $set = {};
+  async update(id, payload = {}) {
+    if (!id) throw new Error('Unable to update placement: no ID was provided.');
+    const placement = await this.findById(id);
+    if (!placement) throw new Error(`Unable to update placement: no record was found for ID '${id}'`);
+
     ['name', 'publisherId'].forEach((key) => {
       const value = payload[key];
-      if (typeof value !== 'undefined') $set[key] = value;
+      if (typeof value !== 'undefined') placement[key] = value;
     });
-    const options = { new: true, runValidators: true };
-    return Placement.findOneAndUpdate(criteria, { $set }, options).then((document) => {
-      if (!document) throw new Error(`Unable to update placement: no record was found for ID '${id}'`);
-      return document;
-    });
+    return placement.save();
   },
 
   /**
@@ -40,8 +37,8 @@ module.exports = {
    * @param {string} id
    * @return {Promise}
    */
-  findById(id) {
-    if (!id) return Promise.reject(new Error('Unable to find placement: no ID was provided.'));
+  async findById(id) {
+    if (!id) throw new Error('Unable to find placement: no ID was provided.');
     return Placement.findOne({ _id: id });
   },
 
@@ -103,16 +100,20 @@ module.exports = {
   },
 
   /**
-   * Searches & Paginates all Advertiser models.
+   * Searches & Paginates all Placement models.
    *
-   * @param {object} params
+   * @param {string} phrase The search phrase.
+   * @param {object} params The search parameters.
    * @param {object.object} params.pagination The pagination parameters.
-   * @param {object.object} params.search The search parameters.
-   * @return {Pagination}
+   * @return {SearchPagination}
    */
-  search({ pagination, search } = {}) {
-    const { typeahead } = search;
-    const { criteria, sort } = TypeAhead.getCriteria(typeahead);
-    return new Pagination(Placement, { criteria, pagination, sort });
+  search(phrase, { pagination } = {}) {
+    const query = buildMultipleEntityNameQuery(phrase, ['name', 'publisherName']);
+    return paginateSearch(Placement, phrase, query, { pagination });
+  },
+
+  autocomplete(phrase, { pagination } = {}) {
+    const query = buildMultipleEntityAutocomplete(phrase, ['name', 'publisherName']);
+    return paginateSearch(Placement, phrase, query, { pagination });
   },
 };

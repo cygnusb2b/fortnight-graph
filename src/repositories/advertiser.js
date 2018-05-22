@@ -2,7 +2,7 @@ const Promise = require('bluebird');
 const Advertiser = require('../models/advertiser');
 const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
-const TypeAhead = require('../classes/type-ahead');
+const { buildEntityNameQuery, buildEntityAutocomplete, paginateSearch } = require('../elastic/utils');
 
 module.exports = {
   /**
@@ -22,15 +22,12 @@ module.exports = {
    * @param {string} payload.name
    * @return {Promise}
    */
-  update(id, { name, logo } = {}) {
-    if (!id) return Promise.reject(new Error('Unable to update advertiser: no ID was provided.'));
-    const criteria = { _id: id };
-    const update = { $set: { name, logo } };
-    const options = { new: true, runValidators: true };
-    return Advertiser.findOneAndUpdate(criteria, update, options).then((document) => {
-      if (!document) throw new Error(`Unable to update advertiser: no record was found for ID '${id}'`);
-      return document;
-    });
+  async update(id, { name, logo } = {}) {
+    if (!id) throw new Error('Unable to update advertiser: no ID was provided.');
+    const advertiser = await this.findById(id);
+    if (!advertiser) throw new Error(`Unable to update advertiser: no record was found for ID '${id}'`);
+    advertiser.set({ name, logo });
+    return advertiser.save();
   },
 
   /**
@@ -78,24 +75,29 @@ module.exports = {
    * @param {object} params
    * @param {object.object} params.pagination The pagination parameters.
    * @param {object.object} params.sort The sort parameters.
+   * @param {object.object} params.criteria Additional query criteria to apply.
    * @return {Pagination}
    */
-  paginate({ pagination, sort } = {}) {
-    return new Pagination(Advertiser, { pagination, sort });
+  paginate({ pagination, sort, criteria } = {}) {
+    return new Pagination(Advertiser, { pagination, sort, criteria });
   },
 
   /**
    * Searches & Paginates all Advertiser models.
    *
-   * @param {object} params
+   * @param {string} phrase The search phrase.
+   * @param {object} params The search parameters.
    * @param {object.object} params.pagination The pagination parameters.
-   * @param {object.object} params.search The search parameters.
-   * @return {Pagination}
+   * @return {SearchPagination}
    */
-  search({ pagination, search } = {}) {
-    const { typeahead } = search;
-    const { criteria, sort } = TypeAhead.getCriteria(typeahead);
-    return new Pagination(Advertiser, { criteria, pagination, sort });
+  search(phrase, { pagination } = {}) {
+    const query = buildEntityNameQuery(phrase);
+    return paginateSearch(Advertiser, phrase, query, { pagination });
+  },
+
+  autocomplete(phrase, { pagination } = {}) {
+    const query = buildEntityAutocomplete(phrase);
+    return paginateSearch(Advertiser, phrase, query, { pagination });
   },
 
   /**

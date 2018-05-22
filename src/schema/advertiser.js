@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
+const connection = require('../mongoose');
 const notifyPlugin = require('../plugins/notify');
 const validator = require('validator');
-
-const { Schema } = mongoose;
+const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 
 const schema = new Schema({
   name: {
@@ -28,7 +28,24 @@ const schema = new Schema({
   },
 }, { timestamps: true });
 
+schema.pre('save', async function updateCampaigns() {
+  if (this.isModified('name')) {
+    // This isn't as efficient as calling `updateMany`, but the ElasticSearch
+    // plugin will not fire properly otherwise.
+    // As such, do not await the update.
+    const Campaign = connection.model('campaign');
+    const docs = await Campaign.find({ advertiserId: this.id });
+    docs.forEach((doc) => {
+      doc.set('advertiserName', this.name);
+      doc.save();
+    });
+  }
+});
+
 schema.plugin(notifyPlugin);
+
+setEntityFields(schema, 'name');
+applyElasticPlugin(schema, 'advertisers');
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });

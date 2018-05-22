@@ -76,6 +76,14 @@ module.exports = {
       auth.check();
       return CampaignRepo.paginate({ pagination, sort });
     },
+
+    /**
+     *
+     */
+    searchCampaigns: (root, { pagination, phrase }, { auth }) => {
+      auth.check();
+      return CampaignRepo.search(phrase, { pagination });
+    },
   },
 
   /**
@@ -88,6 +96,7 @@ module.exports = {
     createCampaign: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
+      payload.criteria = { start: payload.startDate };
       return CampaignRepo.create(payload);
     },
 

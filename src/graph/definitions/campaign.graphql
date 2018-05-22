@@ -1,6 +1,7 @@
 type Query {
   allCampaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
   campaign(input: ModelIdInput!): Campaign!
+  searchCampaigns(pagination: PaginationInput = {}, phrase: String!): CampaignConnection!
   campaignHash(input: CampaignHashInput!): Campaign!
   campaignCreative(input: CampaignCreativeInput): CampaignCreative!
 }
@@ -45,7 +46,7 @@ type Campaign {
   isNew: Boolean!
   advertiser: Advertiser!
   status: CampaignStatus!
-  url: String!
+  url: String
   creatives: [CampaignCreative]
   criteria: CampaignCriteria
   externalLinks: [ExternalLink]
@@ -132,9 +133,9 @@ input CreateCampaignPayloadInput {
   name: String!
   description: String
   advertiserId: String!
-  url: String!
+  url: String
   externalLinks: [ExternalLinkInput]
-  notify: NotificationListsInput
+  startDate: Date
 }
 
 input UpdateCampaignInput {

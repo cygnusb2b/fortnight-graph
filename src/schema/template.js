@@ -1,4 +1,5 @@
 const { Schema } = require('mongoose');
+const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 
 const validateBeacon = (v) => {
   const results = v.match(/{{build-beacon}}/g);
@@ -93,6 +94,9 @@ const schema = new Schema({
     ],
   },
 }, { timestamps: true });
+
+setEntityFields(schema, 'name');
+applyElasticPlugin(schema, 'templates');
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });

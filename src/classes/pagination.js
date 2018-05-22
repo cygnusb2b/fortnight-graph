@@ -58,11 +58,12 @@ class Pagination {
 
   async getEdges() {
     const filter = await this.getFilter();
-    return this.Model.find(filter)
+    const docs = await this.Model.find(filter)
       .sort(this.getSortObject())
       .limit(this.limit)
       .collation(this.collation)
       .comment(this.createComment('getEdges'));
+    return docs.map(doc => ({ node: doc, cursor: doc.id }));
   }
 
   getTotalCount() {

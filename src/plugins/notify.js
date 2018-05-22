@@ -1,7 +1,5 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
 const Contact = require('../models/contact');
-
-const { Schema } = mongoose;
 
 const ContactReference = {
   type: Schema.Types.ObjectId,

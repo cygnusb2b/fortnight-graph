@@ -4,6 +4,7 @@ const PlacementRepo = require('../placement');
 const Campaign = require('../../models/campaign');
 const Pagination = require('../../classes/pagination');
 const fixtures = require('../../fixtures');
+const { buildMultipleEntityNameQuery, paginateSearch } = require('../../elastic/utils');
 
 module.exports = {
   /**
@@ -24,7 +25,7 @@ module.exports = {
    * @param {string} payload.advertiserId
    * @return {Promise}
    */
-  update(id, {
+  async update(id, {
     name,
     description,
     url,
@@ -32,19 +33,17 @@ module.exports = {
     advertiserId,
     externalLinks,
   } = {}) {
-    if (!id) return Promise.reject(new Error('Unable to update campaign: no ID was provided.'));
-    const criteria = { _id: id };
-    const update = { $set: { name } };
-    if (url) update.$set.url = url;
-    if (description) update.$set.description = description;
-    if (status) update.$set.status = status;
-    if (advertiserId) update.$set.advertiserId = advertiserId;
-    if (externalLinks) update.$set.externalLinks = externalLinks;
-    const options = { new: true, runValidators: true };
-    return Campaign.findOneAndUpdate(criteria, update, options).then((document) => {
-      if (!document) throw new Error(`Unable to update campaign: no record was found for ID '${id}'`);
-      return document;
-    });
+    if (!id) throw new Error('Unable to update campaign: no ID was provided.');
+    const campaign = await this.findById(id);
+    if (!campaign) throw new Error(`Unable to update campaign: no record was found for ID '${id}'`);
+
+    campaign.name = name;
+    if (url) campaign.url = url;
+    if (description) campaign.description = description;
+    if (status) campaign.status = status;
+    if (advertiserId) campaign.advertiserId = advertiserId;
+    if (externalLinks) campaign.externalLinks = externalLinks;
+    return campaign.save();
   },
 
   /**
@@ -112,6 +111,19 @@ module.exports = {
    */
   paginate({ pagination, sort } = {}) {
     return new Pagination(Campaign, { pagination, sort });
+  },
+
+  /**
+   * Searches & Paginates all Campaign models.
+   *
+   * @param {string} phrase The search phrase.
+   * @param {object} params The search parameters.
+   * @param {object.object} params.pagination The pagination parameters.
+   * @return {SearchPagination}
+   */
+  search(phrase, { pagination } = {}) {
+    const query = buildMultipleEntityNameQuery(phrase, ['name', 'advertiserName']);
+    return paginateSearch(Campaign, phrase, query, { pagination });
   },
 
   /**

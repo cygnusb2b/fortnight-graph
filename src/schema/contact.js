@@ -1,7 +1,6 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
 const validator = require('validator');
-
-const { Schema } = mongoose;
+const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 
 const schema = new Schema({
   email: {
@@ -18,6 +17,19 @@ const schema = new Schema({
         message: 'Invalid email address {VALUE}',
       },
     ],
+    es_indexed: true,
+    es_type: 'text',
+    es_analyzer: 'email_address',
+    es_fields: {
+      raw: {
+        type: 'keyword',
+      },
+      edge: {
+        type: 'text',
+        analyzer: 'email_address_starts_with',
+        search_analyzer: 'email_address',
+      },
+    },
   },
   name: {
     type: String,
@@ -42,6 +54,9 @@ schema.pre('save', function setName(next) {
   this.name = `${this.givenName} ${this.familyName}`;
   next();
 });
+
+setEntityFields(schema, 'name');
+applyElasticPlugin(schema, 'contacts');
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });

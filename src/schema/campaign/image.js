@@ -1,8 +1,6 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
 const validator = require('validator');
 const FocalPointSchema = require('./image-focal-point');
-
-const { Schema } = mongoose;
 
 module.exports = new Schema({
   src: {

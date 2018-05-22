@@ -7,8 +7,8 @@ module.exports = {
       endCursor: () => paginated.getEndCursor(),
     }),
   },
-  edge: {
-    node: document => document,
-    cursor: document => document.get('id'),
-  },
+  // This is here for BC.
+  // Previously, the paginated instance did _not_ return
+  // an array of node+cursor object. Now it does.
+  edge: edge => edge,
 };

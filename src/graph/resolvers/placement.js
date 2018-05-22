@@ -46,9 +46,17 @@ module.exports = {
     /**
      *
      */
-    searchPlacements: (root, { pagination, search }, { auth }) => {
+    searchPlacements: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return PlacementRepo.search({ pagination, search });
+      return PlacementRepo.search(phrase, { pagination });
+    },
+
+    /**
+     *
+     */
+    autocompletePlacements: async (root, { pagination, phrase }, { auth }) => {
+      auth.check();
+      return PlacementRepo.autocomplete(phrase, { pagination });
     },
   },
 
