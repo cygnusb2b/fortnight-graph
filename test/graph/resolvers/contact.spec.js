@@ -118,14 +118,14 @@ describe('graph/resolvers/contact', function() {
         expect(data.totalCount).to.equal(10);
         expect(data.edges.length).to.equal(10);
         expect(data.pageInfo.hasNextPage).to.be.false;
-        expect(data.pageInfo.endCursor).to.be.null;
       });
       it('should return an error when an after cursor is requested that does not exist.', async function() {
-        const after = CursorType.serialize(ContactRepo.generate().one().id);
+        const { id } = ContactRepo.generate().one();
+        const after = CursorType.serialize(id);
         const pagination = { first: 5, after };
         const variables = { pagination };
         const promise = graphql({ query, key: 'allContacts', variables, loggedIn: true });
-        await expect(promise).to.be.rejectedWith(Error, `No record found for cursor '${after}'.`);
+        await expect(promise).to.be.rejectedWith(Error, `No record found for ID '${id}'`);
       });
     });
 
