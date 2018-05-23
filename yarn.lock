@@ -2,6 +2,22 @@
 # yarn lockfile v1
 
 
+"@limit0/graphql-custom-types@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@limit0/graphql-custom-types/-/graphql-custom-types-1.0.1.tgz#6ec74695eb1de6bf3b2824233f391bd256c7de9c"
+  dependencies:
+    base64-url "^2.2.0"
+
+"@limit0/mongoose-graphql-pagination@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@limit0/mongoose-graphql-pagination/-/mongoose-graphql-pagination-1.1.0.tgz#0fe8ecc2acf9366e81171629d060f04e594d13d6"
+  dependencies:
+    deepmerge "^2.1.0"
+    escape-string-regexp "^1.0.5"
+  optionalDependencies:
+    "@limit0/graphql-custom-types" "^1.0.1"
+    elasticsearch "^15.0.0"
+
 "@newrelic/native-metrics@^2.1.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@newrelic/native-metrics/-/native-metrics-2.2.0.tgz#c2fe499ce7fef9e8b2a79e9da04069c7be2020b6"
@@ -495,6 +511,10 @@ base64-js@^1.0.2:
 base64-url@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/base64-url/-/base64-url-2.1.0.tgz#8f8e883fbf2451210bfab752a8aeed9940fb2e62"
+
+base64-url@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/base64-url/-/base64-url-2.2.0.tgz#4bbd6a825df1be522d39e566a721ede51144041a"
 
 base64url@2.0.0, base64url@^2.0.0:
   version "2.0.0"
