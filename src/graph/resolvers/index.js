@@ -1,5 +1,5 @@
 const deepAssign = require('deep-assign');
-const { DateType, CursorType } = require('../custom-types');
+const { DateType, CursorType } = require('@limit0/graphql-custom-types');
 const ImageRepo = require('../../repositories/image');
 
 const advertiser = require('./advertiser');
