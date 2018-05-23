@@ -65,11 +65,11 @@ handlebars.registerHelper('build-ua-beacon', (context) => {
 });
 
 handlebars.registerHelper('link-to', (...parts) => {
-  const baseUri = process.env.BASE_URL;
-  if (!baseUri) throw new Error('Required environment variable "BASE_URL" was not set.');
+  const { SERVER_BASE_URL } = process.env;
+  if (!SERVER_BASE_URL) throw new Error('Required environment variable "SERVER_BASE_URL" was not set.');
 
   const rest = parts.filter(el => typeof el === 'string').join('/');
-  return `${baseUri}/${rest}`;
+  return `${SERVER_BASE_URL}/${rest}`;
 });
 
 module.exports = handlebars;
