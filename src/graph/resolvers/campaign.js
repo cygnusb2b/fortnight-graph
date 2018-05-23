@@ -34,20 +34,12 @@ module.exports = {
     internalLinks: (campaign) => {
       const { SERVER_BASE_URL } = process.env;
       const { hash } = campaign;
-      return [
-        {
-          label: 'Material Collect',
-          url: `${SERVER_BASE_URL}/go-to/collect/${hash}`
-        },
-        {
-          label: 'Report: Summary',
-          url: `${SERVER_BASE_URL}/go-to/report-summary/${hash}`
-        },
-        {
-          label: 'Report: Creative Breakdown',
-          url: `${SERVER_BASE_URL}/go-to/report-creative-breakdown/${hash}`
-        },
-      ]
+      const links = [
+        { label: 'Material Collect', key: 'go-to/collect' },
+        { label: 'Report: Summary', key: 'go-to/report-summary' },
+        { label: 'Report: Creative Breakdown', key: 'go-to/report-creative-breakdown' },
+      ];
+      return links.map(({ label, key }) => ({ label, url: `${SERVER_BASE_URL}/${key}/${hash}` }));
     },
   },
 
