@@ -105,7 +105,7 @@ module.exports = {
    * @param {string} phrase The search phrase.
    * @param {object} params The search parameters.
    * @param {object.object} params.pagination The pagination parameters.
-   * @return {SearchPagination}
+   * @return {ElasticPagination}
    */
   search(phrase, { pagination } = {}) {
     const query = buildMultipleEntityNameQuery(phrase, ['name', 'publisherName']);
