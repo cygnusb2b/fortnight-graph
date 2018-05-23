@@ -19,7 +19,8 @@ services:
       ELASTIC_INDEX_PREFIX: fortnight
       TRACKER_SECRET: ${TRACKER_SECRET-thiskeynotusedbuttests}
       PORT: 8100
-      BASE_URL: http://localhost
+      APP_BASE_URL: http://localhost
+      SERVER_BASE_URL: http://localhost
       SENDGRID_API_KEY: 1234
       SENDGRID_FROM: test@test.io
   redis:
