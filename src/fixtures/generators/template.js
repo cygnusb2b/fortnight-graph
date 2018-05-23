@@ -140,7 +140,7 @@ const fallback = `
 module.exports = () => {
   const now = new Date();
   return {
-    name: faker.random.words(3),
+    name: faker.lorem.words(10),
     html,
     fallback,
     createdAt: now,
