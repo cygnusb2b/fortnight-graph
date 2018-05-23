@@ -25,7 +25,7 @@ describe('services/contact-notifier', function() {
       await ContactRepo.remove();
     })
     it('should always return an array', async function() {
-      await expect(ContactNotifier.resolveAddresses()).to.eventually.be.rejected;
+      await expect(ContactNotifier.resolveAddresses()).to.eventually.be.an('array');
       await expect(ContactNotifier.resolveAddresses([])).to.eventually.be.an('array');
       await expect(ContactNotifier.resolveAddresses(['5afda48db038cd00b71361c1'])).to.eventually.be.an('array');
     });
@@ -37,7 +37,6 @@ describe('services/contact-notifier', function() {
         const result = await ContactNotifier.resolveAddresses(ids);
         expect(result).to.be.an('array');
         expect(result.length).to.equal(count);
-        // await expect(ContactNotifier.resolveAddresses(ids).to.eventually.be.an('array').with('length', count))
       })
 
     });
