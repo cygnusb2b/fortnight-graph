@@ -1,6 +1,6 @@
 const Promise = require('bluebird');
+const { Pagination } = require('@limit0/mongoose-graphql-pagination');
 const Contact = require('../models/contact');
-const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
 const { buildEntityNameQuery, paginateSearch, buildEntityAutocomplete } = require('../elastic/utils');
 
