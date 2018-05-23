@@ -1,7 +1,7 @@
 require('../../connections');
+const { CursorType } = require('@limit0/graphql-custom-types');
 const { graphql, setup, teardown } = require('./utils');
 const TemplateRepo = require('../../../src/repositories/template');
-const { CursorType } = require('../../../src/graph/custom-types');
 
 const createTemplate = async () => {
   const results = await TemplateRepo.seed();

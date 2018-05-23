@@ -1,11 +1,11 @@
 const sgMail = require('@sendgrid/mail');
 require('../../connections');
+const { CursorType } = require('@limit0/graphql-custom-types');
 const { graphql, setup, teardown } = require('./utils');
 const AdvertiserRepo = require('../../../src/repositories/advertiser');
 const ContactRepo = require('../../../src/repositories/contact');
 const CampaignRepo = require('../../../src/repositories/campaign');
 const PlacementRepo = require('../../../src/repositories/placement');
-const { CursorType } = require('../../../src/graph/custom-types');
 
 const createAdvertiser = async () => {
   const results = await AdvertiserRepo.seed();

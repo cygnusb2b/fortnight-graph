@@ -1,7 +1,7 @@
 require('../../connections');
+const { CursorType } = require('@limit0/graphql-custom-types');
 const { graphql, setup, teardown } = require('./utils');
 const PublisherRepo = require('../../../src/repositories/publisher');
-const { CursorType } = require('../../../src/graph/custom-types');
 
 const createPublisher = async () => {
   const results = await PublisherRepo.seed();

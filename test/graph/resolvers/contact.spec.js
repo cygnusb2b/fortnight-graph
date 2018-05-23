@@ -1,7 +1,7 @@
 require('../../connections');
+const { CursorType } = require('@limit0/graphql-custom-types');
 const { graphql, setup, teardown } = require('./utils');
 const ContactRepo = require('../../../src/repositories/contact');
-const { CursorType } = require('../../../src/graph/custom-types');
 
 const createContact = async () => {
   const results = await ContactRepo.seed();
