@@ -1,5 +1,4 @@
-const Pagination = require('../classes/pagination');
-const SearchPagination = require('../classes/elastic/pagination');
+const { Pagination, SearchPagination } = require('@limit0/mongoose-graphql-pagination');
 const { client } = require('./index');
 
 const entityNameDefinitions = {
