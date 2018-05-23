@@ -1,6 +1,6 @@
 const Promise = require('bluebird');
+const { Pagination } = require('@limit0/mongoose-graphql-pagination');
 const Advertiser = require('../models/advertiser');
-const Pagination = require('../classes/pagination');
 const fixtures = require('../fixtures');
 const { buildEntityNameQuery, buildEntityAutocomplete, paginateSearch } = require('../elastic/utils');
 
@@ -88,7 +88,7 @@ module.exports = {
    * @param {string} phrase The search phrase.
    * @param {object} params The search parameters.
    * @param {object.object} params.pagination The pagination parameters.
-   * @return {SearchPagination}
+   * @return {ElasticPagination}
    */
   search(phrase, { pagination } = {}) {
     const query = buildEntityNameQuery(phrase);

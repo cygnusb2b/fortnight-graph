@@ -1,11 +1,11 @@
 const sgMail = require('@sendgrid/mail');
 require('../../connections');
+const { CursorType } = require('@limit0/graphql-custom-types');
 const { graphql, setup, teardown } = require('./utils');
 const AdvertiserRepo = require('../../../src/repositories/advertiser');
 const ContactRepo = require('../../../src/repositories/contact');
 const CampaignRepo = require('../../../src/repositories/campaign');
 const PlacementRepo = require('../../../src/repositories/placement');
-const { CursorType } = require('../../../src/graph/custom-types');
 
 const createAdvertiser = async () => {
   const results = await AdvertiserRepo.seed();
@@ -260,14 +260,14 @@ describe('graph/resolvers/campaign', function() {
         expect(data.totalCount).to.equal(10);
         expect(data.edges.length).to.equal(10);
         expect(data.pageInfo.hasNextPage).to.be.false;
-        expect(data.pageInfo.endCursor).to.be.null;
       });
       it('should return an error when an after cursor is requested that does not exist.', async function() {
-        const after = CursorType.serialize(CampaignRepo.generate(1, { advertiserId: () => '1234', placementId: () => '2345' }).one().id);
+        const { id } = CampaignRepo.generate(1, { advertiserId: () => '1234', placementId: () => '2345' }).one();
+        const after = CursorType.serialize(id);
         const pagination = { first: 5, after };
         const variables = { pagination };
         const promise = graphql({ query, key: 'allCampaigns', variables, loggedIn: true });
-        await expect(promise).to.be.rejectedWith(Error, `No record found for cursor '${after}'.`);
+        await expect(promise).to.be.rejectedWith(Error, `No record found for ID '${id}'`);
       });
     });
 

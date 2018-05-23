@@ -1,8 +1,8 @@
+const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const CampaignRepo = require('../../repositories/campaign');
 const AdvertiserRepo = require('../../repositories/advertiser');
 const ContactRepo = require('../../repositories/contact');
 const Advertiser = require('../../models/advertiser');
-const paginationResolvers = require('./pagination');
 
 module.exports = {
   /**
@@ -22,11 +22,6 @@ module.exports = {
    *
    */
   AdvertiserConnection: paginationResolvers.connection,
-
-  /**
-   *
-   */
-  AdvertiserEdge: paginationResolvers.edge,
 
   /**
    *

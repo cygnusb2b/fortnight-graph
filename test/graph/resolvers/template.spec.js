@@ -1,7 +1,7 @@
 require('../../connections');
+const { CursorType } = require('@limit0/graphql-custom-types');
 const { graphql, setup, teardown } = require('./utils');
 const TemplateRepo = require('../../../src/repositories/template');
-const { CursorType } = require('../../../src/graph/custom-types');
 
 const createTemplate = async () => {
   const results = await TemplateRepo.seed();
@@ -122,14 +122,14 @@ describe('graph/resolvers/template', function() {
         expect(data.totalCount).to.equal(10);
         expect(data.edges.length).to.equal(10);
         expect(data.pageInfo.hasNextPage).to.be.false;
-        expect(data.pageInfo.endCursor).to.be.null;
       });
       it('should return an error when an after cursor is requested that does not exist.', async function() {
-        const after = CursorType.serialize(TemplateRepo.generate().one().id);
+        const { id } = TemplateRepo.generate().one();
+        const after = CursorType.serialize(id);
         const pagination = { first: 5, after };
         const variables = { pagination };
         const promise = graphql({ query, key: 'allTemplates', variables, loggedIn: true });
-        await expect(promise).to.be.rejectedWith(Error, `No record found for cursor '${after}'.`);
+        await expect(promise).to.be.rejectedWith(Error, `No record found for ID '${id}'`);
       });
     });
 

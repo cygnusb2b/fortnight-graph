@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 const { expect } = require('chai');
-const Pagination = require('../src/classes/pagination');
-const SearchPagination = require('../src/classes/elastic/pagination');
+const { Pagination, ElasticPagination } = require('@limit0/mongoose-graphql-pagination');
 const Promise = require('bluebird');
 
 const runAuthExpect = (res) => {
@@ -103,7 +102,7 @@ module.exports = {
     const pagination = { first: 5 };
     const phrase = 'John';
     const paginated = Repo.search(phrase, { pagination });
-    expect(paginated).to.be.an.instanceOf(SearchPagination);
+    expect(paginated).to.be.an.instanceOf(ElasticPagination);
   },
 
   async testTrimmedField(Model, document, field, { value = ' Trim Me ', expected = 'Trim Me', property } = {}) {

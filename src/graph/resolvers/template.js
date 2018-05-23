@@ -1,16 +1,11 @@
+const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const TemplateRepo = require('../../repositories/template');
-const paginationResolvers = require('./pagination');
 
 module.exports = {
   /**
    *
    */
   TemplateConnection: paginationResolvers.connection,
-
-  /**
-   *
-   */
-  TemplateEdge: paginationResolvers.edge,
 
   /**
    *

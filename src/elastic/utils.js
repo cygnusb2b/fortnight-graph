@@ -1,5 +1,4 @@
-const Pagination = require('../classes/pagination');
-const SearchPagination = require('../classes/elastic/pagination');
+const { Pagination, ElasticPagination } = require('@limit0/mongoose-graphql-pagination');
 const { client } = require('./index');
 
 const entityNameDefinitions = {
@@ -85,7 +84,7 @@ module.exports = {
       body: { query },
       searchType: 'dfs_query_then_fetch',
     };
-    return new SearchPagination(Model, client, { params, pagination });
+    return new ElasticPagination(Model, client, { params, pagination });
   },
 
   buildEntityNameQuery(query, fieldName = 'name') {
