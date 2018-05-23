@@ -1,6 +1,6 @@
+const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const PublisherRepo = require('../../repositories/publisher');
 const PlacementRepo = require('../../repositories/placement');
-const paginationResolvers = require('./pagination');
 
 module.exports = {
   /**
@@ -14,11 +14,6 @@ module.exports = {
    *
    */
   PlacementConnection: paginationResolvers.connection,
-
-  /**
-   *
-   */
-  PlacementEdge: paginationResolvers.edge,
 
   /**
    *
