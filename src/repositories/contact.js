@@ -39,15 +39,38 @@ module.exports = {
   /**
    * Find an Contact record by ID.
    *
-   * Will return a rejected promise if no ID was provided.
+   * Will throw if no ID was provided.
    * Will NOT reject the promise if the record cannnot be found.
    *
    * @param {string} id
    * @return {Promise}
    */
-  findById(id) {
-    if (!id) return Promise.reject(new Error('Unable to find contact: no ID was provided.'));
+  async findById(id) {
+    if (!id) throw new Error('Unable to find contact: no ID was provided.');
     return Contact.findOne({ _id: id });
+  },
+
+  /**
+   * Find a Contact record by email.
+   *
+   * Will throw if no email was provided.
+   * Will NOT reject the promise if the record cannnot be found.
+   *
+   * @param {string} email
+   * @return {Promise}
+   */
+  async findByEmail(email) {
+    if (!email) throw new Error('Unable to find contact: no email was provided.');
+    return Contact.findOne({ email });
+  },
+
+  /**
+   * Returns a contact, or creates one.
+   */
+  async getOrCreateFor({ email, givenName, familyName }) {
+    const existing = await this.findByEmail(email);
+    if (!existing) return this.create({ givenName, familyName, email });
+    return existing;
   },
 
   /**

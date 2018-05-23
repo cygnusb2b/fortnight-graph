@@ -1,6 +1,7 @@
 version: '3'
 services:
   test:
+    tty: true
     build: ../
     volumes:
       - ../:/app:cached
@@ -18,6 +19,9 @@ services:
       ELASTIC_INDEX_PREFIX: fortnight
       TRACKER_SECRET: ${TRACKER_SECRET-thiskeynotusedbuttests}
       PORT: 8100
+      BASE_URL: http://localhost
+      SENDGRID_API_KEY: 1234
+      SENDGRID_FROM: test@test.io
   redis:
     image: redis:alpine
     volumes:

@@ -7,6 +7,18 @@ const CreativeRepo = require('../../repositories/campaign/creative');
 const CriteriaRepo = require('../../repositories/campaign/criteria');
 const ContactRepo = require('../../repositories/contact');
 const Campaign = require('../../models/campaign');
+const contactNotifier = require('../../services/contact-notifier');
+
+const getNotifyDefaults = async (advertiserId, user) => {
+  const advertiser = await AdvertiserRepo.findById(advertiserId);
+  const notify = {
+    internal: await advertiser.get('notify.internal'),
+    external: await advertiser.get('notify.external'),
+  };
+  const contact = await ContactRepo.getOrCreateFor(user);
+  notify.internal.push(contact.id);
+  return notify;
+};
 
 module.exports = {
   /**
@@ -93,11 +105,15 @@ module.exports = {
     /**
      *
      */
-    createCampaign: (root, { input }, { auth }) => {
+    createCampaign: async (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
       payload.criteria = { start: payload.startDate };
-      return CampaignRepo.create(payload);
+      payload.notify = await getNotifyDefaults(payload.advertiserId, auth.user);
+      const campaign = await CampaignRepo.create(payload);
+      contactNotifier.sendInternalCampaignCreated({ campaign });
+      contactNotifier.sendExternalCampaignCreated({ campaign });
+      return campaign;
     },
 
     /**
