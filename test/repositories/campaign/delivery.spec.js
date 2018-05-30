@@ -204,11 +204,11 @@ describe('repositories/campaign/delivery', function() {
       const propSet = [
         { status: 'Active', criteria: { placementIds: [placement1.id], start: now, end: futureEnd } },
         { status: 'Active', criteria: { placementIds: [placement2.id], start: now } },
-        { status: 'Active', criteria: { placementIds: [placement1.id], start: now, kvs: [ { key: 'sectionId', value: '1234' } ] } },
-        { status: 'Draft', criteria: { placementIds: [placement1.id], start: now, kvs: [ { key: 'sectionId', value: '1234' } ] } },
-        { status: 'Active', criteria: { placementIds: [placement1.id], start: now, kvs: [ { key: 'sectionId', value: '1234' } ] } },
-        { status: 'Active', criteria: { placementIds: [placement2.id], start: now, kvs: [ { key: 'sectionId', value: '1234' } ] } },
-        { status: 'Active', criteria: { placementIds: [placement1.id], start: now, kvs: [ { key: 'sectionId', value: '1234' }, { key: 'x', value: '1' } ] } },
+        { status: 'Active', criteria: { placementIds: [placement1.id], start: now, kvs: [ { key: 'sect_id', value: '1234' } ] } },
+        { status: 'Draft', criteria: { placementIds: [placement1.id], start: now, kvs: [ { key: 'sect_id', value: '1234' } ] } },
+        { status: 'Active', criteria: { placementIds: [placement1.id], start: now, kvs: [ { key: 'sect_id', value: '1234' } ] } },
+        { status: 'Active', criteria: { placementIds: [placement2.id], start: now, kvs: [ { key: 'sect_id', value: '1234' } ] } },
+        { status: 'Active', criteria: { placementIds: [placement1.id], start: now, kvs: [ { key: 'sect_id', value: '1234' }, { key: 'x', value: '1' } ] } },
       ];
       const promises = Promise.all(propSet.map((props) => {
         const campaign = CampaignRepo.generate(1, {
@@ -283,11 +283,11 @@ describe('repositories/campaign/delivery', function() {
       expect(result.length).to.equal(2);
       sinon.assert.calledOnce(Repo.selectCampaigns);
     });
-    it('should return three campaigns when using placement1 with start date and sectionId kv', async function() {
+    it('should return three campaigns when using placement1 with start date and sect_id kv', async function() {
       const params = {
         startDate: new Date(),
         placementId: placement1.id,
-        keyValues: { sectionId: 1234 },
+        keyValues: { sect_id: 1234 },
         limit: 100,
       };
       const promise = Repo.queryCampaigns(params);
@@ -296,24 +296,11 @@ describe('repositories/campaign/delivery', function() {
       expect(result.length).to.equal(3);
       sinon.assert.calledOnce(Repo.selectCampaigns);
     });
-    it('should return one campaigns when using placement1 with start date and sectionId+x kv', async function() {
+    it('should return zero campaigns when using placement1 with start date and sect_id kv with invalid value', async function() {
       const params = {
         startDate: new Date(),
         placementId: placement1.id,
-        keyValues: { sectionId: 1234, x: 1 },
-        limit: 100,
-      };
-      const promise = Repo.queryCampaigns(params);
-      await expect(promise).to.eventually.be.an('array');
-      const result = await promise;
-      expect(result.length).to.equal(1);
-      sinon.assert.calledOnce(Repo.selectCampaigns);
-    });
-    it('should return zero campaigns when using placement1 with start date and sectionId kv with invalid value', async function() {
-      const params = {
-        startDate: new Date(),
-        placementId: placement1.id,
-        keyValues: { sectionId: 12345 },
+        keyValues: { sect_id: 12345 },
         limit: 100,
       };
       const promise = Repo.queryCampaigns(params);
