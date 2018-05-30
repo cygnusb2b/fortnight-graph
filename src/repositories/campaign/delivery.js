@@ -57,10 +57,14 @@ module.exports = {
     };
 
     const kvs = Utils.cleanValues(keyValues);
+    const kvsOr = [];
     Object.keys(kvs).forEach((key) => {
-      criteria.$and.push({
+      kvsOr.push({
         'criteria.kvs': { $elemMatch: { key, value: kvs[key] } },
       });
+    });
+    criteria.$and.push({
+      $or: kvsOr,
     });
     const campaigns = await Campaign.find(criteria);
     return this.selectCampaigns(campaigns, limit);
