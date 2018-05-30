@@ -63,9 +63,11 @@ module.exports = {
         'criteria.kvs': { $elemMatch: { key, value: kvs[key] } },
       });
     });
-    criteria.$and.push({
-      $or: kvsOr,
-    });
+    if (kvsOr.length !== 0) {
+      criteria.$and.push({
+        $or: kvsOr,
+      });
+    }
     const campaigns = await Campaign.find(criteria);
     return this.selectCampaigns(campaigns, limit);
   },
