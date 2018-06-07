@@ -30,6 +30,9 @@ const schema = new Schema({
   advertiserName: {
     type: String,
   },
+  publishedAt: {
+    type: Date,
+  },
 }, { timestamps: true });
 
 schema.pre('save', async function setAdvertiserName() {
@@ -38,5 +41,13 @@ schema.pre('save', async function setAdvertiserName() {
     this.advertiserName = advertiser.name;
   }
 });
+
+schema.index({ advertiserId: 1 });
+schema.index({ title: 1, _id: 1 }, { unique: true });
+schema.index({ title: -1, _id: -1 }, { unique: true });
+schema.index({ updatedAt: 1, _id: 1 }, { unique: true });
+schema.index({ updatedAt: -1, _id: -1 }, { unique: true });
+schema.index({ publishedAt: 1, _id: 1 }, { unique: true });
+schema.index({ publishedAt: -1, _id: -1 }, { unique: true });
 
 module.exports = schema;
