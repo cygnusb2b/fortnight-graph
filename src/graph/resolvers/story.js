@@ -1,6 +1,5 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const StoryRepo = require('../../repositories/story');
-const Story = require('../../models/story');
 
 module.exports = {
   /**
