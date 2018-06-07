@@ -11,16 +11,16 @@ type Mutation {
 }
 
 enum StorySortField {
-  name
+  title
   createdAt
   updatedAt
 }
 
 type Story {
   id: String!
-  name: String!
+  title: String!
   teaser: String
-  body: String!
+  body: String
   createdAt: Date
   updatedAt: Date
 }
@@ -46,7 +46,7 @@ input StoryTypeAheadInput {
 }
 
 enum StoryTypeAheadField {
-  name
+  title
 }
 
 input StorySortInput {
@@ -55,7 +55,7 @@ input StorySortInput {
 }
 
 input StoryPayloadInput {
-  name: String!
+  title: String!
   teaser: String
   body: String!
 }

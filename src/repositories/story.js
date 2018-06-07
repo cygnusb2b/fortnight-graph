@@ -19,7 +19,7 @@ module.exports = {
     const story = await this.findById(id);
     if (!story) throw new Error(`Unable to update story: no record was found for ID '${id}'`);
 
-    ['name', 'teaser', 'body'].forEach((key) => {
+    ['title', 'teaser', 'body'].forEach((key) => {
       const value = payload[key];
       if (typeof value !== 'undefined') story[key] = value;
     });

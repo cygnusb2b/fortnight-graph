@@ -1,7 +1,7 @@
 const { Schema } = require('mongoose');
 
 const schema = new Schema({
-  name: {
+  title: {
     type: String,
     required: true,
     trim: true,
@@ -12,7 +12,6 @@ const schema = new Schema({
   },
   body: {
     type: String,
-    required: true,
     trim: true,
   },
 }, { timestamps: true });
