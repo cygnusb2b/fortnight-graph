@@ -57,7 +57,7 @@ input StorySortInput {
 input StoryPayloadInput {
   title: String!
   teaser: String
-  body: String!
+  body: String
 }
 
 input CreateStoryInput {
