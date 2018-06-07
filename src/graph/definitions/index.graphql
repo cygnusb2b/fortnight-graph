@@ -6,6 +6,7 @@
 # import * from 'publisher.graphql'
 # import * from 'placement.graphql'
 # import * from 'report.graphql'
+# import * from 'story.graphql'
 
 scalar Date
 scalar Cursor

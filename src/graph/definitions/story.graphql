@@ -1,0 +1,72 @@
+type Query {
+  allStories(pagination: PaginationInput = {}, sort: StorySortInput = {}): StoryConnection!
+  searchStories(pagination: PaginationInput = {}, phrase: String!): StoryConnection!
+  autocompleteStories(pagination: PaginationInput = {}, phrase: String!): StoryConnection!
+  story(input: ModelIdInput!): Story!
+}
+
+type Mutation {
+  createStory(input: CreateStoryInput!): Story!
+  updateStory(input: UpdateStoryInput!): Story!
+}
+
+enum StorySortField {
+  title
+  createdAt
+  updatedAt
+}
+
+type Story {
+  id: String!
+  title: String!
+  teaser: String
+  body: String
+  createdAt: Date
+  updatedAt: Date
+}
+
+type StoryConnection {
+  totalCount: Int!
+  edges: [StoryEdge]!
+  pageInfo: PageInfo!
+}
+
+type StoryEdge {
+  node: Story!
+  cursor: Cursor!
+}
+
+input StorySearchInput {
+  typeahead: StoryTypeAheadInput!
+}
+
+input StoryTypeAheadInput {
+  field: StoryTypeAheadField!
+  term: String!
+}
+
+enum StoryTypeAheadField {
+  title
+}
+
+input StorySortInput {
+  field: StorySortField! = createdAt
+  order: Int! = -1
+}
+
+input StoryPayloadInput {
+  title: String!
+  teaser: String
+  body: String!
+}
+
+input CreateStoryInput {
+  payload: StoryPayloadInput!
+}
+
+input UpdateStoryInput {
+  id: String!
+  payload: StoryPayloadInput!
+}
+
+

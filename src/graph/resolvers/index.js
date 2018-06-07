@@ -10,6 +10,7 @@ const publisher = require('./publisher');
 const placement = require('./placement');
 const contact = require('./contact');
 const report = require('./report');
+const story = require('./story');
 
 module.exports = deepAssign(
   advertiser,
@@ -20,6 +21,7 @@ module.exports = deepAssign(
   placement,
   contact,
   report,
+  story,
   {
     /**
      *
