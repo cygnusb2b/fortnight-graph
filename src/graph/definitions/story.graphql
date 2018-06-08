@@ -14,13 +14,16 @@ enum StorySortField {
   title
   createdAt
   updatedAt
+  publishedAt
 }
 
 type Story {
   id: String!
   title: String!
+  advertiser: Advertiser!
   teaser: String
   body: String
+  publishedAt: Date
   createdAt: Date
   updatedAt: Date
 }
@@ -57,7 +60,9 @@ input StorySortInput {
 input StoryPayloadInput {
   title: String!
   teaser: String
-  body: String!
+  body: String
+  advertiserId: String!
+  publishedAt: Date
 }
 
 input CreateStoryInput {

@@ -34,10 +34,17 @@ schema.pre('save', async function updateCampaigns() {
     // plugin will not fire properly otherwise.
     // As such, do not await the update.
     const Campaign = connection.model('campaign');
-    const docs = await Campaign.find({ advertiserId: this.id });
-    docs.forEach((doc) => {
-      doc.set('advertiserName', this.name);
-      doc.save();
+    const campaigns = await Campaign.find({ advertiserId: this.id });
+    campaigns.forEach((campaign) => {
+      campaign.set('advertiserName', this.name);
+      campaign.save();
+    });
+
+    const Story = connection.model('story');
+    const stories = await Story.find({ advertiserId: this.id });
+    stories.forEach((story) => {
+      story.set('advertiserName', this.name);
+      story.save();
     });
   }
 });

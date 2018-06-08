@@ -9,6 +9,7 @@ describe('elastic/models', function() {
       'placement',
       'contact',
       'template',
+      'story',
     ].sort();
     const names = models.map(Model => Model.modelName);
     expect(names.sort()).to.deep.equal(expected);
