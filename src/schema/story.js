@@ -1,5 +1,6 @@
 const { Schema } = require('mongoose');
 const connection = require('../mongoose');
+const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 
 const schema = new Schema({
   title: {
@@ -41,6 +42,10 @@ schema.pre('save', async function setAdvertiserName() {
     this.advertiserName = advertiser.name;
   }
 });
+
+setEntityFields(schema, 'title');
+setEntityFields(schema, 'advertiserName');
+applyElasticPlugin(schema, 'stories');
 
 schema.index({ advertiserId: 1 });
 schema.index({ title: 1, _id: 1 }, { unique: true });

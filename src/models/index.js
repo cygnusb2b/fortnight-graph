@@ -5,6 +5,7 @@ const Publisher = require('./publisher');
 const User = require('./user');
 const Contact = require('./contact');
 const Template = require('./template');
+const Story = require('./story');
 const AnalyticsRequest = require('./analytics/request');
 const AnalyticsLoad = require('./analytics/load');
 const AnalyticsView = require('./analytics/view');
@@ -20,6 +21,7 @@ module.exports = {
   User,
   Contact,
   Template,
+  Story,
   AnalyticsRequest,
   AnalyticsLoad,
   AnalyticsView,
