@@ -1,5 +1,5 @@
 const { Schema } = require('mongoose');
-const ImageSchema = require('./image');
+const imageSchema = require('../image');
 
 module.exports = new Schema({
   title: {
@@ -15,5 +15,5 @@ module.exports = new Schema({
     default: 'Active',
     enum: ['Draft', 'Active'],
   },
-  image: ImageSchema,
+  image: imageSchema,
 });
