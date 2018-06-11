@@ -1,5 +1,6 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const Advertiser = require('../../models/advertiser');
+const Story = require('../../models/story');
 const StoryRepo = require('../../repositories/story');
 
 module.exports = {
@@ -63,6 +64,7 @@ module.exports = {
       const { payload } = input;
       return StoryRepo.create(payload);
     },
+
     /**
      *
      */
@@ -70,6 +72,18 @@ module.exports = {
       auth.check();
       const { id, payload } = input;
       return StoryRepo.update(id, payload);
+    },
+
+    /**
+     *
+     */
+    primaryImageStory: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id, image } = input;
+      const story = await Story.findById(id);
+      if (!story) throw new Error(`Unable to set story primary image: no record was found for ID '${id}'`);
+      story.set('image', image);
+      return story.save();
     },
   },
 };
