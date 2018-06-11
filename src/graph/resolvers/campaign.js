@@ -31,6 +31,16 @@ module.exports = {
       const external = await ContactRepo.find({ _id: { $in: campaign.notify.external } });
       return { internal, external };
     },
+    internalLinks: (campaign) => {
+      const { SERVER_BASE_URL } = process.env;
+      const { hash } = campaign;
+      const links = [
+        { label: 'Material Collect', key: 'go-to/collect' },
+        { label: 'Report: Summary', key: 'go-to/report-summary' },
+        { label: 'Report: Creative Breakdown', key: 'go-to/report-creative-breakdown' },
+      ];
+      return links.map(({ label, key }) => ({ label, url: `${SERVER_BASE_URL}/${key}/${hash}` }));
+    },
   },
 
   CampaignCriteria: {

@@ -12,7 +12,7 @@ describe('routers/index', function() {
         routers.push({ path, router });
       }
     };
-    const expectedPaths = ['/graph', '/placement', '/go', '/redir', '/e'];
+    const expectedPaths = ['/graph', '/placement', '/go', '/redir', '/e', '/go-to'];
 
     loadRouters(app);
     expect(routers.length).to.equal(expectedPaths.length);
