@@ -38,6 +38,9 @@ const schema = new Schema({
   primaryImage: {
     type: imageSchema,
   },
+  images: {
+    type: [imageSchema],
+  },
 }, { timestamps: true });
 
 schema.pre('save', async function setAdvertiserName() {
