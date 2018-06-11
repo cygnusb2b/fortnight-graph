@@ -15,7 +15,9 @@ router.post('/embedded-image', upload.single('file'), (req, res) => {
   const { file } = req;
   const { key } = file;
 
-  const link = `${IMGIX_URL}/${encodeURIComponent(key)}?auto=format&fm=jpg`;
+  const [id, filename] = key.split('/');
+
+  const link = `${IMGIX_URL}/${id}/${encodeURIComponent(filename)}?auto=format&fm=jpg`;
   res.json({ link });
 });
 
