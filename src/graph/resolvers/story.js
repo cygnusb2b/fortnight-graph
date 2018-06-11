@@ -79,10 +79,10 @@ module.exports = {
      */
     primaryImageStory: async (root, { input }, { auth }) => {
       auth.check();
-      const { id, image } = input;
+      const { id, payload } = input;
       const story = await Story.findById(id);
       if (!story) throw new Error(`Unable to set story primary image: no record was found for ID '${id}'`);
-      story.set('image', image);
+      story.set('primaryImage', payload);
       return story.save();
     },
   },

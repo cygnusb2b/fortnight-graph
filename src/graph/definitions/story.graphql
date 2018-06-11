@@ -78,7 +78,7 @@ input UpdateStoryInput {
 
 input StoryPrimaryImageInput {
   id: String!
-  image: StoryImageInput!
+  payload: StoryImageInput
 }
 
 input StoryImageInput {
