@@ -2,6 +2,7 @@ const graph = require('./graph');
 const placement = require('./placement');
 const event = require('./event');
 const redir = require('./redir');
+const upload = require('./upload');
 const go = require('./go');
 
 module.exports = (app) => {
@@ -10,4 +11,5 @@ module.exports = (app) => {
   app.use('/e', event);
   app.use('/redir', redir);
   app.use('/go', go);
+  app.use('/upload', upload);
 };
