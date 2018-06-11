@@ -22,16 +22,17 @@ router.post('/embedded-image', upload.single('file'), asyncRoute(async (req, res
 
   const filePath = `${id}/${encodeURIComponent(filename)}`;
   const src = `${IMGIX_URL}/${filePath}`;
-  story.images.push({
+  const image = story.images.create({
     filePath,
     src,
     mimeType: mimetype,
     fileSize: size,
   });
+  story.images.push(image);
   await story.save();
 
   const link = `${src}?auto=format&fm=jpg`;
-  res.json({ link });
+  res.json({ link, storyId, imageId: image.id });
 }));
 
 module.exports = router;
