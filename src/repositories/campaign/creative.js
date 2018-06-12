@@ -85,7 +85,6 @@ module.exports = {
    * @param {object} payload
    */
   async updateImageFor(campaignId, creativeId, {
-    src,
     filePath,
     mimeType,
     fileSize,
@@ -98,7 +97,6 @@ module.exports = {
     if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
 
     creative.set('image', {
-      src,
       filePath,
       mimeType,
       fileSize,

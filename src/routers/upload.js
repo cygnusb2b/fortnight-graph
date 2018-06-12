@@ -8,7 +8,6 @@ const asyncRoute = require('../utils/async-route');
 const router = Router();
 router.use(helmet());
 
-const { IMGIX_URL } = process.env;
 const storage = ImageRepo.getMulterStorage();
 const upload = multer({ storage });
 
@@ -21,17 +20,15 @@ router.post('/embedded-image', upload.single('file'), asyncRoute(async (req, res
   const [id, filename] = key.split('/');
 
   const filePath = `${id}/${encodeURIComponent(filename)}`;
-  const src = `${IMGIX_URL}/${filePath}`;
   const image = story.images.create({
     filePath,
-    src,
     mimeType: mimetype,
     fileSize: size,
   });
   story.images.push(image);
   await story.save();
 
-  const link = `${src}?auto=format&fm=jpg`;
+  const link = `${image.src}?auto=format&fm=jpg`;
   res.json({ link, storyId, imageId: image.id });
 }));
 

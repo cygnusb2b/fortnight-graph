@@ -87,7 +87,6 @@ input StoryImageInput {
   height: Int
   width: Int
   fileSize: Int
-  src: String!
   mimeType: String
   focalPoint: ImageFocalPointInput
 }
