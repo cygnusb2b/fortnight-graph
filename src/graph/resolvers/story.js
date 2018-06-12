@@ -1,5 +1,6 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const Advertiser = require('../../models/advertiser');
+const Story = require('../../models/story');
 const StoryRepo = require('../../repositories/story');
 
 module.exports = {
@@ -61,15 +62,47 @@ module.exports = {
     createStory: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
-      return StoryRepo.create(payload);
+      return Story.create(payload);
     },
+
     /**
      *
      */
-    updateStory: (root, { input }, { auth }) => {
+    updateStory: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return StoryRepo.update(id, payload);
+      const story = await Story.findById(id);
+      if (!story) throw new Error(`Unable to update story: no record was found for ID '${id}'`);
+      story.set(payload);
+      return story.save();
+    },
+
+    /**
+     *
+     */
+    primaryImageStory: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id, payload } = input;
+      const story = await Story.findById(id);
+      if (!story) throw new Error(`Unable to set story primary image: no record was found for ID '${id}'`);
+      story.set('primaryImage', payload);
+      return story.save();
+    },
+
+    /**
+     *
+     */
+    storyImageDimensions: async (root, { input }, { auth }) => {
+      auth.check();
+      const { storyId, imageId, payload } = input;
+      const { width, height } = payload;
+      const story = await Story.findById(storyId);
+      if (!story) throw new Error(`Unable to set dimensions: no story was found for ID '${storyId}'`);
+      const image = story.images.id(imageId);
+      if (!image) throw new Error(`Unable to set dimensions: no image was found for ID '${imageId}'`);
+      image.set({ width, height });
+      await story.save();
+      return image;
     },
   },
 };

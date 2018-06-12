@@ -1,21 +1,10 @@
 const { Schema } = require('mongoose');
 const validator = require('validator');
-const FocalPointSchema = require('./image-focal-point');
+const FocalPointSchema = require('./focal-point');
 
-module.exports = new Schema({
-  src: {
-    type: String,
-    required: true,
-    trim: true,
-    validate: [
-      {
-        validator(value) {
-          return validator.isURL(value, { protocols: ['https'], require_protocol: true });
-        },
-        message: 'Invalid image source URL {VALUE}',
-      },
-    ],
-  },
+const { IMGIX_URL } = process.env;
+
+const schema = new Schema({
   filePath: {
     type: String,
     required: true,
@@ -45,3 +34,9 @@ module.exports = new Schema({
   },
   focalPoint: FocalPointSchema,
 });
+
+schema.virtual('src').get(function src() {
+  return `${IMGIX_URL}/${this.filePath}`;
+});
+
+module.exports = schema;

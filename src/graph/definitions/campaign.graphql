@@ -58,7 +58,7 @@ type CampaignCreative {
   title: String
   teaser: String
   status: CampaignCreativeStatus
-  image: CampaignCreativeImage
+  image: Image
 }
 
 enum CampaignCreativeStatus {
@@ -82,22 +82,6 @@ type KeyValues {
 type ExternalLink {
   label: String
   url: String!
-}
-
-type CampaignCreativeImage {
-  id: String!
-  src: String!
-  filePath: String!
-  mimeType: String
-  fileSize: Int
-  width: Int
-  height: Int
-  focalPoint: ImageFocalPoint
-}
-
-type ImageFocalPoint {
-  x: Float!
-  y: Float!
 }
 
 type CampaignConnection {
@@ -177,14 +161,8 @@ input CampaignCreativeImageInput {
   height: Int
   width: Int
   fileSize: Int
-  src: String!
   mimeType: String
   focalPoint: ImageFocalPointInput
-}
-
-input ImageFocalPointInput {
-  x: Float!
-  y: Float!
 }
 
 input AddCampaignCreativePayloadInput {

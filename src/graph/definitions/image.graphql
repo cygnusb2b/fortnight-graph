@@ -1,0 +1,20 @@
+type Image {
+  id: String!
+  src: String!
+  filePath: String!
+  mimeType: String
+  fileSize: Int
+  width: Int
+  height: Int
+  focalPoint: ImageFocalPoint
+}
+
+type ImageFocalPoint {
+  x: Float!
+  y: Float!
+}
+
+input ImageFocalPointInput {
+  x: Float!
+  y: Float!
+}

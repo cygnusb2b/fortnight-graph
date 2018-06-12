@@ -28,7 +28,7 @@ type CreativeSummary {
   id: String!
   title: String
   teaser: String
-  image: CampaignCreativeImage
+  image: Image
   views: Int!
   clicks: Int!
   ctr: Float!

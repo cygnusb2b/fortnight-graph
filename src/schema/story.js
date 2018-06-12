@@ -1,6 +1,7 @@
 const { Schema } = require('mongoose');
 const connection = require('../mongoose');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
+const imageSchema = require('./image');
 
 const schema = new Schema({
   title: {
@@ -33,6 +34,12 @@ const schema = new Schema({
   },
   publishedAt: {
     type: Date,
+  },
+  primaryImage: {
+    type: imageSchema,
+  },
+  images: {
+    type: [imageSchema],
   },
 }, { timestamps: true });
 
