@@ -62,16 +62,19 @@ module.exports = {
     createStory: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
-      return StoryRepo.create(payload);
+      return Story.create(payload);
     },
 
     /**
      *
      */
-    updateStory: (root, { input }, { auth }) => {
+    updateStory: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return StoryRepo.update(id, payload);
+      const story = await Story.findById(id);
+      if (!story) throw new Error(`Unable to update story: no record was found for ID '${id}'`);
+      story.set(payload);
+      return story.save();
     },
 
     /**
