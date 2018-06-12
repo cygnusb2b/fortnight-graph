@@ -90,31 +90,6 @@ describe('schema/campaign/creatives', function() {
     });
   });
 
-  describe('#creatives.image.src', function() {
-    let campaign;
-    beforeEach(function() {
-      campaign = generateCampaign(advertiser, placement);
-    });
-    it('should be trimmed.', function() {
-      return testTrimmedField(Campaign, campaign, 'creatives.0.image.src', {
-        value: '   https://www.google.com  ',
-        expected: 'https://www.google.com',
-        property: 'creatives[0].image.src',
-      });
-    });
-    ['', null, undefined].forEach((value) => {
-      it(`should be required and be rejected when the value is '${value}'`, function() {
-        return testRequiredField(Campaign, campaign, 'creatives.0.image.src', value);
-      });
-    });
-    ['foo.com', 'some value', 'http://www.foo.com', 'https://'].forEach((value) => {
-      it(`should be rejected when the value is '${value}'`, async function() {
-        campaign.set('creatives.0.image.src', value);
-        await expect(campaign.save()).to.be.rejectedWith(Error, /Invalid image source URL/);
-      });
-    });
-  });
-
   describe('#creatives.image.filePath', function() {
     let campaign;
     beforeEach(function() {
