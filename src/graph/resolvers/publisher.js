@@ -1,4 +1,5 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const Publisher = require('../../models/publisher');
 const PublisherRepo = require('../../repositories/publisher');
 
 module.exports = {
@@ -17,7 +18,7 @@ module.exports = {
     publisher: async (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      const record = await PublisherRepo.findById(id);
+      const record = await Publisher.findById(id);
       if (!record) throw new Error(`No publisher record found for ID ${id}.`);
       return record;
     },
@@ -57,16 +58,19 @@ module.exports = {
     createPublisher: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
-      return PublisherRepo.create(payload);
+      return Publisher.create(payload);
     },
 
     /**
      *
      */
-    updatePublisher: (root, { input }, { auth }) => {
+    updatePublisher: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return PublisherRepo.update(id, payload);
+      const publisher = await Publisher.findById(id);
+      if (!publisher) throw new Error(`Unable to update publisher: no record found for ID ${id}.`);
+      publisher.set(payload);
+      return publisher.save();
     },
   },
 };

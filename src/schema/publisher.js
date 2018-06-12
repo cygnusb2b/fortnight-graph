@@ -1,7 +1,7 @@
 const { Schema } = require('mongoose');
 const connection = require('../mongoose');
-const validator = require('validator');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
+const imageSchema = require('./image');
 
 const schema = new Schema({
   name: {
@@ -10,21 +10,7 @@ const schema = new Schema({
     trim: true,
     unique: true,
   },
-  logo: {
-    type: String,
-    required: false,
-    trim: true,
-    validate: {
-      validator(v) {
-        if (!v) return true;
-        return validator.isURL(v, {
-          protocols: ['https'],
-          require_protocol: true,
-        });
-      },
-      message: 'Invalid publisher logo URL for {VALUE}',
-    },
-  },
+  logo: imageSchema,
 }, { timestamps: true });
 
 schema.pre('save', async function updatePlacements() {
