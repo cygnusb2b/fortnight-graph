@@ -1,4 +1,5 @@
 const { Schema } = require('mongoose');
+const slug = require('slug');
 const connection = require('../mongoose');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const imageSchema = require('./image');
@@ -42,6 +43,10 @@ const schema = new Schema({
     type: [imageSchema],
   },
 }, { timestamps: true });
+
+schema.virtual('slug').get(function getSlug() {
+  return slug(this.title);
+});
 
 schema.pre('save', async function setAdvertiserName() {
   if (this.isModified('advertiserId') || !this.advertiserName) {
