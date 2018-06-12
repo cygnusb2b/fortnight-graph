@@ -85,5 +85,21 @@ module.exports = {
       story.set('primaryImage', payload);
       return story.save();
     },
+
+    /**
+     *
+     */
+    storyImageDimensions: async (root, { input }, { auth }) => {
+      auth.check();
+      const { storyId, imageId, payload } = input;
+      const { width, height } = payload;
+      const story = await Story.findById(storyId);
+      if (!story) throw new Error(`Unable to set dimensions: no story was found for ID '${storyId}'`);
+      const image = story.images.id(imageId);
+      if (!image) throw new Error(`Unable to set dimensions: no image was found for ID '${imageId}'`);
+      image.set({ width, height });
+      await story.save();
+      return image;
+    },
   },
 };

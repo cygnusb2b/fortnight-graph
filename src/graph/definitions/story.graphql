@@ -9,6 +9,7 @@ type Mutation {
   createStory(input: CreateStoryInput!): Story!
   updateStory(input: UpdateStoryInput!): Story!
   primaryImageStory(input: StoryPrimaryImageInput!): Story!
+  storyImageDimensions(input: StoryImageDimensionsInput!): Image!
 }
 
 enum StorySortField {
@@ -89,4 +90,15 @@ input StoryImageInput {
   src: String!
   mimeType: String
   focalPoint: ImageFocalPointInput
+}
+
+input StoryImageDimensionsInput {
+  storyId: String!
+  imageId: String!
+  payload: StoryImageDimensionsPayload!
+}
+
+input StoryImageDimensionsPayload {
+  width: Int!
+  height: Int!
 }
