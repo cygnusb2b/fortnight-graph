@@ -42,7 +42,7 @@ imagePlugin(schema, { fieldName: 'primaryImageId' });
 imagePlugin(schema, { fieldName: 'imageIds', multiple: true });
 
 schema.virtual('slug').get(function getSlug() {
-  return slug(this.title);
+  return slug(this.title).toLowerCase();
 });
 
 schema.pre('save', async function setAdvertiserName() {
