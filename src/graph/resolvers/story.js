@@ -20,8 +20,7 @@ module.exports = {
     /**
      *
      */
-    story: async (root, { input }, { auth }) => {
-      auth.check();
+    story: async (root, { input }) => {
       const { id } = input;
       const record = await StoryRepo.findById(id);
       if (!record) throw new Error(`No story record found for ID ${id}.`);
@@ -31,26 +30,18 @@ module.exports = {
     /**
      *
      */
-    allStories: (root, { pagination, sort }, { auth }) => {
-      auth.check();
-      return StoryRepo.paginate({ pagination, sort });
-    },
+    allStories: (root, { pagination, sort }) => StoryRepo.paginate({ pagination, sort }),
 
     /**
      *
      */
-    searchStories: (root, { pagination, phrase }, { auth }) => {
-      auth.check();
-      return StoryRepo.search(phrase, { pagination });
-    },
+    searchStories: (root, { pagination, phrase }) => StoryRepo.search(phrase, { pagination }),
 
     /**
      *
      */
-    autocompleteStories: async (root, { pagination, phrase }, { auth }) => {
-      auth.check();
-      return StoryRepo.autocomplete(phrase, { pagination });
-    },
+    autocompleteStories: async (root, { pagination, phrase }) => StoryRepo
+      .autocomplete(phrase, { pagination }),
   },
   /**
    *
