@@ -1,6 +1,5 @@
 const deepAssign = require('deep-assign');
 const { DateType, CursorType } = require('@limit0/graphql-custom-types');
-const ImageRepo = require('../../repositories/image');
 
 const advertiser = require('./advertiser');
 const campaign = require('./campaign');
@@ -37,14 +36,6 @@ module.exports = deepAssign(
        *
        */
       ping: () => 'pong',
-
-      /**
-       *
-       */
-      signImageUpload: (root, { input }) => {
-        const { name, type } = input;
-        return ImageRepo.signUpload(name, type);
-      },
     },
   },
 );

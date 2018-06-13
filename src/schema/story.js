@@ -2,7 +2,7 @@ const { Schema } = require('mongoose');
 const slug = require('slug');
 const connection = require('../mongoose');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
-const imageSchema = require('./image');
+const imagePlugin = require('../plugins/image');
 
 const schema = new Schema({
   title: {
@@ -36,13 +36,10 @@ const schema = new Schema({
   publishedAt: {
     type: Date,
   },
-  primaryImage: {
-    type: imageSchema,
-  },
-  images: {
-    type: [imageSchema],
-  },
 }, { timestamps: true });
+
+imagePlugin(schema, { fieldName: 'primaryImageId' });
+imagePlugin(schema, { fieldName: 'imageIds', multiple: true });
 
 schema.virtual('slug').get(function getSlug() {
   return slug(this.title);
