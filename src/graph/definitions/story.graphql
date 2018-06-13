@@ -8,8 +8,8 @@ type Query {
 type Mutation {
   createStory(input: CreateStoryInput!): Story!
   updateStory(input: UpdateStoryInput!): Story!
-  primaryImageStory(input: StoryPrimaryImageInput!): Story!
-  storyImageDimensions(input: StoryImageDimensionsInput!): Image!
+  removeStoryImage(storyId: String!, imageId: String!): Story!
+  addStoryImage(storyId: String!, imageId: String!): Story!
 }
 
 enum StorySortField {
@@ -28,6 +28,7 @@ type Story {
   body: String
   publishedAt: Date
   primaryImage: Image
+  images: [Image]
   createdAt: Date
   updatedAt: Date
 }
@@ -76,29 +77,4 @@ input CreateStoryInput {
 input UpdateStoryInput {
   id: String!
   payload: StoryPayloadInput!
-}
-
-input StoryPrimaryImageInput {
-  id: String!
-  payload: StoryImageInput
-}
-
-input StoryImageInput {
-  filePath: String!
-  height: Int
-  width: Int
-  fileSize: Int
-  mimeType: String
-  focalPoint: ImageFocalPointInput
-}
-
-input StoryImageDimensionsInput {
-  storyId: String!
-  imageId: String!
-  payload: StoryImageDimensionsPayload!
-}
-
-input StoryImageDimensionsPayload {
-  width: Int!
-  height: Int!
 }

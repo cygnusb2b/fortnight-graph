@@ -3,24 +3,26 @@ const { DateType, CursorType } = require('@limit0/graphql-custom-types');
 
 const advertiser = require('./advertiser');
 const campaign = require('./campaign');
-const user = require('./user');
-const template = require('./template');
-const publisher = require('./publisher');
-const placement = require('./placement');
 const contact = require('./contact');
+const image = require('./image');
+const placement = require('./placement');
+const publisher = require('./publisher');
 const report = require('./report');
 const story = require('./story');
+const template = require('./template');
+const user = require('./user');
 
 module.exports = deepAssign(
   advertiser,
   campaign,
-  user,
-  template,
-  publisher,
-  placement,
   contact,
+  image,
+  placement,
+  publisher,
   report,
   story,
+  template,
+  user,
   {
     /**
      *
