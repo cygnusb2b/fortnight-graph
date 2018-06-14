@@ -92,5 +92,16 @@ module.exports = {
       story.addImageId(imageId);
       return story.save();
     },
+
+    /**
+     *
+     */
+    storyPrimaryImage: async (root, { storyId, imageId }, { auth }) => {
+      auth.check();
+      const story = await Story.findById(storyId);
+      if (!story) throw new Error(`Unable to set primary image: no story was found for ID '${storyId}'`);
+      story.primaryImageId = imageId || undefined;
+      return story.save();
+    },
   },
 };
