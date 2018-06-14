@@ -31,12 +31,18 @@ const uploadToS3 = (req, file, image) => new Promise((resolve, reject) => {
 
 class DatabaseStorage {
   async _handleFile(req, file, cb) {
-    const { originalname, mimetype } = file;
     try {
-      const image = await Image.create({
+      const { width, height } = req.body;
+      const { originalname, mimetype } = file;
+
+      const payload = {
         filename: originalname,
         mimeType: mimetype,
-      });
+      };
+      if (width) payload.width = width;
+      if (height) payload.height = height;
+
+      const image = await Image.create(payload);
       const result = await uploadToS3(req, file, image);
       const { size, location, bucket } = result;
 
