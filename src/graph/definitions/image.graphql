@@ -1,5 +1,6 @@
 type Mutation {
   imageDimensions(input: ImageDimensionsInput!): Image!
+  imageFocalPoint(input: ImageFocalPointInput!): Image!
 }
 
 type Image {
@@ -20,6 +21,7 @@ type ImageFocalPoint {
 }
 
 input ImageFocalPointInput {
+  id: String!
   x: Float!
   y: Float!
 }

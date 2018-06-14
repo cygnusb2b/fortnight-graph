@@ -16,5 +16,19 @@ module.exports = {
       image.set({ width, height });
       return image.save();
     },
+
+    /**
+     *
+     */
+    imageFocalPoint: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id, x, y } = input;
+      const image = await Image.findById(id);
+      if (!image) throw new Error(`Unable to set image focal point: no record was found for ID '${id}'`);
+      image.set({
+        focalPoint: { x, y },
+      });
+      return image.save();
+    },
   },
 };
