@@ -1,6 +1,5 @@
 require('../../connections');
 const { graphql } = require('./utils');
-const ImageRepo = require('../../../src/repositories/image');
 const sandbox = sinon.createSandbox();
 
 describe('graph/resolvers', function() {
