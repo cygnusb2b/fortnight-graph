@@ -7,6 +7,7 @@ const CreativeRepo = require('../../repositories/campaign/creative');
 const CriteriaRepo = require('../../repositories/campaign/criteria');
 const ContactRepo = require('../../repositories/contact');
 const Campaign = require('../../models/campaign');
+const Image = require('../../models/image');
 const contactNotifier = require('../../services/contact-notifier');
 
 const getNotifyDefaults = async (advertiserId, user) => {
@@ -35,6 +36,10 @@ module.exports = {
 
   CampaignCriteria: {
     placements: criteria => PlacementRepo.find({ _id: criteria.get('placementIds') }),
+  },
+
+  CampaignCreative: {
+    image: creative => Image.findById(creative.imageId),
   },
 
   /**

@@ -156,20 +156,21 @@ input AddCampaignCreativeInput {
   payload: AddCampaignCreativePayloadInput
 }
 
-input CampaignCreativeImageInput {
-  filePath: String!
-  height: Int
-  width: Int
-  fileSize: Int
-  mimeType: String
-  focalPoint: ImageFocalPointInput
-}
+# input CampaignCreativeImageInput {
+#   filePath: String!
+#   height: Int
+#   width: Int
+#   fileSize: Int
+#   mimeType: String
+#   focalPoint: ImageFocalPointInput
+# }
 
 input AddCampaignCreativePayloadInput {
   title: String
   teaser: String
   status: CampaignCreativeStatus
-  image: CampaignCreativeImageInput
+  imageId: String
+  # image: CampaignCreativeImageInput
 }
 
 input RemoveCampaignCreativeInput {
@@ -198,7 +199,8 @@ input UpdateCampaignCreativeDetailsPayloadInput {
 input UpdateCampaignCreativeImageInput {
   campaignId: String!
   creativeId: String!
-  payload: CampaignCreativeImageInput!
+  imageId: String
+  # payload: CampaignCreativeImageInput!
 }
 
 input CampaignCreativeStatusInput {
@@ -211,14 +213,16 @@ input ClientUpdateCampaignCreativeInput {
   id: String!
   title: String
   teaser: String
-  image: CampaignCreativeImageInput
+  imageId: String
+  # image: CampaignCreativeImageInput
 }
 
 input UpdateCampaignCreativePayloadInput {
   title: String
   teaser: String
   status: CampaignCreativeStatus
-  image: CampaignCreativeImageInput
+  imageId: String
+  # image: CampaignCreativeImageInput
 }
 
 input KeyValuesPayloadInput {

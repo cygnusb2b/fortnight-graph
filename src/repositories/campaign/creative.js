@@ -17,7 +17,7 @@ module.exports = {
   async createFor(campaignId, {
     title,
     teaser,
-    image,
+    imageId,
     status,
   } = {}) {
     const campaign = await findCampaign(campaignId);
@@ -25,7 +25,7 @@ module.exports = {
     creatives.push({
       title,
       teaser,
-      image,
+      imageId,
       status,
     });
 
