@@ -1,8 +1,7 @@
 const faker = require('faker');
-const image = require('./image');
 
-module.exports = () => ({
+module.exports = ({ imageId }) => ({
   title: faker.company.catchPhrase(),
   teaser: faker.lorem.sentences(),
-  image: image(),
+  imageId: imageId(),
 });

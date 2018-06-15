@@ -12,7 +12,7 @@ module.exports = ({
     const stack = [];
     const num = faker.random.number({ min: 1, max: 5 });
     for (let i = 0; i < num; i += 1) {
-      stack.push(creative());
+      stack.push(creative({ imageId: () => undefined }));
     }
     return stack;
   };
