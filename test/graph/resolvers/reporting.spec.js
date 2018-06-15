@@ -189,19 +189,6 @@ describe('graph/resolvers/reporting', function() {
               id
               title
               teaser
-              image {
-                id
-                src
-                filePath
-                mimeType
-                fileSize
-                width
-                height
-                focalPoint {
-                  x
-                  y
-                }
-              }
               views
               clicks
               ctr

@@ -299,7 +299,7 @@ describe('graph/resolvers/publisher', function() {
         const id = '507f1f77bcf86cd799439011'
         const input = { id, payload };
         const variables = { input };
-        await expect(graphql({ query, variables, key: 'updatePublisher', loggedIn: true })).to.be.rejectedWith(Error, `Unable to update publisher: no record was found for ID '${id}'`);
+        await expect(graphql({ query, variables, key: 'updatePublisher', loggedIn: true })).to.be.rejectedWith(Error, `Unable to update publisher: no record found for ID ${id}`);
       });
       it('should update the publisher.', async function() {
         const id = publisher.id;

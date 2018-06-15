@@ -19,7 +19,7 @@ enum PublisherSortField {
 type Publisher {
   id: String!
   name: String!
-  logo: Image
+  logo: String
   updatedAt: Date
   createdAt: Date
 }
@@ -55,7 +55,7 @@ input PublisherSortInput {
 
 input PublisherPayloadInput {
   name: String!
-  logo: PublisherLogoInput
+  logo: String
 }
 
 input CreatePublisherInput {
@@ -66,13 +66,3 @@ input UpdatePublisherInput {
   id: String!
   payload: PublisherPayloadInput!
 }
-
-input PublisherLogoInput {
-  filePath: String!
-  height: Int
-  width: Int
-  fileSize: Int
-  mimeType: String
-}
-
-
