@@ -128,61 +128,17 @@ module.exports = {
     /**
      *
      */
+    campaignCriteria: async (root, { input }, { auth }) => {
+      auth.check();
+      const { campaignId, payload } = input;
+      return CriteriaRepo.setFor(campaignId, payload);
+    },
+
+    /**
+     *
+     */
     addCampaignCreative: (root, { input }, { auth }) => {
       auth.check();
-      const { campaignId, payload } = input;
-      return CreativeRepo.createFor(campaignId, payload);
-    },
-
-    /**
-     *
-     */
-    updateCampaignCreative: async (root, { input }, { auth }) => {
-      auth.check();
-      const { campaignId, creativeId, payload } = input;
-      return CreativeRepo.updateFor(campaignId, creativeId, payload);
-    },
-
-    /**
-     *
-     */
-    updateCampaignCreativeDetails: async (root, { input }, { auth }) => {
-      auth.check();
-      const { campaignId, creativeId, payload } = input;
-      const { title, teaser, status } = payload;
-      return CreativeRepo.updateDetailsFor(campaignId, creativeId, { title, teaser, status });
-    },
-
-    /**
-     *
-     */
-    updateCampaignCreativeImage: async (root, { input }, { auth }) => {
-      auth.check();
-      const { campaignId, creativeId, payload } = input;
-      return CreativeRepo.updateImageFor(campaignId, creativeId, payload);
-    },
-
-    /**
-     *
-     */
-    campaignCreativeStatus: async (root, { input }, { auth }) => {
-      auth.check();
-      const { campaignId, creativeId, status } = input;
-      return CreativeRepo.setStatusFor(campaignId, creativeId, status);
-    },
-
-    /**
-     *
-     */
-    clientUpdateCampaign: async (root, { input }) => {
-      const { campaignId, payload } = input;
-      return ClientRepo.updateFor(campaignId, payload);
-    },
-
-    /**
-     *
-     */
-    clientAddCampaignCreative: (root, { input }) => {
       const { campaignId, payload } = input;
       return CreativeRepo.createFor(campaignId, payload);
     },
@@ -200,34 +156,36 @@ module.exports = {
     /**
      *
      */
-    setCampaignCriteria: async (root, { input }, { auth }) => {
+    campaignCreativeStatus: async (root, { input }, { auth }) => {
       auth.check();
-      const { campaignId, payload } = input;
-      return CriteriaRepo.setFor(campaignId, payload);
+      const { campaignId, creativeId, status } = input;
+      return CreativeRepo.setStatusFor(campaignId, creativeId, status);
     },
 
     /**
      *
      */
-    addCampaignContact: (root, { input }, { auth }) => {
+    campaignCreativeDetails: async (root, { input }, { auth }) => {
       auth.check();
-      const { id, type, contactId } = input;
-      return ContactRepo.addContactTo(Campaign, id, type, contactId);
+      const { campaignId, creativeId, payload } = input;
+      const { title, teaser, status } = payload;
+      return CreativeRepo.updateDetailsFor(campaignId, creativeId, { title, teaser, status });
     },
 
     /**
      *
      */
-    removeCampaignContact: (root, { input }, { auth }) => {
+    campaignCreativeImage: async (root, { input }, { auth }) => {
       auth.check();
-      const { id, type, contactId } = input;
-      return ContactRepo.removeContactFrom(Campaign, id, type, contactId);
+      const { campaignId, creativeId, imageId } = input;
+      throw new Error('implement me!');
+      // return CreativeRepo.updateImageFor(campaignId, creativeId, payload);
     },
 
     /**
      *
      */
-    setCampaignContacts: (root, { input }, { auth }) => {
+    campaignContacts: (root, { input }, { auth }) => {
       auth.check();
       const { id, type, contactIds } = input;
       return ContactRepo.setContactsFor(Campaign, id, type, contactIds);
