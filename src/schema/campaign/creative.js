@@ -1,7 +1,7 @@
 const { Schema } = require('mongoose');
-const imageSchema = require('../image');
+const imagePlugin = require('../../plugins/image');
 
-module.exports = new Schema({
+const schema = new Schema({
   title: {
     type: String,
     trim: true,
@@ -15,5 +15,8 @@ module.exports = new Schema({
     default: 'Active',
     enum: ['Draft', 'Active'],
   },
-  image: imageSchema,
 });
+
+imagePlugin(schema, { fieldName: 'imageId' });
+
+module.exports = schema;
