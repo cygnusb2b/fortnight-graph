@@ -2,7 +2,6 @@ const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const AdvertiserRepo = require('../../repositories/advertiser');
 const PlacementRepo = require('../../repositories/placement');
 const CampaignRepo = require('../../repositories/campaign');
-const ClientRepo = require('../../repositories/campaign/client');
 const CreativeRepo = require('../../repositories/campaign/creative');
 const CriteriaRepo = require('../../repositories/campaign/criteria');
 const ContactRepo = require('../../repositories/contact');
@@ -76,7 +75,7 @@ module.exports = {
      */
     campaignHash: async (root, { input }) => {
       const { hash } = input;
-      const record = await ClientRepo.findByHash(hash);
+      const record = await CampaignRepo.findByHash(hash);
       if (!record) throw new Error(`No campaign record found for hash ${hash}.`);
       return record;
     },
@@ -178,8 +177,7 @@ module.exports = {
     campaignCreativeImage: async (root, { input }, { auth }) => {
       auth.check();
       const { campaignId, creativeId, imageId } = input;
-      throw new Error('implement me!');
-      // return CreativeRepo.updateImageFor(campaignId, creativeId, payload);
+      return CreativeRepo.updateImageFor(campaignId, creativeId, imageId);
     },
 
     /**
