@@ -3,6 +3,7 @@ require('../connections');
 const ContactNotifier = require('../../src/services/contact-notifier');
 const CampaignRepo = require('../../src/repositories/campaign');
 const ContactRepo = require('../../src/repositories/contact');
+const accountService = require('../../src/services/account');
 const sandbox = sinon.createSandbox();
 
 const createCampaign = async () => {
@@ -60,7 +61,6 @@ describe('services/contact-notifier', function() {
     before(function() {
       key = process.env.SENDGRID_API_KEY;
       from = process.env.SENDGRID_FROM;
-      bcc = process.env.SENDGRID_BCC;
     })
     beforeEach(function() {
       sandbox.stub(sgMail, 'setApiKey').resolves();
@@ -69,7 +69,6 @@ describe('services/contact-notifier', function() {
     afterEach(function() {
       process.env.SENDGRID_API_KEY = key;
       process.env.SENDGRID_FROM = from;
-      process.env.SENDGRID_BCC = bcc;
       sandbox.restore();
     })
 
@@ -89,13 +88,22 @@ describe('services/contact-notifier', function() {
       const args = await ContactNotifier.send({ from: testValue });
       expect(args.from).to.equal(testValue);
     });
-    it('should set BCC if present in env', async function() {
-      const testValue = 'bcc@test.com';
-      process.env.SENDGRID_BCC = testValue;
-      sgMail.send.restore();
-      sandbox.stub(sgMail, 'send').returnsArg(0);
-      const args = await ContactNotifier.send({ bcc: testValue });
-      expect(args.bcc).to.equal(testValue);
+    it('should set BCC if present.', async function() {
+      process.env.SENDGRID_FROM = from;
+      const payload = {
+        to: 'foo@bar.com',
+        subject: 'Test subject',
+        html: 'Hello world',
+      };
+      const account = await accountService.retrieve();
+      await ContactNotifier.send(payload);
+      sandbox.assert.calledWith(sgMail.send, {
+        to: 'foo@bar.com',
+        bcc: account.settings.bcc,
+        from: process.env.SENDGRID_FROM,
+        subject: 'Test subject',
+        html: 'Hello world',
+      });
     });
   });
 
