@@ -1,3 +1,4 @@
+const objectPath = require('object-path');
 const Account = require('../models/account');
 
 let promise;
@@ -18,6 +19,17 @@ module.exports = {
       promise = run();
     }
     return promise;
+  },
+
+  /**
+   * Retrieves an account setting.
+   *
+   * @param {string} path A dot-notated object path/key.
+   */
+  async setting(path) {
+    const account = await this.retrieve();
+    const { settings } = account;
+    return objectPath.get(settings, path);
   },
 
   /**
