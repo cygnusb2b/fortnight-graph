@@ -50,6 +50,7 @@
     "bcrypt": "^1.0.3",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
     "crawler-user-agents": "https://github.com/monperrus/crawler-user-agents.git#master",
     "deep-assign": "^2.0.0",
     "deepmerge": "^2.1.0",
