@@ -42,7 +42,10 @@ describe('graph/resolvers/advertiser', function() {
           advertiser(input: $input) {
             id
             name
-            logo
+            logo {
+              id
+              src
+            }
             createdAt
             updatedAt
             campaigns {
@@ -252,7 +255,10 @@ describe('graph/resolvers/advertiser', function() {
           createAdvertiser(input: $input) {
             id
             name
-            logo
+            logo {
+              id
+              src
+            }
             createdAt
             updatedAt
             campaigns {
@@ -292,7 +298,10 @@ describe('graph/resolvers/advertiser', function() {
           updateAdvertiser(input: $input) {
             id
             name
-            logo
+            logo {
+              id
+              src
+            }
             createdAt
             updatedAt
             campaigns {

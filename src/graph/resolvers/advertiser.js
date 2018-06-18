@@ -3,6 +3,7 @@ const CampaignRepo = require('../../repositories/campaign');
 const AdvertiserRepo = require('../../repositories/advertiser');
 const ContactRepo = require('../../repositories/contact');
 const Advertiser = require('../../models/advertiser');
+const Image = require('../../models/image');
 
 module.exports = {
   /**
@@ -16,6 +17,7 @@ module.exports = {
       const external = await ContactRepo.find({ _id: { $in: advertiser.notify.external } });
       return { internal, external };
     },
+    logo: advertiser => Image.findById(advertiser.logoImageId),
   },
 
   /**
@@ -83,6 +85,18 @@ module.exports = {
       auth.check();
       const { id, payload } = input;
       return AdvertiserRepo.update(id, payload);
+    },
+
+    /**
+     *
+     */
+    advertiserLogo: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id, imageId } = input;
+      const advertiser = await Advertiser.findById(id);
+      if (!advertiser) throw new Error(`Unable to set advertiser logo: no record found for ID ${id}.`);
+      advertiser.logoImageId = imageId;
+      return advertiser.save();
     },
 
     /**

@@ -1,8 +1,8 @@
 const { Schema } = require('mongoose');
 const connection = require('../mongoose');
 const notifyPlugin = require('../plugins/notify');
-const validator = require('validator');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
+const imagePlugin = require('../plugins/image');
 
 const schema = new Schema({
   name: {
@@ -11,22 +11,9 @@ const schema = new Schema({
     trim: true,
     unique: true,
   },
-  logo: {
-    type: String,
-    required: false,
-    trim: true,
-    validate: {
-      validator(v) {
-        if (!v) return true;
-        return validator.isURL(v, {
-          protocols: ['https'],
-          require_protocol: true,
-        });
-      },
-      message: 'Invalid advertiser logo URL for {VALUE}',
-    },
-  },
 }, { timestamps: true });
+
+imagePlugin(schema, { fieldName: 'logoImageId' });
 
 schema.pre('save', async function updateCampaigns() {
   if (this.isModified('name')) {

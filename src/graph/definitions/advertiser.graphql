@@ -8,6 +8,8 @@ type Query {
 type Mutation {
   createAdvertiser(input: CreateAdvertiserInput!): Advertiser!
   updateAdvertiser(input: UpdateAdvertiserInput!): Advertiser!
+  advertiserLogo(input: AdvertiserLogoInput!): Advertiser!
+
   addAdvertiserContact(input: AddContactInput!): Advertiser!
   removeAdvertiserContact(input: RemoveContactInput!): Advertiser!
   setAdvertiserContacts(input: SetContactsInput!): Advertiser!
@@ -22,7 +24,7 @@ enum AdvertiserSortField {
 type Advertiser {
   id: String!
   name: String!
-  logo: String
+  logo: Image
   createdAt: Date
   updatedAt: Date
   campaigns: [Campaign]
@@ -61,7 +63,6 @@ input AdvertiserSortInput {
 
 input AdvertiserPayloadInput {
   name: String!
-  logo: String
 }
 
 input CreateAdvertiserInput {
@@ -71,4 +72,9 @@ input CreateAdvertiserInput {
 input UpdateAdvertiserInput {
   id: String!
   payload: AdvertiserPayloadInput!
+}
+
+input AdvertiserLogoInput {
+  id: String!
+  imageId: String
 }
