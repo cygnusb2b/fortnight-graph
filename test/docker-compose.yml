@@ -13,7 +13,8 @@ services:
     entrypoint: yarn run test:run
     environment:
       NODE_ENV: test
-      MONGO_DSN: mongodb://mongo:27017/fortnight
+      MONGO_CORE_DSN: mongodb://mongo:27017/fortnight
+      MONGO_INSTANCE_DSN: mongodb://mongo:27017/fortnight-account
       REDIS_DSN: redis://redis:6379/0
       ELASTIC_HOST: http://elasticsearch:9200
       ELASTIC_INDEX_PREFIX: fortnight

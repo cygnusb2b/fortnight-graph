@@ -11,5 +11,5 @@ const connection = mongoose.createConnection(MONGO_INSTANCE_DSN, {
   ignoreUndefined: true,
   promiseLibrary: bluebird,
 });
-connection.once('open', () => output.write(`🛢️ 🛢️ 🛢️ Successful INSTANCE MongoDB connection to '${MONGO_DSN}'`));
+connection.once('open', () => output.write(`🛢️ 🛢️ 🛢️ Successful INSTANCE MongoDB connection to '${MONGO_INSTANCE_DSN}'`));
 module.exports = connection;
