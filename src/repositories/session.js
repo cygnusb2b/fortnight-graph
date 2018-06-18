@@ -3,17 +3,29 @@ const jwt = require('jsonwebtoken');
 const uuidv4 = require('uuid/v4');
 const uuidv5 = require('uuid/v5');
 const bcrypt = require('bcrypt');
+const accountService = require('../services/account');
 const redis = require('../redis');
 
-const { SESSION_GLOBAL_SECRET, SESSION_NAMESPACE, SESSION_EXPIRATION } = process.env;
+const getSettings = async () => {
+  const account = await accountService.retrieve();
+  const { settings } = account;
+  const { session } = settings || {};
+  const { globalSecret, namespace, expiration } = session || {};
+  if (!globalSecret || !namespace || !expiration) {
+    throw new Error('The account session settings are invalid!');
+  }
+  return { globalSecret, namespace, expiration };
+};
 
-function createSessionId({ uid, ts }) {
-  return uuidv5(`${uid}.${ts}`, SESSION_NAMESPACE);
-}
+const createSessionId = async ({ uid, ts }) => {
+  const { namespace } = await getSettings();
+  return uuidv5(`${uid}.${ts}`, namespace);
+};
 
-function createSecret({ userSecret }) {
-  return `${userSecret}.${SESSION_GLOBAL_SECRET}`;
-}
+const createSecret = async ({ userSecret }) => {
+  const { globalSecret } = await getSettings();
+  return `${userSecret}.${globalSecret}`;
+};
 
 module.exports = {
   getClient() {
@@ -27,9 +39,12 @@ module.exports = {
    * @param {string} params.uid
    * @return {Promise}
    */
-  delete({ id, uid }) {
-    const delSession = this.getClient().delAsync(this.prefixSessionId(id));
-    const removeId = this.getClient().sremAsync(this.prefixUserId(uid), id);
+  async delete({ id, uid }) {
+    const sessionPrefix = await this.prefixSessionId(id);
+    const userPrefix = await this.prefixUserId(uid);
+
+    const delSession = this.getClient().delAsync(sessionPrefix);
+    const removeId = this.getClient().sremAsync(userPrefix, id);
     return Promise.join(delSession, removeId);
   },
 
@@ -42,13 +57,14 @@ module.exports = {
     if (!token) throw new Error('Unable to get session: no token was provided.');
     const parsed = await jwt.decode(token, { complete: true, force: true });
     if (!parsed) throw new Error('Unable to get session: invalid token format.');
-    const result = await this.getClient().getAsync(this.prefixSessionId(parsed.payload.jti));
+    const sessionPrefix = await this.prefixSessionId(parsed.payload.jti);
+    const result = await this.getClient().getAsync(sessionPrefix);
 
     if (!result) throw new Error('Unable to get session: no token found in storage.');
 
     const session = Object(JSON.parse(result));
-    const sid = createSessionId(session);
-    const secret = createSecret({ userSecret: session.s });
+    const sid = await createSessionId(session);
+    const secret = await createSecret({ userSecret: session.s });
     const verified = jwt.verify(token, secret, { jwtid: sid, algorithms: ['HS256'] });
 
     // Return the public session.
@@ -74,11 +90,12 @@ module.exports = {
     const iat = Math.floor(now.valueOf() / 1000);
 
     const userSecret = await bcrypt.hash(uuidv4(), 5);
+    const { expiration } = await getSettings();
 
     const ts = now.valueOf();
-    const sid = createSessionId({ uid, ts });
-    const exp = iat + Number(SESSION_EXPIRATION);
-    const secret = createSecret({ userSecret });
+    const sid = await createSessionId({ uid, ts });
+    const exp = iat + Number(expiration);
+    const secret = await createSecret({ userSecret });
     const token = jwt.sign({ jti: sid, exp, iat }, secret);
 
     const payload = JSON.stringify({
@@ -87,11 +104,12 @@ module.exports = {
       uid,
       s: userSecret,
     });
-    await this.getClient().setexAsync(this.prefixSessionId(sid), SESSION_EXPIRATION, payload);
+    const sessionPrefix = await this.prefixSessionId(sid);
+    await this.getClient().setexAsync(sessionPrefix, expiration, payload);
 
-    const memberKey = this.prefixUserId(uid);
+    const memberKey = await this.prefixUserId(uid);
     const addUserId = this.getClient().saddAsync(memberKey, sid);
-    const updateExpires = this.getClient().expireAsync(memberKey, SESSION_EXPIRATION);
+    const updateExpires = this.getClient().expireAsync(memberKey, expiration);
     await Promise.join(addUserId, updateExpires);
 
     // Return the public session.
@@ -104,12 +122,14 @@ module.exports = {
     };
   },
 
-  prefixSessionId(id) {
-    return `session:id:${id}`;
+  async prefixSessionId(id) {
+    const { key } = await accountService.retrieve();
+    return `session:${key}:id:${id}`;
   },
 
-  prefixUserId(uid) {
-    return `session:uid:${uid}`;
+  async prefixUserId(uid) {
+    const { key } = await accountService.retrieve();
+    return `session:${key}:uid:${uid}`;
   },
 
 };
