@@ -1,4 +1,4 @@
-const mongoose = require('../src/mongoose');
+const mongoose = require('../src/connections/mongoose');
 const redis = require('../src/redis');
 const models = require('../src/models');
 const elastic = require('../src/elastic');
@@ -18,8 +18,12 @@ const indexes = Promise.all(Object.keys(models).map(name => index(models[name]))
 
 const connect = () => Promise.all([
   new Promise((resolve, reject) => {
-    mongoose.on('connected', resolve);
-    mongoose.on('error', reject);
+    mongoose.core.on('connected', resolve);
+    mongoose.core.on('error', reject);
+  }),
+  new Promise((resolve, reject) => {
+    mongoose.instance.on('connected', resolve);
+    mongoose.instance.on('error', reject);
   }),
   new Promise((resolve, reject) => {
     redis.on('connect', () => {
@@ -36,10 +40,10 @@ const connect = () => Promise.all([
 
 const disconnect = () => Promise.all([
   new Promise((resolve, reject) => {
-    mongoose.on('disconnected', resolve);
-    mongoose.close((err) => {
-      if (err) reject(err);
-    });
+    mongoose.core.on('disconnected', resolve);
+  }),
+  new Promise((resolve, reject) => {
+    mongoose.instance.on('disconnected', resolve);
   }),
   new Promise((resolve, reject) => {
     redis.on('end', () => {
