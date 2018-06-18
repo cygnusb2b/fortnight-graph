@@ -5,23 +5,14 @@ const uuidv5 = require('uuid/v5');
 const bcrypt = require('bcrypt');
 const redis = require('../redis');
 
-const SETTINGS = {
-  // @todo Rotate the global secrets?
-  globalSecret: '$2a$12$f6y.1RLxgHO/G8TU84rN/OnTwUiozKoih/nkf5BnXi75SAjYQ.ak6',
-  saltRounds: 5, // For user secret bcrypt.
-  namespace: 'b966dde2-9ca8-11e7-abc4-cec278b6b50a', // Namespace for UUIDv5.
-  expires: 60 * 60 * 24, // One day, in seconds.
-  idPrefix: 'session:id', // Cache prefix.
-  userPrefix: 'session:user', // Cache prefix.
-};
-
+const { SESSION_GLOBAL_SECRET, SESSION_NAMESPACE, SESSION_EXPIRATION } = process.env;
 
 function createSessionId({ uid, ts }) {
-  return uuidv5(`${uid}.${ts}`, SETTINGS.namespace);
+  return uuidv5(`${uid}.${ts}`, SESSION_NAMESPACE);
 }
 
 function createSecret({ userSecret }) {
-  return `${userSecret}.${SETTINGS.globalSecret}`;
+  return `${userSecret}.${SESSION_GLOBAL_SECRET}`;
 }
 
 module.exports = {
@@ -37,8 +28,8 @@ module.exports = {
    * @return {Promise}
    */
   delete({ id, uid }) {
-    const delSession = this.getClient().delAsync(`${SETTINGS.idPrefix}:${id}`);
-    const removeId = this.getClient().sremAsync(`${SETTINGS.userPrefix}:${uid}`, id);
+    const delSession = this.getClient().delAsync(this.prefixSessionId(id));
+    const removeId = this.getClient().sremAsync(this.prefixUserId(uid), id);
     return Promise.join(delSession, removeId);
   },
 
@@ -51,7 +42,7 @@ module.exports = {
     if (!token) throw new Error('Unable to get session: no token was provided.');
     const parsed = await jwt.decode(token, { complete: true, force: true });
     if (!parsed) throw new Error('Unable to get session: invalid token format.');
-    const result = await this.getClient().getAsync(`${SETTINGS.idPrefix}:${parsed.payload.jti}`);
+    const result = await this.getClient().getAsync(this.prefixSessionId(parsed.payload.jti));
 
     if (!result) throw new Error('Unable to get session: no token found in storage.');
 
@@ -82,24 +73,25 @@ module.exports = {
     const now = new Date();
     const iat = Math.floor(now.valueOf() / 1000);
 
-    const userSecret = await bcrypt.hash(uuidv4(), SETTINGS.saltRounds);
+    const userSecret = await bcrypt.hash(uuidv4(), 5);
 
     const ts = now.valueOf();
     const sid = createSessionId({ uid, ts });
-    const exp = iat + SETTINGS.expires;
+    const exp = iat + SESSION_EXPIRATION;
     const secret = createSecret({ userSecret });
     const token = jwt.sign({ jti: sid, exp, iat }, secret);
 
-    await this.getClient().setexAsync(`${SETTINGS.idPrefix}:${sid}`, SETTINGS.expires, JSON.stringify({
+    const payload = JSON.stringify({
       id: sid,
       ts,
       uid,
       s: userSecret,
-    }));
+    });
+    await this.getClient().setexAsync(this.prefixSessionId(sid), SESSION_EXPIRATION, payload);
 
-    const memberKey = `${SETTINGS.userPrefix}:${uid}`;
+    const memberKey = this.prefixUserId(uid);
     const addUserId = this.getClient().saddAsync(memberKey, sid);
-    const updateExpires = this.getClient().expireAsync(memberKey, SETTINGS.expires);
+    const updateExpires = this.getClient().expireAsync(memberKey, SESSION_EXPIRATION);
     await Promise.join(addUserId, updateExpires);
 
     // Return the public session.
@@ -111,4 +103,13 @@ module.exports = {
       token,
     };
   },
+
+  prefixSessionId(id) {
+    return `session:id:${id}`;
+  },
+
+  prefixUserId(uid) {
+    return `session:uid:${uid}`;
+  },
+
 };
