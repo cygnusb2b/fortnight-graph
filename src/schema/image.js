@@ -1,4 +1,5 @@
 const { Schema } = require('mongoose');
+const accountService = require('../services/account');
 
 const { IMGIX_URL } = process.env;
 
@@ -57,15 +58,17 @@ const schema = new Schema({
   focalPoint: focalPointSchema,
 });
 
-schema.virtual('key').get(function getKey() {
-  // The S3 bucket key. Generated from the image id and filename.
-  return `${this.id}/${this.filename}`;
-});
+schema.methods.getKey = async function getKey() {
+  // The S3 bucket key. Generated from the account key, image id, and filename.
+  const { key } = await accountService.retrieve();
+  return `${key}/${this.id}/${this.filename}`;
+};
 
-schema.virtual('src').get(function src() {
+schema.methods.getSrc = async function getSrc() {
   // The image src, for use with `img` elements.
-  // Generated from the imgix url, the id, and the encoded filename.
-  return `${IMGIX_URL}/${this.id}/${encodeURIComponent(this.filename)}`;
-});
+  // Generated from the imgix url, the encoded account key, the id, and the encoded filename.
+  const { key } = await accountService.retrieve();
+  return `${IMGIX_URL}/${encodeURIComponent(key)}/${this.id}/${encodeURIComponent(this.filename)}`;
+};
 
 module.exports = schema;

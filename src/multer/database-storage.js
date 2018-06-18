@@ -16,8 +16,9 @@ const uploadToS3 = (req, file, image) => new Promise((resolve, reject) => {
     bucket: S3_BUCKECT,
     acl: 'public-read',
     contentType: multerS3.AUTO_CONTENT_TYPE,
-    key: (r, f, cb) => {
-      cb(null, image.key);
+    key: async (r, f, cb) => {
+      const key = await image.getKey();
+      cb(null, key);
     },
   });
   storage._handleFile(req, file, (err, result) => {
@@ -55,7 +56,7 @@ class DatabaseStorage {
       await image.save();
 
       cb(null, {
-        record: image.toObject({ getters: true, virtuals: true }),
+        record: image,
         result,
       });
     } catch (e) {

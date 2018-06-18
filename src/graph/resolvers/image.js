@@ -4,6 +4,13 @@ module.exports = {
   /**
    *
    */
+  Image: {
+    src: image => image.getSrc(),
+  },
+
+  /**
+   *
+   */
   Mutation: {
     /**
      *
