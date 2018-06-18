@@ -22,6 +22,9 @@ services:
       BASE_URL: http://localhost
       SENDGRID_API_KEY: 1234
       SENDGRID_FROM: test@test.io
+      SESSION_GLOBAL_SECRET: notarealsecret
+      SESSION_NAMESPACE: e573e22d-e39a-41ac-a1a8-220e15c2e9fa
+      SESSION_EXPIRATION: 500
   redis:
     image: redis:alpine
     volumes:

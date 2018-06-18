@@ -77,7 +77,7 @@ module.exports = {
 
     const ts = now.valueOf();
     const sid = createSessionId({ uid, ts });
-    const exp = iat + SESSION_EXPIRATION;
+    const exp = iat + Number(SESSION_EXPIRATION);
     const secret = createSecret({ userSecret });
     const token = jwt.sign({ jti: sid, exp, iat }, secret);
 

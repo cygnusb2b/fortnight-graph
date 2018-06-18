@@ -29,23 +29,29 @@ TRACKER_SECRET=somevaluethatshouldbedifferentinprod
 ### Production Environment Variables
 The following environment variables must be set at run-time for the production deployment of this application. The development and test environments set appropriate values for those environments within the `docker-compose.yml` configuration files.
 ```
+# Generally global for all instances
 NODE_ENV=production
 PORT=8100
 
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
-MONGO_DSN=
 REDIS_DSN=
 MONGOOSE_DEBUG=
-TRACKER_SECRET=
 NEW_RELIC_LICENSE_KEY=
 ELASTIC_HOST=
-ELASTIC_INDEX_PREFIX=
 SENDGRID_API_KEY=
-SENDGRID_BCC=
-SENDGRID_FROM=
 BASE_URL=
 IMGIX_URL=
+
+# Distinct value per instance
+MONGO_DSN=
+TRACKER_SECRET=
+ELASTIC_INDEX_PREFIX=
+SENDGRID_FROM=
+SENDGRID_BCC=
+SESSION_GLOBAL_SECRET=
+SESSION_NAMESPACE=
+SESSION_EXPIRATION=
 ```
 
 ## API
