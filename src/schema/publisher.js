@@ -1,4 +1,5 @@
 const { Schema } = require('mongoose');
+const { isFQDN } = require('validator');
 const connection = require('../mongoose');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const imagePlugin = require('../plugins/image');
@@ -9,6 +10,17 @@ const schema = new Schema({
     required: true,
     trim: true,
     unique: true,
+  },
+  domainName: {
+    type: String,
+    trim: true,
+    validate: {
+      validator(v) {
+        if (!v) return true;
+        return isFQDN(String(v));
+      },
+      message: 'Invalid domain name: {VALUE}',
+    },
   },
 }, { timestamps: true });
 
