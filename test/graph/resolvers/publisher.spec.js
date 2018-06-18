@@ -35,7 +35,10 @@ describe('graph/resolvers/publisher', function() {
           publisher(input: $input) {
             id
             name
-            logo
+            logo {
+              id
+              src
+            }
             createdAt
             updatedAt
           }
@@ -254,13 +257,13 @@ describe('graph/resolvers/publisher', function() {
       `;
 
       it('should reject when no user is logged-in.', async function() {
-        const payload = { name: 'Test Publisher', logo: 'https://some.url/image.png' };
+        const payload = { name: 'Test Publisher' };
         const input = { payload };
         const variables = { input };
         await expect(graphql({ query, variables, key: 'createPublisher', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
       });
       it('should create the publisher.', async function() {
-        const payload = { name: 'Test Publisher', logo: 'https://some.url/image.png' };
+        const payload = { name: 'Test Publisher' };
         const input = { payload };
         const variables = { input };
         const promise = graphql({ query, variables, key: 'createPublisher', loggedIn: true });
