@@ -1,8 +1,16 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const Publisher = require('../../models/publisher');
+const Image = require('../../models/image');
 const PublisherRepo = require('../../repositories/publisher');
 
 module.exports = {
+  /**
+   *
+   */
+  Publisher: {
+    logo: publisher => Image.findById(publisher.logoImageId),
+  },
+
   /**
    *
    */
@@ -70,6 +78,18 @@ module.exports = {
       const publisher = await Publisher.findById(id);
       if (!publisher) throw new Error(`Unable to update publisher: no record found for ID ${id}.`);
       publisher.set(payload);
+      return publisher.save();
+    },
+
+    /**
+     *
+     */
+    publisherLogo: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id, imageId } = input;
+      const publisher = await Publisher.findById(id);
+      if (!publisher) throw new Error(`Unable to set publisher logo: no record found for ID ${id}.`);
+      publisher.logoImageId = imageId;
       return publisher.save();
     },
   },

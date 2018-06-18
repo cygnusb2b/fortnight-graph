@@ -243,7 +243,10 @@ describe('graph/resolvers/publisher', function() {
           createPublisher(input: $input) {
             id
             name
-            logo
+            logo {
+              id
+              src
+            }
             createdAt
             updatedAt
           }
@@ -278,7 +281,10 @@ describe('graph/resolvers/publisher', function() {
           updatePublisher(input: $input) {
             id
             name
-            logo
+            logo {
+              id
+              src
+            }
             createdAt
             updatedAt
           }
@@ -286,7 +292,7 @@ describe('graph/resolvers/publisher', function() {
       `;
       const payload = {
         name: 'Updated Publisher Name',
-        logo: 'https://some.url/image.png',
+        // logo: 'https://some.url/image.png',
       };
 
       it('should reject when no user is logged-in.', async function() {
