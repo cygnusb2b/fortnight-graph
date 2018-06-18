@@ -220,7 +220,7 @@ module.exports = {
    * @deprecated In favor of JS tracking.
    */
   createTracker(type, requestURL, event) {
-    const secret = process.env.TRACKER_SECRET;
+    const secret = 'deprecated';
     const { uuid, pid, cid } = event;
     const payload = { uuid, pid, cid };
     const token = jwt.sign(payload, secret, { noTimestamp: true });
@@ -239,7 +239,7 @@ module.exports = {
    */
   createCampaignRedirect(requestURL, event) {
     const { uuid, pid, cid } = event;
-    const secret = process.env.TRACKER_SECRET;
+    const secret = 'deprecated';
     const payload = { uuid, pid, cid };
     const token = jwt.sign(payload, secret, { noTimestamp: true });
     return `${requestURL}/redir/${token}`;
