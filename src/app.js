@@ -1,9 +1,12 @@
 const express = require('express');
 const passport = require('passport');
+const cors = require('cors');
 const authStrategies = require('./auth-strategies');
 const loadRouters = require('./routers');
 
 const app = express();
+const CORS = cors();
+
 app.set('trust proxy', 'loopback, linklocal, uniquelocal');
 app.disable('x-powered-by');
 
@@ -26,6 +29,9 @@ app.use(express.static('public', {
     }
   },
 }));
+
+app.use(CORS);
+app.options('*', CORS);
 
 loadRouters(app);
 
