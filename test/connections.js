@@ -42,10 +42,22 @@ const connect = () => Promise.all([
 
 const disconnect = () => Promise.all([
   new Promise((resolve, reject) => {
-    mongoose.core.on('disconnected', resolve);
+    mongoose.core.close(true, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
   }),
   new Promise((resolve, reject) => {
-    mongoose.instance.on('disconnected', resolve);
+    mongoose.instance.close(true, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
   }),
   new Promise((resolve, reject) => {
     redis.on('end', () => {
@@ -83,5 +95,7 @@ before(async function() {
 
 after(async function() {
   await indexes;
+  console.info('Indexes complete.');
   await disconnect();
+  console.info('Disconnected.');
 });
