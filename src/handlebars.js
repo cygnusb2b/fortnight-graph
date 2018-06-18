@@ -64,12 +64,6 @@ handlebars.registerHelper('build-ua-beacon', (context) => {
   return new handlebars.SafeString(`<script>if (window.ga) { ga('send', 'event', 'Fortnight', 'load', '${pid || ''}', '${cid || ''}'); }</script>`);
 });
 
-handlebars.registerHelper('link-to', (...parts) => {
-  const baseUri = process.env.BASE_URL;
-  if (!baseUri) throw new Error('Required environment variable "BASE_URL" was not set.');
-
-  const rest = parts.filter(el => typeof el === 'string').join('/');
-  return `${baseUri}/${rest}`;
-});
+handlebars.registerHelper('link-to', (...parts) => parts.filter(el => typeof el === 'string').join('/'));
 
 module.exports = handlebars;
