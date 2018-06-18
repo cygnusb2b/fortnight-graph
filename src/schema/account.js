@@ -62,4 +62,10 @@ const schema = new Schema({
   },
 }, { timestamps: true });
 
+schema.virtual('uri').get(function getUrl() {
+  const { BASE_URI, NODE_ENV } = process.env;
+  const protocol = NODE_ENV === 'production' ? 'https' : 'http';
+  return `${protocol}://${this.key}.${BASE_URI}`;
+});
+
 module.exports = schema;
