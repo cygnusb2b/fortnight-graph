@@ -74,6 +74,7 @@
     "multer-s3": "^2.7.0",
     "newrelic": "^2.9.1",
     "object-hash": "^1.2.0",
+    "object-path": "^0.11.4",
     "passport": "^0.4.0",
     "passport-http-bearer": "^1.0.1",
     "redis": "^2.8.0",
