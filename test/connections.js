@@ -4,6 +4,8 @@ const models = require('../src/models');
 const elastic = require('../src/elastic');
 const initElastic = require('../src/elastic/init');
 
+const { ACCOUNT_KEY } = process.env;
+
 const index = Model => new Promise((resolve, reject) => {
   Model.on('index', (err) => {
     if (err) {
@@ -57,11 +59,26 @@ const disconnect = () => Promise.all([
   elastic.disconnect(),
 ]);
 
+let accountPromise;
+const createAccount = () => {
+  const run = () => mongoose.core.model('account').findOneAndUpdate({ key: ACCOUNT_KEY }, { key: ACCOUNT_KEY }, {
+    upsert: true,
+    setDefaultsOnInsert: true,
+  });
+
+  if (!accountPromise) {
+    accountPromise = run();
+  }
+  return accountPromise;
+};
+
 before(async function() {
   this.timeout(30000);
   console.info('Global connections are being establised...');
   await connect();
   console.info('Connections established.');
+  await createAccount();
+  console.info('Test account created');
 });
 
 after(async function() {
