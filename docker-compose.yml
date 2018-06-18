@@ -16,16 +16,14 @@ services:
     entrypoint: node_modules/.bin/gulp
     environment:
       NODE_ENV: development
-      MONGO_CORE_DSN: mongodb://mongo:27017/fortnight
-      MONGO_INSTANCE_DSN: mongodb://mongo:27017/fortnight-account
+      ACCOUNT_KEY: dev-tenant
+      MONGO_DSN: mongodb://mongo:27017/fortnight
       REDIS_DSN: redis://redis:6379/0
       ELASTIC_HOST: http://elasticsearch:9200
-      ELASTIC_INDEX_PREFIX: fortnight
       ELASTIC_INDEX_RECREATE: ${ELASTIC_INDEX_RECREATE}
       PORT: ${GRAPH_APP_PORT-8100}
       MONGOOSE_DEBUG: ${MONGOOSE_DEBUG}
       DEBUG: ${DEBUG}
-      TRACKER_SECRET: ${TRACKER_SECRET}
   redis:
     image: redis:alpine
   mongo:
