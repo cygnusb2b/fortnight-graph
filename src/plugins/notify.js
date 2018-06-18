@@ -1,12 +1,12 @@
 const { Schema } = require('mongoose');
-const Contact = require('../models/contact');
+const connection = require('../connections/mongoose/instance');
 
 const ContactReference = {
   type: Schema.Types.ObjectId,
   required: true,
   validate: {
     async validator(v) {
-      const doc = await Contact.findOne({ _id: v }, { _id: 1 });
+      const doc = await connection.model('contact').findOne({ _id: v }, { _id: 1 });
       if (doc) return true;
       return false;
     },

@@ -1,5 +1,5 @@
 const { Schema } = require('mongoose');
-const connection = require('../mongoose');
+const connection = require('../connections/mongoose/instance');
 const notifyPlugin = require('../plugins/notify');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const imagePlugin = require('../plugins/image');

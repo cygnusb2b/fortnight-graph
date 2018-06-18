@@ -1,4 +1,4 @@
-const mongoose = require('./mongoose');
+const mongoose = require('./connections/mongoose');
 const redis = require('./redis');
 const app = require('./app');
 const output = require('./output');

@@ -1,6 +1,6 @@
 const { Schema } = require('mongoose');
 const { isFQDN } = require('validator');
-const connection = require('../mongoose');
+const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const imagePlugin = require('../plugins/image');
 

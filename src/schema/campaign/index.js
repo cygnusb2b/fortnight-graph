@@ -1,5 +1,5 @@
 const { Schema } = require('mongoose');
-const connection = require('../../mongoose');
+const connection = require('../../connections/mongoose/instance');
 const validator = require('validator');
 const CreativeSchema = require('./creative');
 const CriteriaSchema = require('./criteria');

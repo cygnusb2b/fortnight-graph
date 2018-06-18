@@ -1,5 +1,5 @@
 const { Schema } = require('mongoose');
-const connection = require('../mongoose');
+const connection = require('../connections/mongoose/instance');
 
 const getDefinition = ({ required = false }) => ({
   type: Schema.Types.ObjectId,
