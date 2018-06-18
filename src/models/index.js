@@ -1,3 +1,4 @@
+const Account = require('./account');
 const Advertiser = require('./advertiser');
 const AnalyticsClick = require('./analytics/click');
 const AnalyticsEvent = require('./analytics/event');
@@ -15,6 +16,7 @@ const Template = require('./template');
 const User = require('./user');
 
 module.exports = {
+  Account,
   Advertiser,
   AnalyticsClick,
   AnalyticsEvent,
