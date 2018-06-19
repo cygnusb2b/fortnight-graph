@@ -3,6 +3,7 @@ const connection = require('../connections/mongoose/instance');
 const notifyPlugin = require('../plugins/notify');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const imagePlugin = require('../plugins/image');
+const pushIdPlugin = require('../plugins/push-id');
 
 const schema = new Schema({
   name: {
@@ -13,6 +14,7 @@ const schema = new Schema({
   },
 }, { timestamps: true });
 
+schema.plugin(pushIdPlugin, { required: true });
 imagePlugin(schema, { fieldName: 'logoImageId' });
 
 schema.pre('save', async function updateCampaigns() {

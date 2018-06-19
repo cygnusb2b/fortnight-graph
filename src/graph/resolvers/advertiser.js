@@ -18,6 +18,7 @@ module.exports = {
       return { internal, external };
     },
     logo: advertiser => Image.findById(advertiser.logoImageId),
+    hash: advertiser => advertiser.pushId,
   },
 
   /**
@@ -37,6 +38,16 @@ module.exports = {
       const { id } = input;
       const record = await AdvertiserRepo.findById(id);
       if (!record) throw new Error(`No advertiser record found for ID ${id}.`);
+      return record;
+    },
+
+    /**
+     *
+     */
+    advertiserHash: async (root, { input }) => {
+      const { hash } = input;
+      const record = await Advertiser.findOne({ pushId: hash });
+      if (!record) throw new Error(`No advertiser record found for hash ${hash}.`);
       return record;
     },
 

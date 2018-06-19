@@ -3,6 +3,7 @@ type Query {
   searchAdvertisers(pagination: PaginationInput = {}, phrase: String!): AdvertiserConnection!
   autocompleteAdvertisers(pagination: PaginationInput = {}, phrase: String!): AdvertiserConnection!
   advertiser(input: ModelIdInput!): Advertiser!
+  advertiserHash(input: AdvertiserHashInput!): Advertiser!
 }
 
 type Mutation {
@@ -23,6 +24,7 @@ enum AdvertiserSortField {
 
 type Advertiser {
   id: String!
+  hash: String!
   name: String!
   logo: Image
   createdAt: Date
@@ -77,4 +79,8 @@ input UpdateAdvertiserInput {
 input AdvertiserLogoInput {
   id: String!
   imageId: String
+}
+
+input AdvertiserHashInput {
+  hash: String!
 }

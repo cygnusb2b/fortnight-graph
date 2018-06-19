@@ -31,6 +31,7 @@ module.exports = {
       const external = await ContactRepo.find({ _id: { $in: campaign.notify.external } });
       return { internal, external };
     },
+    hash: campaign => campaign.pushId,
   },
 
   CampaignCriteria: {
@@ -75,7 +76,7 @@ module.exports = {
      */
     campaignHash: async (root, { input }) => {
       const { hash } = input;
-      const record = await CampaignRepo.findByHash(hash);
+      const record = await Campaign.findOne({ pushId: hash });
       if (!record) throw new Error(`No campaign record found for hash ${hash}.`);
       return record;
     },
