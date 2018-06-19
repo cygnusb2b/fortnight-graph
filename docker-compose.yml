@@ -16,14 +16,14 @@ services:
     entrypoint: node_modules/.bin/gulp
     environment:
       ACCOUNT_KEY: dev-tenant
-      BASE_URI: "localhost:${GRAPH_APP_PORT-8100}"
+      BASE_URI: localhost:8100
       DEBUG: ${DEBUG}
       ELASTIC_HOST: http://elasticsearch:9200
-      ELASTIC_INDEX_RECREATE: ${ELASTIC_INDEX_RECREATE}
-      MONGOOSE_DEBUG: ${MONGOOSE_DEBUG}
+      ELASTIC_INDEX_RECREATE: ${ELASTIC_INDEX_RECREATE-false}
+      MONGOOSE_DEBUG: ${MONGOOSE_DEBUG-false}
       MONGO_DSN: mongodb://mongo:27017/fortnight
       NODE_ENV: development
-      PORT: ${GRAPH_APP_PORT-8100}
+      PORT: 8100
       REDIS_DSN: redis://redis:6379/0
   redis:
     image: redis:alpine
