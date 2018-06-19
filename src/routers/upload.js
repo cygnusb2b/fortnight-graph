@@ -2,34 +2,31 @@ const { Router } = require('express');
 const helmet = require('helmet');
 const multer = require('multer');
 const Story = require('../models/story');
-const ImageRepo = require('../repositories/image');
+const DatabaseStorage = require('../multer/database-storage');
 const asyncRoute = require('../utils/async-route');
 
 const router = Router();
 router.use(helmet());
 
-const storage = ImageRepo.getMulterStorage();
-const upload = multer({ storage });
+const upload = multer({ storage: new DatabaseStorage() });
 
-router.post('/embedded-image', upload.single('file'), asyncRoute(async (req, res) => {
+router.post('/image', upload.single('file'), asyncRoute(async (req, res) => {
+  const { record } = req.file;
+  const link = await record.getSrc();
+  res.json({ id: record.id, link });
+}));
+
+router.post('/story-image', upload.single('file'), asyncRoute(async (req, res) => {
+  const { record } = req.file;
   const { storyId } = req.body;
+  const link = await record.getSrc();
+
   const story = await Story.findById(storyId);
   if (!story) throw new Error(`Unable to upload image: no story was found for ID '${storyId}'`);
-
-  const { key, mimetype, size } = req.file;
-  const [id, filename] = key.split('/');
-
-  const filePath = `${id}/${encodeURIComponent(filename)}`;
-  const image = story.images.create({
-    filePath,
-    mimeType: mimetype,
-    fileSize: size,
-  });
-  story.images.push(image);
+  story.addImageId(record.id);
   await story.save();
 
-  const link = `${image.src}?auto=format&fm=jpg`;
-  res.json({ link, storyId, imageId: image.id });
+  res.json({ id: record.id, link });
 }));
 
 module.exports = router;

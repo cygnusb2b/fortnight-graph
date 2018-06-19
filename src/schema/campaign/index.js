@@ -1,11 +1,10 @@
 const { Schema } = require('mongoose');
-const connection = require('../../mongoose');
+const connection = require('../../connections/mongoose/instance');
 const validator = require('validator');
 const CreativeSchema = require('./creative');
 const CriteriaSchema = require('./criteria');
-const uuid = require('uuid/v4');
-const uuidParse = require('uuid-parse');
 const notifyPlugin = require('../../plugins/notify');
+const pushIdPlugin = require('../../plugins/push-id');
 const { applyElasticPlugin, setEntityFields } = require('../../elastic/mongoose');
 
 const externalLinkSchema = new Schema({
@@ -41,20 +40,6 @@ const schema = new Schema({
     type: String,
     required: false,
     trim: false,
-  },
-  hash: {
-    type: String,
-    required: true,
-    unique: true,
-    default() {
-      return uuid();
-    },
-    validate: {
-      validator(v) {
-        return v === uuidParse.unparse(uuidParse.parse(v));
-      },
-      message: 'Invalid campaign hash for {VALUE}',
-    },
   },
   advertiserId: {
     type: Schema.Types.ObjectId,
@@ -109,12 +94,12 @@ schema.pre('save', async function setAdvertiserName() {
 });
 
 schema.plugin(notifyPlugin);
+schema.plugin(pushIdPlugin, { required: true });
 
 setEntityFields(schema, 'name');
 setEntityFields(schema, 'advertiserName');
 applyElasticPlugin(schema, 'campaigns');
 
-schema.index({ hash: 1 });
 schema.index({ advertiserId: 1 });
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });

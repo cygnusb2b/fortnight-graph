@@ -1,7 +1,8 @@
 const { Schema } = require('mongoose');
-const connection = require('../mongoose');
-const validator = require('validator');
+const { isFQDN } = require('validator');
+const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
+const imagePlugin = require('../plugins/image');
 
 const schema = new Schema({
   name: {
@@ -10,22 +11,20 @@ const schema = new Schema({
     trim: true,
     unique: true,
   },
-  logo: {
+  domainName: {
     type: String,
-    required: false,
     trim: true,
     validate: {
       validator(v) {
         if (!v) return true;
-        return validator.isURL(v, {
-          protocols: ['https'],
-          require_protocol: true,
-        });
+        return isFQDN(String(v));
       },
-      message: 'Invalid publisher logo URL for {VALUE}',
+      message: 'Invalid domain name: {VALUE}',
     },
   },
 }, { timestamps: true });
+
+imagePlugin(schema, { fieldName: 'logoImageId' });
 
 schema.pre('save', async function updatePlacements() {
   if (this.isModified('name')) {

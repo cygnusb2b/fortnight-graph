@@ -47,7 +47,8 @@ router.get('/:token/:event.gif', (req, res) => {
   if (!events.includes(event)) {
     return send(res, 400, new Error(`The event type '${event}' is invalid.`));
   }
-  return jwt.verify(token, process.env.TRACKER_SECRET, { algorithms: 'HS256' }, (err, payload) => {
+  const secret = 'deprecated';
+  return jwt.verify(token, secret, { algorithms: 'HS256' }, (err, payload) => {
     if (err) return send(res, 403, err);
     const { uuid, pid, cid } = payload;
 

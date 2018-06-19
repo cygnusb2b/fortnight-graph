@@ -1,7 +1,9 @@
 const sgMail = require('@sendgrid/mail');
+const env = require('../env');
 const emailTemplates = require('../email-templates');
 const ContactRepo = require('../repositories/contact');
 const AdvertiserRepo = require('../repositories/advertiser');
+const accountService = require('../services/account');
 
 module.exports = {
 
@@ -11,9 +13,9 @@ module.exports = {
   },
 
   async send({ to, subject, html }) {
-    const key = process.env.SENDGRID_API_KEY;
-    const from = process.env.SENDGRID_FROM;
-    const bcc = process.env.SENDGRID_BCC;
+    const key = env.SENDGRID_API_KEY;
+    const from = env.SENDGRID_FROM;
+    const bcc = await accountService.setting('bcc');
 
     if (!key) throw new Error('Required environment variable "SENDGRID_API_KEY" was not set.');
     if (!from) throw new Error('Required environment variable "SENDGRID_FROM" was not set.');

@@ -1,8 +1,9 @@
-const sgMail = require('@sendgrid/mail');
 require('../connections');
+const sgMail = require('@sendgrid/mail');
 const ContactNotifier = require('../../src/services/contact-notifier');
 const CampaignRepo = require('../../src/repositories/campaign');
 const ContactRepo = require('../../src/repositories/contact');
+const accountService = require('../../src/services/account');
 const sandbox = sinon.createSandbox();
 
 const createCampaign = async () => {
@@ -50,52 +51,6 @@ describe('services/contact-notifier', function() {
         expect(address).to.equal(`${contact.givenName} ${contact.familyName} <${contact.email}>`);
       }
 
-    });
-  });
-
-  describe('#send', function() {
-    let key;
-    let from;
-    let bcc;
-    before(function() {
-      key = process.env.SENDGRID_API_KEY;
-      from = process.env.SENDGRID_FROM;
-      bcc = process.env.SENDGRID_BCC;
-    })
-    beforeEach(function() {
-      sandbox.stub(sgMail, 'setApiKey').resolves();
-      sandbox.stub(sgMail, 'send').resolves();
-    })
-    afterEach(function() {
-      process.env.SENDGRID_API_KEY = key;
-      process.env.SENDGRID_FROM = from;
-      process.env.SENDGRID_BCC = bcc;
-      sandbox.restore();
-    })
-
-    it('should reject if an API key is not set', function() {
-      delete process.env.SENDGRID_API_KEY;
-      expect(ContactNotifier.send({})).to.be.rejectedWith(Error, /SENDGRID_API_KEY/);
-    });
-    it('should reject if a from address is not set', function() {
-      delete process.env.SENDGRID_FROM;
-      expect(ContactNotifier.send({})).to.be.rejectedWith(Error, /SENDGRID_FROM/);
-    });
-    it('should set the from address', async function() {
-      const testValue = 'Test Testerson <test@test.io>';
-      process.env.SENDGRID_FROM = testValue;
-      sgMail.send.restore();
-      sandbox.stub(sgMail, 'send').returnsArg(0);
-      const args = await ContactNotifier.send({ from: testValue });
-      expect(args.from).to.equal(testValue);
-    });
-    it('should set BCC if present in env', async function() {
-      const testValue = 'bcc@test.com';
-      process.env.SENDGRID_BCC = testValue;
-      sgMail.send.restore();
-      sandbox.stub(sgMail, 'send').returnsArg(0);
-      const args = await ContactNotifier.send({ bcc: testValue });
-      expect(args.bcc).to.equal(testValue);
     });
   });
 

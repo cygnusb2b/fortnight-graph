@@ -1,6 +1,5 @@
-/* istanbul ignore next  */
-if (process.env.NODE_ENV !== 'production') process.env.NEW_RELIC_ENABLED = false;
+const env = require('./env');
 
-const newrelic = require('newrelic');
+process.env.NEW_RELIC_ENABLED = env.NEW_RELIC_ENABLED;
 
-module.exports = newrelic;
+module.exports = require('newrelic');

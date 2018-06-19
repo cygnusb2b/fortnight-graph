@@ -1,4 +1,3 @@
-const sgMail = require('@sendgrid/mail');
 require('../../connections');
 const { CursorType } = require('@limit0/graphql-custom-types');
 const { graphql, setup, teardown } = require('./utils');
@@ -6,6 +5,9 @@ const AdvertiserRepo = require('../../../src/repositories/advertiser');
 const ContactRepo = require('../../../src/repositories/contact');
 const CampaignRepo = require('../../../src/repositories/campaign');
 const PlacementRepo = require('../../../src/repositories/placement');
+const contactNotifier = require('../../../src/services/contact-notifier');
+
+const sandbox = sinon.createSandbox();
 
 const createAdvertiser = async () => {
   const results = await AdvertiserRepo.seed();
@@ -63,7 +65,6 @@ describe('graph/resolvers/campaign', function() {
             advertiser {
               id
               name
-              logo
             }
             status
             url
@@ -74,7 +75,8 @@ describe('graph/resolvers/campaign', function() {
               image {
                 id
                 src
-                filePath
+                filename
+                size
                 mimeType
                 width
                 height
@@ -137,75 +139,75 @@ describe('graph/resolvers/campaign', function() {
     });
 
 
-    describe('campaignHash', function() {
-      let campaign;
-      before(async function() {
-        campaign = await createCampaign();
-      });
+    // describe('campaignHash', function() {
+    //   let campaign;
+    //   before(async function() {
+    //     campaign = await createCampaign();
+    //   });
 
-      const query = `
-        query CampaignHash($input: CampaignHashInput!) {
-          campaignHash(input: $input) {
-            hash
-            name
-            createdAt
-            updatedAt
-            advertiser {
-              id
-              name
-              logo
-            }
-            status
-            url
-            notify {
-              external {
-                name
-                email
-              }
-            }
-            creatives {
-              id
-              title
-              teaser
-              image {
-                id
-                src
-                filePath
-                mimeType
-                width
-                height
-                focalPoint {
-                  x
-                  y
-                }
-              }
-            }
-          }
-        }
-      `;
-      it('should not reject when no user is logged-in.', async function() {
-        const hash = campaign.hash;
-        const input = { hash };
-        const variables = { input };
-        const promise = graphql({ query, variables, key: 'campaignHash', loggedIn: false });
-        await expect(promise).to.eventually.be.an('object').with.property('hash', hash);
-      });
-      it('should reject if no record was found.', async function() {
-        const hash = '507f1f77bcf86cd799439011';
-        const input = { hash };
-        const variables = { input };
-        await expect(graphql({ query, variables, key: 'campaignHash', loggedIn: true })).to.be.rejectedWith(Error, `No campaign record found for hash ${hash}.`);
-      });
-      it('should return the requested campaign.', async function() {
-        const hash = campaign.hash;
-        const input = { hash };
-        const variables = { input };
-        const promise = graphql({ query, variables, key: 'campaignHash', loggedIn: true });
-        await expect(promise).to.eventually.be.an('object').with.property('hash', hash);
-        const data = await promise;
-        expect(data).to.have.all.keys('hash', 'name', 'createdAt', 'updatedAt', 'advertiser', 'status', 'url', 'creatives', 'notify');
-      });
-    });
+    //   const query = `
+    //     query CampaignHash($input: CampaignHashInput!) {
+    //       campaignHash(input: $input) {
+    //         hash
+    //         name
+    //         createdAt
+    //         updatedAt
+    //         advertiser {
+    //           id
+    //           name
+    //         }
+    //         status
+    //         url
+    //         notify {
+    //           external {
+    //             name
+    //             email
+    //           }
+    //         }
+    //         creatives {
+    //           id
+    //           title
+    //           teaser
+    //           image {
+    //             id
+    //             src
+    //             filename
+    //             mimeType
+    //             size
+    //             width
+    //             height
+    //             focalPoint {
+    //               x
+    //               y
+    //             }
+    //           }
+    //         }
+    //       }
+    //     }
+    //   `;
+    //   it('should not reject when no user is logged-in.', async function() {
+    //     const hash = campaign.hash;
+    //     const input = { hash };
+    //     const variables = { input };
+    //     const promise = graphql({ query, variables, key: 'campaignHash', loggedIn: false });
+    //     await expect(promise).to.eventually.be.an('object').with.property('hash', hash);
+    //   });
+    //   it('should reject if no record was found.', async function() {
+    //     const hash = '507f1f77bcf86cd799439011';
+    //     const input = { hash };
+    //     const variables = { input };
+    //     await expect(graphql({ query, variables, key: 'campaignHash', loggedIn: true })).to.be.rejectedWith(Error, `No campaign record found for hash ${hash}.`);
+    //   });
+    //   it('should return the requested campaign.', async function() {
+    //     const hash = campaign.hash;
+    //     const input = { hash };
+    //     const variables = { input };
+    //     const promise = graphql({ query, variables, key: 'campaignHash', loggedIn: true });
+    //     await expect(promise).to.eventually.be.an('object').with.property('hash', hash);
+    //     const data = await promise;
+    //     expect(data).to.have.all.keys('hash', 'name', 'createdAt', 'updatedAt', 'advertiser', 'status', 'url', 'creatives', 'notify');
+    //   });
+    // });
 
     describe('allCampaigns', function() {
       let campaigns;
@@ -277,18 +279,18 @@ describe('graph/resolvers/campaign', function() {
 
     describe('createCampaign', function() {
       let advertiser;
-      let mailStub;
       before(async function() {
         advertiser = await createAdvertiser();
         // stub @sendgrid/mail::send
-        mailstub = sinon.stub(sgMail, 'send');
-        keystub = sinon.stub(sgMail, 'setApiKey');
+        sandbox.stub(contactNotifier, 'sendInternalCampaignCreated').resolves();
+        sandbox.stub(contactNotifier, 'sendExternalCampaignCreated').resolves();
+
+        // mailStub = sinon.stub(sgMail, 'send');
+        // keystub = sinon.stub(sgMail, 'setApiKey');
       });
       after(async function() {
         await AdvertiserRepo.remove();
-        // restore @sendgrid/mail::send
-        mailstub.restore();
-        keystub.restore();
+        sandbox.restore();
       });
       const query = `
         mutation CreateCampaign($input: CreateCampaignInput!) {
@@ -323,7 +325,8 @@ describe('graph/resolvers/campaign', function() {
         await expect(promise).to.eventually.be.an('object').with.property('id');
         const data = await promise;
         await expect(CampaignRepo.findById(data.id)).to.eventually.be.an('object').with.property('name', payload.name);
-        // assert that the send method was called
+        sandbox.assert.calledOnce(contactNotifier.sendInternalCampaignCreated);
+        sandbox.assert.calledOnce(contactNotifier.sendExternalCampaignCreated);
       });
     });
 
@@ -347,7 +350,6 @@ describe('graph/resolvers/campaign', function() {
             advertiser {
               id
               name
-              logo
             }
             externalLinks {
               label
@@ -404,123 +406,6 @@ describe('graph/resolvers/campaign', function() {
       });
     });
 
-    describe('clientUpdateCampaign', function() {
-      let campaign;
-      let creative;
-      before(async function() {
-        campaign = await createCampaign();
-        campaign.creatives.push({ title: 'old title', teaser: 'old teaser' });
-        campaign = await campaign.save();
-        creative = campaign.creatives[0];
-      });
-      after(async function() {
-        await CampaignRepo.remove();
-        await AdvertiserRepo.remove();
-      });
-
-      const query = `
-        mutation ClientUpdateCampaign($input: ClientUpdateCampaignInput!) {
-          clientUpdateCampaign(input: $input) {
-            id
-            url
-            creatives {
-              id
-              title
-              teaser
-              image {
-                id
-                src
-                focalPoint {
-                  x
-                  y
-                }
-              }
-            }
-          }
-        }
-      `;
-      const payload = {
-        url: 'https://someupdatedurl.com',
-        creatives: [
-          {
-            title: 'Some updated Title',
-          }
-        ],
-      };
-
-      it('should not reject when no user is logged-in.', async function() {
-        payload.creatives[0].id = creative.id;
-        const campaignId = campaign.id;
-        const input = { campaignId, payload };
-        const variables = { input };
-        await expect(graphql({ query, variables, key: 'clientUpdateCampaign', loggedIn: false })).to.eventually.be.an('object');
-      });
-      it('should reject when the campaign record is not found.', async function() {
-        payload.creatives[0].id = creative.id;
-        const campaignId = '507f1f77bcf86cd799439011'
-        const input = { campaignId, payload };
-        const variables = { input };
-        await expect(graphql({ query, variables, key: 'clientUpdateCampaign', loggedIn: true })).to.be.rejectedWith(Error, /unable to handle submission/i);
-      });
-      it('should update the campaign.', async function() {
-        payload.creatives[0].id = creative.id;
-        const campaignId = campaign.id;
-        const input = { campaignId, payload };
-        const variables = { input };
-        const promise = graphql({ query, variables, key: 'clientUpdateCampaign', loggedIn: true });
-        await expect(promise).to.eventually.be.an('object').with.property('id');
-        const data = await promise;
-        expect(data.url).to.equal(payload.url);
-        await expect(CampaignRepo.findById(data.id)).to.eventually.be.an('object').with.property('url', payload.url);
-      });
-
-    });
-
-    describe('clientAddCampaignCreative', function() {
-      let campaign;
-      before(async function() {
-        campaign = await createCampaign();
-      });
-      const query = `
-        mutation ClientAddCampaignCreative($input: AddCampaignCreativeInput!) {
-          clientAddCampaignCreative(input: $input) {
-            id
-            title
-            teaser
-            image {
-              id
-            }
-          }
-        }
-      `;
-      it('should not reject when no user is logged-in.', async function() {
-        const campaignId = campaign.id;
-        const input = { campaignId };
-        const variables = { input };
-        await expect(graphql({ query, variables, key: 'clientAddCampaignCreative', loggedIn: false })).to.eventually.be.an('object');
-      });
-      it('should reject when the campaign record is not found.', async function() {
-        const campaignId = '507f1f77bcf86cd799439011'
-        const input = { campaignId };
-        const variables = { input };
-        await expect(graphql({ query, variables, key: 'clientAddCampaignCreative', loggedIn: true })).to.be.rejectedWith(Error, /no campaign was found/i);
-      });
-      it('should add the campaign creative.', async function() {
-        const campaignId = campaign.id;
-        const payload = { title: 'Some creative title', teaser: 'Some teaser.' };
-        const input = { campaignId, payload };
-        const variables = { input };
-        const promise = graphql({ query, variables, key: 'clientAddCampaignCreative', loggedIn: true });
-        await expect(promise).to.eventually.be.an('object');
-        const data = await promise;
-        expect(data.title).to.equal(payload.title);
-        expect(data.teaser).to.equal(payload.teaser);
-        expect(data.image).to.be.null;
-        const found = await CampaignRepo.findById(campaignId);
-        expect(found.creatives.id(data.id)).to.be.an('object');
-      });
-    });
-
     describe('addCampaignCreative', function() {
       let campaign;
       before(async function() {
@@ -566,21 +451,18 @@ describe('graph/resolvers/campaign', function() {
       });
     });
 
-    describe('updateCampaignCreative', function() {
+    describe('campaignCreativeDetails', function() {
       let campaign;
       before(async function() {
         campaign = await createCampaign();
         creative = campaign.creatives[0];
       });
       const query = `
-        mutation UpdateCampaignCreative($input: UpdateCampaignCreativeInput!) {
-          updateCampaignCreative(input: $input) {
+        mutation CampaignCreativeDetails($input: CampaignCreativeDetailsInput!) {
+          campaignCreativeDetails(input: $input) {
             id
             title
             teaser
-            image {
-              id
-            }
           }
         }
       `;
@@ -589,21 +471,23 @@ describe('graph/resolvers/campaign', function() {
         const creativeId = creative.id;
         const input = { campaignId, creativeId };
         const variables = { input };
-        await expect(graphql({ query, variables, key: 'updateCampaignCreative', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
+        await expect(graphql({ query, variables, key: 'campaignCreativeDetails', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
       });
       it('should reject when the campaign record is not found.', async function() {
         const campaignId = '507f1f77bcf86cd799439011';
         const creativeId = creative.id;
-        const input = { campaignId, creativeId };
+        const payload = { title: 'Foo' };
+        const input = { campaignId, creativeId, payload };
         const variables = { input };
-        await expect(graphql({ query, variables, key: 'updateCampaignCreative', loggedIn: true })).to.be.rejectedWith(Error, /no campaign was found/i);
+        await expect(graphql({ query, variables, key: 'campaignCreativeDetails', loggedIn: true })).to.be.rejectedWith(Error, /no campaign was found/i);
       });
       it('should reject when the campaign creative record is not found.', async function() {
         const campaignId = campaign.id;
         const creativeId = '507f1f77bcf86cd799439011';
-        const input = { campaignId, creativeId };
+        const payload = { title: 'Foo' };
+        const input = { campaignId, creativeId, payload };
         const variables = { input };
-        await expect(graphql({ query, variables, key: 'updateCampaignCreative', loggedIn: true })).to.be.rejectedWith(Error, /no creative was found/i);
+        await expect(graphql({ query, variables, key: 'campaignCreativeDetails', loggedIn: true })).to.be.rejectedWith(Error, /no creative was found/i);
       });
       it('should update the campaign creative.', async function() {
         const campaignId = campaign.id;
@@ -611,7 +495,7 @@ describe('graph/resolvers/campaign', function() {
         const payload = { title: 'This is a new title', teaser: 'This is a new teaser.' };
         const input = { campaignId, creativeId, payload };
         const variables = { input };
-        const promise = graphql({ query, variables, key: 'updateCampaignCreative', loggedIn: true });
+        const promise = graphql({ query, variables, key: 'campaignCreativeDetails', loggedIn: true });
         await expect(promise).to.eventually.be.an('object');
         const data = await promise;
         expect(data.title).to.equal(payload.title);
@@ -657,7 +541,7 @@ describe('graph/resolvers/campaign', function() {
       });
     });
 
-    describe('setCampaignCriteria', function() {
+    describe('campaignCriteria', function() {
       const start = new Date().getTime();
       let campaign;
       let placement;
@@ -666,8 +550,8 @@ describe('graph/resolvers/campaign', function() {
         placement = await createPlacement();
       });
       const query = `
-        mutation SetCampaignCriteria($input: SetCampaignCriteriaInput!) {
-          setCampaignCriteria(input: $input) {
+        mutation CampaignCriteria($input: CampaignCriteriaInput!) {
+          campaignCriteria(input: $input) {
             start
             end
             placements {
@@ -686,14 +570,14 @@ describe('graph/resolvers/campaign', function() {
         const input = { campaignId };
         const payload = { start };
         const variables = { input, payload };
-        await expect(graphql({ query, variables, key: 'setCampaignCriteria', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
+        await expect(graphql({ query, variables, key: 'campaignCriteria', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
       });
       it('should reject when the campaign record is not found', async function() {
         const campaignId = '507f1f77bcf86cd799439011'
         const input = { campaignId };
         const payload = { start };
         const variables = { input, payload };
-        await expect(graphql({ query, variables, key: 'setCampaignCriteria', loggedIn: true })).to.be.rejectedWith(Error, /no campaign was found/i);
+        await expect(graphql({ query, variables, key: 'campaignCriteria', loggedIn: true })).to.be.rejectedWith(Error, /no campaign was found/i);
       });
       it('should reject when the placement record is not found', async function() {
         const campaignId = campaign.id;
@@ -701,7 +585,7 @@ describe('graph/resolvers/campaign', function() {
         const payload = { start, placementIds };
         const input = { campaignId, payload };
         const variables = { input };
-        await expect(graphql({ query, variables, key: 'setCampaignCriteria', loggedIn: true })).to.be.rejectedWith(Error, /no placement found/i);
+        await expect(graphql({ query, variables, key: 'campaignCriteria', loggedIn: true })).to.be.rejectedWith(Error, /no placement found/i);
       });
       it('should reject when the placement is not provided', async function() {
         const campaignId = campaign.id;
@@ -709,7 +593,7 @@ describe('graph/resolvers/campaign', function() {
         const payload = { start, placementIds };
         const input = { campaignId, payload };
         const variables = { input };
-        await expect(graphql({ query, variables, key: 'setCampaignCriteria', loggedIn: true })).to.be.rejectedWith(Error, /not to be null at value\.payload\.placementIds/i);
+        await expect(graphql({ query, variables, key: 'campaignCriteria', loggedIn: true })).to.be.rejectedWith(Error, /not to be null at value\.payload\.placementIds/i);
       });
       it('should set the campaign criteria', async function() {
         const campaignId = campaign.id;
@@ -717,7 +601,7 @@ describe('graph/resolvers/campaign', function() {
         const payload = { start, placementIds };
         const input = { campaignId, payload };
         const variables = { input };
-        const promise = graphql({ query, variables, key: 'setCampaignCriteria', loggedIn: true });
+        const promise = graphql({ query, variables, key: 'campaignCriteria', loggedIn: true });
         await expect(promise).to.eventually.be.an('object');
         const data = await promise;
         expect(data.start).to.equal(payload.start);
@@ -731,121 +615,7 @@ describe('graph/resolvers/campaign', function() {
     });
 
 
-    describe('addContact', function() {
-      let campaign;
-      let contact;
-      before(async function() {
-        campaign = await createCampaign();
-        contact = await createContact();
-      });
-      const type = 'internal';
-      const query = `
-        mutation AddCampaignContact($input: AddContactInput!) {
-          addCampaignContact(input: $input) {
-            id
-          }
-        }
-      `;
-
-      it('should reject when no user is logged-in', async function() {
-        const id = campaign.id;
-        const contactId = contact.id;
-        const input = { id, type, contactId };
-        const variables = { input };
-        await expect(graphql({ query, variables, key: 'addCampaignContact', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
-      });
-      it('should reject when the campaign record is not found', async function() {
-        const id = '507f1f77bcf86cd799439011'
-        const contactId = contact.id;
-        const input = { id, type, contactId };
-        const variables = { input };
-        await expect(graphql({ query, variables, key: 'addCampaignContact', loggedIn: true })).to.be.rejectedWith(Error, /no record was found/i);
-      });
-      it('should reject when the contact record is not found', async function() {
-        const id = campaign.id;
-        const contactId = '507f1f77bcf86cd799439011'
-        const input = { id, type, contactId };
-        const variables = { input };
-        await expect(graphql({ query, variables, key: 'addCampaignContact', loggedIn: true })).to.be.rejectedWith(Error, /no contact found/i);
-      });
-
-      it('should not reject when the contact is already added', async function() {
-        const id = campaign.id;
-        const contactId = contact.id;
-        const input = { id, type, contactId };
-        const variables = { input };
-        await graphql({ query, variables, key: 'addCampaignContact', loggedIn: true });
-        const res = await graphql({ query, variables, key: 'addCampaignContact', loggedIn: true });
-        expect(res).to.be.an('object');
-      });
-
-      it('should add the contact to the campaign', async function() {
-        const id = campaign.id;
-        const contactId = contact.id;
-        const input = { id, type, contactId };
-        const variables = { input };
-        const res = await graphql({ query, variables, key: 'addCampaignContact', loggedIn: true });
-        expect(res).to.be.an('object');
-      });
-    });
-
-    describe('removeContact', function() {
-      let campaign;
-      let contact;
-      before(async function() {
-        campaign = await createCampaign();
-        contact = await createContact();
-      });
-      const type = 'internal';
-      const query = `
-        mutation RemoveCampaignContact($input: RemoveContactInput!) {
-          removeCampaignContact(input: $input) {
-            id
-          }
-        }
-      `;
-
-      it('should reject when no user is logged-in', async function() {
-        const id = campaign.id;
-        const contactId = contact.id;
-        const input = { id, type, contactId };
-        const variables = { input };
-        await expect(graphql({ query, variables, key: 'removeCampaignContact', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
-      });
-      it('should reject when the campaign record is not found', async function() {
-        const id = '507f1f77bcf86cd799439011'
-        const contactId = contact.id;
-        const input = { id, type, contactId };
-        const variables = { input };
-        await expect(graphql({ query, variables, key: 'removeCampaignContact', loggedIn: true })).to.be.rejectedWith(Error, /no record was found/i);
-      });
-      it('should not reject when the contact record is not found', async function() {
-        const id = campaign.id;
-        const contactId = '507f1f77bcf86cd799439011'
-        const input = { id, type, contactId };
-        const variables = { input };
-        await expect(graphql({ query, variables, key: 'removeCampaignContact', loggedIn: true })).to.not.be.rejectedWith(Error, /./i);
-      });
-      it('should not reject when the contact is already removed', async function() {
-        const id = campaign.id;
-        const contactId = contact.id;
-        const input = { id, type, contactId };
-        const variables = { input };
-        await graphql({ query, variables, key: 'removeCampaignContact', loggedIn: true });
-        const res = await graphql({ query, variables, key: 'removeCampaignContact', loggedIn: true });
-        expect(res).to.be.an('object');
-      });
-      it('should remove the contact from the campaign', async function() {
-        const id = campaign.id;
-        const contactId = contact.id;
-        const input = { id, type, contactId };
-        const variables = { input };
-        const res = await graphql({ query, variables, key: 'removeCampaignContact', loggedIn: true });
-        expect(res).to.be.an('object');
-      });
-    });
-
-    describe('setContacts', function() {
+    describe('campaignContacts', function() {
       let campaign;
       let contact;
       let contactIds;
@@ -856,8 +626,8 @@ describe('graph/resolvers/campaign', function() {
       });
       const type = 'internal';
       const query = `
-        mutation SetCampaignContacts($input: SetContactsInput!) {
-          setCampaignContacts(input: $input) {
+        mutation CampaignContacts($input: SetContactsInput!) {
+          campaignContacts(input: $input) {
             id
           }
         }
@@ -867,28 +637,28 @@ describe('graph/resolvers/campaign', function() {
         const id = campaign.id;
         const input = { id, type, contactIds };
         const variables = { input };
-        await expect(graphql({ query, variables, key: 'setCampaignContacts', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
+        await expect(graphql({ query, variables, key: 'campaignContacts', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
       });
       it('should reject when the campaign record is not found', async function() {
         const id = '507f1f77bcf86cd799439011'
         const input = { id, type, contactIds };
         const variables = { input };
-        await expect(graphql({ query, variables, key: 'setCampaignContacts', loggedIn: true })).to.be.rejectedWith(Error, /no record was found/i);
+        await expect(graphql({ query, variables, key: 'campaignContacts', loggedIn: true })).to.be.rejectedWith(Error, /no record was found/i);
       });
       it('should reject when the contact record is not found', async function() {
         const id = campaign.id;
         const cids = [ '507f1f77bcf86cd799439011' ];
         const input = { id, type, contactIds: cids };
         const variables = { input };
-        await expect(graphql({ query, variables, key: 'setCampaignContacts', loggedIn: true })).to.be.rejectedWith(Error, /no contact found/i);
+        await expect(graphql({ query, variables, key: 'campaignContacts', loggedIn: true })).to.be.rejectedWith(Error, /no contact found/i);
       });
 
       it('should not reject when the contact is already added', async function() {
         const id = campaign.id;
         const input = { id, type, contactIds };
         const variables = { input };
-        await graphql({ query, variables, key: 'setCampaignContacts', loggedIn: true });
-        const res = await graphql({ query, variables, key: 'setCampaignContacts', loggedIn: true });
+        await graphql({ query, variables, key: 'campaignContacts', loggedIn: true });
+        const res = await graphql({ query, variables, key: 'campaignContacts', loggedIn: true });
         expect(res).to.be.an('object');
       });
 
@@ -896,7 +666,7 @@ describe('graph/resolvers/campaign', function() {
         const id = campaign.id;
         const input = { id, type, contactIds };
         const variables = { input };
-        const res = await graphql({ query, variables, key: 'setCampaignContacts', loggedIn: true });
+        const res = await graphql({ query, variables, key: 'campaignContacts', loggedIn: true });
         expect(res).to.be.an('object');
       });
     });

@@ -1,7 +1,8 @@
 const { Router } = require('express');
 const helmet = require('helmet');
-const newrelic = require('../newrelic');
 const createError = require('http-errors');
+const newrelic = require('../newrelic');
+const env = require('../env');
 const CampaignDeliveryRepo = require('../repositories/campaign/delivery');
 
 const router = Router();
@@ -36,7 +37,7 @@ router.get('/:pid.:ext', (req, res) => {
     } = CampaignDeliveryRepo.parseOptions(req.query.opts);
 
     const vars = { custom: cv, merge: mv, fallback: fv };
-    const { NODE_ENV } = process.env;
+    const { NODE_ENV } = env;
     const protocol = NODE_ENV === 'production' ? 'https' : req.protocol;
     CampaignDeliveryRepo.findFor({
       userAgent: req.get('User-Agent'),

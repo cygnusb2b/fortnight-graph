@@ -19,7 +19,6 @@ enum ContactTypes {
 
 type Query {
   ping: String!
-  signImageUpload(input: ImageUploadInput!): SignedImageLocation!
 }
 
 type PageInfo {
@@ -29,12 +28,6 @@ type PageInfo {
   # startCursor: Cursor
 }
 
-type SignedImageLocation {
-  url: String!
-  key: String!
-  expires: Int!
-}
-
 input PaginationInput {
   first: Int! = 25
   after: Cursor
@@ -42,12 +35,6 @@ input PaginationInput {
 
 input ModelIdInput {
   id: String!
-}
-
-input ImageUploadInput {
-  name: String!
-  size: Int!
-  type: String!
 }
 
 type NotificationLists {

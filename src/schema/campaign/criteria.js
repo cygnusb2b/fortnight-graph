@@ -1,5 +1,5 @@
 const { Schema } = require('mongoose');
-const Placement = require('../../models/placement');
+const connection = require('../../connections/mongoose/instance');
 
 module.exports = new Schema({
   start: {
@@ -14,7 +14,7 @@ module.exports = new Schema({
     required: true,
     validate: {
       async validator(v) {
-        const doc = await Placement.findOne({ _id: v }, { _id: 1 });
+        const doc = await connection.model('placement').findOne({ _id: v }, { _id: 1 });
         if (doc) return true;
         return false;
       },

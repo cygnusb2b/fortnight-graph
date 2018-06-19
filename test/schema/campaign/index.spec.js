@@ -67,24 +67,6 @@ describe('schema/campaign', function() {
     });
   });
 
-  describe('#hash', function() {
-    let campaign;
-    beforeEach(function() {
-      campaign = generateCampaign(advertiser, placement, internalContact, externalContact);
-    });
-    [null, undefined, ''].forEach((value) => {
-      it(`should be required and be rejected when the value is '${value}'`, function() {
-        return testRequiredField(Campaign, campaign, 'hash', value);
-      });
-    });
-    [1234, '1234', 'some-random-thing'].forEach((value) => {
-      it(`should be a uuidv4 and be rejected when the value is '${value}'`, async function() {
-        campaign.set('hash', value);
-        await expect(campaign.save()).to.be.rejectedWith(Error, /Invalid campaign hash/i);
-      });
-    });
-  });
-
   describe('#advertiserId', function() {
     let campaign;
     beforeEach(function() {

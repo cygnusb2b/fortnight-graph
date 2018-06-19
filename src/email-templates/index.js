@@ -1,5 +1,6 @@
 const Promise = require('bluebird');
 const handlebars = require('../handlebars');
+const accountService = require('../services/account');
 
 const templates = {};
 
@@ -13,6 +14,10 @@ module.exports = {
       const html = await this.readFileAsync(`src/email-templates/${key}.hbs`, 'utf8');
       templates[key] = handlebars.compile(html);
     }
-    return templates[key](data);
+    const account = await accountService.retrieve();
+    return templates[key]({
+      ...data,
+      account,
+    });
   },
 };

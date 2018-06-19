@@ -5,6 +5,7 @@ const _ = require('lodash');
 const Campaign = require('../../models/campaign');
 const Template = require('../../models/template');
 const Placement = require('../../models/placement');
+const Image = require('../../models/image');
 const AnalyticsEvent = require('../../models/analytics/event');
 const TemplateRepo = require('../../repositories/template');
 const BotDetector = require('../../services/bot-detector');
@@ -143,7 +144,7 @@ module.exports = {
 
     const ads = [];
     const events = [];
-    campaigns.forEach((campaign) => {
+    campaigns.forEach(async (campaign) => {
       const event = this.createRequestEvent({
         cid: campaign.id,
         pid: placement.id,
@@ -152,7 +153,7 @@ module.exports = {
         ip: ipAddress,
       });
       events.push(event);
-      const ad = this.buildAdFor({
+      const ad = await this.buildAdFor({
         campaign,
         template,
         fallbackVars: vars.fallback,
@@ -219,7 +220,7 @@ module.exports = {
    * @deprecated In favor of JS tracking.
    */
   createTracker(type, requestURL, event) {
-    const secret = process.env.TRACKER_SECRET;
+    const secret = 'deprecated';
     const { uuid, pid, cid } = event;
     const payload = { uuid, pid, cid };
     const token = jwt.sign(payload, secret, { noTimestamp: true });
@@ -238,7 +239,7 @@ module.exports = {
    */
   createCampaignRedirect(requestURL, event) {
     const { uuid, pid, cid } = event;
-    const secret = process.env.TRACKER_SECRET;
+    const secret = 'deprecated';
     const payload = { uuid, pid, cid };
     const token = jwt.sign(payload, secret, { noTimestamp: true });
     return `${requestURL}/redir/${token}`;
@@ -275,14 +276,20 @@ module.exports = {
    * @param {Campaign} campaign
    * @return {?Creative}
    */
-  getCreativeFor(campaign) {
+  async getCreativeFor(campaign) {
     const count = campaign.get('creatives.length');
     if (!count) return null;
     const index = _.random(count - 1);
-    return campaign.get(`creatives.${index}`);
+    const creative = campaign.get(`creatives.${index}`);
+    if (!creative) return creative;
+
+    // Append the creative's image.
+    const { imageId } = creative;
+    if (imageId) creative.image = await Image.findById(imageId);
+    return creative;
   },
 
-  buildAdFor({
+  async buildAdFor({
     campaign,
     template,
     fallbackVars,
@@ -297,7 +304,7 @@ module.exports = {
         event,
       });
     }
-    const creative = this.getCreativeFor(campaign);
+    const creative = await this.getCreativeFor(campaign);
     if (!creative || creative.status === 'Draft') {
       // No creative found. Send fallback.
       return this.buildFallbackFor({

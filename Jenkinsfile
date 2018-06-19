@@ -40,24 +40,11 @@ node {
           myDocker.push("v${env.BUILD_NUMBER}");
         }
       }
-      stage('Upgrade Container') {
-        rancher confirm: true, credentialId: 'rancher', endpoint: 'https://rancher.as3.io/v2-beta', environmentId: '1a18', image: "664537616798.dkr.ecr.us-east-1.amazonaws.com/fortnight-graph:v${env.BUILD_NUMBER}", service: 'fortnight/graph', environments: '', ports: '', timeout: 180
+
+      stage('Trigger Deployment') {
+        build job: 'nativex-graph', parameters: [string(name: 'BUILD_NUM', value: "${env.BUILD_NUMBER}")], wait: false
       }
-      stage('Notify Upgrade') {
-        slackSend color: 'good', message: "Finished deploying ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|View>)"
-      }
-      stage('Notify NewRelic') {
-        sh "curl -X POST 'https://api.newrelic.com/v2/applications/101523492/deployments.json' \
-          -H 'X-Api-Key:7f58b04fa716469c1243e499c79ca89202b2ac355b0d092' -i \
-          -H 'Content-Type: application/json' \
-          -d '{ \"deployment\": { \"revision\": \"${env.BUILD_NUMBER}\", \"user\": \"jenkins\" } }'"
-      }
-      stage('Notify Sentry') {
-        sh "curl https://sentry.as3.io/api/hooks/release/builtin/10/28030b8c0f65250244855e5b85483ad830692a84fc389727757bc2fac27f33e3/ \
-          -X POST \
-          -H 'Content-Type: application/json' \
-          -d '{\"version\": \"${env.BUILD_NUMBER}\"}'"
-      }
+
     } catch (e) {
       slackSend color: 'bad', message: "Failed deploying ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|View>)"
       throw e

@@ -15,16 +15,16 @@ services:
     restart: on-failure
     entrypoint: node_modules/.bin/gulp
     environment:
-      NODE_ENV: development
-      MONGO_DSN: mongodb://mongo:27017/fortnight
-      REDIS_DSN: redis://redis:6379/0
-      ELASTIC_HOST: http://elasticsearch:9200
-      ELASTIC_INDEX_PREFIX: fortnight
-      ELASTIC_INDEX_RECREATE: ${ELASTIC_INDEX_RECREATE}
-      PORT: ${GRAPH_APP_PORT-8100}
-      MONGOOSE_DEBUG: ${MONGOOSE_DEBUG}
+      ACCOUNT_KEY: dev-tenant
+      BASE_URI: localhost:8100
       DEBUG: ${DEBUG}
-      TRACKER_SECRET: ${TRACKER_SECRET}
+      ELASTIC_HOST: http://elasticsearch:9200
+      ELASTIC_INDEX_RECREATE: ${ELASTIC_INDEX_RECREATE-false}
+      MONGOOSE_DEBUG: ${MONGOOSE_DEBUG-false}
+      MONGO_DSN: mongodb://mongo:27017/fortnight
+      NODE_ENV: development
+      PORT: 8100
+      REDIS_DSN: redis://redis:6379/0
   redis:
     image: redis:alpine
   mongo:

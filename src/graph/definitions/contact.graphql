@@ -70,5 +70,3 @@ input UpdateContactInput {
   id: String!
   payload: ContactPayloadInput!
 }
-
-

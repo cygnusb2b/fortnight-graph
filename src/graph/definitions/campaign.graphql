@@ -9,18 +9,17 @@ type Query {
 type Mutation {
   createCampaign(input: CreateCampaignInput!): Campaign!
   updateCampaign(input: UpdateCampaignInput!): Campaign!
+
+  campaignCriteria(input: CampaignCriteriaInput!): CampaignCriteria!
+
   addCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative!
-  updateCampaignCreative(input: UpdateCampaignCreativeInput!): CampaignCreative!
-  updateCampaignCreativeDetails(input: UpdateCampaignCreativeDetailsInput!): CampaignCreative!
-  updateCampaignCreativeImage(input: UpdateCampaignCreativeImageInput!): CampaignCreative!
   removeCampaignCreative(input: RemoveCampaignCreativeInput!): String!
-  setCampaignCriteria(input: SetCampaignCriteriaInput!): CampaignCriteria!
-  clientUpdateCampaign(input: ClientUpdateCampaignInput!): Campaign!
-  clientAddCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative!
-  addCampaignContact(input: AddContactInput!): Campaign!
-  removeCampaignContact(input: RemoveContactInput!): Campaign!
-  setCampaignContacts(input: SetContactsInput!): Campaign!
+
   campaignCreativeStatus(input: CampaignCreativeStatusInput!): CampaignCreative!
+  campaignCreativeDetails(input: CampaignCreativeDetailsInput!): CampaignCreative!
+  campaignCreativeImage(input: CampaignCreativeImageInput!): CampaignCreative!
+
+  campaignContacts(input: SetContactsInput!): Campaign!
 }
 
 enum CampaignSortField {
@@ -34,6 +33,11 @@ enum CampaignStatus {
   Paused
   Draft
   Deleted
+}
+
+enum CampaignCreativeStatus {
+  Draft
+  Active
 }
 
 type Campaign {
@@ -59,11 +63,6 @@ type CampaignCreative {
   teaser: String
   status: CampaignCreativeStatus
   image: Image
-}
-
-enum CampaignCreativeStatus {
-  Draft
-  Active
 }
 
 type CampaignCriteria {
@@ -101,6 +100,7 @@ input CampaignCreativeInput {
 }
 
 input CampaignHashInput {
+  advertiserId: String!
   hash: String!
 }
 
@@ -141,35 +141,22 @@ input ExternalLinkInput {
   url: String!
 }
 
-input ClientUpdateCampaignInput {
-  campaignId: String!
-  payload: ClientUpdateCampaignPayloadInput!
-}
-
-input ClientUpdateCampaignPayloadInput {
-  url: String!
-  creatives: [ClientUpdateCampaignCreativeInput]
-}
-
 input AddCampaignCreativeInput {
   campaignId: String!
   payload: AddCampaignCreativePayloadInput
 }
 
 input CampaignCreativeImageInput {
-  filePath: String!
-  height: Int
-  width: Int
-  fileSize: Int
-  mimeType: String
-  focalPoint: ImageFocalPointInput
+  campaignId: String!
+  creativeId: String!
+  imageId: String
 }
 
 input AddCampaignCreativePayloadInput {
   title: String
   teaser: String
   status: CampaignCreativeStatus
-  image: CampaignCreativeImageInput
+  imageId: String
 }
 
 input RemoveCampaignCreativeInput {
@@ -177,28 +164,16 @@ input RemoveCampaignCreativeInput {
   creativeId: String!
 }
 
-input UpdateCampaignCreativeInput {
+input CampaignCreativeDetailsInput {
   campaignId: String!
   creativeId: String!
-  payload: UpdateCampaignCreativePayloadInput
+  payload: CampaignCreativeDetailsPayloadInput
 }
 
-input UpdateCampaignCreativeDetailsInput {
-  campaignId: String!
-  creativeId: String!
-  payload: UpdateCampaignCreativeDetailsPayloadInput
-}
-
-input UpdateCampaignCreativeDetailsPayloadInput {
+input CampaignCreativeDetailsPayloadInput {
   title: String
   teaser: String
   status: CampaignCreativeStatus
-}
-
-input UpdateCampaignCreativeImageInput {
-  campaignId: String!
-  creativeId: String!
-  payload: CampaignCreativeImageInput!
 }
 
 input CampaignCreativeStatusInput {
@@ -207,31 +182,17 @@ input CampaignCreativeStatusInput {
   status: CampaignCreativeStatus!
 }
 
-input ClientUpdateCampaignCreativeInput {
-  id: String!
-  title: String
-  teaser: String
-  image: CampaignCreativeImageInput
-}
-
-input UpdateCampaignCreativePayloadInput {
-  title: String
-  teaser: String
-  status: CampaignCreativeStatus
-  image: CampaignCreativeImageInput
-}
-
 input KeyValuesPayloadInput {
   key: String!
   value: String!
 }
 
-input SetCampaignCriteriaInput {
+input CampaignCriteriaInput {
   campaignId: String!
-  payload: SetCampaignCriteriaPayloadInput
+  payload: CampaignCriteriaPayloadInput
 }
 
-input SetCampaignCriteriaPayloadInput {
+input CampaignCriteriaPayloadInput {
   start: Date!
   end: Date
   placementIds: [String!]

@@ -35,7 +35,10 @@ describe('graph/resolvers/publisher', function() {
           publisher(input: $input) {
             id
             name
-            logo
+            logo {
+              id
+              src
+            }
             createdAt
             updatedAt
           }
@@ -243,7 +246,10 @@ describe('graph/resolvers/publisher', function() {
           createPublisher(input: $input) {
             id
             name
-            logo
+            logo {
+              id
+              src
+            }
             createdAt
             updatedAt
           }
@@ -251,13 +257,13 @@ describe('graph/resolvers/publisher', function() {
       `;
 
       it('should reject when no user is logged-in.', async function() {
-        const payload = { name: 'Test Publisher', logo: 'https://some.url/image.png' };
+        const payload = { name: 'Test Publisher' };
         const input = { payload };
         const variables = { input };
         await expect(graphql({ query, variables, key: 'createPublisher', loggedIn: false })).to.be.rejectedWith(Error, /you must be logged-in/i);
       });
       it('should create the publisher.', async function() {
-        const payload = { name: 'Test Publisher', logo: 'https://some.url/image.png' };
+        const payload = { name: 'Test Publisher' };
         const input = { payload };
         const variables = { input };
         const promise = graphql({ query, variables, key: 'createPublisher', loggedIn: true });
@@ -278,7 +284,10 @@ describe('graph/resolvers/publisher', function() {
           updatePublisher(input: $input) {
             id
             name
-            logo
+            logo {
+              id
+              src
+            }
             createdAt
             updatedAt
           }
@@ -286,7 +295,7 @@ describe('graph/resolvers/publisher', function() {
       `;
       const payload = {
         name: 'Updated Publisher Name',
-        logo: 'https://some.url/image.png',
+        // logo: 'https://some.url/image.png',
       };
 
       it('should reject when no user is logged-in.', async function() {
@@ -299,7 +308,7 @@ describe('graph/resolvers/publisher', function() {
         const id = '507f1f77bcf86cd799439011'
         const input = { id, payload };
         const variables = { input };
-        await expect(graphql({ query, variables, key: 'updatePublisher', loggedIn: true })).to.be.rejectedWith(Error, `Unable to update publisher: no record was found for ID '${id}'`);
+        await expect(graphql({ query, variables, key: 'updatePublisher', loggedIn: true })).to.be.rejectedWith(Error, `Unable to update publisher: no record found for ID ${id}`);
       });
       it('should update the publisher.', async function() {
         const id = publisher.id;

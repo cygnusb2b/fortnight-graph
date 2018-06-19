@@ -17,7 +17,7 @@ module.exports = {
   async createFor(campaignId, {
     title,
     teaser,
-    image,
+    imageId,
     status,
   } = {}) {
     const campaign = await findCampaign(campaignId);
@@ -25,38 +25,12 @@ module.exports = {
     creatives.push({
       title,
       teaser,
-      image,
+      imageId,
       status,
     });
 
     await campaign.save();
     return creatives[creatives.length - 1];
-  },
-
-  /**
-   * @param {string} campaignId
-   * @param {object} payload
-   * @param {string} payload.title
-   * @return {Promise}
-   */
-  async updateFor(campaignId, creativeId, {
-    title,
-    teaser,
-    image,
-    status,
-  } = {}) {
-    const campaign = await findCampaign(campaignId);
-    const creative = campaign.creatives.id(creativeId);
-    if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
-    creative.set({
-      title,
-      teaser,
-      image,
-      status,
-    });
-
-    await campaign.save();
-    return campaign.creatives.id(creativeId);
   },
 
   /**
@@ -82,29 +56,14 @@ module.exports = {
   /**
    * @param {string} campaignId
    * @param {string} creativeId
-   * @param {object} payload
+   * @param {string} imageId
    */
-  async updateImageFor(campaignId, creativeId, {
-    filePath,
-    mimeType,
-    fileSize,
-    width,
-    height,
-    focalPoint,
-  } = {}) {
+  async updateImageFor(campaignId, creativeId, imageId) {
     const campaign = await findCampaign(campaignId);
     const creative = campaign.creatives.id(creativeId);
     if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
 
-    creative.set('image', {
-      filePath,
-      mimeType,
-      fileSize,
-      width,
-      height,
-      focalPoint,
-    });
-
+    creative.imageId = imageId;
     await campaign.save();
     return campaign.creatives.id(creativeId);
   },

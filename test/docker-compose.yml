@@ -12,16 +12,18 @@ services:
       - elasticsearch
     entrypoint: yarn run test:run
     environment:
-      NODE_ENV: test
-      MONGO_DSN: mongodb://mongo:27017/fortnight
-      REDIS_DSN: redis://redis:6379/0
+      ACCOUNT_KEY: dev-tenant
+      AWS_ACCESS_KEY_ID: 1234
+      AWS_SECRET_ACCESS_KEY: notarealkey
+      BASE_URI: localhost:8100
       ELASTIC_HOST: http://elasticsearch:9200
-      ELASTIC_INDEX_PREFIX: fortnight
-      TRACKER_SECRET: ${TRACKER_SECRET-thiskeynotusedbuttests}
+      IMGIX_URL: https://imgix.net
+      MONGO_DSN: mongodb://mongo:27017/fortnight
+      NODE_ENV: test
       PORT: 8100
-      BASE_URL: http://localhost
+      REDIS_DSN: redis://redis:6379/0
       SENDGRID_API_KEY: 1234
-      SENDGRID_FROM: test@test.io
+      SENDGRID_FROM: Test Testerson <test@test.io>
   redis:
     image: redis:alpine
     volumes:

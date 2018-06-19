@@ -8,10 +8,12 @@ describe('fixtures/generators/campaign/creative', function() {
   const fields = [
     { key: 'title', cb: v => expect(v).be.a('string') },
     { key: 'teaser', cb: v => expect(v).be.a('string') },
-    { key: 'image', cb: v => expect(v).be.an('object') },
+    { key: 'imageId', cb: v => expect(v).equal('1234') },
   ];
 
-  const obj = Generate();
+  const imageId = () => '1234';
+
+  const obj = Generate({ imageId });
 
   it('should be an object', function(done) {
     expect(obj).to.be.an('object');
