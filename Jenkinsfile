@@ -40,6 +40,11 @@ node {
           myDocker.push("v${env.BUILD_NUMBER}");
         }
       }
+
+      stage('Trigger Deployment') {
+        build job: 'nativex-graph', parameters: [string(name: 'BUILD_NUM', value: "${env.BUILD_NUMBER}")], wait: false
+      }
+
     } catch (e) {
       slackSend color: 'bad', message: "Failed deploying ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|View>)"
       throw e
