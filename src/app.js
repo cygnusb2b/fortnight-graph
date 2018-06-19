@@ -33,6 +33,11 @@ app.use(express.static('public', {
 app.use(CORS);
 app.options('*', CORS);
 
+// Redirect root domain requests to the app.
+app.get('/', (req, res) => {
+  res.redirect(301, '/app');
+});
+
 loadRouters(app);
 
 module.exports = app;
