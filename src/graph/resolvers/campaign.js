@@ -75,9 +75,9 @@ module.exports = {
      *
      */
     campaignHash: async (root, { input }) => {
-      const { hash } = input;
-      const record = await Campaign.findOne({ pushId: hash });
-      if (!record) throw new Error(`No campaign record found for hash ${hash}.`);
+      const { advertiserId, hash } = input;
+      const record = await Campaign.findOne({ advertiserId, pushId: hash });
+      if (!record) throw new Error(`No advertiser campaign record found for hash ${hash}.`);
       return record;
     },
 
