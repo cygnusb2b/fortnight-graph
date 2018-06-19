@@ -92,23 +92,6 @@ describe('repositories/campaign', function() {
     });
   });
 
-  describe('#findByHash', function() {
-    let campaign;
-    before(async function() {
-      campaign = await createCampaign();
-    });
-    it('should return a rejected promise when no hash is provided.', async function() {
-      await expect(Repo.findByHash()).to.be.rejectedWith(Error, 'Unable to find campaign: no hash was provided.');
-    });
-    it('should return a fulfilled promise with a `null` document when not found.', async function() {
-      const hash = '507f1f77bcf86cd799439011';
-      await expect(Repo.findByHash(hash)).to.be.fulfilled.and.become(null);
-    });
-    it('should return a fulfilled promise with a document when found.', async function() {
-      await expect(Repo.findByHash(campaign.get('hash'))).to.be.fulfilled.and.eventually.be.an.instanceof(Model).with.property('hash').equal(campaign.get('hash'));
-    });
-  });
-
   describe('#findForAdvertiser', function() {
     before(async function() {
       campaign = await createCampaign();

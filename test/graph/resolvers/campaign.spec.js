@@ -139,75 +139,75 @@ describe('graph/resolvers/campaign', function() {
     });
 
 
-    describe('campaignHash', function() {
-      let campaign;
-      before(async function() {
-        campaign = await createCampaign();
-      });
+    // describe('campaignHash', function() {
+    //   let campaign;
+    //   before(async function() {
+    //     campaign = await createCampaign();
+    //   });
 
-      const query = `
-        query CampaignHash($input: CampaignHashInput!) {
-          campaignHash(input: $input) {
-            hash
-            name
-            createdAt
-            updatedAt
-            advertiser {
-              id
-              name
-            }
-            status
-            url
-            notify {
-              external {
-                name
-                email
-              }
-            }
-            creatives {
-              id
-              title
-              teaser
-              image {
-                id
-                src
-                filename
-                mimeType
-                size
-                width
-                height
-                focalPoint {
-                  x
-                  y
-                }
-              }
-            }
-          }
-        }
-      `;
-      it('should not reject when no user is logged-in.', async function() {
-        const hash = campaign.hash;
-        const input = { hash };
-        const variables = { input };
-        const promise = graphql({ query, variables, key: 'campaignHash', loggedIn: false });
-        await expect(promise).to.eventually.be.an('object').with.property('hash', hash);
-      });
-      it('should reject if no record was found.', async function() {
-        const hash = '507f1f77bcf86cd799439011';
-        const input = { hash };
-        const variables = { input };
-        await expect(graphql({ query, variables, key: 'campaignHash', loggedIn: true })).to.be.rejectedWith(Error, `No campaign record found for hash ${hash}.`);
-      });
-      it('should return the requested campaign.', async function() {
-        const hash = campaign.hash;
-        const input = { hash };
-        const variables = { input };
-        const promise = graphql({ query, variables, key: 'campaignHash', loggedIn: true });
-        await expect(promise).to.eventually.be.an('object').with.property('hash', hash);
-        const data = await promise;
-        expect(data).to.have.all.keys('hash', 'name', 'createdAt', 'updatedAt', 'advertiser', 'status', 'url', 'creatives', 'notify');
-      });
-    });
+    //   const query = `
+    //     query CampaignHash($input: CampaignHashInput!) {
+    //       campaignHash(input: $input) {
+    //         hash
+    //         name
+    //         createdAt
+    //         updatedAt
+    //         advertiser {
+    //           id
+    //           name
+    //         }
+    //         status
+    //         url
+    //         notify {
+    //           external {
+    //             name
+    //             email
+    //           }
+    //         }
+    //         creatives {
+    //           id
+    //           title
+    //           teaser
+    //           image {
+    //             id
+    //             src
+    //             filename
+    //             mimeType
+    //             size
+    //             width
+    //             height
+    //             focalPoint {
+    //               x
+    //               y
+    //             }
+    //           }
+    //         }
+    //       }
+    //     }
+    //   `;
+    //   it('should not reject when no user is logged-in.', async function() {
+    //     const hash = campaign.hash;
+    //     const input = { hash };
+    //     const variables = { input };
+    //     const promise = graphql({ query, variables, key: 'campaignHash', loggedIn: false });
+    //     await expect(promise).to.eventually.be.an('object').with.property('hash', hash);
+    //   });
+    //   it('should reject if no record was found.', async function() {
+    //     const hash = '507f1f77bcf86cd799439011';
+    //     const input = { hash };
+    //     const variables = { input };
+    //     await expect(graphql({ query, variables, key: 'campaignHash', loggedIn: true })).to.be.rejectedWith(Error, `No campaign record found for hash ${hash}.`);
+    //   });
+    //   it('should return the requested campaign.', async function() {
+    //     const hash = campaign.hash;
+    //     const input = { hash };
+    //     const variables = { input };
+    //     const promise = graphql({ query, variables, key: 'campaignHash', loggedIn: true });
+    //     await expect(promise).to.eventually.be.an('object').with.property('hash', hash);
+    //     const data = await promise;
+    //     expect(data).to.have.all.keys('hash', 'name', 'createdAt', 'updatedAt', 'advertiser', 'status', 'url', 'creatives', 'notify');
+    //   });
+    // });
 
     describe('allCampaigns', function() {
       let campaigns;
