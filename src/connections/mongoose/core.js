@@ -20,7 +20,7 @@ const connection = mongoose.createConnection(MONGO_DSN, {
 connection.once('open', () => {
   output.write(`🛢️ 🛢️ 🛢️ Successful CORE MongoDB connection to '${MONGO_DSN}'`);
   if (NODE_ENV === 'development') {
-    connection.model('account').findOneAndUpdate({ key: ACCOUNT_KEY }, { key: ACCOUNT_KEY }, {
+    connection.model('account').findOneAndUpdate({ key: ACCOUNT_KEY }, { key: ACCOUNT_KEY, name: 'Development Account' }, {
       upsert: true,
       setDefaultsOnInsert: true,
     }, (err) => {
