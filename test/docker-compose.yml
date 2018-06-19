@@ -23,7 +23,7 @@ services:
       PORT: 8100
       REDIS_DSN: redis://redis:6379/0
       SENDGRID_API_KEY: 1234
-      SENDGRID_FROM: test@test.io
+      SENDGRID_FROM: Test Testerson <test@test.io>
   redis:
     image: redis:alpine
     volumes:
