@@ -1,12 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-const AWS = require('aws-sdk');
 const multerS3 = require('multer-s3');
+const s3 = require('../connections/s3');
 const Image = require('../models/image');
-
-const s3 = new AWS.S3({
-  signatureVersion: 'v4',
-});
 
 const S3_BUCKECT = 'fortnight-materials';
 
