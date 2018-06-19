@@ -1,3 +1,4 @@
+const env = require('./env');
 const mongoose = require('./connections/mongoose');
 const redis = require('./redis');
 const app = require('./app');
@@ -5,7 +6,7 @@ const output = require('./output');
 const elastic = require('./elastic');
 const initElastic = require('./elastic/init');
 
-const { ELASTIC_INDEX_RECREATE, ELASTIC_HOST } = process.env;
+const { ELASTIC_INDEX_RECREATE, ELASTIC_HOST } = env;
 
 initElastic(elastic, ELASTIC_INDEX_RECREATE)
   .then(() => output.write(`🔍 🔍 🔍 ElasticSearch connection to '${ELASTIC_HOST}' is ready.`));

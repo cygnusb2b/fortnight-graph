@@ -1,4 +1,6 @@
-const { NODE_ENV } = process.env;
+const env = require('./env');
+
+const { NODE_ENV } = env;
 
 module.exports = {
   write(message, allowOnTest = false) {

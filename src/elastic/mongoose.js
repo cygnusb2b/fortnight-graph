@@ -1,11 +1,12 @@
 const elasticPlugin = require('mongoose-elasticsearch-xp');
+const env = require('../env');
 const filter = require('./filters');
 const analyzers = require('./analyzers');
 const tokenizers = require('./tokenizers');
 const charFilters = require('./char-filters');
 const { client } = require('../elastic');
 
-const { ACCOUNT_KEY } = process.env;
+const { ACCOUNT_KEY } = env;
 
 const applyElasticPlugin = (schema, indexSuffix) => {
   if (!indexSuffix) throw new Error('An index suffix name must be provided.');

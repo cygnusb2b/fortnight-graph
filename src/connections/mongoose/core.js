@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bluebird = require('bluebird');
+const env = require('../../env');
 const output = require('../../output');
 
 const {
@@ -7,12 +8,12 @@ const {
   MONGOOSE_DEBUG,
   NODE_ENV,
   ACCOUNT_KEY,
-} = process.env;
+} = env;
 mongoose.set('debug', Boolean(MONGOOSE_DEBUG));
 mongoose.Promise = bluebird;
 
 const connection = mongoose.createConnection(MONGO_DSN, {
-  // autoIndex: process.env.NODE_ENV !== 'production',
+  // autoIndex: env.NODE_ENV !== 'production',
   ignoreUndefined: true,
   promiseLibrary: bluebird,
 });

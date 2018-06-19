@@ -2,6 +2,7 @@ const { Schema } = require('mongoose');
 const slug = require('slug');
 const uuid = require('uuid/v4');
 const pushId = require('unique-push-id');
+const env = require('../env');
 
 const sessionSchema = new Schema({
   globalSecret: {
@@ -63,7 +64,7 @@ const schema = new Schema({
 }, { timestamps: true });
 
 schema.virtual('uri').get(function getUrl() {
-  const { BASE_URI, NODE_ENV } = process.env;
+  const { BASE_URI, NODE_ENV } = env;
   const protocol = NODE_ENV === 'production' ? 'https' : 'http';
   return `${protocol}://${this.key}.${BASE_URI}`;
 });

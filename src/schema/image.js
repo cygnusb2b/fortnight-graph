@@ -1,7 +1,8 @@
 const { Schema } = require('mongoose');
 const accountService = require('../services/account');
+const env = require('../env');
 
-const { IMGIX_URL } = process.env;
+const { IMGIX_URL } = env;
 
 const focalPointSchema = new Schema({
   x: {

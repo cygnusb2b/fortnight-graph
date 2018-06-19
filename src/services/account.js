@@ -1,5 +1,6 @@
 const objectPath = require('object-path');
 const Account = require('../models/account');
+const env = require('../env');
 
 let promise;
 
@@ -36,7 +37,7 @@ module.exports = {
    * Gets the account key.
    */
   getKey() {
-    const { ACCOUNT_KEY } = process.env;
+    const { ACCOUNT_KEY } = env;
     return ACCOUNT_KEY;
   },
 
