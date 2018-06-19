@@ -1,5 +1,5 @@
-const sgMail = require('@sendgrid/mail');
 require('../connections');
+const sgMail = require('@sendgrid/mail');
 const ContactNotifier = require('../../src/services/contact-notifier');
 const CampaignRepo = require('../../src/repositories/campaign');
 const ContactRepo = require('../../src/repositories/contact');
@@ -51,59 +51,6 @@ describe('services/contact-notifier', function() {
         expect(address).to.equal(`${contact.givenName} ${contact.familyName} <${contact.email}>`);
       }
 
-    });
-  });
-
-  describe('#send', function() {
-    let key;
-    let from;
-    let bcc;
-    before(function() {
-      key = process.env.SENDGRID_API_KEY;
-      from = process.env.SENDGRID_FROM;
-    })
-    beforeEach(function() {
-      sandbox.stub(sgMail, 'setApiKey').resolves();
-      sandbox.stub(sgMail, 'send').resolves();
-    })
-    afterEach(function() {
-      process.env.SENDGRID_API_KEY = key;
-      process.env.SENDGRID_FROM = from;
-      sandbox.restore();
-    })
-
-    it('should reject if an API key is not set', function() {
-      delete process.env.SENDGRID_API_KEY;
-      expect(ContactNotifier.send({})).to.be.rejectedWith(Error, /SENDGRID_API_KEY/);
-    });
-    it('should reject if a from address is not set', function() {
-      delete process.env.SENDGRID_FROM;
-      expect(ContactNotifier.send({})).to.be.rejectedWith(Error, /SENDGRID_FROM/);
-    });
-    it('should set the from address', async function() {
-      const testValue = 'Test Testerson <test@test.io>';
-      process.env.SENDGRID_FROM = testValue;
-      sgMail.send.restore();
-      sandbox.stub(sgMail, 'send').returnsArg(0);
-      const args = await ContactNotifier.send({ from: testValue });
-      expect(args.from).to.equal(testValue);
-    });
-    it('should set BCC if present.', async function() {
-      process.env.SENDGRID_FROM = from;
-      const payload = {
-        to: 'foo@bar.com',
-        subject: 'Test subject',
-        html: 'Hello world',
-      };
-      const account = await accountService.retrieve();
-      await ContactNotifier.send(payload);
-      sandbox.assert.calledWith(sgMail.send, {
-        to: 'foo@bar.com',
-        bcc: account.settings.bcc,
-        from: process.env.SENDGRID_FROM,
-        subject: 'Test subject',
-        html: 'Hello world',
-      });
     });
   });
 
