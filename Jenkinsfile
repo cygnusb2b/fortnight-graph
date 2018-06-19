@@ -42,7 +42,7 @@ node {
       }
 
       stage('Trigger Deployment') {
-        build job: 'nativex-graph', parameters: [string(name: 'BUILD_NUM', value: "${env.BUILD_NUMBER}")], wait: false
+        build job: 'Custom Deployments/nativex-graph', parameters: [string(name: 'BUILD_NUM', value: "${env.BUILD_NUMBER}")], wait: false
       }
 
     } catch (e) {
