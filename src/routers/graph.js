@@ -32,16 +32,28 @@ const authenticate = (req, res, next) => {
   })(req, res, next);
 };
 
+const loadPortal = (req, res, next) => {
+  const json = req.get('x-portal-context');
+  try {
+    req.portal = JSON.parse(json);
+    next();
+  } catch (e) {
+    next();
+  }
+};
+
 const router = Router();
 
 router.use(
   helmet(),
   authenticate,
+  loadPortal,
   bodyParser.json(),
-  graphqlExpress(req => ({
-    schema,
-    context: { auth: req.auth },
-  })),
+  graphqlExpress((req) => {
+    const { auth, portal } = req;
+    const context = { auth, portal };
+    return { schema, context };
+  }),
 );
 
 module.exports = router;
