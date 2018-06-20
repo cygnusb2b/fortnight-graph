@@ -22,32 +22,4 @@ node {
     slackSend color: 'bad', channel: '#codebot', message: "Failed testing ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|View>)"
     throw e
   }
-
-  if (env.BRANCH_NAME == 'master') {
-    try {
-      stage('Yarn Production Install') {
-        nodeBuilder.inside("-v ${env.WORKSPACE}:/app -u 0:0") {
-          sh 'yarn install --production'
-        }
-      }
-
-      docker.withRegistry('https://664537616798.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:aws-jenkins-login') {
-        stage('Build Container') {
-          myDocker = docker.build("fortnight-graph:v${env.BUILD_NUMBER}", '.')
-        }
-        stage('Push Container') {
-          myDocker.push("latest");
-          myDocker.push("v${env.BUILD_NUMBER}");
-        }
-      }
-
-      stage('Trigger Deployment') {
-        build job: 'Custom Deployments/nativex-graph', parameters: [string(name: 'BUILD_NUM', value: "${env.BUILD_NUMBER}")], wait: false
-      }
-
-    } catch (e) {
-      slackSend color: 'bad', message: "Failed deploying ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|View>)"
-      throw e
-    }
-  }
 }
