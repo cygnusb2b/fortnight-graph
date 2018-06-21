@@ -153,10 +153,10 @@ input CampaignCreativeImageInput {
 }
 
 input AddCampaignCreativePayloadInput {
-  title: String
-  teaser: String
+  title: String!
+  teaser: String!
   status: CampaignCreativeStatus
-  imageId: String
+  imageId: String!
 }
 
 input RemoveCampaignCreativeInput {
@@ -171,8 +171,8 @@ input CampaignCreativeDetailsInput {
 }
 
 input CampaignCreativeDetailsPayloadInput {
-  title: String
-  teaser: String
+  title: String!
+  teaser: String!
   status: CampaignCreativeStatus
 }
 
