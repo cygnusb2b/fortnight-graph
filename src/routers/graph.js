@@ -5,6 +5,8 @@ const passport = require('passport');
 const { graphqlExpress } = require('apollo-server-express');
 const Auth = require('../classes/auth');
 const schema = require('../graph/schema');
+const Advertiser = require('../models/advertiser');
+const Campaign = require('../models/campaign');
 
 /**
  * Authenticates a user via the `Authorization: Bearer` JWT.
@@ -32,14 +34,33 @@ const authenticate = (req, res, next) => {
   })(req, res, next);
 };
 
-const loadPortal = (req, res, next) => {
-  const json = req.get('x-portal-context');
+const safeParse = (json) => {
+  if (!json) return {};
   try {
-    req.portal = JSON.parse(json);
-    next();
+    return JSON.parse(json) || {};
   } catch (e) {
-    next();
+    return {};
   }
+};
+
+const loadPortal = (req, res, next) => {
+  const ctx = safeParse(req.get('x-portal-context'));
+  const { advertiser, campaign } = ctx;
+  const promises = [];
+  const fields = { name: 1, pushId: 1 };
+
+  promises.push(advertiser ? Advertiser.findOne({
+    pushId: advertiser,
+  }, fields) : Promise.resolve(null));
+
+  promises.push(campaign ? Campaign.findOne({
+    pushId: campaign,
+  }, fields) : Promise.resolve(null));
+
+  Promise.all(promises).then(([adv, camp]) => {
+    req.portal = { advertiser: adv, campaign: camp };
+    next();
+  }).catch(next);
 };
 
 const router = Router();
