@@ -137,9 +137,14 @@ module.exports = {
     /**
      *
      */
-    addCampaignCreative: (root, { input }, { auth }) => {
-      auth.check();
+    addCampaignCreative: (root, { input }, { auth, portal }) => {
+      const { campaign } = portal;
       const { campaignId, payload } = input;
+
+      if (!campaign || !campaign.id || campaign.id !== campaignId) {
+        // Require auth when not accessed through portal.
+        auth.check();
+      }
       return CreativeRepo.createFor(campaignId, payload);
     },
 
