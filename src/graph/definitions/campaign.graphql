@@ -10,6 +10,7 @@ type Mutation {
   createCampaign(input: CreateCampaignInput!): Campaign!
   updateCampaign(input: UpdateCampaignInput!): Campaign!
 
+  campaignUrl(input: CampaignUrlInput!): Campaign!
   campaignCriteria(input: CampaignCriteriaInput!): CampaignCriteria!
 
   addCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative!
@@ -134,6 +135,11 @@ input UpdateCampaignPayloadInput {
   status: CampaignStatus
   advertiserId: String
   externalLinks: [ExternalLinkInput]
+}
+
+input CampaignUrlInput {
+  campaignId: String!
+  url: String!
 }
 
 input ExternalLinkInput {

@@ -134,6 +134,15 @@ module.exports = {
       return CriteriaRepo.setFor(campaignId, payload);
     },
 
+    campaignUrl: async (root, { input }, { auth }) => {
+      const { campaignId, url } = input;
+      auth.checkCampaignAccess(campaignId);
+      const campaign = await Campaign.findById(campaignId);
+      if (!campaign) throw new Error(`Unable to set campaign URL: no campaign found for '${campaignId}'`);
+      campaign.url = url;
+      return campaign.save();
+    },
+
     /**
      *
      */
