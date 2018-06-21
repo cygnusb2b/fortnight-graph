@@ -1,7 +1,13 @@
 class Auth {
-  constructor({ user, session, err } = {}) {
+  constructor({
+    user,
+    session,
+    portal,
+    err,
+  } = {}) {
     this.user = user;
     this.session = session;
+    this.portal = portal;
     this.err = err;
   }
 
@@ -33,6 +39,24 @@ class Auth {
 
   check() {
     if (!this.isValid()) throw new Error('You must be logged-in to access this resource.');
+  }
+
+  checkPortalAccess() {
+    if (!this.portal.isValid()) {
+      this.check();
+    }
+  }
+
+  checkAdvertiserAccess(advertiserId) {
+    if (!this.portal.canAccessAdvertiser(advertiserId)) {
+      this.check();
+    }
+  }
+
+  checkCampaignAccess(campaignId) {
+    if (!this.portal.canAccessCampaign(campaignId)) {
+      this.check();
+    }
   }
 }
 

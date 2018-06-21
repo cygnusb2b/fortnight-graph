@@ -65,13 +65,9 @@ module.exports = {
     /**
      *
      */
-    campaignCreative: (root, { input }, { auth, portal }) => {
-      const { campaign } = portal;
+    campaignCreative: (root, { input }, { auth }) => {
       const { campaignId, creativeId } = input;
-      if (!campaign || !campaign.id || campaign.id !== campaignId) {
-        // Require auth when not accessed through portal.
-        auth.check();
-      }
+      auth.checkCampaignAccess(campaignId);
       return CreativeRepo.findFor(campaignId, creativeId);
     },
 
@@ -141,27 +137,18 @@ module.exports = {
     /**
      *
      */
-    addCampaignCreative: (root, { input }, { auth, portal }) => {
-      const { campaign } = portal;
+    addCampaignCreative: (root, { input }, { auth }) => {
       const { campaignId, payload } = input;
-
-      if (!campaign || !campaign.id || campaign.id !== campaignId) {
-        // Require auth when not accessed through portal.
-        auth.check();
-      }
+      auth.checkCampaignAccess(campaignId);
       return CreativeRepo.createFor(campaignId, payload);
     },
 
     /**
      *
      */
-    removeCampaignCreative: async (root, { input }, { auth, portal }) => {
-      const { campaign } = portal;
+    removeCampaignCreative: async (root, { input }, { auth }) => {
       const { campaignId, creativeId } = input;
-      if (!campaign || !campaign.id || campaign.id !== campaignId) {
-        // Require auth when not accessed through portal.
-        auth.check();
-      }
+      auth.checkCampaignAccess(campaignId);
       await CreativeRepo.removeFrom(campaignId, creativeId);
       return 'ok';
     },
@@ -178,14 +165,9 @@ module.exports = {
     /**
      *
      */
-    campaignCreativeDetails: async (root, { input }, { auth, portal }) => {
-      const { campaign } = portal;
+    campaignCreativeDetails: async (root, { input }, { auth }) => {
       const { campaignId, creativeId, payload } = input;
-
-      if (!campaign || !campaign.id || campaign.id !== campaignId) {
-        // Require auth when not accessed through portal.
-        auth.check();
-      }
+      auth.checkCampaignAccess(campaignId);
       const { title, teaser, status } = payload;
       return CreativeRepo.updateDetailsFor(campaignId, creativeId, { title, teaser, status });
     },
@@ -193,13 +175,9 @@ module.exports = {
     /**
      *
      */
-    campaignCreativeImage: async (root, { input }, { auth, portal }) => {
-      const { campaign } = portal;
+    campaignCreativeImage: async (root, { input }, { auth }) => {
       const { campaignId, creativeId, imageId } = input;
-      if (!campaign || !campaign.id || campaign.id !== campaignId) {
-        // Require auth when not accessed through portal.
-        auth.check();
-      }
+      auth.checkCampaignAccess(campaignId);
       return CreativeRepo.updateImageFor(campaignId, creativeId, imageId);
     },
 
