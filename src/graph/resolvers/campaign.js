@@ -125,6 +125,14 @@ module.exports = {
       return CampaignRepo.update(id, payload);
     },
 
+    assignCampaignValue: async (root, { input }) => {
+      const { id, field, value } = input;
+      const campaign = await Campaign.findById(id);
+      if (!campaign) throw new Error(`Unable to assign field '${field}' to campaign: no record found for id '${id}'`);
+      campaign.set(field, value);
+      return campaign.save();
+    },
+
     /**
      *
      */

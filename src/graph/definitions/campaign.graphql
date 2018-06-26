@@ -10,6 +10,8 @@ type Mutation {
   createCampaign(input: CreateCampaignInput!): Campaign!
   updateCampaign(input: UpdateCampaignInput!): Campaign!
 
+  assignCampaignValue(input: AssignCampaignValueInput!): Campaign!
+
   campaignUrl(input: CampaignUrlInput!): Campaign!
   campaignCriteria(input: CampaignCriteriaInput!): CampaignCriteria!
 
@@ -93,6 +95,12 @@ type CampaignConnection {
 type CampaignEdge {
   node: Campaign!
   cursor: Cursor!
+}
+
+input AssignCampaignValueInput {
+  id: String!
+  field: String!
+  value: Mixed
 }
 
 input CampaignCreativeInput {
