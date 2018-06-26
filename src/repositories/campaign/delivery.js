@@ -142,9 +142,7 @@ module.exports = {
     });
     this.fillWithFallbacks(campaigns, limit);
 
-    const ads = [];
-    const events = [];
-    campaigns.forEach(async (campaign) => {
+    return Promise.all(campaigns.map((campaign) => {
       const event = this.createRequestEvent({
         cid: campaign.id,
         pid: placement.id,
@@ -152,19 +150,14 @@ module.exports = {
         kv: vars.custom,
         ip: ipAddress,
       });
-      events.push(event);
-      const ad = await this.buildAdFor({
+      return this.buildAdFor({
         campaign,
         template,
         fallbackVars: vars.fallback,
         requestURL,
         event,
       });
-      ads.push(ad);
-    });
-    // Disable saving request events.
-    // await Promise.all(events.map(event => event.save()));
-    return ads;
+    }));
   },
 
   createRequestEvent({
