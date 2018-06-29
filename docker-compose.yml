@@ -15,7 +15,7 @@ services:
     restart: on-failure
     entrypoint: node_modules/.bin/gulp
     environment:
-      ACCOUNT_KEY: dev-tenant
+      ACCOUNT_KEY: ${ACCOUNT_KEY-dev-tenant}
       BASE_URI: localhost:8100
       DEBUG: ${DEBUG}
       ELASTIC_HOST: http://elasticsearch:9200
