@@ -37,9 +37,9 @@ const getCtrProject = () => ({
 });
 
 module.exports = {
-  async campaignSummary(hash) {
-    const campaign = await Campaign.findOne({ hash });
-    if (!campaign) throw new Error(`No campaign record found for hash '${hash}'`);
+  async campaignSummary(pushId) {
+    const campaign = await Campaign.findOne({ pushId });
+    if (!campaign) throw new Error(`No campaign record found for pushId '${pushId}'`);
     const cid = campaign.get('id');
     const start = moment(campaign.get('criteria.start')).startOf('day');
     const end = campaign.get('criteria.end')
@@ -109,9 +109,9 @@ module.exports = {
     out.days = dates.map(d => fillDayData(d, out.days));
     return out;
   },
-  async campaignCreativeBreakdown(hash) {
-    const campaign = await Campaign.findOne({ hash });
-    if (!campaign) throw new Error(`No campaign record found for hash '${hash}'`);
+  async campaignCreativeBreakdown(pushId) {
+    const campaign = await Campaign.findOne({ pushId });
+    if (!campaign) throw new Error(`No campaign record found for pushId '${pushId}'`);
     const cid = campaign.get('id');
     const creatives = campaign.get('creatives');
     const creativeIds = [];
@@ -221,7 +221,7 @@ module.exports = {
     ];
     const results = await Analytics.aggregate(pipeline);
     const out = results[0];
-    if (!out) throw new Error(`No results found for hash '${hash}'`);
+    if (!out) throw new Error(`No results found for pushId '${pushId}'`);
     const dates = createDateRange(start, end);
     for (let i = 0; i < out.creatives.length; i += 1) {
       const id = out.creatives[i]._id;
