@@ -25,10 +25,7 @@ type CampaignCreativeBreakdown {
 }
 
 type CreativeSummary {
-  id: String!
-  title: String
-  teaser: String
-  # image: Image
+  creative: CampaignCreative
   views: Int!
   clicks: Int!
   ctr: Float!
