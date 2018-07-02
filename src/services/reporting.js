@@ -37,6 +37,10 @@ const getCtrProject = () => ({
 });
 
 module.exports = {
+  /**
+   *
+   * @param {*} pushId
+   */
   async campaignSummary(pushId) {
     const campaign = await Campaign.findOne({ pushId });
     if (!campaign) throw new Error(`No campaign record found for pushId '${pushId}'`);
@@ -105,10 +109,28 @@ module.exports = {
     ];
     const results = await Analytics.aggregate(pipeline);
     const out = results[0];
+    if (!out) return this.emptySummary();
     const dates = createDateRange(start, end);
     out.days = dates.map(d => fillDayData(d, out.days));
     return out;
   },
+
+  /**
+   *
+   */
+  emptySummary() {
+    return {
+      views: 0,
+      clicks: 0,
+      ctr: 0,
+      days: [],
+    };
+  },
+
+  /**
+   *
+   * @param {*} pushId
+   */
   async campaignCreativeBreakdown(pushId) {
     const campaign = await Campaign.findOne({ pushId });
     if (!campaign) throw new Error(`No campaign record found for pushId '${pushId}'`);
@@ -221,7 +243,7 @@ module.exports = {
     ];
     const results = await Analytics.aggregate(pipeline);
     const out = results[0];
-    if (!out) throw new Error(`No results found for pushId '${pushId}'`);
+    if (!out) return this.emptyCampaignBreakdown(creatives);
     const dates = createDateRange(start, end);
     for (let i = 0; i < out.creatives.length; i += 1) {
       const id = out.creatives[i]._id;
@@ -229,5 +251,24 @@ module.exports = {
       out.creatives[i].days = dates.map(d => fillDayData(d, out.creatives[i].days));
     }
     return out;
+  },
+
+  /**
+   *
+   * @param {*} creatives
+   */
+  emptyCampaignBreakdown(creatives) {
+    return {
+      creatives: creatives.map(creative => ({
+        creative,
+        views: 0,
+        clicks: 0,
+        ctr: 0,
+        days: [],
+      })),
+      views: 0,
+      clicks: 0,
+      ctr: 0,
+    };
   },
 };
