@@ -66,8 +66,8 @@ module.exports = {
      *
      */
     campaignCreative: (root, { input }, { auth }) => {
-      auth.check();
       const { campaignId, creativeId } = input;
+      auth.checkCampaignAccess(campaignId);
       return CreativeRepo.findFor(campaignId, creativeId);
     },
 
@@ -125,6 +125,14 @@ module.exports = {
       return CampaignRepo.update(id, payload);
     },
 
+    assignCampaignValue: async (root, { input }) => {
+      const { id, field, value } = input;
+      const campaign = await Campaign.findById(id);
+      if (!campaign) throw new Error(`Unable to assign field '${field}' to campaign: no record found for id '${id}'`);
+      campaign.set(field, value);
+      return campaign.save();
+    },
+
     /**
      *
      */
@@ -134,12 +142,21 @@ module.exports = {
       return CriteriaRepo.setFor(campaignId, payload);
     },
 
+    campaignUrl: async (root, { input }, { auth }) => {
+      const { campaignId, url } = input;
+      auth.checkCampaignAccess(campaignId);
+      const campaign = await Campaign.findById(campaignId);
+      if (!campaign) throw new Error(`Unable to set campaign URL: no campaign found for '${campaignId}'`);
+      campaign.url = url;
+      return campaign.save();
+    },
+
     /**
      *
      */
     addCampaignCreative: (root, { input }, { auth }) => {
-      auth.check();
       const { campaignId, payload } = input;
+      auth.checkCampaignAccess(campaignId);
       return CreativeRepo.createFor(campaignId, payload);
     },
 
@@ -147,8 +164,8 @@ module.exports = {
      *
      */
     removeCampaignCreative: async (root, { input }, { auth }) => {
-      auth.check();
       const { campaignId, creativeId } = input;
+      auth.checkCampaignAccess(campaignId);
       await CreativeRepo.removeFrom(campaignId, creativeId);
       return 'ok';
     },
@@ -166,8 +183,8 @@ module.exports = {
      *
      */
     campaignCreativeDetails: async (root, { input }, { auth }) => {
-      auth.check();
       const { campaignId, creativeId, payload } = input;
+      auth.checkCampaignAccess(campaignId);
       const { title, teaser, status } = payload;
       return CreativeRepo.updateDetailsFor(campaignId, creativeId, { title, teaser, status });
     },
@@ -176,8 +193,8 @@ module.exports = {
      *
      */
     campaignCreativeImage: async (root, { input }, { auth }) => {
-      auth.check();
       const { campaignId, creativeId, imageId } = input;
+      auth.checkCampaignAccess(campaignId);
       return CreativeRepo.updateImageFor(campaignId, creativeId, imageId);
     },
 

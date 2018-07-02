@@ -10,6 +10,9 @@ type Mutation {
   createCampaign(input: CreateCampaignInput!): Campaign!
   updateCampaign(input: UpdateCampaignInput!): Campaign!
 
+  assignCampaignValue(input: AssignCampaignValueInput!): Campaign!
+
+  campaignUrl(input: CampaignUrlInput!): Campaign!
   campaignCriteria(input: CampaignCriteriaInput!): CampaignCriteria!
 
   addCampaignCreative(input: AddCampaignCreativeInput!): CampaignCreative!
@@ -94,6 +97,12 @@ type CampaignEdge {
   cursor: Cursor!
 }
 
+input AssignCampaignValueInput {
+  id: String!
+  field: String!
+  value: Mixed
+}
+
 input CampaignCreativeInput {
   campaignId: String!
   creativeId: String!
@@ -136,6 +145,11 @@ input UpdateCampaignPayloadInput {
   externalLinks: [ExternalLinkInput]
 }
 
+input CampaignUrlInput {
+  campaignId: String!
+  url: String!
+}
+
 input ExternalLinkInput {
   label: String
   url: String!
@@ -153,10 +167,10 @@ input CampaignCreativeImageInput {
 }
 
 input AddCampaignCreativePayloadInput {
-  title: String
-  teaser: String
+  title: String!
+  teaser: String!
   status: CampaignCreativeStatus
-  imageId: String
+  imageId: String!
 }
 
 input RemoveCampaignCreativeInput {
@@ -171,8 +185,8 @@ input CampaignCreativeDetailsInput {
 }
 
 input CampaignCreativeDetailsPayloadInput {
-  title: String
-  teaser: String
+  title: String!
+  teaser: String!
   status: CampaignCreativeStatus
 }
 

@@ -37,9 +37,13 @@ const getCtrProject = () => ({
 });
 
 module.exports = {
-  async campaignSummary(hash) {
-    const campaign = await Campaign.findOne({ hash });
-    if (!campaign) throw new Error(`No campaign record found for hash '${hash}'`);
+  /**
+   *
+   * @param {*} pushId
+   */
+  async campaignSummary(pushId) {
+    const campaign = await Campaign.findOne({ pushId });
+    if (!campaign) throw new Error(`No campaign record found for pushId '${pushId}'`);
     const cid = campaign.get('id');
     const start = moment(campaign.get('criteria.start')).startOf('day');
     const end = campaign.get('criteria.end')
@@ -105,13 +109,31 @@ module.exports = {
     ];
     const results = await Analytics.aggregate(pipeline);
     const out = results[0];
+    if (!out) return this.emptySummary();
     const dates = createDateRange(start, end);
     out.days = dates.map(d => fillDayData(d, out.days));
     return out;
   },
-  async campaignCreativeBreakdown(hash) {
-    const campaign = await Campaign.findOne({ hash });
-    if (!campaign) throw new Error(`No campaign record found for hash '${hash}'`);
+
+  /**
+   *
+   */
+  emptySummary() {
+    return {
+      views: 0,
+      clicks: 0,
+      ctr: 0,
+      days: [],
+    };
+  },
+
+  /**
+   *
+   * @param {*} pushId
+   */
+  async campaignCreativeBreakdown(pushId) {
+    const campaign = await Campaign.findOne({ pushId });
+    if (!campaign) throw new Error(`No campaign record found for pushId '${pushId}'`);
     const cid = campaign.get('id');
     const creatives = campaign.get('creatives');
     const creativeIds = [];
@@ -221,15 +243,32 @@ module.exports = {
     ];
     const results = await Analytics.aggregate(pipeline);
     const out = results[0];
-    if (!out) throw new Error(`No results found for hash '${hash}'`);
+    if (!out) return this.emptyCampaignBreakdown(creatives);
     const dates = createDateRange(start, end);
     for (let i = 0; i < out.creatives.length; i += 1) {
       const id = out.creatives[i]._id;
-      out.creatives[i].title = creativesById[id].title;
-      out.creatives[i].teaser = creativesById[id].teaser;
-      out.creatives[i].image = creativesById[id].image;
+      out.creatives[i].creative = creativesById[id];
       out.creatives[i].days = dates.map(d => fillDayData(d, out.creatives[i].days));
     }
     return out;
+  },
+
+  /**
+   *
+   * @param {*} creatives
+   */
+  emptyCampaignBreakdown(creatives) {
+    return {
+      creatives: creatives.map(creative => ({
+        creative,
+        views: 0,
+        clicks: 0,
+        ctr: 0,
+        days: [],
+      })),
+      views: 0,
+      clicks: 0,
+      ctr: 0,
+    };
   },
 };

@@ -28,7 +28,7 @@ module.exports = {
      *
      */
     imageFocalPoint: async (root, { input }, { auth }) => {
-      auth.check();
+      auth.checkPortalAccess();
       const { id, x, y } = input;
       const image = await Image.findById(id);
       if (!image) throw new Error(`Unable to set image focal point: no record was found for ID '${id}'`);

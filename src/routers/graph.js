@@ -4,7 +4,11 @@ const helmet = require('helmet');
 const passport = require('passport');
 const { graphqlExpress } = require('apollo-server-express');
 const Auth = require('../classes/auth');
+const Portal = require('../classes/portal');
 const schema = require('../graph/schema');
+const Advertiser = require('../models/advertiser');
+const Campaign = require('../models/campaign');
+const asyncRoute = require('../utils/async-route');
 
 /**
  * Authenticates a user via the `Authorization: Bearer` JWT.
@@ -27,21 +31,49 @@ const schema = require('../graph/schema');
  */
 const authenticate = (req, res, next) => {
   passport.authenticate('bearer', { session: false }, (err, { user, session } = {}) => {
-    req.auth = new Auth({ user, session, err });
+    const { portal } = req;
+    req.auth = new Auth({
+      user,
+      session,
+      portal,
+      err,
+    });
     next();
   })(req, res, next);
 };
+
+const loadPortal = asyncRoute(async (req, res, next) => {
+  const pushId = req.get('x-portal-hash');
+
+  let id;
+  let hash;
+  const campaigns = [];
+
+  if (pushId) {
+    const adv = await Advertiser.findOne({ pushId }, { pushId: 1 });
+    if (adv) {
+      id = adv.id.toString();
+      hash = adv.pushId;
+      const camps = await Campaign.find({ advertiserId: adv.id }, { pushId: 1 });
+      camps.forEach(camp => campaigns.push({ id: camp.id.toString(), hash: camp.pushId }));
+    }
+  }
+  req.portal = new Portal({ id, hash, campaigns });
+  next();
+});
 
 const router = Router();
 
 router.use(
   helmet(),
+  loadPortal,
   authenticate,
   bodyParser.json(),
-  graphqlExpress(req => ({
-    schema,
-    context: { auth: req.auth },
-  })),
+  graphqlExpress((req) => {
+    const { auth, portal } = req;
+    const context = { auth, portal };
+    return { schema, context };
+  }),
 );
 
 module.exports = router;

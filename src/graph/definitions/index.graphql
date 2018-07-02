@@ -11,6 +11,7 @@
 
 scalar Date
 scalar Cursor
+scalar Mixed
 
 enum ContactTypes {
   internal
