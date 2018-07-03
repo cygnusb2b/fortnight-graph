@@ -65,6 +65,12 @@ input AdvertiserSortInput {
 
 input AdvertiserPayloadInput {
   name: String!
+  notify: AdvertiserContactsInput
+}
+
+input AdvertiserContactsInput {
+  internal: [String!]
+  external: [String!]
 }
 
 input CreateAdvertiserInput {
