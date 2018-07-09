@@ -77,6 +77,16 @@ module.exports = {
       });
     },
 
+    /**
+     *
+     */
+    deleteStory: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const story = await Story.findById(id);
+      if (!story) throw new Error(`No story found for ID '${id}'.`);
+      story.disposition = 'Deleted';
+      return story.save();
     },
 
     /**

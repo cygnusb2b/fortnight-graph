@@ -8,6 +8,7 @@ type Query {
 type Mutation {
   createStory(input: CreateStoryInput!): Story!
   updateStory(input: UpdateStoryInput!): Story!
+  deleteStory(input: ModelIdInput!): String!
   # An empty imageId will unset the primary image.
   storyPrimaryImage(storyId: String!, imageId: String): Story!
   removeStoryImage(storyId: String!, imageId: String!): Story!
