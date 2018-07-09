@@ -1,7 +1,8 @@
-const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const { Pagination, paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const Advertiser = require('../../models/advertiser');
 const Story = require('../../models/story');
 const Image = require('../../models/image');
+const User = require('../../models/user');
 const StoryRepo = require('../../repositories/story');
 
 module.exports = {
@@ -9,6 +10,8 @@ module.exports = {
     advertiser: story => Advertiser.findById(story.advertiserId),
     primaryImage: story => Image.findById(story.primaryImageId),
     images: story => Image.find({ _id: { $in: story.imageIds } }),
+    createdBy: story => User.findById(story.createdById),
+    updatedBy: story => User.findById(story.updatedById),
   },
 
   /**
@@ -26,7 +29,7 @@ module.exports = {
     story: async (root, { input }) => {
       const { id } = input;
       const record = await Story.findById(id);
-      if (!record) throw new Error(`No story record found for ID ${id}.`);
+      if (!record) throw new Error(`No story found for ID '${id}'`);
       return record;
     },
 
@@ -74,6 +77,8 @@ module.exports = {
         advertiserId,
         publishedAt,
         disposition,
+        createdById: auth.user.id,
+        updatedById: auth.user.id,
       });
     },
 
@@ -116,6 +121,7 @@ module.exports = {
         advertiserId,
         publishedAt,
         disposition,
+        updatedById: auth.user.id,
       });
       return story.save();
     },

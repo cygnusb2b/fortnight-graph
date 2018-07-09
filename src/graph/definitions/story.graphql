@@ -44,8 +44,10 @@ type Story {
   publishedAt: Date
   primaryImage: Image
   images: [Image]
-  createdAt: Date
-  updatedAt: Date
+  createdAt: Date!
+  updatedAt: Date!
+  createdBy: User!
+  updatedBy: User!
 }
 
 type StoryConnection {

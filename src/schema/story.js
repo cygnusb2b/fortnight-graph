@@ -3,6 +3,7 @@ const slug = require('slug');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const imagePlugin = require('../plugins/image');
+const userAttributionPlugin = require('../plugins/user-attribution');
 
 const schema = new Schema({
   title: {
@@ -43,6 +44,8 @@ const schema = new Schema({
     type: Date,
   },
 }, { timestamps: true });
+
+schema.plugin(userAttributionPlugin);
 
 imagePlugin(schema, { fieldName: 'primaryImageId' });
 imagePlugin(schema, { fieldName: 'imageIds', multiple: true });
