@@ -33,6 +33,12 @@ const schema = new Schema({
   advertiserName: {
     type: String,
   },
+  disposition: {
+    type: String,
+    required: true,
+    default: 'Draft',
+    enum: ['Placeholder', 'Draft', 'Deleted', 'Ready'],
+  },
   publishedAt: {
     type: Date,
   },
@@ -57,6 +63,7 @@ setEntityFields(schema, 'advertiserName');
 applyElasticPlugin(schema, 'stories');
 
 schema.index({ advertiserId: 1 });
+schema.index({ disposition: 1 });
 schema.index({ title: 1, _id: 1 }, { unique: true });
 schema.index({ title: -1, _id: -1 }, { unique: true });
 schema.index({ updatedAt: 1, _id: 1 }, { unique: true });

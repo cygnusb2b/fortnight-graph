@@ -33,7 +33,13 @@ module.exports = {
     /**
      *
      */
-    allStories: (root, { pagination, sort }) => StoryRepo.paginate({ pagination, sort }),
+    allStories: (root, { input, pagination, sort }) => {
+      const { dispositions } = input;
+      const criteria = {
+        disposition: { $in: dispositions.length ? dispositions : ['Ready', 'Draft'] },
+      };
+      return new Pagination(Story, { pagination, sort, criteria });
+    },
 
     /**
      *
@@ -56,7 +62,21 @@ module.exports = {
     createStory: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
-      return Story.create(payload);
+      const {
+        title,
+        advertiserId,
+        publishedAt,
+      } = payload;
+      const disposition = publishedAt ? 'Ready' : 'Draft';
+
+      return Story.create({
+        title,
+        advertiserId,
+        publishedAt,
+        disposition,
+      });
+    },
+
     },
 
     /**
@@ -65,9 +85,28 @@ module.exports = {
     updateStory: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
+      const {
+        title,
+        teaser,
+        body,
+        advertiserId,
+        publishedAt,
+      } = payload;
+
       const story = await Story.findById(id);
       if (!story) throw new Error(`Unable to update story: no record was found for ID '${id}'`);
-      story.set(payload);
+
+      let disposition = publishedAt ? 'Ready' : 'Draft';
+      if (story.disposition === 'Deleted') disposition = 'Deleted';
+
+      story.set({
+        title,
+        teaser,
+        body,
+        advertiserId,
+        publishedAt,
+        disposition,
+      });
       return story.save();
     },
 
