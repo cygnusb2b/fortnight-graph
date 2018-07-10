@@ -4,6 +4,7 @@ const notifyPlugin = require('../plugins/notify');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const imagePlugin = require('../plugins/image');
 const pushIdPlugin = require('../plugins/push-id');
+const accountService = require('../services/account');
 
 const schema = new Schema({
   name: {
@@ -36,6 +37,12 @@ schema.pre('save', async function updateCampaigns() {
       story.save();
     });
   }
+});
+
+schema.virtual('portalUri').get(async function getPortalUri() {
+  const account = await accountService.retrieve();
+  const uri = await account.get('uri');
+  return `${uri}/app/${this.pushId}`;
 });
 
 schema.plugin(notifyPlugin);

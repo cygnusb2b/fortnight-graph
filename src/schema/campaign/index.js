@@ -93,6 +93,27 @@ schema.pre('save', async function setAdvertiserName() {
   }
 });
 
+schema.virtual('portalUri').get(async function getPortalUri() {
+  const advertiser = await connection.model('advertiser').findOne({ _id: this.advertiserId }, { pushId: 1 });
+  const uri = await advertiser.get('portalUri');
+  return `${uri}/campaigns/${this.pushId}`;
+});
+
+schema.virtual('vMaterialCollectUri').get(async function getVMCU() {
+  const uri = await this.get('portalUri');
+  return `${uri}/materials`;
+});
+
+schema.virtual('vReportSummaryUri').get(async function getVRSU() {
+  const uri = await this.get('portalUri');
+  return `${uri}/report/summary`;
+});
+
+schema.virtual('vReportCreativeUri').get(async function getVRCU() {
+  const uri = await this.get('portalUri');
+  return `${uri}/report/creative-breakdown`;
+});
+
 schema.plugin(notifyPlugin);
 schema.plugin(pushIdPlugin, { required: true });
 
