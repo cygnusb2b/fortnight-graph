@@ -64,6 +64,4 @@ handlebars.registerHelper('build-ua-beacon', (context) => {
   return new handlebars.SafeString(`<script>if (window.ga) { ga('send', 'event', 'Fortnight', 'load', '${pid || ''}', '${cid || ''}'); }</script>`);
 });
 
-handlebars.registerHelper('link-to', (...parts) => parts.filter(el => typeof el === 'string').join('/'));
-
 module.exports = handlebars;
