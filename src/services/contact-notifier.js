@@ -62,6 +62,8 @@ module.exports = {
       sendAt: { $lte: new Date() },
     };
     const count = await CampaignNotification.count(criteria);
+    if (count === 0) return;
+
     output.write(`✉️  ✉️  ✉️   Found ${count} pending notifications.`);
 
     // Explicitly await in while to ensure that the findOneAndUpdate
@@ -119,7 +121,7 @@ module.exports = {
   async scheduleCampaignCreated({ campaignId }) {
     const campaign = await Campaign.findOne({ _id: campaignId });
     const advertiser = await AdvertiserRepo.findById(campaign.get('advertiserId'));
-    const materialCollectUri = await campaign.get('vMaterialCollectUri')
+    const materialCollectUri = await campaign.get('vMaterialCollectUri');
     const html = await emailTemplates.render('campaign.created', { campaign, materialCollectUri });
     const subject = `A new campaign was created for ${advertiser.name}`;
     const to = await this.resolveAddresses(campaign.get('notify.external'));
@@ -158,8 +160,8 @@ module.exports = {
 
   async scheduleCampaignEnded({ campaignId }) {
     const campaign = await Campaign.findOne({ _id: campaignId });
-    const reportSummaryUri = await campaign.get('vReportSummaryUri')
-    const reportCreativeUri = await campaign.get('vReportCreativeUri')
+    const reportSummaryUri = await campaign.get('vReportSummaryUri');
+    const reportCreativeUri = await campaign.get('vReportCreativeUri');
     const html = await emailTemplates.render('campaign.ended', { campaign, reportSummaryUri, reportCreativeUri });
     const subject = `Your campaign "${campaign.name} has ended!`;
     const to = await this.resolveAddresses(campaign.get('notify.external'));
