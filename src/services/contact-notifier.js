@@ -119,7 +119,8 @@ module.exports = {
   async scheduleCampaignCreated({ campaignId }) {
     const campaign = await Campaign.findOne({ _id: campaignId });
     const advertiser = await AdvertiserRepo.findById(campaign.get('advertiserId'));
-    const html = await emailTemplates.render('campaign.created', { campaign });
+    const materialCollectUri = await campaign.get('vMaterialCollectUri')
+    const html = await emailTemplates.render('campaign.created', { campaign, materialCollectUri });
     const subject = `A new campaign was created for ${advertiser.name}`;
     const to = await this.resolveAddresses(campaign.get('notify.external'));
     const cc = await this.resolveAddresses(campaign.get('notify.internal'));
@@ -157,7 +158,9 @@ module.exports = {
 
   async scheduleCampaignEnded({ campaignId }) {
     const campaign = await Campaign.findOne({ _id: campaignId });
-    const html = await emailTemplates.render('campaign.ended', { campaign });
+    const reportSummaryUri = await campaign.get('vReportSummaryUri')
+    const reportCreativeUri = await campaign.get('vReportCreativeUri')
+    const html = await emailTemplates.render('campaign.ended', { campaign, reportSummaryUri, reportCreativeUri });
     const subject = `Your campaign "${campaign.name} has ended!`;
     const to = await this.resolveAddresses(campaign.get('notify.external'));
     const cc = await this.resolveAddresses(campaign.get('notify.internal'));
