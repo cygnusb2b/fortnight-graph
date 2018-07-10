@@ -20,6 +20,12 @@ const getNotifyDefaults = async (advertiserId, user) => {
   return notify;
 };
 
+const updateNotifications = async (campaignId) => {
+  contactNotifier.scheduleCampaignCreated({ campaignId });
+  contactNotifier.scheduleCampaignStarted({ campaignId });
+  contactNotifier.scheduleCampaignEnded({ campaignId });
+};
+
 module.exports = {
   /**
    *
@@ -111,18 +117,19 @@ module.exports = {
       payload.criteria = { start: payload.startDate };
       payload.notify = await getNotifyDefaults(payload.advertiserId, auth.user);
       const campaign = await CampaignRepo.create(payload);
-      contactNotifier.sendInternalCampaignCreated({ campaign });
-      contactNotifier.sendExternalCampaignCreated({ campaign });
+      await updateNotifications(campaign.id);
       return campaign;
     },
 
     /**
      *
      */
-    updateCampaign: (root, { input }, { auth }) => {
+    updateCampaign: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return CampaignRepo.update(id, payload);
+      const campaign = await CampaignRepo.update(id, payload);
+      await updateNotifications(id);
+      return campaign;
     },
 
     assignCampaignValue: async (root, { input }) => {
@@ -130,7 +137,9 @@ module.exports = {
       const campaign = await Campaign.findById(id);
       if (!campaign) throw new Error(`Unable to assign field '${field}' to campaign: no record found for id '${id}'`);
       campaign.set(field, value);
-      return campaign.save();
+      await campaign.save();
+      await updateNotifications(id);
+      return campaign;
     },
 
     /**
@@ -139,7 +148,9 @@ module.exports = {
     campaignCriteria: async (root, { input }, { auth }) => {
       auth.check();
       const { campaignId, payload } = input;
-      return CriteriaRepo.setFor(campaignId, payload);
+      const criteria = await CriteriaRepo.setFor(campaignId, payload);
+      await updateNotifications(campaignId);
+      return criteria;
     },
 
     campaignUrl: async (root, { input }, { auth }) => {
@@ -148,16 +159,20 @@ module.exports = {
       const campaign = await Campaign.findById(campaignId);
       if (!campaign) throw new Error(`Unable to set campaign URL: no campaign found for '${campaignId}'`);
       campaign.url = url;
-      return campaign.save();
+      await campaign.save();
+      await updateNotifications(campaignId);
+      return campaign;
     },
 
     /**
      *
      */
-    addCampaignCreative: (root, { input }, { auth }) => {
+    addCampaignCreative: async (root, { input }, { auth }) => {
       const { campaignId, payload } = input;
       auth.checkCampaignAccess(campaignId);
-      return CreativeRepo.createFor(campaignId, payload);
+      const creative = await CreativeRepo.createFor(campaignId, payload);
+      await updateNotifications(campaignId);
+      return creative;
     },
 
     /**
@@ -167,6 +182,7 @@ module.exports = {
       const { campaignId, creativeId } = input;
       auth.checkCampaignAccess(campaignId);
       await CreativeRepo.removeFrom(campaignId, creativeId);
+      await updateNotifications(campaignId);
       return 'ok';
     },
 
@@ -176,7 +192,9 @@ module.exports = {
     campaignCreativeStatus: async (root, { input }, { auth }) => {
       auth.check();
       const { campaignId, creativeId, status } = input;
-      return CreativeRepo.setStatusFor(campaignId, creativeId, status);
+      const saved = await CreativeRepo.setStatusFor(campaignId, creativeId, status);
+      await updateNotifications(campaignId);
+      return saved;
     },
 
     /**
@@ -186,7 +204,13 @@ module.exports = {
       const { campaignId, creativeId, payload } = input;
       auth.checkCampaignAccess(campaignId);
       const { title, teaser, status } = payload;
-      return CreativeRepo.updateDetailsFor(campaignId, creativeId, { title, teaser, status });
+      const details = await CreativeRepo.updateDetailsFor(
+        campaignId,
+        creativeId,
+        { title, teaser, status },
+      );
+      await updateNotifications(campaignId);
+      return details;
     },
 
     /**
@@ -195,16 +219,20 @@ module.exports = {
     campaignCreativeImage: async (root, { input }, { auth }) => {
       const { campaignId, creativeId, imageId } = input;
       auth.checkCampaignAccess(campaignId);
-      return CreativeRepo.updateImageFor(campaignId, creativeId, imageId);
+      const image = await CreativeRepo.updateImageFor(campaignId, creativeId, imageId);
+      await updateNotifications(campaignId);
+      return image;
     },
 
     /**
      *
      */
-    campaignContacts: (root, { input }, { auth }) => {
+    campaignContacts: async (root, { input }, { auth }) => {
       auth.check();
       const { id, type, contactIds } = input;
-      return ContactRepo.setContactsFor(Campaign, id, type, contactIds);
+      const contacts = await ContactRepo.setContactsFor(Campaign, id, type, contactIds);
+      await updateNotifications(id);
+      return contacts;
     },
   },
 };
