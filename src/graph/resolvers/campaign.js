@@ -116,6 +116,23 @@ module.exports = {
       return campaign;
     },
 
+    createExternalUrlCampaign: async (root, { input }, { auth }) => {
+      auth.check();
+      const { name, advertiserId, startDate } = input;
+      const notify = await getNotifyDefaults(advertiserId, auth.user);
+
+      const campaign = await Campaign.create({
+        name,
+        advertiserId,
+        criteria: { start: startDate },
+        notify,
+      });
+
+      contactNotifier.sendInternalCampaignCreated({ campaign });
+      contactNotifier.sendExternalCampaignCreated({ campaign });
+      return campaign;
+    },
+
     /**
      *
      */
