@@ -6,6 +6,7 @@ const CreativeRepo = require('../../repositories/campaign/creative');
 const CriteriaRepo = require('../../repositories/campaign/criteria');
 const ContactRepo = require('../../repositories/contact');
 const Campaign = require('../../models/campaign');
+const Story = require('../../models/story');
 const Image = require('../../models/image');
 const contactNotifier = require('../../services/contact-notifier');
 
@@ -32,6 +33,7 @@ module.exports = {
       return { internal, external };
     },
     hash: campaign => campaign.pushId,
+    story: campaign => Story.findById(campaign.storyId),
   },
 
   CampaignCriteria: {
@@ -123,6 +125,54 @@ module.exports = {
 
       const campaign = await Campaign.create({
         name,
+        advertiserId,
+        criteria: { start: startDate },
+        notify,
+      });
+
+      contactNotifier.sendInternalCampaignCreated({ campaign });
+      contactNotifier.sendExternalCampaignCreated({ campaign });
+      return campaign;
+    },
+
+    createExistingStoryCampaign: async (root, { input }, { auth }) => {
+      auth.check();
+      const { name, storyId, startDate } = input;
+      const story = await Story.findById(storyId, { _id: 1, advertiserId: 1 });
+      if (!story) throw new Error(`No story found for ID '${storyId}'`);
+
+      const { advertiserId } = story;
+      const notify = await getNotifyDefaults(advertiserId, auth.user);
+
+      const campaign = await Campaign.create({
+        name,
+        advertiserId,
+        criteria: { start: startDate },
+        notify,
+      });
+
+      contactNotifier.sendInternalCampaignCreated({ campaign });
+      contactNotifier.sendExternalCampaignCreated({ campaign });
+      return campaign;
+    },
+
+    createNewStoryCampaign: async (root, { input }, { auth }) => {
+      auth.check();
+      const { user } = auth;
+      const { name, advertiserId, startDate } = input;
+      const notify = await getNotifyDefaults(advertiserId, auth.user);
+
+      const story = await Story.create({
+        title: 'Placeholder Story',
+        advertiserId,
+        disposition: 'Placeholder',
+        updatedById: user.id,
+        createdById: user.id,
+      });
+
+      const campaign = await Campaign.create({
+        name,
+        storyId: story.id,
         advertiserId,
         criteria: { start: startDate },
         notify,

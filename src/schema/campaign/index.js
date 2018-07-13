@@ -56,6 +56,17 @@ const schema = new Schema({
   advertiserName: {
     type: String,
   },
+  storyId: {
+    type: Schema.Types.ObjectId,
+    validate: {
+      async validator(v) {
+        const doc = await connection.model('story').findOne({ _id: v }, { _id: 1 });
+        if (doc) return true;
+        return false;
+      },
+      message: 'No story found for ID {VALUE}',
+    },
+  },
   status: {
     type: String,
     required: true,

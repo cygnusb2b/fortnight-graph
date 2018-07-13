@@ -10,6 +10,8 @@ type Mutation {
   createCampaign(input: CreateCampaignInput!): Campaign!
 
   createExternalUrlCampaign(input: CreateExternalUrlCampaignInput!): Campaign!
+  createNewStoryCampaign(input: CreateNewStoryCampaignInput!): Campaign!
+  createExistingStoryCampaign(input: CreateExistingStoryCampaignInput!): Campaign!
 
   updateCampaign(input: UpdateCampaignInput!): Campaign!
 
@@ -54,6 +56,7 @@ type Campaign {
   createdAt: Date
   updatedAt: Date
   advertiser: Advertiser!
+  story: Story
   status: CampaignStatus!
   url: String
   creatives: [CampaignCreative]
@@ -124,6 +127,24 @@ input CreateExternalUrlCampaignInput {
   name: String!
   advertiserId: String!
   startDate: String!
+}
+
+input CreateExternalUrlCampaignInput {
+  name: String!
+  advertiserId: String!
+  startDate: Date!
+}
+
+input CreateNewStoryCampaignInput {
+  name: String!
+  advertiserId: String!
+  startDate: Date!
+}
+
+input CreateExistingStoryCampaignInput {
+  name: String!
+  storyId: String!
+  startDate: Date!
 }
 
 input CreateCampaignInput {
