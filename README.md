@@ -20,6 +20,9 @@ Production environment variables are *not* under version control, per [Part 3 of
 ```ini
 GRAPH_APP_PORT=8100
 GRAPH_DB_PORT=8101
+GRAPH_ES_NODE_PORT=8102
+GRAPH_ES_TRANSPORT_PORT=8103
+GRAPH_ES_KIBANA_PORT=8104
 
 DEBUG=express:*
 MONGOOSE_DEBUG=1
