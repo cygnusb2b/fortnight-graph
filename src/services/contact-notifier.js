@@ -119,7 +119,7 @@ module.exports = {
   },
 
   async scheduleCampaignCreated({ campaignId }) {
-    const campaign = await Campaign.findOne({ _id: campaignId });
+    const campaign = await Campaign.findById(campaignId);
     const advertiser = await AdvertiserRepo.findById(campaign.get('advertiserId'));
     const materialCollectUri = await campaign.get('vMaterialCollectUri');
     const html = await emailTemplates.render('campaign.created', { campaign, materialCollectUri });

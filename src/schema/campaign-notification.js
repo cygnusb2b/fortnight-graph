@@ -7,7 +7,7 @@ const schema = new Schema({
     required: true,
     validate: {
       async validator(v) {
-        const doc = await connection.model('campaign').findOne({ _id: v }, { _id: 1 });
+        const doc = await connection.model('campaign').findById(v, { _id: 1 });
         if (doc) return true;
         return false;
       },
