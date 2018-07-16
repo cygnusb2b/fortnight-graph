@@ -51,13 +51,13 @@ services:
     ports:
       - "${GRAPH_ES_NODE_PORT-8102}:9200"
       - "${GRAPH_ES_TRANSPORT_PORT-8103}:9300"
+    depends_on:
+      - elasticsearch-plugins
 
   elasticsearch-plugins:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.3
     entrypoint: sh -c 'test -d "plugins/analysis-phonetic" || bin/elasticsearch-plugin install -s analysis-phonetic'
     tty: true
-    depends_on:
-      - elasticsearch
     volumes:
       - esplug:/usr/share/elasticsearch/plugins
 
