@@ -139,7 +139,7 @@ module.exports = {
   },
 
   async scheduleCampaignStarted({ campaignId }) {
-    const campaign = await Campaign.findOne({ _id: campaignId });
+    const campaign = await Campaign.findById(campaignId);
     const html = await emailTemplates.render('campaign.started', { campaign });
     const subject = `Your campaign "${campaign.name} has started!`;
     const to = await this.resolveAddresses(campaign.get('notify.external'));
@@ -159,7 +159,7 @@ module.exports = {
   },
 
   async scheduleCampaignEnded({ campaignId }) {
-    const campaign = await Campaign.findOne({ _id: campaignId });
+    const campaign = await Campaign.findById(campaignId);
     const reportSummaryUri = await campaign.get('vReportSummaryUri');
     const reportCreativeUri = await campaign.get('vReportCreativeUri');
     const html = await emailTemplates.render('campaign.ended', { campaign, reportSummaryUri, reportCreativeUri });
