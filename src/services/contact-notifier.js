@@ -83,9 +83,8 @@ module.exports = {
       notification.set('status', 'Sent');
       output.write('✉️  ✉️  ✉️   Successfully sent a notification!');
     } catch (e) {
-      notification.set('error', e);
+      notification.set('error', e.message);
       notification.set('status', 'Errored');
-      notification.save();
       output.write('✉️  ✉️  ✉️   Error encountered sending notification!', e);
     } finally {
       notification.save();
