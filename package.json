@@ -10,7 +10,7 @@
     "pretest": "yarn run posttest && $npm_package_docker_test_install && $npm_package_docker_test_installPlugins",
     "posttest": "$npm_package_docker_test_down && $npm_package_docker_test_prune",
     "test": "$npm_package_docker_test_test",
-    "prestart": "$npm_package_docker_dev_installPlugins",
+    "prestart": "$npm_package_docker_dev_install && $npm_package_docker_dev_installPlugins",
     "start": "$npm_package_docker_dev_up",
     "stop": "$npm_package_docker_dev_down",
     "terminal": "docker exec -it fortnightgraph_app_1 /bin/bash",
