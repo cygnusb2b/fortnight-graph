@@ -35,9 +35,15 @@ const schema = new Schema({
   cc: [String],
   bcc: [String],
 
-  subject: String,
+  subject: {
+    type: String,
+    required: true,
+  },
   text: String,
-  html: String,
+  html: {
+    type: String,
+    required: true
+  },
 }, { timestamps: true });
 
 
