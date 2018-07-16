@@ -25,6 +25,8 @@ services:
       NODE_ENV: development
       PORT: 8100
       REDIS_DSN: redis://redis:6379/0
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+      SENDGRID_FROM: ${SENDGRID_FROM}
   redis:
     image: redis:alpine
   mongo:
