@@ -93,17 +93,33 @@ module.exports = {
      */
     createAdvertiser: (root, { input }, { auth }) => {
       auth.check();
+      const { user } = auth;
       const { payload } = input;
-      return AdvertiserRepo.create(payload);
+
+      return Advertiser.create({
+        ...payload,
+        createdById: user.id,
+        updatedById: user.id,
+      });
     },
 
     /**
      *
      */
-    updateAdvertiser: (root, { input }, { auth }) => {
+    updateAdvertiser: async (root, { input }, { auth }) => {
       auth.check();
+      const { user } = auth;
       const { id, payload } = input;
-      return AdvertiserRepo.update(id, payload);
+      const { name, logo } = payload;
+
+      const advertiser = await Advertiser.findById(id);
+      if (!advertiser) throw new Error(`No advertiser found for ID '${id}'.`);
+      advertiser.set({
+        name,
+        logo,
+        updatedById: user.id,
+      });
+      return advertiser.save();
     },
 
     /**
@@ -133,10 +149,14 @@ module.exports = {
      */
     advertiserLogo: async (root, { input }, { auth }) => {
       auth.check();
+      const { user } = auth;
       const { id, imageId } = input;
       const advertiser = await Advertiser.findById(id);
       if (!advertiser) throw new Error(`Unable to set advertiser logo: no record found for ID ${id}.`);
-      advertiser.logoImageId = imageId;
+      advertiser.set({
+        logoImageId: imageId,
+        updatedById: user.id,
+      });
       return advertiser.save();
     },
 
