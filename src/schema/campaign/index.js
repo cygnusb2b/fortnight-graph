@@ -46,7 +46,7 @@ const schema = new Schema({
     required: true,
     validate: {
       async validator(v) {
-        const doc = await connection.model('advertiser').findOne({ _id: v }, { _id: 1 });
+        const doc = await connection.model('advertiser').findById(v, { _id: 1 });
         if (doc) return true;
         return false;
       },
@@ -60,7 +60,7 @@ const schema = new Schema({
     type: Schema.Types.ObjectId,
     validate: {
       async validator(v) {
-        const doc = await connection.model('story').findOne({ _id: v }, { _id: 1 });
+        const doc = await connection.model('story').findById(v, { _id: 1 });
         if (doc) return true;
         return false;
       },
