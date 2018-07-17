@@ -5,6 +5,7 @@ const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const imagePlugin = require('../plugins/image');
 const pushIdPlugin = require('../plugins/push-id');
 const deleteablePlugin = require('../plugins/deleteable');
+const userAttributionPlugin = require('../plugins/user-attribution');
 
 const schema = new Schema({
   name: {
@@ -17,6 +18,7 @@ const schema = new Schema({
 
 schema.plugin(pushIdPlugin, { required: true });
 schema.plugin(deleteablePlugin, { withElastic: true });
+schema.plugin(userAttributionPlugin);
 
 imagePlugin(schema, { fieldName: 'logoImageId' });
 

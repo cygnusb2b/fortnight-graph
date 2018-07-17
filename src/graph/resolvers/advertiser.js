@@ -1,10 +1,10 @@
 const { paginationResolvers, Pagination } = require('@limit0/mongoose-graphql-pagination');
-const CampaignRepo = require('../../repositories/campaign');
-const AdvertiserRepo = require('../../repositories/advertiser');
-const ContactRepo = require('../../repositories/contact');
 const Advertiser = require('../../models/advertiser');
+const AdvertiserRepo = require('../../repositories/advertiser');
 const Campaign = require('../../models/campaign');
+const ContactRepo = require('../../repositories/contact');
 const Image = require('../../models/image');
+const User = require('../../models/user');
 
 module.exports = {
   /**
@@ -22,6 +22,8 @@ module.exports = {
     },
     logo: advertiser => Image.findById(advertiser.logoImageId),
     hash: advertiser => advertiser.pushId,
+    createdBy: advertiser => User.findById(advertiser.createdById),
+    updatedBy: advertiser => User.findById(advertiser.updatedById),
   },
 
   /**

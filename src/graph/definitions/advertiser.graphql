@@ -35,6 +35,8 @@ type Advertiser {
   updatedAt: Date
   campaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
   notify: NotificationLists
+  createdBy: User!
+  updatedBy: User!
 }
 
 type AdvertiserConnection {
