@@ -33,8 +33,7 @@ type Advertiser {
   deleted: Boolean!
   createdAt: Date
   updatedAt: Date
-  campaigns: [Campaign]
-  campaignCount: Int
+  campaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
   notify: NotificationLists
 }
 

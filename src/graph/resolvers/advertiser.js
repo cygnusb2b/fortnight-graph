@@ -1,8 +1,9 @@
-const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const { paginationResolvers, Pagination } = require('@limit0/mongoose-graphql-pagination');
 const CampaignRepo = require('../../repositories/campaign');
 const AdvertiserRepo = require('../../repositories/advertiser');
 const ContactRepo = require('../../repositories/contact');
 const Advertiser = require('../../models/advertiser');
+const Campaign = require('../../models/campaign');
 const Image = require('../../models/image');
 
 module.exports = {
@@ -10,8 +11,10 @@ module.exports = {
    *
    */
   Advertiser: {
-    campaigns: advertiser => CampaignRepo.findForAdvertiser(advertiser.id),
-    campaignCount: advertiser => CampaignRepo.findForAdvertiser(advertiser.id).count(),
+    campaigns: (advertiser, { pagination, sort }) => {
+      const criteria = { advertiserId: advertiser.id };
+      return new Pagination(Campaign, { pagination, criteria, sort });
+    },
     notify: async (advertiser) => {
       const internal = await ContactRepo.find({ _id: { $in: advertiser.notify.internal } });
       const external = await ContactRepo.find({ _id: { $in: advertiser.notify.external } });
@@ -102,7 +105,7 @@ module.exports = {
     },
 
     /**
-     *
+     * @todo This should prevent delete when the advertiser has any active or scheduled campaigns.
      */
     deleteAdvertiser: async (root, { input }, { auth }) => {
       auth.check();
