@@ -34,7 +34,7 @@ const entityAutocompleteDefinitions = {
   },
 };
 
-const entityNameQuery = (definitions, query, fieldName) => {
+const entityNameQuery = (definitions, query, fieldName, { mustNot, must } = {}) => {
   const should = [];
   Object.keys(definitions).forEach((name) => {
     const def = definitions[name];
@@ -45,7 +45,8 @@ const entityNameQuery = (definitions, query, fieldName) => {
     const field = suffix ? `${fieldName}.${suffix}` : fieldName;
     should.push({ match: { [field]: props } });
   });
-  return { bool: { should } };
+  const res = { bool: { should, must, must_not: mustNot } };
+  return res;
 };
 
 const entityMultiNameQuery = (definitions, query, fieldNames) => {
@@ -87,16 +88,16 @@ module.exports = {
     return new ElasticPagination(Model, client, { params, pagination });
   },
 
-  buildEntityNameQuery(query, fieldName = 'name') {
-    return entityNameQuery(entityNameDefinitions, query, fieldName);
+  buildEntityNameQuery(query, fieldName = 'name', { mustNot, must } = {}) {
+    return entityNameQuery(entityNameDefinitions, query, fieldName, { mustNot, must });
   },
 
   buildMultipleEntityNameQuery(query, fieldNames) {
     return entityMultiNameQuery(entityNameDefinitions, query, fieldNames);
   },
 
-  buildEntityAutocomplete(query, fieldName = 'name') {
-    return entityNameQuery(entityAutocompleteDefinitions, query, fieldName);
+  buildEntityAutocomplete(query, fieldName = 'name', { mustNot, must } = {}) {
+    return entityNameQuery(entityAutocompleteDefinitions, query, fieldName, { mustNot, must });
   },
 
   buildMultipleEntityAutocomplete(query, fieldNames) {
