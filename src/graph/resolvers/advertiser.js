@@ -36,7 +36,7 @@ module.exports = {
     advertiser: async (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      const record = await AdvertiserRepo.findById(id);
+      const record = await Advertiser.findById(id);
       if (!record) throw new Error(`No advertiser record found for ID ${id}.`);
       return record;
     },
@@ -46,7 +46,7 @@ module.exports = {
      */
     advertiserHash: async (root, { input }) => {
       const { hash } = input;
-      const record = await Advertiser.findOne({ pushId: hash });
+      const record = await Advertiser.findOneWherePresent({ pushId: hash });
       if (!record) throw new Error(`No advertiser record found for hash ${hash}.`);
       return record;
     },
