@@ -101,6 +101,28 @@ module.exports = {
     /**
      *
      */
+    deleteAdvertiser: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const advertiser = await Advertiser.findById(id);
+      if (!advertiser) throw new Error(`No advertiser found for ID '${id}'.`);
+      return advertiser.softDelete();
+    },
+
+    /**
+     *
+     */
+    undeleteAdvertiser: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const advertiser = await Advertiser.findById(id);
+      if (!advertiser) throw new Error(`No advertiser found for ID '${id}'.`);
+      return advertiser.undelete();
+    },
+
+    /**
+     *
+     */
     advertiserLogo: async (root, { input }, { auth }) => {
       auth.check();
       const { id, imageId } = input;

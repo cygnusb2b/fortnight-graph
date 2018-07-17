@@ -9,6 +9,9 @@ type Query {
 type Mutation {
   createAdvertiser(input: CreateAdvertiserInput!): Advertiser!
   updateAdvertiser(input: UpdateAdvertiserInput!): Advertiser!
+  deleteAdvertiser(input: ModelIdInput!): String!
+  undeleteAdvertiser(input: ModelIdInput!): Advertiser!
+
   advertiserLogo(input: AdvertiserLogoInput!): Advertiser!
 
   addAdvertiserContact(input: AddContactInput!): Advertiser!
@@ -27,6 +30,7 @@ type Advertiser {
   hash: String!
   name: String!
   logo: Image
+  deleted: Boolean!
   createdAt: Date
   updatedAt: Date
   campaigns: [Campaign]
