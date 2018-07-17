@@ -90,13 +90,13 @@ module.exports = {
    * @param {object.object} params.pagination The pagination parameters.
    * @return {ElasticPagination}
    */
-  search(phrase, { pagination } = {}) {
-    const query = buildEntityNameQuery(phrase);
+  search(phrase, { pagination, mustNot, must } = {}) {
+    const query = buildEntityNameQuery(phrase, 'name', { mustNot, must });
     return paginateSearch(Advertiser, phrase, query, { pagination });
   },
 
-  autocomplete(phrase, { pagination } = {}) {
-    const query = buildEntityAutocomplete(phrase);
+  autocomplete(phrase, { pagination, mustNot, must } = {}) {
+    const query = buildEntityAutocomplete(phrase, 'name', { mustNot, must });
     return paginateSearch(Advertiser, phrase, query, { pagination });
   },
 

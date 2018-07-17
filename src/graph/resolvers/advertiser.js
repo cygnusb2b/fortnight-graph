@@ -56,7 +56,8 @@ module.exports = {
      */
     allAdvertisers: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return AdvertiserRepo.paginate({ pagination, sort });
+      const criteria = { deleted: false };
+      return AdvertiserRepo.paginate({ pagination, sort, criteria });
     },
 
     /**
@@ -64,7 +65,8 @@ module.exports = {
      */
     autocompleteAdvertisers: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return AdvertiserRepo.autocomplete(phrase, { pagination });
+      const mustNot = { term: { deleted: true } };
+      return AdvertiserRepo.autocomplete(phrase, { pagination, mustNot });
     },
 
     /**
@@ -72,7 +74,8 @@ module.exports = {
      */
     searchAdvertisers: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return AdvertiserRepo.search(phrase, { pagination });
+      const mustNot = { term: { deleted: true } };
+      return AdvertiserRepo.search(phrase, { pagination, mustNot });
     },
   },
 
