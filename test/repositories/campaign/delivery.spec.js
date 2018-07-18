@@ -391,6 +391,7 @@ describe('repositories/campaign/delivery', function() {
           uuid: '92e998a7-e596-4747-a233-09108938c8d4',
           pid: '5aa03a87be66ee000110c13b',
           cid: '5aabc20d62a17f0001bbcba4',
+          kv: { foo: 'bar' },
         };
 
         const expected = {
@@ -409,7 +410,7 @@ describe('repositories/campaign/delivery', function() {
         sinon.assert.calledOnce(TemplateRepo.render);
         sinon.assert.calledOnce(TemplateRepo.getFallbackFallback);
         sinon.assert.calledWith(TemplateRepo.getFallbackFallback, true);
-        sinon.assert.calledWith(TemplateRepo.render, TemplateRepo.getFallbackFallback(true), { uuid: event.uuid, pid: event.pid });
+        sinon.assert.calledWith(TemplateRepo.render, TemplateRepo.getFallbackFallback(true), { kv: { foo: 'bar' }, uuid: event.uuid, pid: event.pid });
         done();
       });
     });
@@ -448,6 +449,7 @@ describe('repositories/campaign/delivery', function() {
         uuid: '92e998a7-e596-4747-a233-09108938c8d4',
         pid: '5aa03a87be66ee000110c13b',
         cid: '5aabc20d62a17f0001bbcba4',
+        kv: { foo: 'bar' },
       };
 
       const expected = {
@@ -463,10 +465,13 @@ describe('repositories/campaign/delivery', function() {
         requestURL,
         event,
       });
+
+      const fields = JSON.stringify({ uuid: '92e998a7-e596-4747-a233-09108938c8d4', pid: '5aa03a87be66ee000110c13b', kv: { foo: 'bar' } });
+
       expect(result).to.be.an('object');
       ['campaignId, creativeId, fallback'].forEach(k => expect(result[k]).to.equal(expected[k]));
       expect(result.html).to.match(/^<div>Variable here!<\/div>/);
-      expect(result.html).to.match(/<script>fortnight\('event', 'load', { uuid: '92e998a7-e596-4747-a233-09108938c8d4', pid: '5aa03a87be66ee000110c13b' }, { transport: 'beacon' }\);<\/script>/);
+      expect(result.html).to.match(/<script>fortnight\('event', 'load', {"uuid":"92e998a7-e596-4747-a233-09108938c8d4","pid":"5aa03a87be66ee000110c13b","kv":{"foo":"bar"}}, { transport: 'beacon' }\);<\/script>/);
       done();
     });
 
@@ -477,6 +482,7 @@ describe('repositories/campaign/delivery', function() {
         uuid: '92e998a7-e596-4747-a233-09108938c8d4',
         pid: '5aa03a87be66ee000110c13b',
         cid: '5aabc20d62a17f0001bbcba4',
+        kv: { foo: 'bar' },
       };
 
       const expected = {
@@ -495,7 +501,7 @@ describe('repositories/campaign/delivery', function() {
       expect(result).to.be.an('object');
       ['campaignId, creativeId, fallback'].forEach(k => expect(result[k]).to.equal(expected[k]));
       expect(result.html).to.match(/^<div><\/div>/);
-      expect(result.html).to.match(/<script>fortnight\('event', 'load', { uuid: '92e998a7-e596-4747-a233-09108938c8d4', pid: '5aa03a87be66ee000110c13b' }, { transport: 'beacon' }\);<\/script>/);
+      expect(result.html).to.match(/<script>fortnight\('event', 'load', {"uuid":"92e998a7-e596-4747-a233-09108938c8d4","pid":"5aa03a87be66ee000110c13b","kv":{"foo":"bar"}}, { transport: 'beacon' }\);<\/script>/);
       done();
     });
 
