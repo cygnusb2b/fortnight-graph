@@ -13,6 +13,7 @@ const Placement = require('./placement');
 const Publisher = require('./publisher');
 const Story = require('./story');
 const Template = require('./template');
+const Topic = require('./topic');
 const User = require('./user');
 
 module.exports = {
@@ -31,5 +32,6 @@ module.exports = {
   Publisher,
   Story,
   Template,
+  Topic,
   User,
 };
