@@ -24,11 +24,17 @@ module.exports = {
       uuid,
       cid,
       cre,
+      kv,
     } = fields;
     if (!pid || !mongoId.test(pid)) throw new Error(`The provided pid '${pid}' is invalid.`);
     if (!uuid || !Utils.uuid.is(uuid)) throw new Error(`The provided uuid '${uuid}' is invalid.`);
     if (cid && !mongoId.test(cid)) throw new Error(`The provided cid '${cid}' is invalid.`);
     if (cre && !mongoId.test(cre)) throw new Error(`The provided cre '${cre}' is invalid.`);
+
+    let keyValues;
+    try {
+      keyValues = typeof kv === 'string' ? JSON.parse(kv) : undefined;
+    } catch (e) {}
 
     // Validate that the placement, campaign, and creatives exists.
     const placement = await Placement.findOne({ _id: pid }, { _id: 1 });
@@ -58,6 +64,7 @@ module.exports = {
       ua,
       ref,
       ip,
+      kv: keyValues,
     });
     const event = await doc.save();
     return event;
