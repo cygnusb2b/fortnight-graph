@@ -69,8 +69,8 @@ input AdvertiserPayloadInput {
 }
 
 input AdvertiserContactsInput {
-  internal: [String!]
-  external: [String!]
+  internal: [String!]!
+  external: [String!]!
 }
 
 input CreateAdvertiserInput {
