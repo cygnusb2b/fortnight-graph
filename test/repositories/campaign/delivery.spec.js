@@ -247,7 +247,7 @@ describe('repositories/campaign/delivery', function() {
       expect(result.length).to.equal(0);
       sinon.assert.calledOnce(Repo.selectCampaigns);
     });
-    it('should return four campaigns when using placement1 and just start date', async function() {
+    it('should return one campaign when using placement1 and just start date', async function() {
       const params = {
         startDate: new Date(),
         placementId: placement1.id,
@@ -256,10 +256,10 @@ describe('repositories/campaign/delivery', function() {
       const promise = Repo.queryCampaigns(params);
       await expect(promise).to.eventually.be.an('array');
       const result = await promise;
-      expect(result.length).to.equal(4);
+      expect(result.length).to.equal(1);
       sinon.assert.calledOnce(Repo.selectCampaigns);
     });
-    it('should return three campaigns when using placement1 and current date is outside end date', async function() {
+    it('should return zero campaigns when using placement1 and current date is outside end date', async function() {
       const params = {
         startDate: moment().add(2, 'year').toDate(),
         placementId: placement1.id,
@@ -268,10 +268,10 @@ describe('repositories/campaign/delivery', function() {
       const promise = Repo.queryCampaigns(params);
       await expect(promise).to.eventually.be.an('array');
       const result = await promise;
-      expect(result.length).to.equal(3);
+      expect(result.length).to.equal(0);
       sinon.assert.calledOnce(Repo.selectCampaigns);
     });
-    it('should return two campaigns when using placement2 and just start date', async function() {
+    it('should return one campaign when using placement2 and just start date', async function() {
       const params = {
         startDate: new Date(),
         placementId: placement2.id,
@@ -280,7 +280,7 @@ describe('repositories/campaign/delivery', function() {
       const promise = Repo.queryCampaigns(params);
       await expect(promise).to.eventually.be.an('array');
       const result = await promise;
-      expect(result.length).to.equal(2);
+      expect(result.length).to.equal(1);
       sinon.assert.calledOnce(Repo.selectCampaigns);
     });
     it('should return three campaigns when using placement1 with start date and sect_id kv', async function() {
