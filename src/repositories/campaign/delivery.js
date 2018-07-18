@@ -68,6 +68,11 @@ module.exports = {
       criteria.$and.push({
         $or: kvsOr,
       });
+    } else {
+      // Ensure that only ads _without_ custom key values are returned.
+      criteria.$and.push({
+        'criteria.kvs.0': { $exists: false },
+      });
     }
     const campaigns = await Campaign.find(criteria);
     return this.selectCampaigns(campaigns, limit);
