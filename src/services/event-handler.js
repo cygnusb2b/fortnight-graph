@@ -34,7 +34,9 @@ module.exports = {
     let keyValues;
     try {
       keyValues = typeof kv === 'string' ? JSON.parse(kv) : undefined;
-    } catch (e) {}
+    } catch (e) {
+      keyValues = undefined;
+    }
 
     // Validate that the placement, campaign, and creatives exists.
     const placement = await Placement.findOne({ _id: pid }, { _id: 1 });
