@@ -321,6 +321,10 @@ module.exports = {
     const trackers = this.createTrackers(requestURL, event);
     const beacon = this.createImgBeacon(trackers);
 
+    if (creative.image) {
+      creative.image.src = await creative.image.getSrc();
+    }
+
     const { uuid, pid } = event;
     const vars = {
       uuid,
