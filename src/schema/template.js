@@ -30,6 +30,10 @@ const schema = new Schema({
     trim: true,
     unique: true,
   },
+  description: {
+    type: String,
+    trim: true,
+  },
   html: {
     type: String,
     required: true,
