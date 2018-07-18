@@ -37,6 +37,14 @@ module.exports = {
       auth.check();
       return TemplateRepo.search(phrase, { pagination });
     },
+
+    /**
+     *
+     */
+    autocompleteTemplates: async (root, { pagination, phrase }, { auth }) => {
+      auth.check();
+      return TemplateRepo.autocomplete(phrase, { pagination });
+    },
   },
 
   /**

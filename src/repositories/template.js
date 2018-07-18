@@ -3,7 +3,7 @@ const { Pagination } = require('@limit0/mongoose-graphql-pagination');
 const handlebars = require('../handlebars');
 const Template = require('../models/template');
 const fixtures = require('../fixtures');
-const { buildEntityNameQuery, paginateSearch } = require('../elastic/utils');
+const { buildEntityNameQuery, buildEntityAutocomplete, paginateSearch } = require('../elastic/utils');
 
 module.exports = {
   /**
@@ -92,6 +92,11 @@ module.exports = {
    */
   search(phrase, { pagination } = {}) {
     const query = buildEntityNameQuery(phrase);
+    return paginateSearch(Template, phrase, query, { pagination });
+  },
+
+  autocomplete(phrase, { pagination } = {}) {
+    const query = buildEntityAutocomplete(phrase);
     return paginateSearch(Template, phrase, query, { pagination });
   },
 
