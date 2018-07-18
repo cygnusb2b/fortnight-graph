@@ -249,7 +249,12 @@ module.exports = {
     requestURL,
     event,
   }) {
-    const { cid, pid, uuid } = event;
+    const {
+      cid,
+      pid,
+      uuid,
+      kv,
+    } = event;
     const ad = this.createEmptyAd(cid);
     const trackers = this.createTrackers(requestURL, event);
     const beacon = this.createImgBeacon(trackers);
@@ -258,11 +263,12 @@ module.exports = {
       const vars = Object.assign({}, Object(fallbackVars), {
         pid,
         uuid,
+        kv,
         beacon, // @deprecated Will be removed.
       });
       ad.html = TemplateRepo.render(template.fallback, vars);
     } else {
-      ad.html = TemplateRepo.render(TemplateRepo.getFallbackFallback(true), { pid, uuid });
+      ad.html = TemplateRepo.render(TemplateRepo.getFallbackFallback(true), { pid, uuid, kv });
     }
     return ad;
   },
@@ -330,10 +336,11 @@ module.exports = {
       creative.image.src = await creative.image.getSrc();
     }
 
-    const { uuid, pid } = event;
+    const { uuid, pid, kv } = event;
     const vars = {
       uuid,
       pid,
+      kv,
       beacon, // @deprecated Will be removed.
       href: campaign.url,
       campaign,
