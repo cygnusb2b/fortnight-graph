@@ -13,6 +13,7 @@ const extractFields = (context) => {
   const {
     pid,
     uuid,
+    kv,
     campaign,
     creative,
   } = root || {};
@@ -23,6 +24,7 @@ const extractFields = (context) => {
     pid,
     cid,
     cre,
+    kv,
   };
 };
 
@@ -54,9 +56,7 @@ handlebars.registerHelper('tracked-link', function trackedLink(context) {
 
 handlebars.registerHelper('build-beacon', (context) => {
   const fields = extractFields(context);
-  const keyValues = Object.keys(fields).map(key => ({ key, value: fields[key] }));
-  const fieldsObj = keyValues.filter(o => o.value).map(o => `${o.key}: '${o.value}'`).join(', ');
-  return new handlebars.SafeString(`<script>fortnight('event', 'load', { ${fieldsObj} }, { transport: 'beacon' });</script>`);
+  return new handlebars.SafeString(`<script>fortnight('event', 'load', ${JSON.stringify(fields)}, { transport: 'beacon' });</script>`);
 });
 
 handlebars.registerHelper('build-ua-beacon', (context) => {
