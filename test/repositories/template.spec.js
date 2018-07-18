@@ -290,9 +290,10 @@ describe('repositories/template', function() {
         const data = {
           pid: '5678',
           uuid: 'abcd',
+          kv: { foo: 'bar' },
           campaign: { id: '1234' },
         };
-        const expected = `<script>fortnight('event', 'load', { uuid: 'abcd', pid: '5678', cid: '1234' }, { transport: 'beacon' });</script>`;
+        const expected = `<script>fortnight('event', 'load', {"uuid":"abcd","pid":"5678","cid":"1234","kv":{"foo":"bar"}}, { transport: 'beacon' });</script>`;
         expect(Repo.render(source, data)).to.equal(expected);
         done();
       });
@@ -303,8 +304,9 @@ describe('repositories/template', function() {
           uuid: 'abcd',
           campaign: { id: '1234' },
           creative: { id: '5678' },
+          kv: { foo: 'bar' },
         };
-        const expected = `<script>fortnight('event', 'load', { uuid: 'abcd', pid: '5678', cid: '1234', cre: '5678' }, { transport: 'beacon' });</script>`;
+        const expected = `<script>fortnight('event', 'load', {"uuid":"abcd","pid":"5678","cid":"1234","cre":"5678","kv":{"foo":"bar"}}, { transport: 'beacon' });</script>`;
         expect(Repo.render(source, data)).to.equal(expected);
         done();
       });
@@ -313,14 +315,15 @@ describe('repositories/template', function() {
         const data = {
           pid: '5678',
           uuid: 'abcd',
+          kv: { foo: 'bar' },
         };
-        const expected = `<script>fortnight('event', 'load', { uuid: 'abcd', pid: '5678' }, { transport: 'beacon' });</script>`;
+        const expected = `<script>fortnight('event', 'load', {"uuid":"abcd","pid":"5678","kv":{"foo":"bar"}}, { transport: 'beacon' });</script>`;
         expect(Repo.render(source, data)).to.equal(expected);
         done();
       });
       it('should still render when no attributes are provided.', function(done) {
         const source = '{{build-beacon}}';
-        const expected = `<script>fortnight('event', 'load', {  }, { transport: 'beacon' });</script>`;
+        const expected = `<script>fortnight('event', 'load', {}, { transport: 'beacon' });</script>`;
         expect(Repo.render(source)).to.equal(expected);
         done();
       });
