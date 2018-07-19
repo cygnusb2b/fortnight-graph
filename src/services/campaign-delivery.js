@@ -1,14 +1,14 @@
-const createError = require('http-errors');
-const uuidv4 = require('uuid/v4');
-const jwt = require('jsonwebtoken');
 const _ = require('lodash');
-const Campaign = require('../../models/campaign');
-const Template = require('../../models/template');
-const Placement = require('../../models/placement');
-const Image = require('../../models/image');
-const AnalyticsEvent = require('../../models/analytics/event');
-const BotDetector = require('../../services/bot-detector');
-const Utils = require('../../utils');
+const createError = require('http-errors');
+const jwt = require('jsonwebtoken');
+const uuidv4 = require('uuid/v4');
+const AnalyticsEvent = require('../models/analytics/event');
+const BotDetector = require('../services/bot-detector');
+const Campaign = require('../models/campaign');
+const Image = require('../models/image');
+const Placement = require('../models/placement');
+const Template = require('../models/template');
+const Utils = require('../utils');
 
 module.exports = {
   /**
