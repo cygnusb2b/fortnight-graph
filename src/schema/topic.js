@@ -11,6 +11,8 @@ const schema = new Schema({
   publisherId: {
     type: Schema.Types.ObjectId,
     required: true,
+    es_indexed: true,
+    es_type: 'keyword',
     validate: {
       async validator(v) {
         const doc = await connection.model('publisher').findOne({ _id: v }, { _id: 1 });
