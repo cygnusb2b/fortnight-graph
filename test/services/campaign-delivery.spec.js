@@ -1,15 +1,15 @@
-require('../../connections');
+require('../connections');
 const moment = require('moment');
 const Promise = require('bluebird');
 const { URL } = require('url');
 const jwt = require('jsonwebtoken');
-const Repo = require('../../../src/repositories/campaign/delivery');
-const CampaignRepo = require('../../../src/repositories/campaign');
-const AdvertiserRepo = require('../../../src/repositories/advertiser');
-const PlacementRepo = require('../../../src/repositories/placement');
-const TemplateRepo = require('../../../src/repositories/template');
-const AnalyticsEvent = require('../../../src/models/analytics/event');
-const Utils = require('../../../src/utils');
+const Repo = require('../../src/services/campaign-delivery');
+const CampaignRepo = require('../../src/repositories/campaign');
+const AdvertiserRepo = require('../../src/repositories/advertiser');
+const PlacementRepo = require('../../src/repositories/placement');
+const TemplateRepo = require('../../src/repositories/template');
+const AnalyticsEvent = require('../../src/models/analytics/event');
+const Utils = require('../../src/utils');
 const sandbox = sinon.createSandbox();
 
 const createAdvertiser = async () => {
@@ -32,7 +32,7 @@ const createTemplate = async () => {
   return results.one();
 }
 
-describe('repositories/campaign/delivery', function() {
+describe('services/campaign-delivery', function() {
   before(async function() {
     await CampaignRepo.remove();
     await PlacementRepo.remove();

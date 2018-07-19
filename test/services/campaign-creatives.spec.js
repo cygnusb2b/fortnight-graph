@@ -1,14 +1,14 @@
-require('../../connections');
-const Repo = require('../../../src/repositories/campaign/creative');
-const Campaign = require('../../../src/models/campaign');
-const CampaignRepo = require('../../../src/repositories/campaign');
+require('../connections');
+const Repo = require('../../src/services/campaign-creatives');
+const Campaign = require('../../src/models/campaign');
+const CampaignRepo = require('../../src/repositories/campaign');
 
 const createCampaign = async () => {
   const results = await CampaignRepo.seed();
   return results.one();
 };
 
-describe('repositories/campaign/creative', function() {
+describe('services/campaign-creatives', function() {
   before(async function() {
     await CampaignRepo.remove();
   });
