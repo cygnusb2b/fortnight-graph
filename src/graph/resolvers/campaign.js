@@ -4,8 +4,8 @@ const PlacementRepo = require('../../repositories/placement');
 const CampaignRepo = require('../../repositories/campaign');
 const CreativeRepo = require('../../repositories/campaign/creative');
 const CriteriaRepo = require('../../repositories/campaign/criteria');
-const ContactRepo = require('../../repositories/contact');
 const Campaign = require('../../models/campaign');
+const Contact = require('../../models/contact');
 const Image = require('../../models/image');
 const contactNotifier = require('../../services/contact-notifier');
 
@@ -15,7 +15,7 @@ const getNotifyDefaults = async (advertiserId, user) => {
     internal: await advertiser.get('notify.internal'),
     external: await advertiser.get('notify.external'),
   };
-  const contact = await ContactRepo.getOrCreateFor(user);
+  const contact = await Contact.getOrCreateFor(user);
   notify.internal.push(contact.id);
   return notify;
 };
@@ -27,8 +27,8 @@ module.exports = {
   Campaign: {
     advertiser: campaign => Advertiser.findById(campaign.advertiserId),
     notify: async (campaign) => {
-      const internal = await ContactRepo.find({ _id: { $in: campaign.notify.internal } });
-      const external = await ContactRepo.find({ _id: { $in: campaign.notify.external } });
+      const internal = await Contact.find({ _id: { $in: campaign.notify.internal } });
+      const external = await Contact.find({ _id: { $in: campaign.notify.external } });
       return { internal, external };
     },
     hash: campaign => campaign.pushId,
@@ -201,10 +201,12 @@ module.exports = {
     /**
      *
      */
-    campaignContacts: (root, { input }, { auth }) => {
+    campaignContacts: async (root, { input }, { auth }) => {
       auth.check();
       const { id, type, contactIds } = input;
-      return ContactRepo.setContactsFor(Campaign, id, type, contactIds);
+      const campaign = await Campaign.strictFindById(id);
+      campaign.set(`notify.${type}`, contactIds);
+      return campaign.save();
     },
   },
 };
