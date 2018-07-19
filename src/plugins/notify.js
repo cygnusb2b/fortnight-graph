@@ -14,7 +14,7 @@ const ContactReference = {
   },
 };
 
-module.exports = function contactPlugin(schema) {
+module.exports = function notifyPlugin(schema) {
   schema.add({
     notify: {
       internal: [ContactReference],
