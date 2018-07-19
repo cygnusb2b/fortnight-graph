@@ -2,7 +2,12 @@ const { Schema } = require('mongoose');
 const slug = require('slug');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
-const imagePlugin = require('../plugins/image');
+const {
+  imagePlugin,
+  paginablePlugin,
+  repositoryPlugin,
+  searchablePlugin,
+} = require('../plugins');
 
 const schema = new Schema({
   title: {
@@ -38,8 +43,15 @@ const schema = new Schema({
   },
 }, { timestamps: true });
 
-imagePlugin(schema, { fieldName: 'primaryImageId' });
-imagePlugin(schema, { fieldName: 'imageIds', multiple: true });
+setEntityFields(schema, 'title');
+setEntityFields(schema, 'advertiserName');
+applyElasticPlugin(schema, 'stories');
+
+schema.plugin(imagePlugin, { fieldName: 'primaryImageId' });
+schema.plugin(imagePlugin, { fieldName: 'imageIds', multiple: true });
+schema.plugin(repositoryPlugin);
+schema.plugin(paginablePlugin);
+schema.plugin(searchablePlugin, { fieldNames: ['title', 'advertiserName'] });
 
 schema.virtual('slug').get(function getSlug() {
   return slug(this.title).toLowerCase();
@@ -51,10 +63,6 @@ schema.pre('save', async function setAdvertiserName() {
     this.advertiserName = advertiser.name;
   }
 });
-
-setEntityFields(schema, 'title');
-setEntityFields(schema, 'advertiserName');
-applyElasticPlugin(schema, 'stories');
 
 schema.index({ advertiserId: 1 });
 schema.index({ title: 1, _id: 1 }, { unique: true });
