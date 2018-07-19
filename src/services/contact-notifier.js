@@ -1,14 +1,14 @@
 const sgMail = require('@sendgrid/mail');
 const env = require('../env');
 const emailTemplates = require('../email-templates');
-const ContactRepo = require('../repositories/contact');
+const Contact = require('../models/contact');
 const Advertiser = require('../models/advertiser');
 const accountService = require('../services/account');
 
 module.exports = {
 
   async resolveAddresses(ids) {
-    const contacts = await ContactRepo.find({ _id: { $in: ids } });
+    const contacts = await Contact.find({ _id: { $in: ids } });
     return contacts.map(contact => `${contact.givenName} ${contact.familyName} <${contact.email}>`);
   },
 
