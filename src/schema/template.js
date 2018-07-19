@@ -1,4 +1,5 @@
 const { Schema } = require('mongoose');
+const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 
 const validateBeacon = (v) => {
@@ -100,6 +101,20 @@ const schema = new Schema({
 
 setEntityFields(schema, 'name');
 applyElasticPlugin(schema, 'templates');
+
+schema.pre('save', async function updatePlacements() {
+  if (this.isModified('name')) {
+    // This isn't as efficient as calling `updateMany`, but the ElasticSearch
+    // plugin will not fire properly otherwise.
+    // As such, do not await the update.
+    const Placement = connection.model('placement');
+    const docs = await Placement.find({ templateId: this.id });
+    docs.forEach((doc) => {
+      doc.set('templateName', this.name);
+      doc.save();
+    });
+  }
+});
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
