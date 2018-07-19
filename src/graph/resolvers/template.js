@@ -1,5 +1,5 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
-const TemplateRepo = require('../../repositories/template');
+const Template = require('../../models/template');
 
 module.exports = {
   /**
@@ -14,12 +14,10 @@ module.exports = {
     /**
      *
      */
-    template: async (root, { input }, { auth }) => {
+    template: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      const record = await TemplateRepo.findById(id);
-      if (!record) throw new Error(`No template record found for ID ${id}.`);
-      return record;
+      return Template.strictFindById(id);
     },
 
     /**
@@ -27,23 +25,23 @@ module.exports = {
      */
     allTemplates: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return TemplateRepo.paginate({ pagination, sort });
+      return Template.paginate({ pagination, sort });
     },
 
     /**
      *
      */
-    searchTemplates: async (root, { pagination, phrase }, { auth }) => {
+    searchTemplates: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return TemplateRepo.search(phrase, { pagination });
+      return Template.search(phrase, { pagination });
     },
 
     /**
      *
      */
-    autocompleteTemplates: async (root, { pagination, phrase }, { auth }) => {
+    autocompleteTemplates: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return TemplateRepo.autocomplete(phrase, { pagination });
+      return Template.autocomplete(phrase, { pagination });
     },
   },
 
@@ -57,7 +55,7 @@ module.exports = {
     createTemplate: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
-      return TemplateRepo.create(payload);
+      return Template.create(payload);
     },
 
     /**
@@ -66,7 +64,7 @@ module.exports = {
     updateTemplate: (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return TemplateRepo.update(id, payload);
+      return Template.findAndSetUpdate(id, payload);
     },
   },
 };
