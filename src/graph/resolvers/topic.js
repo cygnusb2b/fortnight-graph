@@ -1,7 +1,12 @@
 const { paginationResolvers, Pagination } = require('@limit0/mongoose-graphql-pagination');
 const Publisher = require('../../models/publisher');
 const Topic = require('../../models/topic');
-const { buildMultipleEntityNameQuery, paginateSearch, buildMultipleEntityAutocomplete } = require('../../elastic/utils');
+const {
+  buildMultipleEntityNameQuery,
+  paginateSearch,
+  buildMultipleEntityAutocomplete,
+  buildEntityAutocomplete,
+} = require('../../elastic/utils');
 
 module.exports = {
   /**
@@ -55,6 +60,13 @@ module.exports = {
       auth.check();
       const query = buildMultipleEntityAutocomplete(phrase, ['name', 'publisherName']);
       return paginateSearch(Topic, phrase, query, { pagination });
+    },
+
+    autocompletePublisherTopics: async (root, { publisherId, pagination, phrase }, { auth }) => {
+      auth.check();
+      const query = buildEntityAutocomplete(phrase, 'name');
+      const postFilter = { term: { publisherId } };
+      return paginateSearch(Topic, phrase, query, { pagination, postFilter });
     },
   },
 

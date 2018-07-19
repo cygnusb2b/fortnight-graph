@@ -2,6 +2,7 @@ type Query {
   allTopics(pagination: PaginationInput = {}, sort: TopicSortInput = {}): TopicConnection!
   searchTopics(pagination: PaginationInput = {}, phrase: String!): TopicConnection!
   autocompleteTopics(pagination: PaginationInput = {}, phrase: String!): TopicConnection!
+  autocompletePublisherTopics(publisherId: String!, pagination: PaginationInput = {}, phrase: String!): TopicConnection!
   topic(input: ModelIdInput!): Topic!
 }
 
