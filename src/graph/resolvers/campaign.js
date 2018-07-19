@@ -1,6 +1,5 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const Advertiser = require('../../models/advertiser');
-const CampaignRepo = require('../../repositories/campaign');
 const CreativeRepo = require('../../repositories/campaign/creative');
 const CriteriaRepo = require('../../repositories/campaign/criteria');
 const Campaign = require('../../models/campaign');
@@ -54,12 +53,10 @@ module.exports = {
     /**
      *
      */
-    campaign: async (root, { input }, { auth }) => {
+    campaign: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      const record = await CampaignRepo.findById(id);
-      if (!record) throw new Error(`No campaign record found for ID ${id}.`);
-      return record;
+      return Campaign.strictFindById(id);
     },
 
     /**
@@ -74,11 +71,9 @@ module.exports = {
     /**
      *
      */
-    campaignHash: async (root, { input }) => {
+    campaignHash: (root, { input }) => {
       const { advertiserId, hash } = input;
-      const record = await Campaign.findOne({ advertiserId, pushId: hash });
-      if (!record) throw new Error(`No advertiser campaign record found for hash ${hash}.`);
-      return record;
+      return Campaign.strictFindOne({ advertiserId, pushId: hash });
     },
 
     /**
@@ -86,7 +81,7 @@ module.exports = {
      */
     allCampaigns: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return CampaignRepo.paginate({ pagination, sort });
+      return Campaign.paginate({ pagination, sort });
     },
 
     /**
@@ -94,7 +89,7 @@ module.exports = {
      */
     searchCampaigns: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return CampaignRepo.search(phrase, { pagination });
+      return Campaign.search(phrase, { pagination });
     },
   },
 
@@ -110,7 +105,7 @@ module.exports = {
       const { payload } = input;
       payload.criteria = { start: payload.startDate };
       payload.notify = await getNotifyDefaults(payload.advertiserId, auth.user);
-      const campaign = await CampaignRepo.create(payload);
+      const campaign = await Campaign.create(payload);
       contactNotifier.sendInternalCampaignCreated({ campaign });
       contactNotifier.sendExternalCampaignCreated({ campaign });
       return campaign;
@@ -122,15 +117,12 @@ module.exports = {
     updateCampaign: (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return CampaignRepo.update(id, payload);
+      return Campaign.findAndSetUpdate(id, payload);
     },
 
-    assignCampaignValue: async (root, { input }) => {
+    assignCampaignValue: (root, { input }) => {
       const { id, field, value } = input;
-      const campaign = await Campaign.findById(id);
-      if (!campaign) throw new Error(`Unable to assign field '${field}' to campaign: no record found for id '${id}'`);
-      campaign.set(field, value);
-      return campaign.save();
+      return Campaign.findAndAssignValue(id, field, value);
     },
 
     /**
@@ -145,10 +137,7 @@ module.exports = {
     campaignUrl: async (root, { input }, { auth }) => {
       const { campaignId, url } = input;
       auth.checkCampaignAccess(campaignId);
-      const campaign = await Campaign.findById(campaignId);
-      if (!campaign) throw new Error(`Unable to set campaign URL: no campaign found for '${campaignId}'`);
-      campaign.url = url;
-      return campaign.save();
+      return Campaign.findAndAssignValue(campaignId, 'url', url);
     },
 
     /**
@@ -201,12 +190,11 @@ module.exports = {
     /**
      *
      */
-    campaignContacts: async (root, { input }, { auth }) => {
+    campaignContacts: (root, { input }, { auth }) => {
       auth.check();
       const { id, type, contactIds } = input;
-      const campaign = await Campaign.strictFindById(id);
-      campaign.set(`notify.${type}`, contactIds);
-      return campaign.save();
+      const field = `notify.${type}`;
+      return Campaign.findAndAssignValue(id, field, contactIds);
     },
   },
 };
