@@ -2,8 +2,9 @@ const { Schema } = require('mongoose');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
-  notifyPlugin,
   imagePlugin,
+  notifyPlugin,
+  paginablePlugin,
   pushIdPlugin,
   repositoryPlugin,
   searchablePlugin,
@@ -25,6 +26,7 @@ schema.plugin(notifyPlugin);
 schema.plugin(imagePlugin, { fieldName: 'logoImageId' });
 schema.plugin(pushIdPlugin, { required: true });
 schema.plugin(repositoryPlugin);
+schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name'] });
 
 schema.pre('save', async function updateCampaigns() {
