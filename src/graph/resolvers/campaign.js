@@ -1,5 +1,5 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
-const AdvertiserRepo = require('../../repositories/advertiser');
+const Advertiser = require('../../models/advertiser');
 const PlacementRepo = require('../../repositories/placement');
 const CampaignRepo = require('../../repositories/campaign');
 const CreativeRepo = require('../../repositories/campaign/creative');
@@ -10,7 +10,7 @@ const Image = require('../../models/image');
 const contactNotifier = require('../../services/contact-notifier');
 
 const getNotifyDefaults = async (advertiserId, user) => {
-  const advertiser = await AdvertiserRepo.findById(advertiserId);
+  const advertiser = await Advertiser.strictFindById(advertiserId);
   const notify = {
     internal: await advertiser.get('notify.internal'),
     external: await advertiser.get('notify.external'),
@@ -25,7 +25,7 @@ module.exports = {
    *
    */
   Campaign: {
-    advertiser: campaign => AdvertiserRepo.findById(campaign.get('advertiserId')),
+    advertiser: campaign => Advertiser.findById(campaign.advertiserId),
     notify: async (campaign) => {
       const internal = await ContactRepo.find({ _id: { $in: campaign.notify.internal } });
       const external = await ContactRepo.find({ _id: { $in: campaign.notify.external } });

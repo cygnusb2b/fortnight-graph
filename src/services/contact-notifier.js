@@ -2,7 +2,7 @@ const sgMail = require('@sendgrid/mail');
 const env = require('../env');
 const emailTemplates = require('../email-templates');
 const ContactRepo = require('../repositories/contact');
-const AdvertiserRepo = require('../repositories/advertiser');
+const Advertiser = require('../models/advertiser');
 const accountService = require('../services/account');
 
 module.exports = {
@@ -34,7 +34,7 @@ module.exports = {
 
   async sendInternalCampaignCreated({ campaign }) {
     const html = await emailTemplates.render('internal/campaign.created', { campaign });
-    const advertiser = await AdvertiserRepo.findById(campaign.get('advertiserId'));
+    const advertiser = await Advertiser.strictFindById(campaign.advertiserId);
     const subject = `A new campaign was created for ${advertiser.name}`;
     const to = await this.resolveAddresses(campaign.get('notify.internal'));
     return this.send({ to, subject, html });
