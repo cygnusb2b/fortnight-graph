@@ -1,7 +1,6 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
-const Publisher = require('../../models/publisher');
 const Image = require('../../models/image');
-const PublisherRepo = require('../../repositories/publisher');
+const Publisher = require('../../models/publisher');
 
 module.exports = {
   /**
@@ -23,12 +22,10 @@ module.exports = {
     /**
      *
      */
-    publisher: async (root, { input }, { auth }) => {
+    publisher: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      const record = await Publisher.findById(id);
-      if (!record) throw new Error(`No publisher record found for ID ${id}.`);
-      return record;
+      return Publisher.strictFindById(id);
     },
 
     /**
@@ -36,7 +33,7 @@ module.exports = {
      */
     allPublishers: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return PublisherRepo.paginate({ pagination, sort });
+      return Publisher.paginate({ pagination, sort });
     },
 
     /**
@@ -44,15 +41,15 @@ module.exports = {
      */
     searchPublishers: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return PublisherRepo.search(phrase, { pagination });
+      return Publisher.search(phrase, { pagination });
     },
 
     /**
      *
      */
-    autocompletePublishers: async (root, { pagination, phrase }, { auth }) => {
+    autocompletePublishers: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return PublisherRepo.autocomplete(phrase, { pagination });
+      return Publisher.autocomplete(phrase, { pagination });
     },
   },
 
@@ -72,13 +69,10 @@ module.exports = {
     /**
      *
      */
-    updatePublisher: async (root, { input }, { auth }) => {
+    updatePublisher: (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      const publisher = await Publisher.findById(id);
-      if (!publisher) throw new Error(`Unable to update publisher: no record found for ID ${id}.`);
-      publisher.set(payload);
-      return publisher.save();
+      return Publisher.findAndSetUpdate(id, payload);
     },
 
     /**
@@ -87,8 +81,7 @@ module.exports = {
     publisherLogo: async (root, { input }, { auth }) => {
       auth.check();
       const { id, imageId } = input;
-      const publisher = await Publisher.findById(id);
-      if (!publisher) throw new Error(`Unable to set publisher logo: no record found for ID ${id}.`);
+      const publisher = await Publisher.strictFindById(id);
       publisher.logoImageId = imageId;
       return publisher.save();
     },
