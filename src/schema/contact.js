@@ -80,6 +80,12 @@ schema.pre('save', function setName(next) {
   next();
 });
 
+schema.statics.getOrCreateFor = async function getOrCreateFor({ email, givenName, familyName }) {
+  const existing = await this.findOne({ email });
+  if (existing) return existing;
+  return this.create({ givenName, familyName, email });
+};
+
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
 schema.index({ updatedAt: 1, _id: 1 }, { unique: true });
