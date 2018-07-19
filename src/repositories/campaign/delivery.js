@@ -7,7 +7,6 @@ const Template = require('../../models/template');
 const Placement = require('../../models/placement');
 const Image = require('../../models/image');
 const AnalyticsEvent = require('../../models/analytics/event');
-const TemplateRepo = require('../../repositories/template');
 const BotDetector = require('../../services/bot-detector');
 const Utils = require('../../utils');
 
@@ -268,9 +267,9 @@ module.exports = {
         kv,
         beacon, // @deprecated Will be removed.
       });
-      ad.html = TemplateRepo.render(template.fallback, vars);
+      ad.html = Template.render(template.fallback, vars);
     } else {
-      ad.html = TemplateRepo.render(TemplateRepo.getFallbackFallback(true), { pid, uuid, kv });
+      ad.html = Template.render(Template.getFallbackFallback(true), { pid, uuid, kv });
     }
     return ad;
   },
@@ -348,7 +347,7 @@ module.exports = {
       campaign,
       creative,
     };
-    ad.html = TemplateRepo.render(template.html, vars);
+    ad.html = Template.render(template.html, vars);
     ad.creativeId = creative.id;
     ad.fallback = false;
     return ad;
