@@ -1,6 +1,7 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
-const PublisherRepo = require('../../repositories/publisher');
 const PlacementRepo = require('../../repositories/placement');
+const Placement = require('../../models/placement');
+const Publisher = require('../../models/publisher');
 const Topic = require('../../models/topic');
 
 module.exports = {
@@ -8,7 +9,7 @@ module.exports = {
    *
    */
   Placement: {
-    publisher: placement => PublisherRepo.findById(placement.get('publisherId')),
+    publisher: placement => Publisher.findById(placement.publisherId),
     topic: placement => Topic.findById(placement.topicId),
   },
 
@@ -27,7 +28,7 @@ module.exports = {
     placement: async (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      const record = await PlacementRepo.findById(id);
+      const record = await Placement.findById(id);
       if (!record) throw new Error(`No placement record found for ID ${id}.`);
       return record;
     },
@@ -67,16 +68,41 @@ module.exports = {
     createPlacement: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
-      return PlacementRepo.create(payload);
+      const {
+        name,
+        publisherId,
+        templateId,
+        topicId,
+      } = payload;
+      return Placement.create({
+        name,
+        publisherId,
+        templateId,
+        topicId,
+      });
     },
 
     /**
      *
      */
-    updatePlacement: (root, { input }, { auth }) => {
+    updatePlacement: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return PlacementRepo.update(id, payload);
+      const placement = await Placement.findById(id);
+      if (!placement) throw new Error(`No placement found for ID ${id}.`);
+      const {
+        name,
+        publisherId,
+        templateId,
+        topicId,
+      } = payload;
+      placement.set({
+        name,
+        publisherId,
+        templateId,
+        topicId,
+      });
+      return placement.save();
     },
   },
 };
