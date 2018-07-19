@@ -6,6 +6,13 @@ module.exports = function repositoryPlugin(schema) {
     return doc;
   };
 
+  schema.statics.strictFindOne = async function strictFindOne(criteria) {
+    const doc = await this.findOne(criteria);
+    if (!doc) throw new Error(`No ${this.modelName} found for criteria '${JSON.stringify(criteria)}'`);
+    return doc;
+  };
+
+
   schema.statics.findAndSetUpdate = async function findAndSetUpdate(id, payload) {
     const doc = await this.findById(id);
     if (!doc) throw new Error(`Unable to update ${this.modelName}: no record was found for ID '${id}'`);
