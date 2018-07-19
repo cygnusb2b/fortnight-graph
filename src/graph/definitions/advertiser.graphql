@@ -11,8 +11,6 @@ type Mutation {
   updateAdvertiser(input: UpdateAdvertiserInput!): Advertiser!
   advertiserLogo(input: AdvertiserLogoInput!): Advertiser!
 
-  addAdvertiserContact(input: AddContactInput!): Advertiser!
-  removeAdvertiserContact(input: RemoveContactInput!): Advertiser!
   setAdvertiserContacts(input: SetContactsInput!): Advertiser!
 }
 
