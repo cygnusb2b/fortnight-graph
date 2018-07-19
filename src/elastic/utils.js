@@ -72,7 +72,7 @@ module.exports = {
    * @param {*} query
    * @param {*} params
    */
-  paginateSearch(Model, phrase, query, { pagination }) {
+  paginateSearch(Model, phrase, query, { pagination, postFilter }) {
     if (/[a-f0-9]{24}/.test(phrase)) {
       const criteria = { _id: phrase };
       return new Pagination(Model, { pagination, criteria });
@@ -81,7 +81,10 @@ module.exports = {
     const params = {
       index,
       type,
-      body: { query },
+      body: {
+        query,
+        post_filter: postFilter,
+      },
       searchType: 'dfs_query_then_fetch',
     };
     return new ElasticPagination(Model, client, { params, pagination });
