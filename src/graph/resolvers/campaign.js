@@ -1,7 +1,6 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const Advertiser = require('../../models/advertiser');
 const CreativeRepo = require('../../repositories/campaign/creative');
-const CriteriaRepo = require('../../repositories/campaign/criteria');
 const Campaign = require('../../models/campaign');
 const Contact = require('../../models/contact');
 const Image = require('../../models/image');
@@ -131,7 +130,8 @@ module.exports = {
     campaignCriteria: async (root, { input }, { auth }) => {
       auth.check();
       const { campaignId, payload } = input;
-      return CriteriaRepo.setFor(campaignId, payload);
+      const campaign = await Campaign.findAndAssignValue(campaignId, 'criteria', payload);
+      return campaign.criteria;
     },
 
     campaignUrl: async (root, { input }, { auth }) => {
