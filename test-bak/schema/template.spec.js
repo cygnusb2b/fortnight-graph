@@ -33,10 +33,7 @@ describe('schema/template', function() {
         return testRequiredField(Template, template, 'name', value);
       });
     });
-    it('should be unique.', function() {
-      const another = generateTemplate();
-      return testUniqueField(Template, template, another, 'name');
-    });
+
   });
 
   describe('#html', function() {
