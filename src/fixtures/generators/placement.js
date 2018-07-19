@@ -1,13 +1,13 @@
 const faker = require('faker');
 
-module.exports = ({ publisherId, templatedId, topicId } = {}) => {
+module.exports = ({ publisherId, templateId, topicId } = {}) => {
   const now = new Date();
   return {
     name: faker.lorem.words(10),
     createdAt: now,
     updatedAt: now,
     publisherId: publisherId(),
-    templatedId: templatedId(),
+    templateId: templateId(),
     topicId: topicId(),
   };
 };
