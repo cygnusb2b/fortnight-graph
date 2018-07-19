@@ -15,6 +15,7 @@ describe('fixtures/generators', function() {
     'template',
     'user',
     'contact',
+    'topic',
   ];
   it(`should only contain the ${cases.join(', ')} properties`, function(done) {
     expect(generators).to.have.keys(cases);
