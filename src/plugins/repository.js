@@ -1,5 +1,11 @@
 /* eslint-disable no-param-reassign */
 module.exports = function repositoryPlugin(schema) {
+  schema.statics.strictFindById = async function strictFindById(id) {
+    const doc = await this.findById(id);
+    if (!doc) throw new Error(`No ${this.modelName} found for ID '${id}'`);
+    return doc;
+  };
+
   schema.statics.findAndSetUpdate = async function findAndSetUpdate(id, payload) {
     const doc = await this.findById(id);
     if (!doc) throw new Error(`Unable to update ${this.modelName}: no record was found for ID '${id}'`);
