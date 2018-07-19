@@ -1,7 +1,6 @@
 const Promise = require('bluebird');
 const { Pagination } = require('@limit0/mongoose-graphql-pagination');
 const Contact = require('../models/contact');
-const fixtures = require('../fixtures');
 const { buildEntityNameQuery, paginateSearch, buildEntityAutocomplete } = require('../elastic/utils');
 
 module.exports = {
@@ -134,22 +133,6 @@ module.exports = {
     should.push({ match: { 'email.edge': { query: phrase, boost: 1 } } });
     return paginateSearch(Contact, phrase, query, { pagination });
   },
-
-  /**
-   *
-   * @param {number} [count=1]
-   * @return {object}
-   */
-  generate(count = 1) {
-    return fixtures(Contact, count);
-  },
-
-  async seed({ count = 1 } = {}) {
-    const results = this.generate(count);
-    await Promise.all(results.all().map(model => model.save()));
-    return results;
-  },
-
 
   /**
    * @param {Model} Model

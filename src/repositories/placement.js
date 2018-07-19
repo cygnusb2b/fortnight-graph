@@ -1,10 +1,6 @@
 const Promise = require('bluebird');
 const { Pagination } = require('@limit0/mongoose-graphql-pagination');
 const Placement = require('../models/placement');
-const PublisherRepo = require('./publisher');
-const TemplateRepo = require('./template');
-const TopicRepo = require('./topic');
-const fixtures = require('../fixtures');
 const { buildMultipleEntityNameQuery, paginateSearch, buildMultipleEntityAutocomplete } = require('../elastic/utils');
 
 module.exports = {
@@ -68,35 +64,6 @@ module.exports = {
    */
   remove(criteria) {
     return Placement.remove(criteria);
-  },
-
-  /**
-   *
-   * @param {number} [count=1]
-   * @param {?object} params
-   * @return {object}
-   */
-  generate(count = 1, params) {
-    return fixtures(Placement, count, params);
-  },
-
-  async seed({ count = 1, publisherCount = 1 } = {}) {
-    const publishers = await PublisherRepo.seed({ count: publisherCount });
-    const publisherId = publishers.random().id;
-
-    const templateRes = await TemplateRepo.seed({ count: 1 });
-    const topicRes = TopicRepo.generate(1, {
-      publisherId: () => publisherId,
-    });
-    const topic = await topicRes.one().save();
-
-    const results = this.generate(count, {
-      publisherId: () => publisherId,
-      templateId: () => templateRes.one().id,
-      topicId: () => topic.id,
-    });
-    await Promise.all(results.all().map(model => model.save()));
-    return results;
   },
 
   /**
