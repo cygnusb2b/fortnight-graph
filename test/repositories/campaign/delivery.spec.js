@@ -59,10 +59,8 @@ describe('repositories/campaign/delivery', function() {
 
   describe('#getPlacementAndTemplate', function() {
     let placement;
-    let template;
     before(async function() {
       placement = await createPlacement();
-      template = await createTemplate();
     });
     after(async function() {
       await PlacementRepo.remove();
@@ -74,35 +72,22 @@ describe('repositories/campaign/delivery', function() {
     });
     [null, undefined, ''].forEach((placementId) => {
       it(`should reject when the placementId is '${placementId}'.`, async function() {
-        const templateId = template.id;
-        await expect(Repo.getPlacementAndTemplate({ templateId })).to.be.rejectedWith(Error, 'No placement ID was provided.');
-      });
-    });
-    [null, undefined, ''].forEach((templateId) => {
-      it(`should reject when the templateId is '${templateId}'.`, async function() {
-        const placementId = placement.id;
-        await expect(Repo.getPlacementAndTemplate({ placementId })).to.be.rejectedWith(Error, 'No template ID was provided.');
+        await expect(Repo.getPlacementAndTemplate({ placementId })).to.be.rejectedWith(Error, 'No placement ID was provided.');
       });
     });
     it('should reject when no placement could be found.', async function() {
       const placementId = '507f1f77bcf86cd799439011';
-      const templateId = template.id;
-      await expect(Repo.getPlacementAndTemplate({ placementId, templateId })).to.be.rejectedWith(Error, `No placement exists for ID '${placementId}'`);
-    });
-    it('should reject when no template could be found.', async function() {
-      const placementId = placement.id;
-      const templateId = '507f1f77bcf86cd799439011';
-      await expect(Repo.getPlacementAndTemplate({ placementId, templateId })).to.be.rejectedWith(Error, `No template exists for ID '${templateId}'`);
+      await expect(Repo.getPlacementAndTemplate({ placementId })).to.be.rejectedWith(Error, `No placement exists for ID '${placementId}'`);
     });
     it('should fulfill with the placement and template.', async function() {
       const placementId = placement.id;
-      const templateId = template.id;
+      const templateId = placement.templateId;
 
-      const promise = Repo.getPlacementAndTemplate({ placementId, templateId });
+      const promise = Repo.getPlacementAndTemplate({ placementId });
       await expect(promise).to.eventually.be.an('object');
       const result = await promise;
-      expect(result.placement.id).to.equal(placementId);
-      expect(result.template.id).to.equal(templateId);
+      expect(`${result.placement.id}`).to.equal(`${placementId}`);
+      expect(`${result.template.id}`).to.equal(`${templateId}`);
     });
   });
 
