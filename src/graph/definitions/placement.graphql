@@ -18,8 +18,9 @@ enum PlacementSortField {
 
 type Placement {
   id: String!
-  name: String!
+  name: String
   publisher: Publisher!
+  topic: Topic
   updatedAt: Date
   createdAt: Date
 }

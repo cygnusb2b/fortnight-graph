@@ -1,6 +1,7 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const PublisherRepo = require('../../repositories/publisher');
 const PlacementRepo = require('../../repositories/placement');
+const Topic = require('../../models/topic');
 
 module.exports = {
   /**
@@ -8,6 +9,7 @@ module.exports = {
    */
   Placement: {
     publisher: placement => PublisherRepo.findById(placement.get('publisherId')),
+    topic: placement => Topic.findById(placement.topicId),
   },
 
   /**
