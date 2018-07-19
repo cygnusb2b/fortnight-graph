@@ -64,6 +64,16 @@ const entityMultiNameQuery = (definitions, query, fieldNames) => {
   return { bool: { should } };
 };
 
+const createEntityNameQuery = (definitions, query, fieldNames) => {
+  if (!fieldNames || !fieldNames.length) throw new Error('You must specify at least one field name');
+
+  if (Array.isArray(fieldNames)) {
+    if (fieldNames.length === 0) return entityNameQuery(definitions, query, fieldNames);
+    return entityMultiNameQuery(entityNameDefinitions, query, fieldNames);
+  }
+  return entityNameQuery(definitions, query, fieldNames);
+};
+
 module.exports = {
   /**
    *
@@ -90,20 +100,12 @@ module.exports = {
     return new ElasticPagination(Model, client, { params, pagination });
   },
 
-  buildEntityNameQuery(query, fieldName = 'name') {
-    return entityNameQuery(entityNameDefinitions, query, fieldName);
+  buildEntityNameQuery(query, fieldNames) {
+    return createEntityNameQuery(entityNameDefinitions, query, fieldNames);
   },
 
-  buildMultipleEntityNameQuery(query, fieldNames) {
-    return entityMultiNameQuery(entityNameDefinitions, query, fieldNames);
-  },
-
-  buildEntityAutocomplete(query, fieldName = 'name') {
-    return entityNameQuery(entityAutocompleteDefinitions, query, fieldName);
-  },
-
-  buildMultipleEntityAutocomplete(query, fieldNames) {
-    return entityMultiNameQuery(entityAutocompleteDefinitions, query, fieldNames);
+  buildEntityAutocomplete(query, fieldNames) {
+    return createEntityNameQuery(entityAutocompleteDefinitions, query, fieldNames);
   },
 
   /**
