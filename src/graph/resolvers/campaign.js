@@ -1,6 +1,6 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const Advertiser = require('../../models/advertiser');
-const CreativeRepo = require('../../repositories/campaign/creative');
+const CreativeService = require('../../services/campaign-creatives');
 const Campaign = require('../../models/campaign');
 const Contact = require('../../models/contact');
 const Image = require('../../models/image');
@@ -64,7 +64,7 @@ module.exports = {
     campaignCreative: (root, { input }, { auth }) => {
       const { campaignId, creativeId } = input;
       auth.checkCampaignAccess(campaignId);
-      return CreativeRepo.findFor(campaignId, creativeId);
+      return CreativeService.findFor(campaignId, creativeId);
     },
 
     /**
@@ -146,7 +146,7 @@ module.exports = {
     addCampaignCreative: (root, { input }, { auth }) => {
       const { campaignId, payload } = input;
       auth.checkCampaignAccess(campaignId);
-      return CreativeRepo.createFor(campaignId, payload);
+      return CreativeService.createFor(campaignId, payload);
     },
 
     /**
@@ -155,7 +155,7 @@ module.exports = {
     removeCampaignCreative: async (root, { input }, { auth }) => {
       const { campaignId, creativeId } = input;
       auth.checkCampaignAccess(campaignId);
-      await CreativeRepo.removeFrom(campaignId, creativeId);
+      await CreativeService.removeFrom(campaignId, creativeId);
       return 'ok';
     },
 
@@ -165,7 +165,7 @@ module.exports = {
     campaignCreativeStatus: async (root, { input }, { auth }) => {
       auth.check();
       const { campaignId, creativeId, status } = input;
-      return CreativeRepo.setStatusFor(campaignId, creativeId, status);
+      return CreativeService.setStatusFor(campaignId, creativeId, status);
     },
 
     /**
@@ -175,7 +175,7 @@ module.exports = {
       const { campaignId, creativeId, payload } = input;
       auth.checkCampaignAccess(campaignId);
       const { title, teaser, status } = payload;
-      return CreativeRepo.updateDetailsFor(campaignId, creativeId, { title, teaser, status });
+      return CreativeService.updateDetailsFor(campaignId, creativeId, { title, teaser, status });
     },
 
     /**
@@ -184,7 +184,7 @@ module.exports = {
     campaignCreativeImage: async (root, { input }, { auth }) => {
       const { campaignId, creativeId, imageId } = input;
       auth.checkCampaignAccess(campaignId);
-      return CreativeRepo.updateImageFor(campaignId, creativeId, imageId);
+      return CreativeService.updateImageFor(campaignId, creativeId, imageId);
     },
 
     /**

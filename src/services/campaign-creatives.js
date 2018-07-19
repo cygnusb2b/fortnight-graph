@@ -1,8 +1,8 @@
-const CampaignRepo = require('./index');
+const Campaign = require('../models/campaign');
 
 const findCampaign = async (id) => {
   if (!id) throw new Error('Unable to handle creative: no campaign ID was provided.');
-  const campaign = await CampaignRepo.findById(id);
+  const campaign = await Campaign.findById(id);
   if (!campaign) throw new Error('Unable to handle creative: no campaign was found.');
   return campaign;
 };
