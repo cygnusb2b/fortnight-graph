@@ -1,9 +1,13 @@
 const { Schema } = require('mongoose');
 const connection = require('../connections/mongoose/instance');
-const notifyPlugin = require('../plugins/notify');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
-const imagePlugin = require('../plugins/image');
-const pushIdPlugin = require('../plugins/push-id');
+const {
+  notifyPlugin,
+  imagePlugin,
+  pushIdPlugin,
+  repositoryPlugin,
+  searchablePlugin,
+} = require('../plugins');
 
 const schema = new Schema({
   name: {
@@ -14,8 +18,14 @@ const schema = new Schema({
   },
 }, { timestamps: true });
 
+setEntityFields(schema, 'name');
+applyElasticPlugin(schema, 'advertisers');
+
+schema.plugin(notifyPlugin);
+schema.plugin(imagePlugin, { fieldName: 'logoImageId' });
 schema.plugin(pushIdPlugin, { required: true });
-imagePlugin(schema, { fieldName: 'logoImageId' });
+schema.plugin(repositoryPlugin);
+schema.plugin(searchablePlugin, { fieldNames: ['name'] });
 
 schema.pre('save', async function updateCampaigns() {
   if (this.isModified('name')) {
@@ -37,11 +47,6 @@ schema.pre('save', async function updateCampaigns() {
     });
   }
 });
-
-schema.plugin(notifyPlugin);
-
-setEntityFields(schema, 'name');
-applyElasticPlugin(schema, 'advertisers');
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
