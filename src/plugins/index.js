@@ -4,6 +4,7 @@ const contactPlugin = require('./notify');
 const paginablePlugin = require('./paginable');
 const pushId = require('./push-id');
 const repositoryPlugin = require('./repository');
+const searchablePlugin = require('./searchable');
 
 module.exports = {
   imagePlugin,
@@ -12,4 +13,5 @@ module.exports = {
   paginablePlugin,
   pushId,
   repositoryPlugin,
+  searchablePlugin,
 };
