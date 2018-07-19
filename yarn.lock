@@ -1041,16 +1041,18 @@ dateformat@^2.0.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/dateformat/-/dateformat-2.2.0.tgz#4065e2013cf9fb916ddfd82efb506ad4c6769062"
 
-dd-trace@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-0.3.1.tgz#569eded6910bc63c24def4de2383c93d65650316"
+dd-trace@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-0.4.0.tgz#5a7f1d6fbd26a6e93b27d1c271a0a2d61cae1650"
   dependencies:
+    async-hook-jl "^1.7.6"
     cls-bluebird "^2.1.0"
     cls-hooked "^4.2.2"
     continuation-local-storage "^3.2.1"
     int64-buffer "^0.1.9"
     koalas "^1.0.2"
     lodash.kebabcase "^4.1.1"
+    lodash.memoize "^4.1.2"
     lodash.uniq "^4.5.0"
     methods "^1.1.2"
     msgpack-lite "^0.1.26"
@@ -2915,6 +2917,10 @@ lodash.keys@^3.0.0:
     lodash._getnative "^3.0.0"
     lodash.isarguments "^3.0.0"
     lodash.isarray "^3.0.0"
+
+lodash.memoize@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
 
 lodash.once@^4.0.0:
   version "4.1.1"
