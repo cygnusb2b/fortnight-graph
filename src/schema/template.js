@@ -1,6 +1,11 @@
 const { Schema } = require('mongoose');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
+const {
+  paginablePlugin,
+  repositoryPlugin,
+  searchablePlugin,
+} = require('../plugins');
 
 const validateBeacon = (v) => {
   const results = v.match(/{{build-beacon}}/g);
@@ -101,6 +106,10 @@ const schema = new Schema({
 
 setEntityFields(schema, 'name');
 applyElasticPlugin(schema, 'templates');
+
+schema.plugin(repositoryPlugin);
+schema.plugin(paginablePlugin);
+schema.plugin(searchablePlugin, { fieldNames: ['name'] });
 
 schema.pre('save', async function updatePlacements() {
   if (this.isModified('name')) {
