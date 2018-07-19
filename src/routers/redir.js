@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { Router } = require('express');
 const noCacheEvents = require('../middleware/no-cache-events');
-const CampaignRepo = require('../repositories/campaign');
+const Campaign = require('../models/campaign');
 
 const router = Router();
 router.use(noCacheEvents());
@@ -29,7 +29,7 @@ router.get('/:token', (req, res, next) => {
     // Redirect immediately.
     res.redirect(301, url);
   } else {
-    CampaignRepo.findById(cid).then(c => res.redirect(301, c.url)).catch(next);
+    Campaign.strictFindById(cid).then(c => res.redirect(301, c.url)).catch(next);
   }
 });
 
