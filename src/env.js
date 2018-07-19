@@ -30,6 +30,14 @@ const nonemptystr = makeValidator((v) => {
   return trimmed;
 });
 
+const jsonFile = makeValidator((v) => {
+  if (v === undefined || v === null || v === '') {
+    throw new Error('Expected a non-empty string');
+  }
+  // eslint-disable-next-line import/no-dynamic-require
+  return require(v); // eslint-disable-line global-require
+});
+
 module.exports = cleanEnv(process.env, {
   ACCOUNT_KEY: nonemptystr({ desc: 'The account/tenant key. Is used for querying the account information and settings from the core database connection.' }),
   AWS_ACCESS_KEY_ID: nonemptystr({ desc: 'The AWS access key value.' }),
@@ -38,6 +46,7 @@ module.exports = cleanEnv(process.env, {
   ELASTIC_HOST: url({ desc: 'The Elasticsearch DSN to connect to.' }),
   ELASTIC_INDEX_RECREATE: bool({ desc: 'Whether the Elasticsearch indexes should be re-created.', default: false }),
   IMGIX_URL: url({ desc: 'The Imgix URL for serving images.' }),
+  GOOGLE_APPLICATION_CREDENTIALS: jsonFile({ desc: 'The location of the Google Cloud service account credentials file.', devDefault: `${process.cwd()}/.google-cloud.json` }),
   MONGOOSE_DEBUG: bool({ desc: 'Whether to enable Mongoose debugging.', default: false }),
   MONGO_DSN: mongodsn({ desc: 'The MongoDB DSN to connect to.' }),
   NEW_RELIC_ENABLED: bool({ desc: 'Whether New Relic is enabled.', default: true, devDefault: false }),
