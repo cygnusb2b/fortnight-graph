@@ -95,18 +95,22 @@ module.exports = {
    *
    * @param {object} params
    * @param {string} params.placementId
-   * @param {string} params.templateId
    * @return {Promise}
    */
-  async getPlacementAndTemplate({ placementId, templateId } = {}) {
+  async getPlacementAndTemplate({ placementId } = {}) {
     if (!placementId) throw createError(400, 'No placement ID was provided.');
-    if (!templateId) throw createError(400, 'No template ID was provided.');
 
-    const placement = await Placement.findOne({ _id: placementId }, { _id: 1 });
+    const placement = await Placement.findOne({ _id: placementId }, {
+      _id: 1,
+      templateId: 1,
+    });
     if (!placement) throw createError(404, `No placement exists for ID '${placementId}'`);
 
-    const template = await Template.findOne({ _id: templateId }, { html: 1, fallback: 1 });
-    if (!template) throw createError(404, `No template exists for ID '${templateId}'`);
+    const template = await Template.findOne({ _id: placement.templateId }, {
+      html: 1,
+      fallback: 1,
+    });
+    if (!template) throw createError(404, `No template exists for ID '${placement.templateId}'`);
 
     return { placement, template };
   },
@@ -115,7 +119,6 @@ module.exports = {
    *
    * @param {object} params
    * @param {string} params.placementId The placement identifier.
-   * @param {string} params.templateId The template identifier.
    * @param {string} params.requestURL The URL the ad request came from.
    * @param {string} params.userAgent The requesting user agent.
    * @param {number} [params.num=1] The number of ads to return. Max of 20.
@@ -125,7 +128,6 @@ module.exports = {
    */
   async findFor({
     placementId,
-    templateId,
     requestURL,
     userAgent,
     ipAddress,
@@ -133,7 +135,7 @@ module.exports = {
     vars = { custom: {}, fallback: {} },
   } = {}) {
     if (!requestURL) throw new Error('No request URL was provided');
-    const { placement, template } = await this.getPlacementAndTemplate({ placementId, templateId });
+    const { placement, template } = await this.getPlacementAndTemplate({ placementId });
 
     const limit = num > 0 ? parseInt(num, 10) : 1;
     if (limit > 10) throw createError(400, 'You cannot return more than 10 ads in one request.');

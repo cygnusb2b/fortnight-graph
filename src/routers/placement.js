@@ -29,7 +29,6 @@ router.get('/:pid.:ext', (req, res) => {
   const { pid, ext } = req.params;
   if (acceptable.includes(ext)) {
     const {
-      tid,
       n,
       cv,
       mv,
@@ -44,7 +43,6 @@ router.get('/:pid.:ext', (req, res) => {
       ipAddress: req.ip,
       requestURL: `${protocol}://${req.get('host')}`,
       placementId: pid,
-      templateId: tid,
       num: n,
       vars,
     }).then((ads) => {
