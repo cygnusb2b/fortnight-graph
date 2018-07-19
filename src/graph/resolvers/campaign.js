@@ -1,12 +1,12 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const Advertiser = require('../../models/advertiser');
-const PlacementRepo = require('../../repositories/placement');
 const CampaignRepo = require('../../repositories/campaign');
 const CreativeRepo = require('../../repositories/campaign/creative');
 const CriteriaRepo = require('../../repositories/campaign/criteria');
 const Campaign = require('../../models/campaign');
 const Contact = require('../../models/contact');
 const Image = require('../../models/image');
+const Placement = require('../../models/placement');
 const contactNotifier = require('../../services/contact-notifier');
 
 const getNotifyDefaults = async (advertiserId, user) => {
@@ -35,7 +35,7 @@ module.exports = {
   },
 
   CampaignCriteria: {
-    placements: criteria => PlacementRepo.find({ _id: criteria.get('placementIds') }),
+    placements: criteria => Placement.find({ _id: criteria.get('placementIds') }),
   },
 
   CampaignCreative: {
