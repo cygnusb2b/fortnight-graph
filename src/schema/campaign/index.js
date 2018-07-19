@@ -3,9 +3,14 @@ const connection = require('../../connections/mongoose/instance');
 const validator = require('validator');
 const CreativeSchema = require('./creative');
 const CriteriaSchema = require('./criteria');
-const notifyPlugin = require('../../plugins/notify');
-const pushIdPlugin = require('../../plugins/push-id');
 const { applyElasticPlugin, setEntityFields } = require('../../elastic/mongoose');
+const {
+  notifyPlugin,
+  paginablePlugin,
+  pushIdPlugin,
+  repositoryPlugin,
+  searchablePlugin,
+} = require('../../plugins');
 
 const externalLinkSchema = new Schema({
   label: {
@@ -86,19 +91,22 @@ const schema = new Schema({
   externalLinks: [externalLinkSchema],
 }, { timestamps: true });
 
+setEntityFields(schema, 'name');
+setEntityFields(schema, 'advertiserName');
+applyElasticPlugin(schema, 'campaigns');
+
+schema.plugin(notifyPlugin);
+schema.plugin(pushIdPlugin, { required: true });
+schema.plugin(repositoryPlugin);
+schema.plugin(paginablePlugin);
+schema.plugin(searchablePlugin, { fieldNames: ['name', 'advertiserName'] });
+
 schema.pre('save', async function setAdvertiserName() {
   if (this.isModified('advertiserId') || !this.advertiserName) {
     const advertiser = await connection.model('advertiser').findOne({ _id: this.advertiserId }, { name: 1 });
     this.advertiserName = advertiser.name;
   }
 });
-
-schema.plugin(notifyPlugin);
-schema.plugin(pushIdPlugin, { required: true });
-
-setEntityFields(schema, 'name');
-setEntityFields(schema, 'advertiserName');
-applyElasticPlugin(schema, 'campaigns');
 
 schema.index({ advertiserId: 1 });
 schema.index({ name: 1, _id: 1 }, { unique: true });
