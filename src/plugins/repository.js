@@ -12,7 +12,6 @@ module.exports = function repositoryPlugin(schema) {
     return doc;
   };
 
-
   schema.statics.findAndSetUpdate = async function findAndSetUpdate(id, payload) {
     const doc = await this.findById(id);
     if (!doc) throw new Error(`Unable to update ${this.modelName}: no record was found for ID '${id}'`);
@@ -28,6 +27,13 @@ module.exports = function repositoryPlugin(schema) {
     const doc = await this.findById(id);
     if (!doc) throw new Error(`Unable to update ${this.modelName}: no record was found for ID '${id}'`);
     return doc.assignUpdate(payload);
+  };
+
+  schema.statics.findAndAssignValue = async function findAndAssignValue(id, field, value) {
+    const doc = await this.findById(id);
+    if (!doc) throw new Error(`Unable to assign field '${field}' to ${this.modelName}: no record was found for id '${id}'`);
+    doc.set(field, value);
+    return doc.save();
   };
 
   schema.methods.assignUpdate = async function assignUpdate(payload) {
