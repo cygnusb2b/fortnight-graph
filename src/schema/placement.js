@@ -80,7 +80,7 @@ setEntityFields(schema, 'topicName');
 setEntityFields(schema, 'templateName');
 applyElasticPlugin(schema, 'placements');
 
-schema.index({ publisherId: 1, name: 1 }, { unique: true });
+schema.index({ publisherId: 1, templateId: 1, topicId: 1 }, { unique: true });
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
 schema.index({ updatedAt: 1, _id: 1 }, { unique: true });
