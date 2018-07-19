@@ -2,7 +2,12 @@ const { Schema } = require('mongoose');
 const { isFQDN } = require('validator');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
-const imagePlugin = require('../plugins/image');
+const {
+  imagePlugin,
+  paginablePlugin,
+  repositoryPlugin,
+  searchablePlugin,
+} = require('../plugins');
 
 const schema = new Schema({
   name: {
@@ -24,7 +29,13 @@ const schema = new Schema({
   },
 }, { timestamps: true });
 
-imagePlugin(schema, { fieldName: 'logoImageId' });
+setEntityFields(schema, 'name');
+applyElasticPlugin(schema, 'publishers');
+
+schema.plugin(imagePlugin, { fieldName: 'logoImageId' });
+schema.plugin(repositoryPlugin);
+schema.plugin(paginablePlugin);
+schema.plugin(searchablePlugin, { fieldNames: ['name'] });
 
 schema.pre('save', async function updatePlacements() {
   if (this.isModified('name')) {
@@ -53,9 +64,6 @@ schema.pre('save', async function updateTopics() {
     });
   }
 });
-
-setEntityFields(schema, 'name');
-applyElasticPlugin(schema, 'publishers');
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
