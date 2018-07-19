@@ -4,7 +4,8 @@ const criteria = require('./criteria');
 
 module.exports = ({
   advertiserId,
-  placementId,
+  placementIds,
+  creativeImageId,
   internalContactIds = [],
   externalContactIds = [],
 }) => {
@@ -12,7 +13,7 @@ module.exports = ({
     const stack = [];
     const num = faker.random.number({ min: 1, max: 5 });
     for (let i = 0; i < num; i += 1) {
-      stack.push(creative({ imageId: () => undefined }));
+      stack.push(creative({ imageId: creativeImageId }));
     }
     return stack;
   };
@@ -42,7 +43,7 @@ module.exports = ({
       'Deleted',
     ]),
     creatives: creatives(),
-    criteria: criteria({ placementId }),
+    criteria: criteria({ placementIds }),
     createdAt: now,
     updatedAt: now,
     externalLinks: externalLinks(),
