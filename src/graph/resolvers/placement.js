@@ -1,6 +1,5 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const Placement = require('../../models/placement');
-const PlacementRepo = require('../../repositories/placement');
 const Publisher = require('../../models/publisher');
 const Template = require('../../models/template');
 const Topic = require('../../models/topic');
@@ -27,12 +26,10 @@ module.exports = {
     /**
      *
      */
-    placement: async (root, { input }, { auth }) => {
+    placement: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      const record = await Placement.findById(id);
-      if (!record) throw new Error(`No placement record found for ID ${id}.`);
-      return record;
+      return Placement.strictFindById(id);
     },
 
     /**
@@ -40,7 +37,7 @@ module.exports = {
      */
     allPlacements: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return PlacementRepo.paginate({ pagination, sort });
+      return Placement.paginate({ pagination, sort });
     },
 
     /**
@@ -48,7 +45,7 @@ module.exports = {
      */
     searchPlacements: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return PlacementRepo.search(phrase, { pagination });
+      return Placement.search(phrase, { pagination });
     },
 
     /**
@@ -56,7 +53,7 @@ module.exports = {
      */
     autocompletePlacements: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return PlacementRepo.autocomplete(phrase, { pagination });
+      return Placement.autocomplete(phrase, { pagination });
     },
   },
 
@@ -90,8 +87,7 @@ module.exports = {
     updatePlacement: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      const placement = await Placement.findById(id);
-      if (!placement) throw new Error(`No placement found for ID ${id}.`);
+      const placement = await Placement.strictFindById(id);
       const {
         name,
         publisherId,
