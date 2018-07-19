@@ -108,12 +108,12 @@ module.exports = {
    * @return {ElasticPagination}
    */
   search(phrase, { pagination } = {}) {
-    const query = buildMultipleEntityNameQuery(phrase, ['name', 'publisherName']);
+    const query = buildMultipleEntityNameQuery(phrase, ['name', 'publisherName', 'topicName', 'templateName']);
     return paginateSearch(Placement, phrase, query, { pagination });
   },
 
   autocomplete(phrase, { pagination } = {}) {
-    const query = buildMultipleEntityAutocomplete(phrase, ['name', 'publisherName']);
+    const query = buildMultipleEntityAutocomplete(phrase, ['name', 'publisherName', 'topicName', 'templateName']);
     return paginateSearch(Placement, phrase, query, { pagination });
   },
 };
