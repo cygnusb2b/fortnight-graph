@@ -1,6 +1,5 @@
 const _ = require('lodash');
 const createError = require('http-errors');
-const jwt = require('jsonwebtoken');
 const uuidv4 = require('uuid/v4');
 const AnalyticsEvent = require('../models/analytics/event');
 const BotDetector = require('../services/bot-detector');
@@ -118,7 +117,6 @@ module.exports = {
    *
    * @param {object} params
    * @param {string} params.placementId The placement identifier.
-   * @param {string} params.requestURL The URL the ad request came from.
    * @param {string} params.userAgent The requesting user agent.
    * @param {number} [params.num=1] The number of ads to return. Max of 20.
    * @param {object} [params.vars] An object containing targeting, merge, and fallback vars.
@@ -127,13 +125,11 @@ module.exports = {
    */
   async findFor({
     placementId,
-    requestURL,
     userAgent,
     ipAddress,
     num = 1,
     vars = { custom: {}, fallback: {} },
   } = {}) {
-    if (!requestURL) throw new Error('No request URL was provided');
     const { placement, template } = await this.getPlacementAndTemplate({ placementId });
 
     const limit = num > 0 ? parseInt(num, 10) : 1;
@@ -160,7 +156,6 @@ module.exports = {
         campaign,
         template,
         fallbackVars: vars.fallback,
-        requestURL,
         event,
       });
     }));
@@ -205,49 +200,9 @@ module.exports = {
     };
   },
 
-  /**
-   * @deprecated In favor of JS tracking.
-   */
-  createTrackers(requestURL, event) {
-    return {
-      load: this.createTracker('load', requestURL, event),
-      view: this.createTracker('view', requestURL, event),
-    };
-  },
-
-  /**
-   * @deprecated In favor of JS tracking.
-   */
-  createTracker(type, requestURL, event) {
-    const secret = 'deprecated';
-    const { uuid, pid, cid } = event;
-    const payload = { uuid, pid, cid };
-    const token = jwt.sign(payload, secret, { noTimestamp: true });
-    return `${requestURL}/e/${token}/${type}.gif`;
-  },
-
-  /**
-   * @deprecated In favor of JS tracking.
-   */
-  createImgBeacon(trackers) {
-    return `<div data-fortnight-type="placement"><img data-fortnight-view="pending" data-fortnight-beacon="${trackers.view}" src="${trackers.load}"></div>`;
-  },
-
-  /**
-   * @deprecated Will need to be re-evaluated. Should not use tokens.
-   */
-  createCampaignRedirect(requestURL, event) {
-    const { uuid, pid, cid } = event;
-    const secret = 'deprecated';
-    const payload = { uuid, pid, cid };
-    const token = jwt.sign(payload, secret, { noTimestamp: true });
-    return `${requestURL}/redir/${token}`;
-  },
-
   buildFallbackFor({
     template,
     fallbackVars,
-    requestURL,
     event,
   }) {
     const {
@@ -257,15 +212,12 @@ module.exports = {
       kv,
     } = event;
     const ad = this.createEmptyAd(cid);
-    const trackers = this.createTrackers(requestURL, event);
-    const beacon = this.createImgBeacon(trackers);
 
     if (template.fallback) {
       const vars = Object.assign({}, Object(fallbackVars), {
         pid,
         uuid,
         kv,
-        beacon, // @deprecated Will be removed.
       });
       ad.html = Template.render(template.fallback, vars);
     } else {
@@ -298,14 +250,12 @@ module.exports = {
     campaign,
     template,
     fallbackVars,
-    requestURL,
     event,
   }) {
     if (!campaign.id) {
       return this.buildFallbackFor({
         template,
         fallbackVars,
-        requestURL,
         event,
       });
     }
@@ -315,23 +265,11 @@ module.exports = {
       return this.buildFallbackFor({
         template,
         fallbackVars,
-        requestURL,
         event,
       });
     }
 
     const ad = this.createEmptyAd(campaign.id);
-
-    /**
-     * Disable creating a campaign redirect URL.
-     * Eventually this should be added back for external URLs that we do not control.
-     * The redirect should be used for tracking "good" bots _only_.
-     * It should not be used for click analytics.
-     */
-    // const href = this.createCampaignRedirect(requestURL, event);
-    // Render the template.
-    const trackers = this.createTrackers(requestURL, event);
-    const beacon = this.createImgBeacon(trackers);
 
     if (creative.image) {
       creative.image.src = await creative.image.getSrc();
@@ -342,7 +280,6 @@ module.exports = {
       uuid,
       pid,
       kv,
-      beacon, // @deprecated Will be removed.
       href: campaign.url,
       campaign,
       creative,
