@@ -104,12 +104,12 @@ module.exports = {
    * @param {number} count
    */
   async topics(count) {
-    const { Template } = models;
+    const { Topic } = models;
     const publisher = await this.publishers(1);
     const params = {
       publisherId: () => publisher.id,
     };
-    return create(Template, count, params);
+    return create(Topic, count, params);
   },
 
   /**
