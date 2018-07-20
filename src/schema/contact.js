@@ -68,7 +68,7 @@ schema.plugin(searchablePlugin, {
     should.push({ match: { 'email.edge': { query: phrase, operator: 'and', boost: 2 } } });
     should.push({ match: { 'email.edge': { query: phrase, boost: 1 } } });
   },
-  beforeAutocomplte: (query, phrase) => {
+  beforeAutocomplete: (query, phrase) => {
     const { should } = query.bool;
     should.push({ match: { 'email.edge': { query: phrase, operator: 'and', boost: 2 } } });
     should.push({ match: { 'email.edge': { query: phrase, boost: 1 } } });
