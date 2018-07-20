@@ -296,29 +296,6 @@ describe('services/campaign-delivery', function() {
     });
   });
 
-  describe('#createCampaignRedirect', function() {
-    beforeEach(function() {
-      sandbox.spy(jwt, 'sign');
-    });
-    afterEach(function() {
-      sandbox.restore();
-    });
-
-    it('should return the redirect URL.', function(done) {
-      const requestURL = 'http://foo.com';
-      const event = {
-        uuid: '92e998a7-e596-4747-a233-09108938c8d4',
-        pid: '5aa03a87be66ee000110c13b',
-        cid: '5aabc20d62a17f0001bbcba4',
-      };
-      const url = Repo.createCampaignRedirect(requestURL, event);
-      expect(url).to.match(/^http:\/\/foo\.com\/redir\/.*$/);
-      sinon.assert.calledOnce(jwt.sign);
-      sinon.assert.calledWith(jwt.sign, event, sinon.match.any, { noTimestamp: true });
-      done();
-    });
-  });
-
   describe('#fillWithFallbacks', function() {
     it('should leave campaign array untouched when length is >= limit', function(done) {
       const campaigns = [{ id: '1234' }];
@@ -490,39 +467,6 @@ describe('services/campaign-delivery', function() {
       done();
     });
 
-  });
-
-  describe('#createImgBeacon', function() {
-    it('should return the tracker HMTL snippet.', function(done) {
-      const expected = '<div data-fortnight-type="placement"><img data-fortnight-view="pending" data-fortnight-beacon="http://www.foo.com/e/abcd/view.gif" src="http://www.foo.com/e/abcd/load.gif"></div>';
-      const result = Repo.createImgBeacon({ load: 'http://www.foo.com/e/abcd/load.gif', view: 'http://www.foo.com/e/abcd/view.gif' });
-      expect(result).to.equal(expected);
-      done();
-    });
-  });
-
-  describe('#createTracker', function() {
-    beforeEach(function() {
-      sandbox.spy(jwt, 'sign');
-    });
-    afterEach(function() {
-      sandbox.restore();
-    });
-    it('should create the URL.', function(done) {
-      const type = 'view';
-      const requestURL = 'http://www.foo.com';
-      const event = {
-        uuid: '92e998a7-e596-4747-a233-09108938c8d4',
-        pid: '5aa03a87be66ee000110c13b',
-        cid: '5aabc20d62a17f0001bbcba4',
-      };
-
-      const url = Repo.createTracker(type, requestURL, event);
-      expect(url).to.match(/^http:\/\/www\.foo\.com\/e\/.*\/view\.gif$/);
-      sinon.assert.calledOnce(jwt.sign);
-      sinon.assert.calledWith(jwt.sign, event, sinon.match.any, { noTimestamp: true });
-      done();
-    });
   });
 
   describe('#getCreativeFor', function() {
