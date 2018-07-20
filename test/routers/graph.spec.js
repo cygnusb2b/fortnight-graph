@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt');
 const app = require('../../src/app');
 const router = require('../../src/routers/graph');
 const UserRepo = require('../../src/repositories/user');
+const User = require('../../src/models/user');
+const seed = require('../../src/fixtures/seed');
 const sandbox = sinon.createSandbox();
 
 describe('routers/graph', function() {
@@ -46,6 +48,7 @@ describe('routers/graph', function() {
   });
   describe('currentUser', function() {
     let token;
+    let user
     before(async function() {
       const hash = '$2a$04$B9nI.XF/vfcZ4AfUTvmLcOHEwxrB4o9PDb0r1f9N3x3AqSFDTME4C';
       const password = 'test-password';
@@ -53,8 +56,8 @@ describe('routers/graph', function() {
       sandbox.stub(bcrypt, 'hash').resolves(hash);
       sandbox.stub(bcrypt, 'compare').withArgs(password, hash).resolves(true);
 
-      await UserRepo.remove();
-      user = UserRepo.generate().one();
+      await User.remove();
+      user = await seed.users(1);
       user.set('password', password);
       await user.save();
       const { session } = await UserRepo.login(user.email, password);
@@ -62,7 +65,7 @@ describe('routers/graph', function() {
     });
     after(async function() {
       sandbox.restore();
-      await UserRepo.remove();
+      await User.remove();
     });
 
     const query = `
