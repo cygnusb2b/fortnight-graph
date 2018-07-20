@@ -8,6 +8,7 @@ const {
   notifyPlugin,
   paginablePlugin,
   pushIdPlugin,
+  referencePlugin,
   repositoryPlugin,
   searchablePlugin,
 } = require('../../plugins');
@@ -46,18 +47,6 @@ const schema = new Schema({
     required: false,
     trim: false,
   },
-  advertiserId: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    validate: {
-      async validator(v) {
-        const doc = await connection.model('advertiser').findOne({ _id: v }, { _id: 1 });
-        if (doc) return true;
-        return false;
-      },
-      message: 'No advertiser found for ID {VALUE}',
-    },
-  },
   advertiserName: {
     type: String,
   },
@@ -95,6 +84,12 @@ setEntityFields(schema, 'name');
 setEntityFields(schema, 'advertiserName');
 applyElasticPlugin(schema, 'campaigns');
 
+schema.plugin(referencePlugin, {
+  name: 'advertiserId',
+  connection,
+  modelName: 'advertiser',
+  options: { required: true, es_indexed: true, es_type: 'keyword' },
+});
 schema.plugin(notifyPlugin);
 schema.plugin(pushIdPlugin, { required: true });
 schema.plugin(repositoryPlugin);
