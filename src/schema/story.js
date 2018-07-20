@@ -5,6 +5,7 @@ const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
   imagePlugin,
   paginablePlugin,
+  referencePlugin,
   repositoryPlugin,
   searchablePlugin,
 } = require('../plugins');
@@ -23,18 +24,6 @@ const schema = new Schema({
     type: String,
     trim: true,
   },
-  advertiserId: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    validate: {
-      async validator(v) {
-        const doc = await connection.model('advertiser').findOne({ _id: v }, { _id: 1 });
-        if (doc) return true;
-        return false;
-      },
-      message: 'No advertiser found for ID {VALUE}',
-    },
-  },
   advertiserName: {
     type: String,
   },
@@ -47,6 +36,12 @@ setEntityFields(schema, 'title');
 setEntityFields(schema, 'advertiserName');
 applyElasticPlugin(schema, 'stories');
 
+schema.plugin(referencePlugin, {
+  name: 'advertiserId',
+  connection,
+  modelName: 'advertiser',
+  options: { required: true, es_indexed: true, es_type: 'keyword' },
+});
 schema.plugin(imagePlugin, { fieldName: 'primaryImageId' });
 schema.plugin(imagePlugin, { fieldName: 'imageIds', multiple: true });
 schema.plugin(repositoryPlugin);
