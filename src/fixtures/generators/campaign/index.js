@@ -9,13 +9,13 @@ module.exports = async ({
   internalContactIds = [],
   externalContactIds = [],
 }) => {
-  const creatives = async () => {
+  const creatives = () => {
     const stack = [];
     const num = faker.random.number({ min: 1, max: 5 });
     for (let i = 0; i < num; i += 1) {
-      stack.push(await creative({ imageId: creativeImageId }));
+      stack.push(creative({ imageId: creativeImageId }));
     }
-    return stack;
+    return Promise.all(stack);
   };
 
   const externalLinks = () => {
