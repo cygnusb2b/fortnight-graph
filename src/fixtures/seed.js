@@ -3,7 +3,7 @@ const fixtures = require('./index');
 const models = require('../models');
 
 const create = async (Model, count, params) => {
-  const results = fixtures(Model, count, params);
+  const results = await fixtures(Model, count, params);
   if (results.length === 1) {
     const result = results.one();
     await result.save();
@@ -59,10 +59,12 @@ module.exports = {
    */
   async placements(count) {
     const { Placement } = models;
-    const template = await this.templates(1);
     const topic = await this.topics(1);
     const params = {
-      templateId: () => template.id,
+      templateId: async () => {
+        const template = await this.templates(1);
+        return template.id
+      },
       publisherId: () => topic.publisherId,
       topicId: () => topic.id,
     };

@@ -1,13 +1,13 @@
 const faker = require('faker');
 
-module.exports = ({ publisherId, templateId, topicId } = {}) => {
+module.exports = async ({ publisherId, templateId, topicId } = {}) => {
   const now = new Date();
   return {
     name: faker.lorem.words(10),
     createdAt: now,
     updatedAt: now,
-    publisherId: publisherId(),
-    templateId: templateId(),
-    topicId: topicId(),
+    publisherId: await publisherId(),
+    templateId: await templateId(),
+    topicId: await topicId(),
   };
 };

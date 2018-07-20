@@ -1,6 +1,6 @@
 const faker = require('faker');
 
-module.exports = ({ placementIds }) => {
+module.exports = async ({ placementIds }) => {
   const kvs = () => {
     const stack = [];
     const num = faker.random.number({ min: 1, max: 5 });
@@ -16,7 +16,7 @@ module.exports = ({ placementIds }) => {
   return {
     start: faker.date.past(),
     end: faker.date.future(),
-    placementIds: [placementIds()],
+    placementIds: await placementIds(),
     kvs: kvs(),
   };
 };

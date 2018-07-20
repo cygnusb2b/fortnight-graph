@@ -2,18 +2,18 @@ const faker = require('faker');
 const creative = require('./creative');
 const criteria = require('./criteria');
 
-module.exports = ({
+module.exports = async ({
   advertiserId,
   placementIds,
   creativeImageId,
   internalContactIds = [],
   externalContactIds = [],
 }) => {
-  const creatives = () => {
+  const creatives = async () => {
     const stack = [];
     const num = faker.random.number({ min: 1, max: 5 });
     for (let i = 0; i < num; i += 1) {
-      stack.push(creative({ imageId: creativeImageId }));
+      stack.push(await creative({ imageId: creativeImageId }));
     }
     return stack;
   };
@@ -35,15 +35,15 @@ module.exports = ({
     name: faker.random.words(),
     description: faker.lorem.paragraph(),
     url: faker.internet.url(),
-    advertiserId: advertiserId(),
+    advertiserId: await advertiserId(),
     status: faker.helpers.randomize([
       'Active',
       'Paused',
       'Draft',
       'Deleted',
     ]),
-    creatives: creatives(),
-    criteria: criteria({ placementIds }),
+    creatives: await creatives(),
+    criteria: await criteria({ placementIds }),
     createdAt: now,
     updatedAt: now,
     externalLinks: externalLinks(),

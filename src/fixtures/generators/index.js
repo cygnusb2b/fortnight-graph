@@ -3,6 +3,7 @@ const campaign = require('./campaign');
 const contact = require('./contact');
 const creative = require('./campaign/creative');
 const criteria = require('./campaign/criteria');
+const image = require('./image');
 const placement = require('./placement');
 const publisher = require('./publisher');
 const template = require('./template');
@@ -15,6 +16,7 @@ module.exports = {
   contact,
   creative,
   criteria,
+  image,
   placement,
   publisher,
   template,
