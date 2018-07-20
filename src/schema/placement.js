@@ -3,6 +3,7 @@ const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
   paginablePlugin,
+  referencePlugin,
   repositoryPlugin,
   searchablePlugin,
 } = require('../plugins');
@@ -21,41 +22,6 @@ const schema = new Schema({
   templateName: {
     type: String,
   },
-  publisherId: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    validate: {
-      async validator(v) {
-        const doc = await connection.model('publisher').findOne({ _id: v }, { _id: 1 });
-        if (doc) return true;
-        return false;
-      },
-      message: 'No publisher found for ID {VALUE}',
-    },
-  },
-  templateId: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    validate: {
-      async validator(v) {
-        const doc = await connection.model('template').findOne({ _id: v }, { _id: 1 });
-        if (doc) return true;
-        return false;
-      },
-      message: 'No template found for ID {VALUE}',
-    },
-  },
-  topicId: {
-    type: Schema.Types.ObjectId,
-    validate: {
-      async validator(v) {
-        const doc = await connection.model('topic').findOne({ _id: v }, { _id: 1 });
-        if (doc) return true;
-        return false;
-      },
-      message: 'No topic found for ID {VALUE}',
-    },
-  },
 }, { timestamps: true });
 
 setEntityFields(schema, 'name');
@@ -64,6 +30,23 @@ setEntityFields(schema, 'topicName');
 setEntityFields(schema, 'templateName');
 applyElasticPlugin(schema, 'placements');
 
+schema.plugin(referencePlugin, {
+  name: 'publisherId',
+  connection,
+  modelName: 'publisher',
+  options: { required: true },
+});
+schema.plugin(referencePlugin, {
+  name: 'templateId',
+  connection,
+  modelName: 'template',
+  options: { required: true },
+});
+schema.plugin(referencePlugin, {
+  name: 'topicId',
+  connection,
+  modelName: 'topic',
+});
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name', 'publisherName', 'topicName', 'templateName'] });
