@@ -4,16 +4,14 @@ const Campaign = require('../../src/models/campaign');
 const Placement = require('../../src/models/placement');
 const seed = require('../../src/fixtures/seed');
 
-const createCampaign = async () => {
-  return seed.campaigns(1);
-};
-
 describe('services/campaign-creatives', function() {
   before(async function() {
+    await Placement.remove();
     await Campaign.remove();
   });
   after(async function() {
     await Campaign.remove();
+    await Placement.remove();
   });
   it('should export an object.', function(done) {
     expect(CampaignCreatives).to.be.an('object');
@@ -23,9 +21,7 @@ describe('services/campaign-creatives', function() {
   describe('#createFor', function() {
     let campaign;
     before(async function() {
-      const placements = await Placement.find();
-      console.info(placements);
-      campaign = await createCampaign();
+      campaign = await seed.campaigns(1);
     });
     it('should reject when no campaign ID is provided.', async function() {
       await expect(CampaignCreatives.createFor()).to.be.rejectedWith(Error, 'Unable to handle creative: no campaign ID was provided.');
@@ -46,7 +42,7 @@ describe('services/campaign-creatives', function() {
   describe('#removeFrom', function() {
     let campaign;
     before(async function() {
-      campaign = await createCampaign();
+      campaign = await seed.campaigns(1);
     });
     it('should reject when no creative ID is provided.', async function() {
       const campaignId = '507f1f77bcf86cd799439011';
