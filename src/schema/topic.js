@@ -25,7 +25,8 @@ applyElasticPlugin(schema, 'topics');
 
 schema.plugin(referencePlugin, {
   name: 'publisherId',
-  Model: connection.model('publisher'),
+  connection,
+  modelName: 'publisher',
   options: { required: true, es_indexed: true, es_type: 'keyword' },
 });
 schema.plugin(repositoryPlugin);
