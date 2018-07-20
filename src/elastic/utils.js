@@ -68,7 +68,7 @@ const createEntityNameQuery = (definitions, query, fieldNames) => {
   if (!fieldNames || !fieldNames.length) throw new Error('You must specify at least one field name');
 
   if (Array.isArray(fieldNames)) {
-    if (fieldNames.length === 0) return entityNameQuery(definitions, query, fieldNames);
+    if (fieldNames.length === 1) return entityNameQuery(definitions, query, fieldNames);
     return entityMultiNameQuery(entityNameDefinitions, query, fieldNames);
   }
   return entityNameQuery(definitions, query, fieldNames);
