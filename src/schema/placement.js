@@ -53,7 +53,7 @@ const schema = new Schema({
         if (doc) return true;
         return false;
       },
-      message: 'No template found for ID {VALUE}',
+      message: 'No topic found for ID {VALUE}',
     },
   },
 }, { timestamps: true });
