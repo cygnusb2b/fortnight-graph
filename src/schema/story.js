@@ -29,6 +29,8 @@ const schema = new Schema({
   },
   publishedAt: {
     type: Date,
+    es_indexed: true,
+    es_type: 'date',
   },
 }, { timestamps: true });
 
