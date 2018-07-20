@@ -3,6 +3,7 @@ const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
   paginablePlugin,
+  referencePlugin,
   repositoryPlugin,
   searchablePlugin,
 } = require('../plugins');
@@ -13,20 +14,6 @@ const schema = new Schema({
     required: true,
     trim: true,
   },
-  publisherId: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    es_indexed: true,
-    es_type: 'keyword',
-    validate: {
-      async validator(v) {
-        const doc = await connection.model('publisher').findOne({ _id: v }, { _id: 1 });
-        if (doc) return true;
-        return false;
-      },
-      message: 'No publisher found for ID {VALUE}',
-    },
-  },
   publisherName: {
     type: String,
   },
@@ -36,6 +23,11 @@ setEntityFields(schema, 'name');
 setEntityFields(schema, 'publisherName');
 applyElasticPlugin(schema, 'topics');
 
+schema.plugin(referencePlugin, {
+  name: 'publisherId',
+  Model: connection.model('publisher'),
+  options: { required: true, es_indexed: true, es_type: 'keyword' },
+});
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name', 'publisherName'] });
