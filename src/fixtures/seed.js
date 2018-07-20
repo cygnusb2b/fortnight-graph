@@ -63,7 +63,7 @@ module.exports = {
     const params = {
       templateId: async () => {
         const template = await this.templates(1);
-        return template.id
+        return template.id;
       },
       publisherId: () => topic.publisherId,
       topicId: () => topic.id,
