@@ -22,6 +22,7 @@ type Publisher {
   name: String!
   domainName: String
   logo: Image
+  topics(pagination: PaginationInput = {}, sort: TopicSortInput = {}): TopicConnection!
   updatedAt: Date
   createdAt: Date
 }
