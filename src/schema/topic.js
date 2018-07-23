@@ -17,6 +17,10 @@ const schema = new Schema({
   publisherName: {
     type: String,
   },
+  externalId: {
+    type: String,
+    trim: true,
+  },
 }, { timestamps: true });
 
 setEntityFields(schema, 'name');
