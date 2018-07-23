@@ -23,6 +23,7 @@ type Publisher {
   domainName: String
   logo: Image
   topics(pagination: PaginationInput = {}, sort: TopicSortInput = {}): TopicConnection!
+  placements(pagination: PaginationInput = {}, sort: PlacementSortInput = {}): PlacementConnection!
   updatedAt: Date
   createdAt: Date
 }
