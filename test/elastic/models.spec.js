@@ -9,6 +9,7 @@ describe('elastic/models', function() {
       'placement',
       'contact',
       'template',
+      'topic',
       'story',
     ].sort();
     const names = models.map(Model => Model.modelName);

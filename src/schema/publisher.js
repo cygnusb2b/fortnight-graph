@@ -2,7 +2,12 @@ const { Schema } = require('mongoose');
 const { isFQDN } = require('validator');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
-const imagePlugin = require('../plugins/image');
+const {
+  imagePlugin,
+  paginablePlugin,
+  repositoryPlugin,
+  searchablePlugin,
+} = require('../plugins');
 
 const schema = new Schema({
   name: {
@@ -24,7 +29,13 @@ const schema = new Schema({
   },
 }, { timestamps: true });
 
-imagePlugin(schema, { fieldName: 'logoImageId' });
+setEntityFields(schema, 'name');
+applyElasticPlugin(schema, 'publishers');
+
+schema.plugin(imagePlugin, { fieldName: 'logoImageId' });
+schema.plugin(repositoryPlugin);
+schema.plugin(paginablePlugin);
+schema.plugin(searchablePlugin, { fieldNames: ['name'] });
 
 schema.pre('save', async function updatePlacements() {
   if (this.isModified('name')) {
@@ -40,8 +51,19 @@ schema.pre('save', async function updatePlacements() {
   }
 });
 
-setEntityFields(schema, 'name');
-applyElasticPlugin(schema, 'publishers');
+schema.pre('save', async function updateTopics() {
+  if (this.isModified('name')) {
+    // This isn't as efficient as calling `updateMany`, but the ElasticSearch
+    // plugin will not fire properly otherwise.
+    // As such, do not await the update.
+    const Topic = connection.model('topic');
+    const docs = await Topic.find({ publisherId: this.id });
+    docs.forEach((doc) => {
+      doc.set('publisherName', this.name);
+      doc.save();
+    });
+  }
+});
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });

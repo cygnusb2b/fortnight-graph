@@ -1,21 +1,25 @@
-const publisher = require('./publisher');
-const placement = require('./placement');
 const advertiser = require('./advertiser');
 const campaign = require('./campaign');
+const contact = require('./contact');
 const creative = require('./campaign/creative');
 const criteria = require('./campaign/criteria');
-const user = require('./user');
+const image = require('./image');
+const placement = require('./placement');
+const publisher = require('./publisher');
 const template = require('./template');
-const contact = require('./contact');
+const topic = require('./topic');
+const user = require('./user');
 
 module.exports = {
-  publisher,
-  placement,
   advertiser,
   campaign,
+  contact,
   creative,
   criteria,
-  user,
+  image,
+  placement,
+  publisher,
   template,
-  contact,
+  topic,
+  user,
 };

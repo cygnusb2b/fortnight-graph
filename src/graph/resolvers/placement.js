@@ -1,13 +1,17 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
-const PublisherRepo = require('../../repositories/publisher');
-const PlacementRepo = require('../../repositories/placement');
+const Placement = require('../../models/placement');
+const Publisher = require('../../models/publisher');
+const Template = require('../../models/template');
+const Topic = require('../../models/topic');
 
 module.exports = {
   /**
    *
    */
   Placement: {
-    publisher: placement => PublisherRepo.findById(placement.get('publisherId')),
+    publisher: placement => Publisher.findById(placement.publisherId),
+    topic: placement => Topic.findById(placement.topicId),
+    template: placement => Template.findById(placement.templateId),
   },
 
   /**
@@ -22,12 +26,10 @@ module.exports = {
     /**
      *
      */
-    placement: async (root, { input }, { auth }) => {
+    placement: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      const record = await PlacementRepo.findById(id);
-      if (!record) throw new Error(`No placement record found for ID ${id}.`);
-      return record;
+      return Placement.strictFindById(id);
     },
 
     /**
@@ -35,7 +37,7 @@ module.exports = {
      */
     allPlacements: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return PlacementRepo.paginate({ pagination, sort });
+      return Placement.paginate({ pagination, sort });
     },
 
     /**
@@ -43,7 +45,7 @@ module.exports = {
      */
     searchPlacements: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return PlacementRepo.search(phrase, { pagination });
+      return Placement.search(phrase, { pagination });
     },
 
     /**
@@ -51,7 +53,7 @@ module.exports = {
      */
     autocompletePlacements: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return PlacementRepo.autocomplete(phrase, { pagination });
+      return Placement.autocomplete(phrase, { pagination });
     },
   },
 
@@ -65,16 +67,40 @@ module.exports = {
     createPlacement: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
-      return PlacementRepo.create(payload);
+      const {
+        name,
+        publisherId,
+        templateId,
+        topicId,
+      } = payload;
+      return Placement.create({
+        name,
+        publisherId,
+        templateId,
+        topicId,
+      });
     },
 
     /**
      *
      */
-    updatePlacement: (root, { input }, { auth }) => {
+    updatePlacement: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return PlacementRepo.update(id, payload);
+      const placement = await Placement.strictFindById(id);
+      const {
+        name,
+        publisherId,
+        templateId,
+        topicId,
+      } = payload;
+      placement.set({
+        name,
+        publisherId,
+        templateId,
+        topicId,
+      });
+      return placement.save();
     },
   },
 };

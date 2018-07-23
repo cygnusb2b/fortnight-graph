@@ -1,8 +1,7 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
-const CampaignRepo = require('../../repositories/campaign');
-const AdvertiserRepo = require('../../repositories/advertiser');
-const ContactRepo = require('../../repositories/contact');
 const Advertiser = require('../../models/advertiser');
+const Campaign = require('../../models/campaign');
+const Contact = require('../../models/contact');
 const Image = require('../../models/image');
 
 module.exports = {
@@ -10,11 +9,11 @@ module.exports = {
    *
    */
   Advertiser: {
-    campaigns: advertiser => CampaignRepo.findForAdvertiser(advertiser.id),
-    campaignCount: advertiser => CampaignRepo.findForAdvertiser(advertiser.id).count(),
+    campaigns: advertiser => Campaign.find({ advertiserId: advertiser.id }),
+    campaignCount: advertiser => Campaign.find({ advertiserId: advertiser.id }).count(),
     notify: async (advertiser) => {
-      const internal = await ContactRepo.find({ _id: { $in: advertiser.notify.internal } });
-      const external = await ContactRepo.find({ _id: { $in: advertiser.notify.external } });
+      const internal = await Contact.find({ _id: { $in: advertiser.notify.internal } });
+      const external = await Contact.find({ _id: { $in: advertiser.notify.external } });
       return { internal, external };
     },
     logo: advertiser => Image.findById(advertiser.logoImageId),
@@ -33,12 +32,10 @@ module.exports = {
     /**
      *
      */
-    advertiser: async (root, { input }, { auth }) => {
+    advertiser: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      const record = await AdvertiserRepo.findById(id);
-      if (!record) throw new Error(`No advertiser record found for ID ${id}.`);
-      return record;
+      return Advertiser.strictFindById(id);
     },
 
     /**
@@ -46,9 +43,7 @@ module.exports = {
      */
     advertiserHash: async (root, { input }) => {
       const { hash } = input;
-      const record = await Advertiser.findOne({ pushId: hash });
-      if (!record) throw new Error(`No advertiser record found for hash ${hash}.`);
-      return record;
+      return Advertiser.strictFindOne({ pushId: hash });
     },
 
     /**
@@ -56,7 +51,7 @@ module.exports = {
      */
     allAdvertisers: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return AdvertiserRepo.paginate({ pagination, sort });
+      return Advertiser.paginate({ pagination, sort });
     },
 
     /**
@@ -64,7 +59,7 @@ module.exports = {
      */
     autocompleteAdvertisers: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return AdvertiserRepo.autocomplete(phrase, { pagination });
+      return Advertiser.autocomplete(phrase, { pagination });
     },
 
     /**
@@ -72,7 +67,7 @@ module.exports = {
      */
     searchAdvertisers: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return AdvertiserRepo.search(phrase, { pagination });
+      return Advertiser.search(phrase, { pagination });
     },
   },
 
@@ -86,7 +81,7 @@ module.exports = {
     createAdvertiser: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
-      return AdvertiserRepo.create(payload);
+      return Advertiser.create(payload);
     },
 
     /**
@@ -95,7 +90,7 @@ module.exports = {
     updateAdvertiser: (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return AdvertiserRepo.update(id, payload);
+      return Advertiser.findAndSetUpdate(id, payload);
     },
 
     /**
@@ -104,8 +99,7 @@ module.exports = {
     advertiserLogo: async (root, { input }, { auth }) => {
       auth.check();
       const { id, imageId } = input;
-      const advertiser = await Advertiser.findById(id);
-      if (!advertiser) throw new Error(`Unable to set advertiser logo: no record found for ID ${id}.`);
+      const advertiser = await Advertiser.strictFindById(id);
       advertiser.logoImageId = imageId;
       return advertiser.save();
     },
@@ -113,28 +107,12 @@ module.exports = {
     /**
      *
      */
-    addAdvertiserContact: (root, { input }, { auth }) => {
-      auth.check();
-      const { id, type, contactId } = input;
-      return ContactRepo.addContactTo(Advertiser, id, type, contactId);
-    },
-
-    /**
-     *
-     */
-    removeAdvertiserContact: (root, { input }, { auth }) => {
-      auth.check();
-      const { id, type, contactId } = input;
-      return ContactRepo.removeContactFrom(Advertiser, id, type, contactId);
-    },
-
-    /**
-     *
-     */
-    setAdvertiserContacts: (root, { input }, { auth }) => {
+    setAdvertiserContacts: async (root, { input }, { auth }) => {
       auth.check();
       const { id, type, contactIds } = input;
-      return ContactRepo.setContactsFor(Advertiser, id, type, contactIds);
+      const advertiser = await Advertiser.strictFindById(id);
+      advertiser.set(`notify.${type}`, contactIds);
+      return advertiser.save();
     },
   },
 };

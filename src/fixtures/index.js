@@ -1,16 +1,17 @@
 const generators = require('./generators');
 const Result = require('./result');
 
-module.exports = (Model, count = 10, params = {}) => {
-  const name = Model.modelName;
+module.exports = async (Model, count = 10, params = {}) => {
+  const { modelName } = Model;
   const result = Result();
-  const Generate = generators[name];
+  const Generate = generators[modelName];
 
-  if (!Generate) return result;
+  if (!Generate) throw new Error(`No generator found for model named '${modelName}'.`);
+  const promises = [];
   for (let i = 0; i < count; i += 1) {
-    const model = new Model(Generate(params));
-    result.add(model);
+    promises.push(Generate(params));
   }
+  const r = await Promise.all(promises);
+  r.forEach(props => result.add(new Model(props)));
   return result;
 };
-

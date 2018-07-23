@@ -11,6 +11,7 @@ const publisher = require('./publisher');
 const report = require('./report');
 const story = require('./story');
 const template = require('./template');
+const topic = require('./topic');
 const user = require('./user');
 
 module.exports = deepAssign(
@@ -23,6 +24,7 @@ module.exports = deepAssign(
   report,
   story,
   template,
+  topic,
   user,
   {
     /**

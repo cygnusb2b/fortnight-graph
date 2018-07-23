@@ -1,5 +1,5 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
-const ContactRepo = require('../../repositories/contact');
+const Contact = require('../../models/contact');
 
 module.exports = {
   /**
@@ -14,12 +14,10 @@ module.exports = {
     /**
      *
      */
-    contact: async (root, { input }, { auth }) => {
+    contact: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      const record = await ContactRepo.findById(id);
-      if (!record) throw new Error(`No contact record found for ID ${id}.`);
-      return record;
+      return Contact.strictFindById(id);
     },
 
     /**
@@ -27,7 +25,7 @@ module.exports = {
      */
     allContacts: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return ContactRepo.paginate({ pagination, sort });
+      return Contact.paginate({ pagination, sort });
     },
 
     /**
@@ -35,7 +33,7 @@ module.exports = {
      */
     searchContacts: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return ContactRepo.search(phrase, { pagination });
+      return Contact.search(phrase, { pagination });
     },
 
     /**
@@ -43,7 +41,7 @@ module.exports = {
      */
     autocompleteContacts: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return ContactRepo.autocomplete(phrase, { pagination });
+      return Contact.autocomplete(phrase, { pagination });
     },
   },
 
@@ -57,7 +55,7 @@ module.exports = {
     createContact: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
-      return ContactRepo.create(payload);
+      return Contact.create(payload);
     },
 
     /**
@@ -66,7 +64,7 @@ module.exports = {
     updateContact: (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return ContactRepo.update(id, payload);
+      return Contact.findAndSetUpdate(id, payload);
     },
   },
 };

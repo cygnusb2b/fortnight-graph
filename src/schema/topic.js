@@ -11,45 +11,27 @@ const {
 const schema = new Schema({
   name: {
     type: String,
+    required: true,
     trim: true,
   },
   publisherName: {
-    type: String,
-  },
-  topicName: {
-    type: String,
-  },
-  templateName: {
     type: String,
   },
 }, { timestamps: true });
 
 setEntityFields(schema, 'name');
 setEntityFields(schema, 'publisherName');
-setEntityFields(schema, 'topicName');
-setEntityFields(schema, 'templateName');
-applyElasticPlugin(schema, 'placements');
+applyElasticPlugin(schema, 'topics');
 
 schema.plugin(referencePlugin, {
   name: 'publisherId',
   connection,
   modelName: 'publisher',
-  options: { required: true },
-});
-schema.plugin(referencePlugin, {
-  name: 'templateId',
-  connection,
-  modelName: 'template',
-  options: { required: true },
-});
-schema.plugin(referencePlugin, {
-  name: 'topicId',
-  connection,
-  modelName: 'topic',
+  options: { required: true, es_indexed: true, es_type: 'keyword' },
 });
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
-schema.plugin(searchablePlugin, { fieldNames: ['name', 'publisherName', 'topicName', 'templateName'] });
+schema.plugin(searchablePlugin, { fieldNames: ['name', 'publisherName'] });
 
 schema.pre('save', async function setPublisherName() {
   if (this.isModified('publisherId') || !this.publisherName) {
@@ -58,21 +40,21 @@ schema.pre('save', async function setPublisherName() {
   }
 });
 
-schema.pre('save', async function setTemplateName() {
-  if (this.isModified('templateId') || !this.templateName) {
-    const template = await connection.model('template').findOne({ _id: this.templateId }, { name: 1 });
-    this.templateName = template.name;
+schema.pre('save', async function updatePlacements() {
+  if (this.isModified('name')) {
+    // This isn't as efficient as calling `updateMany`, but the ElasticSearch
+    // plugin will not fire properly otherwise.
+    // As such, do not await the update.
+    const Placement = connection.model('placement');
+    const docs = await Placement.find({ topicId: this.id });
+    docs.forEach((doc) => {
+      doc.set('topicName', this.name);
+      doc.save();
+    });
   }
 });
 
-schema.pre('save', async function setTopicName() {
-  if (this.isModified('topicId') && this.topicId) {
-    const topic = await connection.model('topic').findOne({ _id: this.topicId }, { name: 1 });
-    this.topicName = topic.name;
-  }
-});
-
-schema.index({ publisherId: 1, templateId: 1, topicId: 1 }, { unique: true });
+schema.index({ publisherId: 1, name: 1 }, { unique: true });
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
 schema.index({ updatedAt: 1, _id: 1 }, { unique: true });

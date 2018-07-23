@@ -64,6 +64,16 @@ const entityMultiNameQuery = (definitions, query, fieldNames) => {
   return { bool: { should } };
 };
 
+const createEntityNameQuery = (definitions, query, fieldNames) => {
+  if (!fieldNames || !fieldNames.length) throw new Error('You must specify at least one field name');
+
+  if (Array.isArray(fieldNames)) {
+    if (fieldNames.length === 1) return entityNameQuery(definitions, query, fieldNames);
+    return entityMultiNameQuery(entityNameDefinitions, query, fieldNames);
+  }
+  return entityNameQuery(definitions, query, fieldNames);
+};
+
 module.exports = {
   /**
    *
@@ -72,7 +82,7 @@ module.exports = {
    * @param {*} query
    * @param {*} params
    */
-  paginateSearch(Model, phrase, query, { pagination }) {
+  paginateSearch(Model, phrase, query, { pagination, postFilter }) {
     if (/[a-f0-9]{24}/.test(phrase)) {
       const criteria = { _id: phrase };
       return new Pagination(Model, { pagination, criteria });
@@ -81,26 +91,21 @@ module.exports = {
     const params = {
       index,
       type,
-      body: { query },
+      body: {
+        query,
+        post_filter: postFilter,
+      },
       searchType: 'dfs_query_then_fetch',
     };
     return new ElasticPagination(Model, client, { params, pagination });
   },
 
-  buildEntityNameQuery(query, fieldName = 'name') {
-    return entityNameQuery(entityNameDefinitions, query, fieldName);
+  buildEntityNameQuery(query, fieldNames) {
+    return createEntityNameQuery(entityNameDefinitions, query, fieldNames);
   },
 
-  buildMultipleEntityNameQuery(query, fieldNames) {
-    return entityMultiNameQuery(entityNameDefinitions, query, fieldNames);
-  },
-
-  buildEntityAutocomplete(query, fieldName = 'name') {
-    return entityNameQuery(entityAutocompleteDefinitions, query, fieldName);
-  },
-
-  buildMultipleEntityAutocomplete(query, fieldNames) {
-    return entityMultiNameQuery(entityAutocompleteDefinitions, query, fieldNames);
+  buildEntityAutocomplete(query, fieldNames) {
+    return createEntityNameQuery(entityAutocompleteDefinitions, query, fieldNames);
   },
 
   /**
