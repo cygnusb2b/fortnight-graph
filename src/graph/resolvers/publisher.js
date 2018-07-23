@@ -1,4 +1,5 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const Campaign = require('../../models/campaign');
 const Image = require('../../models/image');
 const Placement = require('../../models/placement');
 const Publisher = require('../../models/publisher');
@@ -17,6 +18,12 @@ module.exports = {
     placements: (publisher, { pagination, sort }) => {
       const criteria = { publisherId: publisher.id };
       return Placement.paginate({ criteria, pagination, sort });
+    },
+    campaigns: async (publisher, { pagination, sort }) => {
+      const placements = await Placement.find({ publisherId: publisher.id }, { _id: 1 });
+      const placementIds = placements.map(placement => placement.id);
+      const criteria = { 'criteria.placementIds': { $in: placementIds } };
+      return Campaign.paginate({ criteria, pagination, sort });
     },
   },
 
