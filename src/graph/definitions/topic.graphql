@@ -23,6 +23,7 @@ type Topic {
   name: String!
   publisher: Publisher!
   placements(pagination: PaginationInput = {}, sort: PlacementSortInput = {}): PlacementConnection!
+  externalId: String
   updatedAt: Date
   createdAt: Date
 }
@@ -59,6 +60,7 @@ input TopicSortInput {
 input TopicPayloadInput {
   name: String!
   publisherId: String!
+  externalId: String
 }
 
 input CreateTopicInput {
