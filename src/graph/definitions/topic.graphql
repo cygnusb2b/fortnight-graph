@@ -22,6 +22,7 @@ type Topic {
   id: String!
   name: String!
   publisher: Publisher!
+  placements(pagination: PaginationInput = {}, sort: PlacementSortInput = {}): PlacementConnection!
   updatedAt: Date
   createdAt: Date
 }
