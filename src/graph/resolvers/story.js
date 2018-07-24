@@ -139,8 +139,10 @@ module.exports = {
      */
     removeStoryImage: async (root, { storyId, imageId }, { auth }) => {
       auth.check();
+      const { user } = auth;
       const story = await Story.strictFindActiveById(storyId);
       story.removeImageId(imageId);
+      story.updatedById = user.id;
       return story.save();
     },
 
@@ -149,8 +151,10 @@ module.exports = {
      */
     addStoryImage: async (root, { storyId, imageId }, { auth }) => {
       auth.check();
+      const { user } = auth;
       const story = await Story.strictFindActiveById(storyId);
       story.addImageId(imageId);
+      story.updatedById = user.id;
       return story.save();
     },
 
@@ -159,8 +163,10 @@ module.exports = {
      */
     storyPrimaryImage: async (root, { storyId, imageId }, { auth }) => {
       auth.check();
+      const { user } = auth;
       const story = await Story.strictFindActiveById(storyId);
       story.primaryImageId = imageId || undefined;
+      story.updatedById = user.id;
       return story.save();
     },
   },
