@@ -3,7 +3,7 @@ const helmet = require('helmet');
 const createError = require('http-errors');
 const newrelic = require('../newrelic');
 const env = require('../env');
-const CampaignDeliveryRepo = require('../repositories/campaign/delivery');
+const CampaignDelivery = require('../services/campaign-delivery');
 
 const router = Router();
 router.use(helmet.noCache());
@@ -29,22 +29,20 @@ router.get('/:pid.:ext', (req, res) => {
   const { pid, ext } = req.params;
   if (acceptable.includes(ext)) {
     const {
-      tid,
       n,
       cv,
       mv,
       fv,
-    } = CampaignDeliveryRepo.parseOptions(req.query.opts);
+    } = CampaignDelivery.parseOptions(req.query.opts);
 
     const vars = { custom: cv, merge: mv, fallback: fv };
     const { NODE_ENV } = env;
     const protocol = NODE_ENV === 'production' ? 'https' : req.protocol;
-    CampaignDeliveryRepo.findFor({
+    CampaignDelivery.findFor({
       userAgent: req.get('User-Agent'),
       ipAddress: req.ip,
       requestURL: `${protocol}://${req.get('host')}`,
       placementId: pid,
-      templateId: tid,
       num: n,
       vars,
     }).then((ads) => {

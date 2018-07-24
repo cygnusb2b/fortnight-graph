@@ -2,16 +2,11 @@ const bcrypt = require('bcrypt');
 const Promise = require('bluebird');
 const sessionRepo = require('./session');
 const User = require('../models/user');
-const fixtures = require('../fixtures');
 
 module.exports = {
   create(payload = {}) {
     const user = new User(payload);
     return user.save();
-  },
-
-  generate(count = 1) {
-    return fixtures(User, count);
   },
 
   /**

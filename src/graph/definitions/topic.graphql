@@ -1,0 +1,75 @@
+type Query {
+  allTopics(pagination: PaginationInput = {}, sort: TopicSortInput = {}): TopicConnection!
+  searchTopics(pagination: PaginationInput = {}, phrase: String!): TopicConnection!
+  autocompleteTopics(pagination: PaginationInput = {}, phrase: String!): TopicConnection!
+  autocompletePublisherTopics(publisherId: String!, pagination: PaginationInput = {}, phrase: String!): TopicConnection!
+  topic(input: ModelIdInput!): Topic!
+}
+
+type Mutation {
+  createTopic(input: CreateTopicInput!): Topic!
+  updateTopic(input: UpdateTopicInput!): Topic!
+}
+
+enum TopicSortField {
+  name
+  createdAt
+  updatedAt
+  publisherName
+}
+
+type Topic {
+  id: String!
+  name: String!
+  publisher: Publisher!
+  placements(pagination: PaginationInput = {}, sort: PlacementSortInput = {}): PlacementConnection!
+  externalId: String
+  updatedAt: Date
+  createdAt: Date
+}
+
+type TopicConnection {
+  totalCount: Int!
+  edges: [TopicEdge]!
+  pageInfo: PageInfo!
+}
+
+type TopicEdge {
+  node: Topic!
+  cursor: Cursor!
+}
+
+input TopicSearchInput {
+  typeahead: TopicTypeaheadInput!
+}
+
+input TopicTypeaheadInput {
+  field: TopicTypeAheadField!
+  term: String!
+}
+
+enum TopicTypeAheadField {
+  name
+}
+
+input TopicSortInput {
+  field: TopicSortField! = createdAt
+  order: Int! = -1
+}
+
+input TopicPayloadInput {
+  name: String!
+  publisherId: String!
+  externalId: String
+}
+
+input CreateTopicInput {
+  payload: TopicPayloadInput!
+}
+
+input UpdateTopicInput {
+  id: String!
+  payload: TopicPayloadInput!
+}
+
+

@@ -1,6 +1,7 @@
 type Query {
   allTemplates(pagination: PaginationInput = {}, sort: TemplateSortInput = {}): TemplateConnection!
   searchTemplates(pagination: PaginationInput = {}, phrase: String!): TemplateConnection!
+  autocompleteTemplates(pagination: PaginationInput = {}, phrase: String!): TemplateConnection!
   template(input: ModelIdInput!): Template!
 }
 
@@ -18,6 +19,7 @@ enum TemplateSortField {
 type Template {
   id: String!
   name: String!
+  description: String
   html: String!
   fallback: String
   updatedAt: Date
@@ -42,6 +44,7 @@ input TemplateSortInput {
 
 input TemplatePayloadInput {
   name: String!
+  description: String
   html: String!
   fallback: String
 }

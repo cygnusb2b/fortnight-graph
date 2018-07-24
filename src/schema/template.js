@@ -1,5 +1,12 @@
 const { Schema } = require('mongoose');
+const handlebars = require('../handlebars');
+const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
+const {
+  paginablePlugin,
+  repositoryPlugin,
+  searchablePlugin,
+} = require('../plugins');
 
 const validateBeacon = (v) => {
   const results = v.match(/{{build-beacon}}/g);
@@ -28,7 +35,10 @@ const schema = new Schema({
     type: String,
     required: true,
     trim: true,
-    unique: true,
+  },
+  description: {
+    type: String,
+    trim: true,
   },
   html: {
     type: String,
@@ -97,6 +107,46 @@ const schema = new Schema({
 
 setEntityFields(schema, 'name');
 applyElasticPlugin(schema, 'templates');
+
+schema.plugin(repositoryPlugin);
+schema.plugin(paginablePlugin);
+schema.plugin(searchablePlugin, { fieldNames: ['name'] });
+
+schema.pre('save', async function updatePlacements() {
+  if (this.isModified('name')) {
+    // This isn't as efficient as calling `updateMany`, but the ElasticSearch
+    // plugin will not fire properly otherwise.
+    // As such, do not await the update.
+    const Placement = connection.model('placement');
+    const docs = await Placement.find({ templateId: this.id });
+    docs.forEach((doc) => {
+      doc.set('templateName', this.name);
+      doc.save();
+    });
+  }
+});
+
+/**
+ * Renders/compiles a template from the provided source with the
+ * provided data hash.
+ *
+ * @param {string} source
+ * @param {object} data
+ */
+schema.statics.render = function render(source, data) {
+  const template = handlebars.compile(source);
+  return template(data);
+};
+
+/**
+ * Returns a handlebars template to use when no fallback is provided.
+ *
+ * @param {boolean} withUa Whether or not to include the UA beacon.
+ */
+schema.statics.getFallbackFallback = function getFallbackFallback(withUA = false) {
+  const ua = withUA ? '{{build-ua-beacon}}' : '';
+  return `<div style="width:1px;height:1px;" {{build-container-attributes}}>{{build-beacon}}${ua}</div>`;
+};
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });

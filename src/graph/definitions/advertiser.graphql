@@ -14,8 +14,6 @@ type Mutation {
 
   advertiserLogo(input: AdvertiserLogoInput!): Advertiser!
 
-  addAdvertiserContact(input: AddContactInput!): Advertiser!
-  removeAdvertiserContact(input: RemoveContactInput!): Advertiser!
   setAdvertiserContacts(input: SetContactsInput!): Advertiser!
 }
 
@@ -70,6 +68,12 @@ input AdvertiserSortInput {
 
 input AdvertiserPayloadInput {
   name: String!
+  notify: AdvertiserContactsInput
+}
+
+input AdvertiserContactsInput {
+  internal: [String!]!
+  external: [String!]!
 }
 
 input CreateAdvertiserInput {

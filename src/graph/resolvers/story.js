@@ -3,7 +3,6 @@ const Advertiser = require('../../models/advertiser');
 const Story = require('../../models/story');
 const Image = require('../../models/image');
 const User = require('../../models/user');
-const StoryRepo = require('../../repositories/story');
 
 module.exports = {
   Story: {
@@ -26,11 +25,9 @@ module.exports = {
     /**
      *
      */
-    story: async (root, { input }) => {
+    story: (root, { input }) => {
       const { id } = input;
-      const record = await Story.findById(id);
-      if (!record) throw new Error(`No story found for ID '${id}'`);
-      return record;
+      return Story.strictFindById(id);
     },
 
     /**
@@ -41,18 +38,18 @@ module.exports = {
       const criteria = {
         disposition: { $in: dispositions.length ? dispositions : ['Ready', 'Draft'] },
       };
-      return new Pagination(Story, { pagination, sort, criteria });
+      return Story.paginate({ criteria, pagination, sort })
     },
 
     /**
      *
      */
-    searchStories: (root, { pagination, phrase }) => StoryRepo.search(phrase, { pagination }),
+    searchStories: (root, { pagination, phrase }) => Story.search(phrase, { pagination }),
 
     /**
      *
      */
-    autocompleteStories: async (root, { pagination, phrase }) => StoryRepo
+    autocompleteStories: async (root, { pagination, phrase }) => Story
       .autocomplete(phrase, { pagination }),
   },
   /**
@@ -97,7 +94,7 @@ module.exports = {
     /**
      *
      */
-    updateStory: async (root, { input }, { auth }) => {
+    updateStory: (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
       const {
@@ -131,8 +128,7 @@ module.exports = {
      */
     removeStoryImage: async (root, { storyId, imageId }, { auth }) => {
       auth.check();
-      const story = await Story.findById(storyId);
-      if (!story) throw new Error(`Unable to remove story image: no record was found for ID '${storyId}'`);
+      const story = await Story.strictFindById(storyId);
       story.removeImageId(imageId);
       return story.save();
     },
@@ -142,8 +138,7 @@ module.exports = {
      */
     addStoryImage: async (root, { storyId, imageId }, { auth }) => {
       auth.check();
-      const story = await Story.findById(storyId);
-      if (!story) throw new Error(`Unable to add story image: no record was found for ID '${storyId}'`);
+      const story = await Story.strictFindById(storyId);
       story.addImageId(imageId);
       return story.save();
     },
@@ -153,8 +148,7 @@ module.exports = {
      */
     storyPrimaryImage: async (root, { storyId, imageId }, { auth }) => {
       auth.check();
-      const story = await Story.findById(storyId);
-      if (!story) throw new Error(`Unable to set primary image: no story was found for ID '${storyId}'`);
+      const story = await Story.strictFindById(storyId);
       story.primaryImageId = imageId || undefined;
       return story.save();
     },

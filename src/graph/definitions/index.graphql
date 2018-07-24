@@ -1,13 +1,14 @@
 # import * from 'advertiser.graphql'
 # import * from 'campaign.graphql'
 # import * from 'contact.graphql'
-# import * from 'template.graphql'
-# import * from 'user.graphql'
-# import * from 'publisher.graphql'
+# import * from 'image.graphql'
 # import * from 'placement.graphql'
+# import * from 'publisher.graphql'
 # import * from 'report.graphql'
 # import * from 'story.graphql'
-# import * from 'image.graphql'
+# import * from 'template.graphql'
+# import * from 'topic.graphql'
+# import * from 'user.graphql'
 
 scalar Date
 scalar Cursor

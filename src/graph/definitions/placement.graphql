@@ -18,8 +18,10 @@ enum PlacementSortField {
 
 type Placement {
   id: String!
-  name: String!
+  name: String
   publisher: Publisher!
+  template: Template!
+  topic: Topic
   updatedAt: Date
   createdAt: Date
 }
@@ -54,8 +56,10 @@ input PlacementSortInput {
 }
 
 input PlacementPayloadInput {
-  name: String!
+  name: String
   publisherId: String!
+  templateId: String!
+  topicId: String
 }
 
 input CreatePlacementInput {
