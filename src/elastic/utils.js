@@ -34,7 +34,12 @@ const entityAutocompleteDefinitions = {
   },
 };
 
-const entityNameQuery = (definitions, query, fieldName, { mustNot, must } = {}) => {
+const entityNameQuery = (definitions, query, fieldName, {
+  filter,
+  must,
+  mustNot,
+  minMatch = 1,
+} = {}) => {
   const should = [];
   Object.keys(definitions).forEach((name) => {
     const def = definitions[name];
@@ -45,11 +50,22 @@ const entityNameQuery = (definitions, query, fieldName, { mustNot, must } = {}) 
     const field = suffix ? `${fieldName}.${suffix}` : fieldName;
     should.push({ match: { [field]: props } });
   });
-  const res = { bool: { should, must, must_not: mustNot } };
-  return res;
+  const bool = {
+    filter,
+    must,
+    must_not: mustNot,
+    should,
+    minimum_should_match: minMatch,
+  };
+  return { bool };
 };
 
-const entityMultiNameQuery = (definitions, query, fieldNames) => {
+const entityMultiNameQuery = (definitions, query, fieldNames, {
+  filter,
+  must,
+  mustNot,
+  minMatch = 1,
+} = {}) => {
   const should = [];
   Object.keys(definitions).forEach((name) => {
     const def = definitions[name];
@@ -62,17 +78,46 @@ const entityMultiNameQuery = (definitions, query, fieldNames) => {
     };
     should.push({ multi_match: match });
   });
-  return { bool: { should } };
+  const bool = {
+    filter,
+    must,
+    must_not: mustNot,
+    should,
+    minimum_should_match: minMatch,
+  };
+  return { bool };
 };
 
-const createEntityNameQuery = (definitions, query, fieldNames) => {
+const createEntityNameQuery = (definitions, query, fieldNames, {
+  filter,
+  must,
+  mustNot,
+  minMatch,
+} = {}) => {
   if (!fieldNames || !fieldNames.length) throw new Error('You must specify at least one field name');
 
   if (Array.isArray(fieldNames)) {
-    if (fieldNames.length === 1) return entityNameQuery(definitions, query, fieldNames);
-    return entityMultiNameQuery(entityNameDefinitions, query, fieldNames);
+    if (fieldNames.length === 1) {
+      return entityNameQuery(definitions, query, fieldNames, {
+        filter,
+        must,
+        mustNot,
+        minMatch,
+      });
+    }
+    return entityMultiNameQuery(entityNameDefinitions, query, fieldNames, {
+      filter,
+      must,
+      mustNot,
+      minMatch,
+    });
   }
-  return entityNameQuery(definitions, query, fieldNames);
+  return entityNameQuery(definitions, query, fieldNames, {
+    filter,
+    must,
+    mustNot,
+    minMatch,
+  });
 };
 
 module.exports = {
@@ -102,12 +147,32 @@ module.exports = {
   },
 
 
-  buildEntityNameQuery(query, fieldNames) {
-    return createEntityNameQuery(entityNameDefinitions, query, fieldNames);
+  buildEntityNameQuery(query, fieldNames, {
+    filter,
+    must,
+    mustNot,
+    minMatch,
+  } = {}) {
+    return createEntityNameQuery(entityNameDefinitions, query, fieldNames, {
+      filter,
+      must,
+      mustNot,
+      minMatch,
+    });
   },
 
-  buildEntityAutocomplete(query, fieldNames) {
-    return createEntityNameQuery(entityAutocompleteDefinitions, query, fieldNames);
+  buildEntityAutocomplete(query, fieldNames, {
+    filter,
+    must,
+    mustNot,
+    minMatch,
+  } = {}) {
+    return createEntityNameQuery(entityAutocompleteDefinitions, query, fieldNames, {
+      filter,
+      must,
+      mustNot,
+      minMatch,
+    });
   },
 
   /**
