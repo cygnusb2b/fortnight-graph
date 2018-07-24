@@ -1,5 +1,5 @@
 type Query {
-  allStories(input: AllStoriesInput!, pagination: PaginationInput = {}, sort: StorySortInput = {}): StoryConnection!
+  allStories(pagination: PaginationInput = {}, sort: StorySortInput = {}): StoryConnection!
   searchStories(pagination: PaginationInput = {}, phrase: String!): StoryConnection!
   autocompleteStories(pagination: PaginationInput = {}, phrase: String!): StoryConnection!
   story(input: ModelIdInput!): Story!
@@ -22,15 +22,10 @@ enum StorySortField {
   publishedAt
 }
 
-enum StoryDisposition {
-  Deleted
+enum StoryStatus {
   Placeholder
   Draft
   Ready
-}
-
-input AllStoriesInput {
-  dispositions: [StoryDisposition!]!
 }
 
 type Story {
@@ -40,7 +35,8 @@ type Story {
   advertiser: Advertiser!
   teaser: String
   body: String
-  disposition: StoryDisposition!
+  status: StoryStatus!
+  deleted: Boolean!
   publishedAt: Date
   primaryImage: Image
   images: [Image]

@@ -6,6 +6,8 @@ const User = require('../../models/user');
 
 module.exports = {
   Story: {
+    // @todo Determine if this should run a strict/active find.
+    // Ultimately, deleting an advertiser should delete it's stories?
     advertiser: story => Advertiser.findById(story.advertiserId),
     primaryImage: story => Image.findById(story.primaryImageId),
     images: story => Image.find({ _id: { $in: story.imageIds } }),
@@ -27,16 +29,16 @@ module.exports = {
      */
     story: (root, { input }) => {
       const { id } = input;
-      return Story.strictFindById(id);
+      return Story.strictFindActiveById(id);
     },
 
     /**
      *
      */
-    allStories: (root, { input, pagination, sort }) => {
-      const { dispositions } = input;
+    allStories: (root, { pagination, sort }) => {
       const criteria = {
-        disposition: { $in: dispositions.length ? dispositions : ['Ready', 'Draft'] },
+        deleted: false,
+        status: { $in: ['Ready', 'Draft'] },
       };
       return Story.paginate({ criteria, pagination, sort });
     },
@@ -44,13 +46,24 @@ module.exports = {
     /**
      *
      */
-    searchStories: (root, { pagination, phrase }) => Story.search(phrase, { pagination }),
+    searchStories: (root, { pagination, phrase }) => {
+      const filter = [
+        { term: { deleted: false } },
+        { term: { status: ['Ready', 'Draft'] } },
+      ];
+      return Story.search(phrase, { pagination, filter });
+    },
 
     /**
      *
      */
-    autocompleteStories: async (root, { pagination, phrase }) => Story
-      .autocomplete(phrase, { pagination }),
+    autocompleteStories: async (root, { pagination, phrase }) => {
+      const filter = [
+        { term: { deleted: false } },
+        { term: { status: ['Ready', 'Draft'] } },
+      ];
+      return Story.autocomplete(phrase, { pagination, filter });
+    },
   },
   /**
    *
@@ -61,21 +74,22 @@ module.exports = {
      */
     createStory: (root, { input }, { auth }) => {
       auth.check();
+      const { user } = auth;
       const { payload } = input;
       const {
         title,
         advertiserId,
         publishedAt,
       } = payload;
-      const disposition = publishedAt ? 'Ready' : 'Draft';
+      const status = publishedAt ? 'Ready' : 'Draft';
 
       return Story.create({
         title,
         advertiserId,
         publishedAt,
-        disposition,
-        createdById: auth.user.id,
-        updatedById: auth.user.id,
+        status,
+        createdById: user.id,
+        updatedById: user.id,
       });
     },
 
@@ -85,10 +99,8 @@ module.exports = {
     deleteStory: async (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      const story = await Story.findById(id);
-      if (!story) throw new Error(`No story found for ID '${id}'.`);
-      story.disposition = 'Deleted';
-      return story.save();
+      const story = await Story.strictFindActiveById(id);
+      return story.softDelete();
     },
 
     /**
@@ -96,6 +108,7 @@ module.exports = {
      */
     updateStory: async (root, { input }, { auth }) => {
       auth.check();
+      const { user } = auth;
       const { id, payload } = input;
       const {
         title,
@@ -103,22 +116,18 @@ module.exports = {
         body,
         advertiserId,
         publishedAt,
+        status,
       } = payload;
 
-      const story = await Story.findById(id);
-      if (!story) throw new Error(`Unable to update story: no record was found for ID '${id}'`);
-
-      let disposition = publishedAt ? 'Ready' : 'Draft';
-      if (story.disposition === 'Deleted') disposition = 'Deleted';
-
+      const story = await Story.strictFindActiveById(id);
       story.set({
         title,
         teaser,
         body,
         advertiserId,
         publishedAt,
-        disposition,
-        updatedById: auth.user.id,
+        status,
+        updatedById: user.id,
       });
       return story.save();
     },
@@ -128,7 +137,7 @@ module.exports = {
      */
     removeStoryImage: async (root, { storyId, imageId }, { auth }) => {
       auth.check();
-      const story = await Story.strictFindById(storyId);
+      const story = await Story.strictFindActiveById(storyId);
       story.removeImageId(imageId);
       return story.save();
     },
@@ -138,7 +147,7 @@ module.exports = {
      */
     addStoryImage: async (root, { storyId, imageId }, { auth }) => {
       auth.check();
-      const story = await Story.strictFindById(storyId);
+      const story = await Story.strictFindActiveById(storyId);
       story.addImageId(imageId);
       return story.save();
     },
@@ -148,7 +157,7 @@ module.exports = {
      */
     storyPrimaryImage: async (root, { storyId, imageId }, { auth }) => {
       auth.check();
-      const story = await Story.strictFindById(storyId);
+      const story = await Story.strictFindActiveById(storyId);
       story.primaryImageId = imageId || undefined;
       return story.save();
     },
