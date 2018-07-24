@@ -158,7 +158,7 @@ module.exports = {
       const story = await Story.create({
         title: 'Placeholder Story',
         advertiserId,
-        disposition: 'Placeholder',
+        status: 'Placeholder',
         updatedById: user.id,
         createdById: user.id,
       });
