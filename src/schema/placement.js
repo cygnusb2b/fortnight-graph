@@ -6,6 +6,7 @@ const {
   referencePlugin,
   repositoryPlugin,
   searchablePlugin,
+  reservePctPlugin,
 } = require('../plugins');
 
 const schema = new Schema({
@@ -49,6 +50,7 @@ schema.plugin(referencePlugin, {
 });
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
+schema.plugin(reservePctPlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name', 'publisherName', 'topicName', 'templateName'] });
 
 schema.pre('save', async function setPublisherName() {

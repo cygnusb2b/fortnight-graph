@@ -6,6 +6,7 @@ const pushIdPlugin = require('./push-id');
 const referencePlugin = require('./reference');
 const repositoryPlugin = require('./repository');
 const searchablePlugin = require('./searchable');
+const reservePctPlugin = require('./reserve-pct');
 
 module.exports = {
   analyticsPlugin,
@@ -16,4 +17,5 @@ module.exports = {
   referencePlugin,
   repositoryPlugin,
   searchablePlugin,
+  reservePctPlugin,
 };

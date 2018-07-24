@@ -3,6 +3,7 @@ const slug = require('slug');
 const uuid = require('uuid/v4');
 const pushId = require('unique-push-id');
 const env = require('../env');
+const { reservePctPlugin } = require('../plugins');
 
 const sessionSchema = new Schema({
   globalSecret: {
@@ -39,6 +40,8 @@ const settingsSchema = new Schema({
     },
   },
 });
+
+settingsSchema.plugin(reservePctPlugin);
 
 const schema = new Schema({
   name: {
