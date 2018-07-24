@@ -40,17 +40,15 @@ module.exports = {
     advertiser: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      return Advertiser.strictFindById(id);
+      return Advertiser.strictFindActiveById(id);
     },
 
     /**
      *
      */
-    advertiserHash: async (root, { input }) => {
+    advertiserHash: (root, { input }) => {
       const { hash } = input;
-      const record = await Advertiser.findOneWherePresent({ pushId: hash });
-      if (!record) throw new Error(`No advertiser record found for hash ${hash}.`);
-      return record;
+      return Advertiser.strictFindActiveOne({ pushId: hash });
     },
 
     /**
@@ -108,10 +106,12 @@ module.exports = {
       const { user } = auth;
       const { id, payload } = input;
 
-      return Advertiser.findAndSetUpdate(id, {
+      const advertiser = await Advertiser.strictFindActiveById(id);
+      advertiser.set({
         ...payload,
         updatedById: user.id,
       });
+      return advertiser.save();
     },
 
     /**
@@ -120,7 +120,7 @@ module.exports = {
     deleteAdvertiser: async (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      const advertiser = await Advertiser.strictFindById(id);
+      const advertiser = await Advertiser.strictFindActiveById(id);
       return advertiser.softDelete();
     },
 
@@ -140,7 +140,7 @@ module.exports = {
     advertiserLogo: async (root, { input }, { auth }) => {
       auth.check();
       const { id, imageId } = input;
-      const advertiser = await Advertiser.strictFindById(id);
+      const advertiser = await Advertiser.strictFindActiveById(id);
       advertiser.logoImageId = imageId;
       return advertiser.save();
     },
@@ -151,7 +151,7 @@ module.exports = {
     setAdvertiserContacts: async (root, { input }, { auth }) => {
       auth.check();
       const { id, type, contactIds } = input;
-      const advertiser = await Advertiser.strictFindById(id);
+      const advertiser = await Advertiser.strictFindActiveById(id);
       advertiser.set(`notify.${type}`, contactIds);
       return advertiser.save();
     },
