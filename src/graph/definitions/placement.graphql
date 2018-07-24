@@ -22,6 +22,7 @@ type Placement {
   publisher: Publisher!
   template: Template!
   topic: Topic
+  reservePct: Int!
   updatedAt: Date
   createdAt: Date
 }
@@ -60,6 +61,7 @@ input PlacementPayloadInput {
   publisherId: String!
   templateId: String!
   topicId: String
+  reservePct: Int
 }
 
 input CreatePlacementInput {
