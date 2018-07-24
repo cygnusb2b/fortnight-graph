@@ -29,11 +29,13 @@ const schema = new Schema({
   advertiserName: {
     type: String,
   },
-  disposition: {
+  status: {
     type: String,
     required: true,
     default: 'Draft',
-    enum: ['Placeholder', 'Draft', 'Deleted', 'Ready'],
+    enum: ['Placeholder', 'Draft', 'Ready'],
+    es_indexed: true,
+    es_type: 'keyword',
   },
   publishedAt: {
     type: Date,
