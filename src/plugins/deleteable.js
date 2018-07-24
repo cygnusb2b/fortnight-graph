@@ -19,11 +19,23 @@ module.exports = function deleteablePlugin(schema, options = {}) {
     return this.save();
   });
 
-  schema.static('findByIdWherePresent', function findByIdWherePresent(id) {
-    return this.findOne({ _id: id || null, deleted: false });
+  schema.static('strictFindActiveById', async function strictFindActiveById(id, fields) {
+    const doc = await this.findActiveById(id, fields);
+    if (!doc) throw new Error(`No ${this.modelName} found for ID '${id}'`);
+    return doc;
   });
 
-  schema.static('findOneWherePresent', function findOneWherePresent(criteria) {
-    return this.findOne({ ...criteria, deleted: false });
+  schema.static('findActiveById', function findActiveById(id, fields) {
+    return this.findOne({ _id: id || null, deleted: false }, fields);
+  });
+
+  schema.static('strictFindActiveOne', async function strictFindActiveOne(criteria, fields) {
+    const doc = await this.findActiveOne(criteria, fields);
+    if (!doc) throw new Error(`No ${this.modelName} found for criteria '${JSON.stringify(criteria)}'`);
+    return doc;
+  });
+
+  schema.static('findActiveOne', function findActiveOne(criteria, fields) {
+    return this.findOne({ ...criteria, deleted: false }, fields);
   });
 };
