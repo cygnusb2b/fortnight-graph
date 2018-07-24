@@ -1,4 +1,4 @@
-const { Pagination, paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const Advertiser = require('../../models/advertiser');
 const Story = require('../../models/story');
 const Image = require('../../models/image');
@@ -38,7 +38,7 @@ module.exports = {
       const criteria = {
         disposition: { $in: dispositions.length ? dispositions : ['Ready', 'Draft'] },
       };
-      return Story.paginate({ criteria, pagination, sort })
+      return Story.paginate({ criteria, pagination, sort });
     },
 
     /**
@@ -94,7 +94,7 @@ module.exports = {
     /**
      *
      */
-    updateStory: (root, { input }, { auth }) => {
+    updateStory: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
       const {
