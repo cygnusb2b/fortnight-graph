@@ -3,6 +3,7 @@ const slug = require('slug');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
+  deleteablePlugin,
   imagePlugin,
   paginablePlugin,
   referencePlugin,
@@ -50,6 +51,10 @@ schema.plugin(referencePlugin, {
   connection,
   modelName: 'advertiser',
   options: { required: true, es_indexed: true, es_type: 'keyword' },
+});
+schema.plugin(deleteablePlugin, {
+  es_indexed: true,
+  es_type: 'boolean',
 });
 schema.plugin(userAttributionPlugin);
 schema.plugin(imagePlugin, { fieldName: 'primaryImageId' });
