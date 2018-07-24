@@ -65,8 +65,8 @@ module.exports = {
      */
     autocompleteAdvertisers: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      // @todo Must add a post filter for excluding deleted: true
-      return Advertiser.autocomplete(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Advertiser.autocomplete(phrase, { pagination, filter });
     },
 
     /**
@@ -74,8 +74,8 @@ module.exports = {
      */
     searchAdvertisers: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      // @todo Must add a post filter for excluding deleted: true
-      return Advertiser.search(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Advertiser.search(phrase, { pagination, filter });
     },
   },
 
