@@ -118,10 +118,10 @@ module.exports = {
         body,
         advertiserId,
         publishedAt,
-        status,
       } = payload;
 
       const story = await Story.strictFindActiveById(id);
+      const status = publishedAt ? 'Ready' : 'Draft';
       story.set({
         title,
         teaser,
