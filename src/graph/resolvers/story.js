@@ -4,6 +4,18 @@ const Story = require('../../models/story');
 const Image = require('../../models/image');
 const User = require('../../models/user');
 
+const storySearchFilter = [
+  { term: { deleted: false } },
+  {
+    bool: {
+      should: [
+        { term: { status: 'Ready' } },
+        { term: { status: 'Draft' } },
+      ],
+    },
+  },
+];
+
 module.exports = {
   Story: {
     // @todo Determine if this should run a strict/active find.
@@ -46,24 +58,14 @@ module.exports = {
     /**
      *
      */
-    searchStories: (root, { pagination, phrase }) => {
-      const filter = [
-        { term: { deleted: false } },
-        { term: { status: ['Ready', 'Draft'] } },
-      ];
-      return Story.search(phrase, { pagination, filter });
-    },
+    searchStories: (root, { pagination, phrase }) => Story
+      .search(phrase, { pagination, filter: storySearchFilter }),
 
     /**
      *
      */
-    autocompleteStories: async (root, { pagination, phrase }) => {
-      const filter = [
-        { term: { deleted: false } },
-        { term: { status: ['Ready', 'Draft'] } },
-      ];
-      return Story.autocomplete(phrase, { pagination, filter });
-    },
+    autocompleteStories: async (root, { pagination, phrase }) => Story
+      .autocomplete(phrase, { pagination, filter: storySearchFilter }),
   },
   /**
    *
