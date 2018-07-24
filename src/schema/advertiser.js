@@ -26,7 +26,10 @@ applyElasticPlugin(schema, 'advertisers');
 schema.plugin(notifyPlugin);
 schema.plugin(imagePlugin, { fieldName: 'logoImageId' });
 schema.plugin(pushIdPlugin, { required: true });
-schema.plugin(deleteablePlugin, { withElastic: true });
+schema.plugin(deleteablePlugin, {
+  es_indexed: true,
+  es_type: 'boolean',
+});
 schema.plugin(userAttributionPlugin);
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);

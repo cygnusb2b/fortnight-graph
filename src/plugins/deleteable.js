@@ -1,15 +1,10 @@
-module.exports = function deleteablePlugin(schema, { withElastic = false } = {}) {
-  const esOptions = withElastic ? {
-    es_indexed: true,
-    es_type: 'boolean',
-  } : {};
-
+module.exports = function deleteablePlugin(schema, options = {}) {
   schema.add({
     deleted: {
       type: Boolean,
       required: true,
       default: false,
-      ...esOptions,
+      ...options,
     },
   });
   schema.index({ deleted: 1 });
