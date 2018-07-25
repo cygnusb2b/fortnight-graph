@@ -3,6 +3,7 @@ const Advertiser = require('../../models/advertiser');
 const Campaign = require('../../models/campaign');
 const Contact = require('../../models/contact');
 const Image = require('../../models/image');
+const Story = require('../../models/story');
 const User = require('../../models/user');
 
 module.exports = {
@@ -121,6 +122,10 @@ module.exports = {
       auth.check();
       const { id } = input;
       const advertiser = await Advertiser.strictFindActiveById(id);
+
+      const stories = await Story.countActive({ advertiserId: advertiser.id, status: 'Ready' });
+      if (stories) throw new Error('You cannot delete an advertiser with active stories.');
+
       return advertiser.softDelete();
     },
 
