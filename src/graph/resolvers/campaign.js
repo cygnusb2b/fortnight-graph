@@ -57,7 +57,7 @@ module.exports = {
     campaign: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      return Campaign.strictFindById(id);
+      return Campaign.strictFindActiveById(id);
     },
 
     /**
@@ -74,7 +74,7 @@ module.exports = {
      */
     campaignHash: (root, { input }) => {
       const { advertiserId, hash } = input;
-      return Campaign.strictFindOne({ advertiserId, pushId: hash });
+      return Campaign.strictFindActiveOne({ advertiserId, pushId: hash });
     },
 
     /**
@@ -82,7 +82,8 @@ module.exports = {
      */
     allCampaigns: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return Campaign.paginate({ pagination, sort });
+      const criteria = { deleted: false };
+      return Campaign.paginate({ criteria, pagination, sort });
     },
 
     /**
@@ -90,7 +91,8 @@ module.exports = {
      */
     searchCampaigns: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Campaign.search(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Campaign.search(phrase, { pagination, filter });
     },
   },
 
@@ -132,7 +134,7 @@ module.exports = {
     createExistingStoryCampaign: async (root, { input }, { auth }) => {
       auth.check();
       const { name, storyId, startDate } = input;
-      const story = await Story.strictFindById(storyId, { _id: 1, advertiserId: 1 });
+      const story = await Story.strictFindActiveById(storyId, { _id: 1, advertiserId: 1 });
 
       const { advertiserId } = story;
       const notify = await getNotifyDefaults(advertiserId, auth.user);
@@ -179,15 +181,19 @@ module.exports = {
     /**
      *
      */
-    updateCampaign: (root, { input }, { auth }) => {
+    updateCampaign: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return Campaign.findAndSetUpdate(id, payload);
+      const campaign = await Campaign.strictFindActiveById(id);
+      campaign.set(payload);
+      return campaign.save();
     },
 
-    assignCampaignValue: (root, { input }) => {
+    assignCampaignValue: async (root, { input }) => {
       const { id, field, value } = input;
-      return Campaign.findAndAssignValue(id, field, value);
+      const campaign = await Campaign.strictFindActiveById(id);
+      campaign.set(field, value);
+      return campaign.save();
     },
 
     /**
@@ -196,14 +202,18 @@ module.exports = {
     campaignCriteria: async (root, { input }, { auth }) => {
       auth.check();
       const { campaignId, payload } = input;
-      const campaign = await Campaign.findAndAssignValue(campaignId, 'criteria', payload);
+      const campaign = await Campaign.strictFindActiveById(campaignId);
+      campaign.criteria = payload;
+      await campaign.save();
       return campaign.criteria;
     },
 
     campaignUrl: async (root, { input }, { auth }) => {
       const { campaignId, url } = input;
       auth.checkCampaignAccess(campaignId);
-      return Campaign.findAndAssignValue(campaignId, 'url', url);
+      const campaign = await Campaign.strictFindActiveById(campaignId);
+      campaign.url = url;
+      return campaign.save();
     },
 
     /**
@@ -256,11 +266,13 @@ module.exports = {
     /**
      *
      */
-    campaignContacts: (root, { input }, { auth }) => {
+    campaignContacts: async (root, { input }, { auth }) => {
       auth.check();
       const { id, type, contactIds } = input;
       const field = `notify.${type}`;
-      return Campaign.findAndAssignValue(id, field, contactIds);
+      const campaign = await Campaign.strictFindActiveById(id);
+      campaign.set(field, contactIds);
+      return campaign.save();
     },
   },
 };
