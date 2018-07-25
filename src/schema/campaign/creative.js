@@ -12,8 +12,8 @@ const schema = new Schema({
   },
   status: {
     type: String,
-    default: 'Active',
-    enum: ['Draft', 'Active'],
+    default: 'Ready',
+    enum: ['Draft', 'Ready'],
   },
 });
 
