@@ -35,6 +35,14 @@ module.exports = function deleteablePlugin(schema, options = {}) {
     return doc;
   });
 
+  schema.static('findActive', function findActive(criteria, fields) {
+    return this.find({ ...criteria, deleted: false }, fields);
+  });
+
+  schema.static('countActive', function countActive(criteria) {
+    return this.count({ ...criteria, deleted: false });
+  });
+
   schema.static('findActiveOne', function findActiveOne(criteria, fields) {
     return this.findOne({ ...criteria, deleted: false }, fields);
   });
