@@ -142,6 +142,7 @@ module.exports = {
       const campaign = await Campaign.create({
         name,
         advertiserId,
+        storyId,
         criteria: { start: startDate },
         notify,
       });
