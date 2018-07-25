@@ -115,9 +115,6 @@ module.exports = {
       return advertiser.save();
     },
 
-    /**
-     * @todo This should prevent delete when the advertiser has any active or scheduled campaigns.
-     */
     deleteAdvertiser: async (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
@@ -125,6 +122,13 @@ module.exports = {
 
       const stories = await Story.countActive({ advertiserId: advertiser.id, status: 'Ready' });
       if (stories) throw new Error('You cannot delete an advertiser with active stories.');
+
+      // @todo Update this once campaigns have soft-delete and status has been updated.
+      const campaigns = await Campaign.count({
+        advertiserId: advertiser.id,
+        status: { $in: ['Paused', 'Active'] },
+      });
+      if (campaigns) throw new Error('You cannot delete an advertiser with active campaigns.');
 
       return advertiser.softDelete();
     },
