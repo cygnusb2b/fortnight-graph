@@ -108,6 +108,13 @@ schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name', 'advertiserName'] });
 
+schema.pre('save', async function setAdvertiserForStory() {
+  if (this.isModified('storyId')) {
+    const story = await connection.model('story').strictFindById(this.storyId, { advertiserId: 1 });
+    this.advertiserId = story.advertiserId;
+  }
+});
+
 schema.pre('save', async function setAdvertiserName() {
   if (this.isModified('advertiserId') || !this.advertiserName) {
     const advertiser = await connection.model('advertiser').findOne({ _id: this.advertiserId }, { name: 1 });
