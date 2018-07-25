@@ -56,23 +56,26 @@ module.exports = {
       ],
     };
 
-    const kvs = Utils.cleanValues(keyValues);
-    const kvsOr = [];
-    Object.keys(kvs).forEach((key) => {
-      kvsOr.push({
-        'criteria.kvs': { $elemMatch: { key, value: kvs[key] } },
-      });
-    });
-    if (kvsOr.length !== 0) {
-      criteria.$and.push({
-        $or: kvsOr,
-      });
-    } else {
-      // Ensure that only ads _without_ custom key values are returned.
-      criteria.$and.push({
-        'criteria.kvs.0': { $exists: false },
-      });
-    }
+    Utils.cleanValues(keyValues);
+    // Temporarily disable querying by custom key/values.
+    
+    // const kvs = Utils.cleanValues(keyValues);
+    // const kvsOr = [];
+    // Object.keys(kvs).forEach((key) => {
+    //   kvsOr.push({
+    //     'criteria.kvs': { $elemMatch: { key, value: kvs[key] } },
+    //   });
+    // });
+    // if (kvsOr.length !== 0) {
+    //   criteria.$and.push({
+    //     $or: kvsOr,
+    //   });
+    // } else {
+    //   // Ensure that only ads _without_ custom key values are returned.
+    //   criteria.$and.push({
+    //     'criteria.kvs.0': { $exists: false },
+    //   });
+    // }
     const campaigns = await Campaign.find(criteria);
     return this.selectCampaigns(campaigns, limit);
   },
