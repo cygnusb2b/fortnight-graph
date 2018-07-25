@@ -40,7 +40,8 @@ module.exports = {
     limit,
   }) {
     const criteria = {
-      status: 'Active',
+      status: 'Ready',
+      deleted: false,
       url: { $exists: true, $ne: null },
       'criteria.start': { $lte: startDate },
       'criteria.placementIds': placementId,
