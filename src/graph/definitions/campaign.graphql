@@ -169,7 +169,8 @@ input UpdateCampaignPayloadInput {
   description: String
   url: String
   status: CampaignStatus
-  advertiserId: String
+  advertiserId: String!
+  storyId: String
   externalLinks: [ExternalLinkInput]
 }
 
