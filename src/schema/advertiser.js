@@ -35,6 +35,20 @@ schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name'] });
 
+schema.method('cascadeSoftDelete', function cascadeSoftDelete() {
+  const promises = [];
+  promises.push(connection.model('story').updateMany({
+    advertiserId: this.id,
+  }, { $set: { deleted: true } }));
+
+  // @todo Change this once campaigns support soft delete and status is different.
+  promises.push(connection.model('campaign').updateMany({
+    advertiserId: this.id,
+  }, { $set: { status: 'Deleted' } }));
+
+  return Promise.all(promises);
+});
+
 schema.pre('save', async function updateCampaigns() {
   if (this.isModified('name')) {
     // This isn't as efficient as calling `updateMany`, but the ElasticSearch

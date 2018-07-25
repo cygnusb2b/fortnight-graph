@@ -130,7 +130,9 @@ module.exports = {
       });
       if (campaigns) throw new Error('You cannot delete an advertiser with active campaigns.');
 
-      return advertiser.softDelete();
+      await advertiser.softDelete();
+      await advertiser.cascadeSoftDelete();
+      return advertiser;
     },
 
     /**
