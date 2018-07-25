@@ -58,7 +58,6 @@ module.exports = {
 
     Utils.cleanValues(keyValues);
     // Temporarily disable querying by custom key/values.
-    
     // const kvs = Utils.cleanValues(keyValues);
     // const kvsOr = [];
     // Object.keys(kvs).forEach((key) => {
