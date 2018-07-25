@@ -5,6 +5,7 @@ const CreativeSchema = require('./creative');
 const CriteriaSchema = require('./criteria');
 const { applyElasticPlugin, setEntityFields } = require('../../elastic/mongoose');
 const {
+  deleteablePlugin,
   notifyPlugin,
   paginablePlugin,
   pushIdPlugin,
@@ -66,11 +67,11 @@ const schema = new Schema({
     required: true,
     default: 'Draft',
     enum: [
-      'Active',
-      'Paused',
       'Draft',
-      'Deleted',
+      'Ready',
     ],
+    es_indexed: true,
+    es_type: 'keyword',
   },
   url: {
     type: String,
@@ -100,6 +101,10 @@ schema.plugin(referencePlugin, {
   connection,
   modelName: 'advertiser',
   options: { required: true, es_indexed: true, es_type: 'keyword' },
+});
+schema.plugin(deleteablePlugin, {
+  es_indexed: true,
+  es_type: 'boolean',
 });
 schema.plugin(notifyPlugin);
 schema.plugin(pushIdPlugin, { required: true });
