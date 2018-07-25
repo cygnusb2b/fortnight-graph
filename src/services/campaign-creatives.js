@@ -1,12 +1,5 @@
 const Campaign = require('../models/campaign');
 
-const findCampaign = async (id) => {
-  if (!id) throw new Error('Unable to handle creative: no campaign ID was provided.');
-  const campaign = await Campaign.findById(id);
-  if (!campaign) throw new Error('Unable to handle creative: no campaign was found.');
-  return campaign;
-};
-
 module.exports = {
   /**
    * @param {string} campaignId
@@ -20,7 +13,7 @@ module.exports = {
     imageId,
     status,
   } = {}) {
-    const campaign = await findCampaign(campaignId);
+    const campaign = await Campaign.strictFindActiveById(campaignId);
     const { creatives } = campaign;
     creatives.push({
       title,
@@ -40,7 +33,7 @@ module.exports = {
    * @return {Promise}
    */
   async updateDetailsFor(campaignId, creativeId, { title, teaser, status } = {}) {
-    const campaign = await findCampaign(campaignId);
+    const campaign = await Campaign.strictFindActiveById(campaignId);
     const creative = campaign.creatives.id(creativeId);
     if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
     creative.set({
@@ -59,7 +52,7 @@ module.exports = {
    * @param {string} imageId
    */
   async updateImageFor(campaignId, creativeId, imageId) {
-    const campaign = await findCampaign(campaignId);
+    const campaign = await Campaign.strictFindActiveById(campaignId);
     const creative = campaign.creatives.id(creativeId);
     if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
 
@@ -75,7 +68,7 @@ module.exports = {
    * @param {string} status
    */
   async setStatusFor(campaignId, creativeId, status) {
-    const campaign = await findCampaign(campaignId);
+    const campaign = await Campaign.strictFindActiveById(campaignId);
     const creative = campaign.creatives.id(creativeId);
     if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
 
@@ -90,7 +83,7 @@ module.exports = {
    * @param {string} creativeId
    */
   async findFor(campaignId, creativeId) {
-    const campaign = await findCampaign(campaignId);
+    const campaign = await Campaign.strictFindActiveById(campaignId);
     const creative = campaign.creatives.id(creativeId);
     if (!creative) throw new Error('No creative was found for the provided ID.');
     return creative;
@@ -103,7 +96,7 @@ module.exports = {
    */
   async removeFrom(campaignId, creativeId) {
     if (!creativeId) throw new Error('Unable to handle creative: no creative ID was provided.');
-    const campaign = await findCampaign(campaignId);
+    const campaign = await Campaign.strictFindActiveById(campaignId);
 
     const creative = campaign.creatives.id(creativeId);
     if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
