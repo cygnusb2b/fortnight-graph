@@ -41,11 +41,6 @@ enum CampaignStatus {
   Draft
 }
 
-enum CampaignCreativeStatus {
-  Draft
-  Ready
-}
-
 type Campaign {
   id: String!
   name: String!
@@ -68,7 +63,7 @@ type CampaignCreative {
   id: String!
   title: String
   teaser: String
-  status: CampaignCreativeStatus
+  active: Boolean!
   image: Image
 }
 
@@ -168,7 +163,7 @@ input UpdateCampaignPayloadInput {
   name: String
   description: String
   url: String
-  status: CampaignStatus
+  active: Boolean!
   advertiserId: String!
   storyId: String
   externalLinks: [ExternalLinkInput]
@@ -198,7 +193,7 @@ input CampaignCreativeImageInput {
 input AddCampaignCreativePayloadInput {
   title: String!
   teaser: String!
-  status: CampaignCreativeStatus
+  active: Boolean!
   imageId: String!
 }
 
@@ -216,13 +211,13 @@ input CampaignCreativeDetailsInput {
 input CampaignCreativeDetailsPayloadInput {
   title: String!
   teaser: String!
-  status: CampaignCreativeStatus
+  active: Boolean!
 }
 
 input CampaignCreativeStatusInput {
   campaignId: String!
   creativeId: String!
-  status: CampaignCreativeStatus!
+  active: Boolean!
 }
 
 input KeyValuesPayloadInput {

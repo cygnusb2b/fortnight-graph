@@ -11,7 +11,7 @@ module.exports = {
     title,
     teaser,
     imageId,
-    status,
+    active,
   } = {}) {
     const campaign = await Campaign.strictFindActiveById(campaignId);
     const { creatives } = campaign;
@@ -19,7 +19,7 @@ module.exports = {
       title,
       teaser,
       imageId,
-      status,
+      active,
     });
 
     await campaign.save();
@@ -32,14 +32,14 @@ module.exports = {
    * @param {string} payload.title
    * @return {Promise}
    */
-  async updateDetailsFor(campaignId, creativeId, { title, teaser, status } = {}) {
+  async updateDetailsFor(campaignId, creativeId, { title, teaser, active } = {}) {
     const campaign = await Campaign.strictFindActiveById(campaignId);
     const creative = campaign.creatives.id(creativeId);
     if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
     creative.set({
       title,
       teaser,
-      status,
+      active,
     });
 
     await campaign.save();
@@ -65,14 +65,14 @@ module.exports = {
    *
    * @param {string} campaignId
    * @param {string} creativeId
-   * @param {string} status
+   * @param {boolean} active
    */
-  async setStatusFor(campaignId, creativeId, status) {
+  async setStatusFor(campaignId, creativeId, active) {
     const campaign = await Campaign.strictFindActiveById(campaignId);
     const creative = campaign.creatives.id(creativeId);
     if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
 
-    creative.status = status;
+    creative.active = active;
     await campaign.save();
     return campaign.creatives.id(creativeId);
   },

@@ -241,8 +241,8 @@ module.exports = {
      */
     campaignCreativeStatus: async (root, { input }, { auth }) => {
       auth.check();
-      const { campaignId, creativeId, status } = input;
-      return CreativeService.setStatusFor(campaignId, creativeId, status);
+      const { campaignId, creativeId, active } = input;
+      return CreativeService.setStatusFor(campaignId, creativeId, active);
     },
 
     /**
@@ -251,8 +251,8 @@ module.exports = {
     campaignCreativeDetails: async (root, { input }, { auth }) => {
       const { campaignId, creativeId, payload } = input;
       auth.checkCampaignAccess(campaignId);
-      const { title, teaser, status } = payload;
-      return CreativeService.updateDetailsFor(campaignId, creativeId, { title, teaser, status });
+      const { title, teaser, active } = payload;
+      return CreativeService.updateDetailsFor(campaignId, creativeId, { title, teaser, active });
     },
 
     /**
