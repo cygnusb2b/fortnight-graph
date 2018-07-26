@@ -32,6 +32,7 @@ module.exports = {
     },
     hash: campaign => campaign.pushId,
     story: campaign => Story.findById(campaign.storyId),
+    requires: campaign => campaign.getRequirements(),
   },
 
   CampaignCriteria: {

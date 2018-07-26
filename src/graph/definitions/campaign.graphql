@@ -37,8 +37,12 @@ enum CampaignSortField {
 }
 
 enum CampaignStatus {
-  Ready
-  Draft
+  Deleted
+  Incomplete
+  Finished
+  Paused
+  Running
+  Scheduled
 }
 
 type Campaign {
@@ -51,6 +55,7 @@ type Campaign {
   advertiser: Advertiser!
   story: Story
   status: CampaignStatus!
+  requires: String
   deleted: Boolean!
   url: String
   creatives: [CampaignCreative]
