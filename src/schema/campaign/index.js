@@ -112,8 +112,8 @@ schema.virtual('status').get(function getStatus() {
   const end = this.get('criteria.end');
 
   if (this.deleted) return 'Deleted';
+  if (end && end.valueOf() <= Date.now()) return 'Finished';
   if (!this.ready) return 'Incomplete';
-  if (end && end.valueOf() > Date.now()) return 'Finished';
   if (start.valueOf() <= Date.now()) {
     return this.paused ? 'Paused' : 'Running';
   }
