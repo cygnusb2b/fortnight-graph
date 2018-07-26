@@ -4,7 +4,6 @@ const connection = require('../../connections/mongoose/instance');
 module.exports = new Schema({
   start: {
     type: Date,
-    required: true,
   },
   end: {
     type: Date,

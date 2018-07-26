@@ -7,8 +7,6 @@ type Query {
 }
 
 type Mutation {
-  createCampaign(input: CreateCampaignInput!): Campaign!
-
   createExternalUrlCampaign(input: CreateExternalUrlCampaignInput!): Campaign!
   createNewStoryCampaign(input: CreateNewStoryCampaignInput!): Campaign!
   createExistingStoryCampaign(input: CreateExistingStoryCampaignInput!): Campaign!
@@ -74,7 +72,7 @@ type CampaignCreative {
 
 type CampaignCriteria {
   id: String!
-  start: Date!
+  start: Date
   end: Date
   placements: [Placement]
   kvs: [KeyValues]
@@ -125,38 +123,16 @@ input CampaignSortInput {
 input CreateExternalUrlCampaignInput {
   name: String!
   advertiserId: String!
-  startDate: String!
-}
-
-input CreateExternalUrlCampaignInput {
-  name: String!
-  advertiserId: String!
-  startDate: Date!
 }
 
 input CreateNewStoryCampaignInput {
   name: String!
   advertiserId: String!
-  startDate: Date!
 }
 
 input CreateExistingStoryCampaignInput {
   name: String!
   storyId: String!
-  startDate: Date!
-}
-
-input CreateCampaignInput {
-  payload: CreateCampaignPayloadInput!
-}
-
-input CreateCampaignPayloadInput {
-  name: String!
-  description: String
-  advertiserId: String!
-  url: String
-  externalLinks: [ExternalLinkInput]
-  startDate: Date
 }
 
 input UpdateCampaignInput {
@@ -168,7 +144,6 @@ input UpdateCampaignPayloadInput {
   name: String
   description: String
   url: String
-  active: Boolean!
   advertiserId: String!
   storyId: String
   externalLinks: [ExternalLinkInput]

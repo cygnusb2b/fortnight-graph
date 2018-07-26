@@ -101,29 +101,15 @@ module.exports = {
    *
    */
   Mutation: {
-    /**
-     *
-     */
-    createCampaign: async (root, { input }, { auth }) => {
-      auth.check();
-      const { payload } = input;
-      payload.criteria = { start: payload.startDate };
-      payload.notify = await getNotifyDefaults(payload.advertiserId, auth.user);
-      const campaign = await Campaign.create(payload);
-      contactNotifier.sendInternalCampaignCreated({ campaign });
-      contactNotifier.sendExternalCampaignCreated({ campaign });
-      return campaign;
-    },
-
     createExternalUrlCampaign: async (root, { input }, { auth }) => {
       auth.check();
-      const { name, advertiserId, startDate } = input;
+      const { name, advertiserId } = input;
       const notify = await getNotifyDefaults(advertiserId, auth.user);
 
       const campaign = await Campaign.create({
         name,
         advertiserId,
-        criteria: { start: startDate },
+        criteria: {},
         notify,
       });
 
@@ -134,7 +120,7 @@ module.exports = {
 
     createExistingStoryCampaign: async (root, { input }, { auth }) => {
       auth.check();
-      const { name, storyId, startDate } = input;
+      const { name, storyId } = input;
       const story = await Story.strictFindActiveById(storyId, { _id: 1, advertiserId: 1 });
 
       const { advertiserId } = story;
@@ -144,7 +130,7 @@ module.exports = {
         name,
         advertiserId,
         storyId,
-        criteria: { start: startDate },
+        criteria: {},
         notify,
       });
 
@@ -156,7 +142,7 @@ module.exports = {
     createNewStoryCampaign: async (root, { input }, { auth }) => {
       auth.check();
       const { user } = auth;
-      const { name, advertiserId, startDate } = input;
+      const { name, advertiserId } = input;
       const notify = await getNotifyDefaults(advertiserId, auth.user);
 
       const story = await Story.create({
@@ -171,7 +157,7 @@ module.exports = {
         name,
         storyId: story.id,
         advertiserId,
-        criteria: { start: startDate },
+        criteria: {},
         notify,
       });
 
