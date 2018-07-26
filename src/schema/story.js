@@ -84,6 +84,36 @@ schema.pre('save', async function setAdvertiserName() {
   }
 });
 
+schema.pre('save', async function checkCampaigns() {
+  const { publishedAt } = this;
+  if (!this.isModified('publishedAt')) return;
+
+  const campaigns = await connection.model('campaign').findActive({ storyId: this.id });
+  campaigns.forEach((campaign) => {
+    if (['Paused', 'Running', 'Scheduled'].includes(campaign.status) && !publishedAt) {
+      // Published date was unset. Do not allow this if associated campaigns are active.
+      throw new Error('Cannot unpublish: there are active campaigns running for this story.');
+    }
+    if (['Paused', 'Running'].includes(campaign.status) && publishedAt && publishedAt.valueOf() > Date.now()) {
+      // Published date was set and it's greater than a paused/running campaign's start.
+      throw new Error('Cannot change published date: the selected value would conflict with active campaigns.');
+    }
+    if (campaign.status === 'Scheduled' && publishedAt && publishedAt.valueOf() > campaign.get('criteria.start').valueOf()) {
+      // Published date was set and it's greater than a scheduled campaign's start.
+      throw new Error('Cannot change published date: the selected value would conflict with scheduled campaigns.');
+    }
+  });
+});
+
+schema.post('save', async function handlePublishedAt() {
+  if (this.status === 'Published') {
+    // Find all related campaigns and ensure they're resaved to account for the published changed.
+    const campaigns = await connection.model('campaign').findActive({ storyId: this.id, ready: false });
+    const promises = campaigns.map(campaign => campaign.save());
+    await Promise.all(promises);
+  }
+});
+
 schema.index({ advertiserId: 1 });
 schema.index({ disposition: 1 });
 schema.index({ title: 1, _id: 1 }, { unique: true });
