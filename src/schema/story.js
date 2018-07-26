@@ -29,13 +29,12 @@ const schema = new Schema({
   advertiserName: {
     type: String,
   },
-  status: {
-    type: String,
+  placeholder: {
+    type: Boolean,
+    default: false,
     required: true,
-    default: 'Draft',
-    enum: ['Placeholder', 'Draft', 'Ready'],
     es_indexed: true,
-    es_type: 'keyword',
+    es_type: 'boolean',
   },
   publishedAt: {
     type: Date,
@@ -67,6 +66,15 @@ schema.plugin(searchablePlugin, { fieldNames: ['title', 'advertiserName'] });
 
 schema.virtual('slug').get(function getSlug() {
   return slug(this.title).toLowerCase();
+});
+
+schema.virtual('status').get(function getStatus() {
+  const { publishedAt } = this;
+  if (this.deleted) return 'Deleted';
+  if (this.placeholder) return 'Placeholder';
+  if (publishedAt && publishedAt.valueOf() <= Date.now()) return 'Published';
+  if (publishedAt && publishedAt.valueOf() > Date.now()) return 'Scheduled';
+  return 'Draft';
 });
 
 schema.pre('save', async function setAdvertiserName() {

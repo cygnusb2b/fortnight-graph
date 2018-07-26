@@ -5,12 +5,11 @@ const Image = require('../../models/image');
 const User = require('../../models/user');
 
 const storySearchFilter = [
-  { term: { deleted: false } },
   {
     bool: {
-      should: [
-        { term: { status: 'Ready' } },
-        { term: { status: 'Draft' } },
+      must: [
+        { term: { deleted: false } },
+        { term: { placeholder: false } },
       ],
     },
   },
@@ -50,7 +49,7 @@ module.exports = {
     allStories: (root, { pagination, sort }) => {
       const criteria = {
         deleted: false,
-        status: { $in: ['Ready', 'Draft'] },
+        placeholder: false,
       };
       return Story.paginate({ criteria, pagination, sort });
     },
@@ -83,13 +82,11 @@ module.exports = {
         advertiserId,
         publishedAt,
       } = payload;
-      const status = publishedAt ? 'Ready' : 'Draft';
 
       return Story.create({
         title,
         advertiserId,
         publishedAt,
-        status,
         createdById: user.id,
         updatedById: user.id,
       });
@@ -121,14 +118,12 @@ module.exports = {
       } = payload;
 
       const story = await Story.strictFindActiveById(id);
-      const status = publishedAt ? 'Ready' : 'Draft';
       story.set({
         title,
         teaser,
         body,
         advertiserId,
         publishedAt,
-        status,
         updatedById: user.id,
       });
       return story.save();

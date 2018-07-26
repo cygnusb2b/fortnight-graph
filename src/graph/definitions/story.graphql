@@ -23,9 +23,11 @@ enum StorySortField {
 }
 
 enum StoryStatus {
+  Deleted
   Placeholder
+  Published
+  Scheduled
   Draft
-  Ready
 }
 
 type Story {
@@ -36,6 +38,7 @@ type Story {
   teaser: String
   body: String
   status: StoryStatus!
+  placeholder: Boolean!
   deleted: Boolean!
   publishedAt: Date
   primaryImage: Image
