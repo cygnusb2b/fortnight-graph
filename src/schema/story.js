@@ -77,6 +77,12 @@ schema.virtual('status').get(function getStatus() {
   return 'Draft';
 });
 
+schema.pre('save', async function checkDelete() {
+  if (!this.isModified('deleted') || !this.deleted) return;
+  const count = await connection.model('campaign').countActive({ storyId: this.id });
+  if (count) throw new Error('You cannot delete a story with related campaigns');
+});
+
 schema.pre('save', async function setAdvertiserName() {
   if (this.isModified('advertiserId') || !this.advertiserName) {
     const advertiser = await connection.model('advertiser').findOne({ _id: this.advertiserId }, { name: 1 });
