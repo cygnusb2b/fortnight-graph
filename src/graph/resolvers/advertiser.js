@@ -119,16 +119,6 @@ module.exports = {
       auth.check();
       const { id } = input;
       const advertiser = await Advertiser.strictFindActiveById(id);
-
-      const stories = await Story.countActive({ advertiserId: advertiser.id });
-      if (stories) throw new Error('You cannot delete an advertiser with related stories.');
-
-      // @todo Update this once campaigns have soft-delete and status has been updated.
-      const campaigns = await Campaign.count({
-        advertiserId: advertiser.id,
-        status: { $ne: 'Deleted' },
-      });
-      if (campaigns) throw new Error('You cannot delete an advertiser with related campaigns.');
       return advertiser.softDelete();
     },
 

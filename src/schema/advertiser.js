@@ -35,6 +35,15 @@ schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name'] });
 
+schema.pre('save', async function checkDelete() {
+  if (!this.isModified('deleted') || !this.deleted) return;
+
+  const stories = await connection.model('story').countActive({ advertiserId: this.id });
+  if (stories) throw new Error('You cannot delete an advertiser with related stories.');
+  const campaigns = await Campaign.countActive({ advertiserId: this.id });
+  if (campaigns) throw new Error('You cannot delete an advertiser with related campaigns.');
+});
+
 schema.pre('save', async function updateCampaigns() {
   if (this.isModified('name')) {
     // This isn't as efficient as calling `updateMany`, but the ElasticSearch
