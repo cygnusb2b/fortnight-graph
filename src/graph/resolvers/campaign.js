@@ -106,6 +106,19 @@ module.exports = {
    *
    */
   Mutation: {
+    /**
+     *
+     */
+    deleteCampaign: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const campaign = await Campaign.strictFindActiveById(id);
+      return campaign.softDelete();
+    },
+
+    /**
+     *
+     */
     createExternalUrlCampaign: async (root, { input }, { auth }) => {
       auth.check();
       const { name, advertiserId } = input;
@@ -123,6 +136,9 @@ module.exports = {
       return campaign;
     },
 
+    /**
+     *
+     */
     createExistingStoryCampaign: async (root, { input }, { auth }) => {
       auth.check();
       const { name, storyId } = input;
@@ -144,6 +160,9 @@ module.exports = {
       return campaign;
     },
 
+    /**
+     *
+     */
     createNewStoryCampaign: async (root, { input }, { auth }) => {
       auth.check();
       const { user } = auth;
@@ -182,6 +201,9 @@ module.exports = {
       return campaign.save();
     },
 
+    /**
+     *
+     */
     assignCampaignValue: async (root, { input }) => {
       const { id, field, value } = input;
       const campaign = await Campaign.strictFindActiveById(id);
