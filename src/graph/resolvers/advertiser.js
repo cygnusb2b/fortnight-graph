@@ -3,7 +3,6 @@ const Advertiser = require('../../models/advertiser');
 const Campaign = require('../../models/campaign');
 const Contact = require('../../models/contact');
 const Image = require('../../models/image');
-const Story = require('../../models/story');
 const User = require('../../models/user');
 
 module.exports = {
