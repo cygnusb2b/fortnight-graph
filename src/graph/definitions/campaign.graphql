@@ -56,6 +56,7 @@ type Campaign {
   requires: String
   deleted: Boolean!
   url: String
+  primaryImage: Image
   creatives: [CampaignCreative]
   criteria: CampaignCriteria
   externalLinks: [ExternalLink]

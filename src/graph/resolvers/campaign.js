@@ -33,6 +33,11 @@ module.exports = {
     hash: campaign => campaign.pushId,
     story: campaign => Story.findById(campaign.storyId),
     requires: campaign => campaign.getRequirements(),
+    primaryImage: (campaign) => {
+      const imageIds = campaign.creatives.filter(cre => cre.active).map(cre => cre.imageId);
+      if (!imageIds[0]) return null;
+      return Image.findById(imageIds[0]);
+    },
   },
 
   CampaignCriteria: {
