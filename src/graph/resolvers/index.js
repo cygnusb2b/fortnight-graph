@@ -2,6 +2,7 @@ const deepAssign = require('deep-assign');
 const { DateType, CursorType } = require('@limit0/graphql-custom-types');
 const MixedType = require('../types/mixed');
 
+const account = require('./account');
 const advertiser = require('./advertiser');
 const campaign = require('./campaign');
 const contact = require('./contact');
@@ -15,6 +16,7 @@ const topic = require('./topic');
 const user = require('./user');
 
 module.exports = deepAssign(
+  account,
   advertiser,
   campaign,
   contact,

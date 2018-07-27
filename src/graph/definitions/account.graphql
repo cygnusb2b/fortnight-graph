@@ -1,0 +1,18 @@
+type Query {
+  account: Account
+}
+
+type Account {
+  id: String!
+  key: String!
+  name: String!
+  uri: String!
+  settings: AccountSettings!
+  createdAt: Date
+  updatedAt: Date
+}
+
+type AccountSettings {
+  cname: String!
+}
+
