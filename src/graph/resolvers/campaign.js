@@ -164,10 +164,18 @@ module.exports = {
       const { advertiserId } = story;
       const notify = await getNotifyDefaults(advertiserId, auth.user);
 
+      const creative = {
+        title: story.title ? story.title.slice(0, 75) : undefined,
+        teaser: story.teaser ? story.teaser.slice(0, 255) : undefined,
+        imageId: story.primaryImageId,
+        active: true,
+      };
+
       const campaign = await Campaign.create({
         name,
         advertiserId,
         storyId,
+        creatives: [creative],
         criteria: {},
         notify,
       });
