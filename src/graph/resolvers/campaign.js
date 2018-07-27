@@ -165,28 +165,28 @@ module.exports = {
       auth.check();
       const { user } = auth;
       const { name, storyId } = input;
-      const story = await Story.strictFindActiveById(storyId, { _id: 1, advertiserId: 1 });
+      const story = await Story.strictFindActiveById(storyId);
 
       const { advertiserId } = story;
       const notify = await getNotifyDefaults(advertiserId, auth.user);
 
-      const creative = {
-        title: story.title ? story.title.slice(0, 75) : undefined,
-        teaser: story.teaser ? story.teaser.slice(0, 255) : undefined,
-        imageId: story.primaryImageId,
-        active: true,
-      };
-
-      const campaign = await Campaign.create({
+      const campaign = new Campaign({
         name,
         advertiserId,
         storyId,
-        creatives: [creative],
         criteria: {},
         notify,
         updatedById: user.id,
         createdById: user.id,
       });
+
+      campaign.creatives.push({
+        title: story.title ? story.title.slice(0, 75) : undefined,
+        teaser: story.teaser ? story.teaser.slice(0, 255) : undefined,
+        imageId: story.primaryImageId,
+        active: story.title && story.teaser && story.imageId,
+      });
+      await campaign.save();
 
       contactNotifier.sendInternalCampaignCreated({ campaign });
       contactNotifier.sendExternalCampaignCreated({ campaign });
