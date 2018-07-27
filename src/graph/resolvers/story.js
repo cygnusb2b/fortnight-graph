@@ -1,5 +1,6 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const Advertiser = require('../../models/advertiser');
+const Campaign = require('../../models/campaign');
 const Story = require('../../models/story');
 const Image = require('../../models/image');
 const User = require('../../models/user');
@@ -24,6 +25,10 @@ module.exports = {
     images: story => Image.find({ _id: { $in: story.imageIds } }),
     createdBy: story => User.findById(story.createdById),
     updatedBy: story => User.findById(story.updatedById),
+    campaigns: (story, { pagination, sort }) => {
+      const criteria = { storyId: story.id, deleted: false };
+      return Campaign.paginate({ pagination, criteria, sort });
+    },
   },
 
   /**

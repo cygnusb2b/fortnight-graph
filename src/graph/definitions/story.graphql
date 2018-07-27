@@ -43,6 +43,7 @@ type Story {
   publishedAt: Date
   primaryImage: Image
   images: [Image]
+  campaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
   createdAt: Date!
   updatedAt: Date!
   createdBy: User!
