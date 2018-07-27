@@ -114,9 +114,8 @@ schema.virtual('status').get(function getStatus() {
   if (this.deleted) return 'Deleted';
   if (end && end.valueOf() <= Date.now()) return 'Finished';
   if (!this.ready) return 'Incomplete';
-  if (start.valueOf() <= Date.now()) {
-    return this.paused ? 'Paused' : 'Running';
-  }
+  if (this.paused) return 'Paused';
+  if (start.valueOf() <= Date.now()) return 'Running';
   return 'Scheduled';
 });
 
