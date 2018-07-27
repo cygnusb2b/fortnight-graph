@@ -16,6 +16,8 @@ type Mutation {
 
   assignCampaignValue(input: AssignCampaignValueInput!): Campaign!
 
+  pauseCampaign(id: String!, paused: Boolean!): Campaign!
+
   campaignUrl(input: CampaignUrlInput!): Campaign!
   campaignCriteria(input: CampaignCriteriaInput!): CampaignCriteria!
 
@@ -56,6 +58,7 @@ type Campaign {
   status: CampaignStatus!
   requires: String
   deleted: Boolean!
+  paused: Boolean!
   publishers(pagination: PaginationInput = {}, sort: PublisherSortInput = {}): PublisherConnection!
   url: String
   primaryImage: Image

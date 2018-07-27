@@ -123,6 +123,13 @@ module.exports = {
       return campaign.softDelete();
     },
 
+    pauseCampaign: async (root, { id, paused }, { auth }) => {
+      auth.check();
+      const campaign = await Campaign.strictFindActiveById(id);
+      campaign.paused = paused;
+      return campaign.save();
+    },
+
     /**
      *
      */
