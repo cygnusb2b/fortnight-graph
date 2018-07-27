@@ -182,7 +182,9 @@ schema.index({ updatedAt: -1, _id: -1 }, { unique: true });
 
 // Query logic for campaign retrieval.
 schema.index({
-  status: 1,
+  deleted: 1,
+  ready: 1,
+  paused: 1,
   'criteria.start': 1,
   'criteria.placementIds': 1,
   'criteria.end': 1,

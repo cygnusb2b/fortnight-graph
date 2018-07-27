@@ -40,9 +40,9 @@ module.exports = {
     limit,
   }) {
     const criteria = {
-      status: 'Ready',
       deleted: false,
-      url: { $exists: true, $ne: null },
+      ready: true,
+      paused: false,
       'criteria.start': { $lte: startDate },
       'criteria.placementIds': placementId,
       $and: [
@@ -263,7 +263,7 @@ module.exports = {
       });
     }
     const creative = await this.getCreativeFor(campaign);
-    if (!creative || creative.status === 'Draft') {
+    if (!creative || !creative.active) {
       // No creative found. Send fallback.
       return this.buildFallbackFor({
         template,
