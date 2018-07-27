@@ -4,6 +4,7 @@ const CreativeService = require('../../services/campaign-creatives');
 const Campaign = require('../../models/campaign');
 const Story = require('../../models/story');
 const Contact = require('../../models/contact');
+const Publisher = require('../../models/publisher');
 const Image = require('../../models/image');
 const Placement = require('../../models/placement');
 const contactNotifier = require('../../services/contact-notifier');
@@ -37,6 +38,12 @@ module.exports = {
       const imageIds = campaign.creatives.filter(cre => cre.active).map(cre => cre.imageId);
       if (!imageIds[0]) return null;
       return Image.findById(imageIds[0]);
+    },
+    publishers: async (campaign, { pagination, sort }) => {
+      const placementIds = campaign.get('criteria.placementIds');
+      const publisherIds = await Placement.distinct('publisherId', { _id: { $in: placementIds } });
+      const criteria = { _id: { $in: publisherIds } };
+      return Publisher.paginate({ pagination, criteria, sort });
     },
   },
 

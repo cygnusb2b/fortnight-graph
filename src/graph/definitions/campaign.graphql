@@ -56,6 +56,7 @@ type Campaign {
   status: CampaignStatus!
   requires: String
   deleted: Boolean!
+  publishers(pagination: PaginationInput = {}, sort: PublisherSortInput = {}): PublisherConnection!
   url: String
   primaryImage: Image
   creatives: [CampaignCreative]
