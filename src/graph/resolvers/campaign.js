@@ -7,6 +7,7 @@ const Contact = require('../../models/contact');
 const Publisher = require('../../models/publisher');
 const Image = require('../../models/image');
 const Placement = require('../../models/placement');
+const User = require('../../models/user');
 const contactNotifier = require('../../services/contact-notifier');
 
 const getNotifyDefaults = async (advertiserId, user) => {
@@ -45,6 +46,8 @@ module.exports = {
       const criteria = { _id: { $in: publisherIds } };
       return Publisher.paginate({ pagination, criteria, sort });
     },
+    createdBy: campaign => User.findById(campaign.createdById),
+    updatedBy: campaign => User.findById(campaign.updatedById),
   },
 
   CampaignCriteria: {

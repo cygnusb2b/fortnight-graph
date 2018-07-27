@@ -12,6 +12,7 @@ const {
   referencePlugin,
   repositoryPlugin,
   searchablePlugin,
+  userAttributionPlugin,
 } = require('../../plugins');
 
 const externalLinkSchema = new Schema({
@@ -104,6 +105,7 @@ schema.plugin(deleteablePlugin, {
 schema.plugin(notifyPlugin);
 schema.plugin(pushIdPlugin, { required: true });
 schema.plugin(repositoryPlugin);
+schema.plugin(userAttributionPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name', 'advertiserName'] });
 

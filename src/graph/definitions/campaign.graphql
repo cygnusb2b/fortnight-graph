@@ -66,6 +66,8 @@ type Campaign {
   criteria: CampaignCriteria
   externalLinks: [ExternalLink]
   notify: NotificationLists
+  createdBy: User!
+  updatedBy: User!
 }
 
 type CampaignCreative {
