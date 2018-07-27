@@ -3,6 +3,7 @@ const Advertiser = require('../../models/advertiser');
 const Campaign = require('../../models/campaign');
 const Contact = require('../../models/contact');
 const Image = require('../../models/image');
+const Story = require('../../models/story');
 const User = require('../../models/user');
 
 module.exports = {
@@ -11,8 +12,12 @@ module.exports = {
    */
   Advertiser: {
     campaigns: (advertiser, { pagination, sort }) => {
-      const criteria = { advertiserId: advertiser.id };
+      const criteria = { advertiserId: advertiser.id, deleted: false };
       return Campaign.paginate({ pagination, criteria, sort });
+    },
+    stories: (advertiser, { pagination, sort }) => {
+      const criteria = { advertiserId: advertiser.id, deleted: false };
+      return Story.paginate({ pagination, criteria, sort });
     },
     notify: async (advertiser) => {
       const internal = await Contact.find({ _id: { $in: advertiser.notify.internal } });
