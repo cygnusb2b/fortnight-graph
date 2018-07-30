@@ -35,10 +35,10 @@ const jsonfile = makeValidator((v) => {
   if (!v) throw new Error('Expected a non-empty string');
   try {
     const data = readFileSync(v, { encoding: 'utf8', flag: 'r' });
-    const parsed = JSON.parse(data);
+    JSON.parse(data);
     return v;
   } catch (e) {
-    throw new Error(`Invalid jsonfile: ${e}`);
+    throw new Error(`Invalid jsonfile: ${e.message}`);
   }
 });
 
