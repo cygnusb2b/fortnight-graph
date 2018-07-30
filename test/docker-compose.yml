@@ -24,6 +24,7 @@ services:
       REDIS_DSN: redis://redis:6379/0
       SENDGRID_API_KEY: 1234
       SENDGRID_FROM: Test Testerson <test@test.io>
+      GOOGLE_APPLICATION_CREDENTIALS: /app/.google-cloud.json
   redis:
     image: redis:alpine
     volumes:

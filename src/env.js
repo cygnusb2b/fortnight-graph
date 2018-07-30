@@ -50,11 +50,7 @@ module.exports = cleanEnv(process.env, {
   ELASTIC_HOST: url({ desc: 'The Elasticsearch DSN to connect to.' }),
   ELASTIC_INDEX_RECREATE: bool({ desc: 'Whether the Elasticsearch indexes should be re-created.', default: false }),
   IMGIX_URL: url({ desc: 'The Imgix URL for serving images.' }),
-  GOOGLE_APPLICATION_CREDENTIALS: jsonfile({
-    desc: 'The location of the Google Cloud service account credentials file.',
-    testDefault: `${process.cwd()}/../test/.gcloud-test.json`,
-    devDefault: `${process.cwd()}/.google-cloud.json`,
-  }),
+  GOOGLE_APPLICATION_CREDENTIALS: jsonfile({ desc: 'The location of the Google Cloud service account credentials file.' }),
   MONGOOSE_DEBUG: bool({ desc: 'Whether to enable Mongoose debugging.', default: false }),
   MONGO_DSN: mongodsn({ desc: 'The MongoDB DSN to connect to.' }),
   NEW_RELIC_ENABLED: bool({ desc: 'Whether New Relic is enabled.', default: true, devDefault: false }),
