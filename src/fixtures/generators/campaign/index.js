@@ -6,6 +6,8 @@ module.exports = async ({
   advertiserId,
   placementIds,
   creativeImageId,
+  createdById,
+  updatedById,
   internalContactIds = [],
   externalContactIds = [],
 }) => {
@@ -46,6 +48,8 @@ module.exports = async ({
     criteria: await criteria({ placementIds }),
     createdAt: now,
     updatedAt: now,
+    createdById: await createdById(),
+    updatedById: await updatedById(),
     externalLinks: externalLinks(),
     notify: {
       internal: internalContactIds,

@@ -1,6 +1,12 @@
 const faker = require('faker');
 
-module.exports = async ({ advertiserId, primaryImageId, imageIds }) => {
+module.exports = async ({
+  advertiserId,
+  primaryImageId,
+  imageIds,
+  createdById,
+  updatedById,
+}) => {
   const now = new Date();
   return {
     title: faker.lorem.words(10),
@@ -11,6 +17,8 @@ module.exports = async ({ advertiserId, primaryImageId, imageIds }) => {
     imageIds: await imageIds(),
     createdAt: now,
     updatedAt: now,
+    createdById: await createdById(),
+    updatedById: await updatedById(),
     publishedAt: new Date(),
   };
 };
