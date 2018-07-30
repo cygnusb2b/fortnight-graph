@@ -6,7 +6,7 @@ node {
     stage('Checkout') {
       checkout scm
       withCredentials([file(credentialsId: 'nativex.graph.config.google-cloud.json', variable: 'FILE')]) {
-        sh "cp $FILE .google-cloud.json"
+        sh "cp -f $FILE .google-cloud.json"
       }
     }
     stage('Test') {
