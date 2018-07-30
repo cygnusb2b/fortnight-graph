@@ -1,4 +1,5 @@
 const { isURL } = require('validator');
+const { readFileSync } = require('fs');
 
 const {
   cleanEnv,
@@ -31,11 +32,14 @@ const nonemptystr = makeValidator((v) => {
 });
 
 const jsonfile = makeValidator((v) => {
-  if (v === undefined || v === null || v === '') {
-    throw new Error('Expected a non-empty string');
+  if (!v) throw new Error('Expected a non-empty string');
+  try {
+    const data = readFileSync(v, { encoding: 'utf8', flag: 'r' });
+    const parsed = JSON.parse(data);
+    return v;
+  } catch (e) {
+    throw new Error(`Invalid jsonfile: ${e}`);
   }
-  // eslint-disable-next-line import/no-dynamic-require
-  return require(v); // eslint-disable-line global-require
 });
 
 module.exports = cleanEnv(process.env, {
