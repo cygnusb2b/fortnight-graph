@@ -72,12 +72,14 @@ module.exports = {
         publisherId,
         templateId,
         topicId,
+        reservePct,
       } = payload;
       return Placement.create({
         name,
         publisherId,
         templateId,
         topicId,
+        reservePct,
       });
     },
 
@@ -93,12 +95,14 @@ module.exports = {
         publisherId,
         templateId,
         topicId,
+        reservePct,
       } = payload;
       placement.set({
         name,
         publisherId,
         templateId,
         topicId,
+        reservePct,
       });
       return placement.save();
     },

@@ -8,6 +8,7 @@ const Image = require('../models/image');
 const Placement = require('../models/placement');
 const Template = require('../models/template');
 const Utils = require('../utils');
+const Account = require('./account');
 
 module.exports = {
   /**
@@ -57,7 +58,7 @@ module.exports = {
 
     Utils.cleanValues(keyValues);
     // Temporarily disable querying by custom key/values.
-    
+
     // const kvs = Utils.cleanValues(keyValues);
     // const kvsOr = [];
     // Object.keys(kvs).forEach((key) => {
@@ -104,6 +105,7 @@ module.exports = {
     const placement = await Placement.findOne({ _id: placementId }, {
       _id: 1,
       templateId: 1,
+      reservePct: 1,
     });
     if (!placement) throw createError(404, `No placement exists for ID '${placementId}'`);
 
@@ -134,17 +136,23 @@ module.exports = {
     vars = { custom: {}, fallback: {} },
   } = {}) {
     const { placement, template } = await this.getPlacementAndTemplate({ placementId });
+    const account = await Account.retrieve();
 
     const limit = num > 0 ? parseInt(num, 10) : 1;
     if (limit > 10) throw createError(400, 'You cannot return more than 10 ads in one request.');
     if (limit > 1) throw createError(501, 'Requesting more than one ad in a request is not yet implemented.');
 
-    const campaigns = await this.queryCampaigns({
-      startDate: new Date(),
-      placementId: placement.id,
-      keyValues: vars.custom,
-      limit,
-    });
+    const rp = placement.get('reservePct');
+    const ap = account.get('settings.reservePct');
+    const reservePct = (rp || ap || 0) / 100;
+
+    const campaigns = Math.random() >= reservePct
+      ? await this.queryCampaigns({
+        startDate: new Date(),
+        placementId: placement.id,
+        keyValues: vars.custom,
+        limit,
+      }) : [];
     this.fillWithFallbacks(campaigns, limit);
 
     return Promise.all(campaigns.map((campaign) => {
