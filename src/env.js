@@ -1,4 +1,5 @@
 const { isURL } = require('validator');
+const { readFileSync } = require('fs');
 
 const {
   cleanEnv,
@@ -30,6 +31,17 @@ const nonemptystr = makeValidator((v) => {
   return trimmed;
 });
 
+const jsonfile = makeValidator((v) => {
+  if (!v) throw new Error('Expected a non-empty string');
+  try {
+    const data = readFileSync(v, { encoding: 'utf8', flag: 'r' });
+    JSON.parse(data);
+    return v;
+  } catch (e) {
+    throw new Error(`Invalid jsonfile: ${e.message}`);
+  }
+});
+
 module.exports = cleanEnv(process.env, {
   ACCOUNT_KEY: nonemptystr({ desc: 'The account/tenant key. Is used for querying the account information and settings from the core database connection.' }),
   AWS_ACCESS_KEY_ID: nonemptystr({ desc: 'The AWS access key value.' }),
@@ -38,6 +50,7 @@ module.exports = cleanEnv(process.env, {
   ELASTIC_HOST: url({ desc: 'The Elasticsearch DSN to connect to.' }),
   ELASTIC_INDEX_RECREATE: bool({ desc: 'Whether the Elasticsearch indexes should be re-created.', default: false }),
   IMGIX_URL: url({ desc: 'The Imgix URL for serving images.' }),
+  GOOGLE_APPLICATION_CREDENTIALS: jsonfile({ desc: 'The location of the Google Cloud service account credentials file.' }),
   MONGOOSE_DEBUG: bool({ desc: 'Whether to enable Mongoose debugging.', default: false }),
   MONGO_DSN: mongodsn({ desc: 'The MongoDB DSN to connect to.' }),
   NEW_RELIC_ENABLED: bool({ desc: 'Whether New Relic is enabled.', default: true, devDefault: false }),
