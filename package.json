@@ -1,6 +1,6 @@
 {
   "name": "fortnight-graph",
-  "version": "0.1.0",
+  "version": "0.1.8",
   "main": "src/index.js",
   "repository": "https://github.com/cygnusb2b/fortnight-graph.git",
   "author": "Jacob Bare <jacob@limit0.io>",
@@ -66,6 +66,7 @@
     "graphql": "^0.13.2",
     "graphql-import": "^0.4.3",
     "graphql-tools": "^2.21.0",
+    "graphql-type-json": "^0.2.1",
     "handlebars": "^4.0.11",
     "helmet": "^3.11.0",
     "http-errors": "^1.6.2",

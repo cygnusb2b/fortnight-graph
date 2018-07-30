@@ -41,8 +41,9 @@ module.exports = {
     limit,
   }) {
     const criteria = {
-      status: 'Active',
-      url: { $exists: true, $ne: null },
+      deleted: false,
+      ready: true,
+      paused: false,
       'criteria.start': { $lte: startDate },
       'criteria.placementIds': placementId,
       $and: [
@@ -58,7 +59,6 @@ module.exports = {
 
     Utils.cleanValues(keyValues);
     // Temporarily disable querying by custom key/values.
-
     // const kvs = Utils.cleanValues(keyValues);
     // const kvsOr = [];
     // Object.keys(kvs).forEach((key) => {
@@ -271,7 +271,7 @@ module.exports = {
       });
     }
     const creative = await this.getCreativeFor(campaign);
-    if (!creative || creative.status === 'Draft') {
+    if (!creative || !creative.active) {
       // No creative found. Send fallback.
       return this.buildFallbackFor({
         template,

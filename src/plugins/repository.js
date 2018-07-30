@@ -1,13 +1,13 @@
 /* eslint-disable no-param-reassign */
 module.exports = function repositoryPlugin(schema) {
-  schema.statics.strictFindById = async function strictFindById(id) {
-    const doc = await this.findById(id);
+  schema.statics.strictFindById = async function strictFindById(id, fields) {
+    const doc = await this.findById(id, fields);
     if (!doc) throw new Error(`No ${this.modelName} found for ID '${id}'`);
     return doc;
   };
 
-  schema.statics.strictFindOne = async function strictFindOne(criteria) {
-    const doc = await this.findOne(criteria);
+  schema.statics.strictFindOne = async function strictFindOne(criteria, fields) {
+    const doc = await this.findOne(criteria, fields);
     if (!doc) throw new Error(`No ${this.modelName} found for criteria '${JSON.stringify(criteria)}'`);
     return doc;
   };

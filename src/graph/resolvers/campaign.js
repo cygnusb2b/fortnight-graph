@@ -2,9 +2,12 @@ const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const Advertiser = require('../../models/advertiser');
 const CreativeService = require('../../services/campaign-creatives');
 const Campaign = require('../../models/campaign');
+const Story = require('../../models/story');
 const Contact = require('../../models/contact');
+const Publisher = require('../../models/publisher');
 const Image = require('../../models/image');
 const Placement = require('../../models/placement');
+const User = require('../../models/user');
 const contactNotifier = require('../../services/contact-notifier');
 
 const getNotifyDefaults = async (advertiserId, user) => {
@@ -30,6 +33,21 @@ module.exports = {
       return { internal, external };
     },
     hash: campaign => campaign.pushId,
+    story: campaign => Story.findById(campaign.storyId),
+    requires: campaign => campaign.getRequirements(),
+    primaryImage: (campaign) => {
+      const imageIds = campaign.creatives.filter(cre => cre.active).map(cre => cre.imageId);
+      if (!imageIds[0]) return null;
+      return Image.findById(imageIds[0]);
+    },
+    publishers: async (campaign, { pagination, sort }) => {
+      const placementIds = campaign.get('criteria.placementIds');
+      const publisherIds = await Placement.distinct('publisherId', { _id: { $in: placementIds } });
+      const criteria = { _id: { $in: publisherIds } };
+      return Publisher.paginate({ pagination, criteria, sort });
+    },
+    createdBy: campaign => User.findById(campaign.createdById),
+    updatedBy: campaign => User.findById(campaign.updatedById),
   },
 
   CampaignCriteria: {
@@ -55,7 +73,7 @@ module.exports = {
     campaign: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      return Campaign.strictFindById(id);
+      return Campaign.strictFindActiveById(id);
     },
 
     /**
@@ -72,7 +90,7 @@ module.exports = {
      */
     campaignHash: (root, { input }) => {
       const { advertiserId, hash } = input;
-      return Campaign.strictFindOne({ advertiserId, pushId: hash });
+      return Campaign.strictFindActiveOne({ advertiserId, pushId: hash });
     },
 
     /**
@@ -80,7 +98,8 @@ module.exports = {
      */
     allCampaigns: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return Campaign.paginate({ pagination, sort });
+      const criteria = { deleted: false };
+      return Campaign.paginate({ criteria, pagination, sort });
     },
 
     /**
@@ -88,7 +107,8 @@ module.exports = {
      */
     searchCampaigns: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Campaign.search(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Campaign.search(phrase, { pagination, filter });
     },
   },
 
@@ -99,12 +119,40 @@ module.exports = {
     /**
      *
      */
-    createCampaign: async (root, { input }, { auth }) => {
+    deleteCampaign: async (root, { input }, { auth }) => {
       auth.check();
-      const { payload } = input;
-      payload.criteria = { start: payload.startDate };
-      payload.notify = await getNotifyDefaults(payload.advertiserId, auth.user);
-      const campaign = await Campaign.create(payload);
+      const { id } = input;
+      const campaign = await Campaign.strictFindActiveById(id);
+      return campaign.softDelete();
+    },
+
+    pauseCampaign: async (root, { id, paused }, { auth }) => {
+      auth.check();
+      const { user } = auth;
+      const campaign = await Campaign.strictFindActiveById(id);
+      campaign.paused = paused;
+      campaign.updatedById = user.id;
+      return campaign.save();
+    },
+
+    /**
+     *
+     */
+    createExternalUrlCampaign: async (root, { input }, { auth }) => {
+      auth.check();
+      const { user } = auth;
+      const { name, advertiserId } = input;
+      const notify = await getNotifyDefaults(advertiserId, auth.user);
+
+      const campaign = await Campaign.create({
+        name,
+        advertiserId,
+        criteria: {},
+        notify,
+        updatedById: user.id,
+        createdById: user.id,
+      });
+
       contactNotifier.sendInternalCampaignCreated({ campaign });
       contactNotifier.sendExternalCampaignCreated({ campaign });
       return campaign;
@@ -113,15 +161,93 @@ module.exports = {
     /**
      *
      */
-    updateCampaign: (root, { input }, { auth }) => {
+    createExistingStoryCampaign: async (root, { input }, { auth }) => {
       auth.check();
-      const { id, payload } = input;
-      return Campaign.findAndSetUpdate(id, payload);
+      const { user } = auth;
+      const { name, storyId } = input;
+      const story = await Story.strictFindActiveById(storyId);
+
+      const { advertiserId } = story;
+      const notify = await getNotifyDefaults(advertiserId, auth.user);
+
+      const campaign = new Campaign({
+        name,
+        advertiserId,
+        storyId,
+        criteria: {},
+        notify,
+        updatedById: user.id,
+        createdById: user.id,
+      });
+
+      campaign.creatives.push({
+        title: story.title ? story.title.slice(0, 75) : undefined,
+        teaser: story.teaser ? story.teaser.slice(0, 255) : undefined,
+        imageId: story.primaryImageId,
+        active: story.title && story.teaser && story.imageId,
+      });
+      await campaign.save();
+
+      contactNotifier.sendInternalCampaignCreated({ campaign });
+      contactNotifier.sendExternalCampaignCreated({ campaign });
+      return campaign;
     },
 
-    assignCampaignValue: (root, { input }) => {
+    /**
+     *
+     */
+    createNewStoryCampaign: async (root, { input }, { auth }) => {
+      auth.check();
+      const { user } = auth;
+      const { name, advertiserId } = input;
+      const notify = await getNotifyDefaults(advertiserId, auth.user);
+
+      const story = await Story.create({
+        title: 'Placeholder Story',
+        advertiserId,
+        placeholder: true,
+        updatedById: user.id,
+        createdById: user.id,
+      });
+
+      const campaign = await Campaign.create({
+        name,
+        storyId: story.id,
+        advertiserId,
+        criteria: {},
+        notify,
+        updatedById: user.id,
+        createdById: user.id,
+      });
+
+      contactNotifier.sendInternalCampaignCreated({ campaign });
+      contactNotifier.sendExternalCampaignCreated({ campaign });
+      return campaign;
+    },
+
+    /**
+     *
+     */
+    updateCampaign: async (root, { input }, { auth }) => {
+      auth.check();
+      const { user } = auth;
+      const { id, payload } = input;
+      const campaign = await Campaign.strictFindActiveById(id);
+      campaign.set({
+        ...payload,
+        updatedById: user.id,
+      });
+      return campaign.save();
+    },
+
+    /**
+     *
+     */
+    assignCampaignValue: async (root, { input }) => {
       const { id, field, value } = input;
-      return Campaign.findAndAssignValue(id, field, value);
+      const campaign = await Campaign.strictFindActiveById(id);
+      campaign.set(field, value);
+      return campaign.save();
     },
 
     /**
@@ -129,15 +255,21 @@ module.exports = {
      */
     campaignCriteria: async (root, { input }, { auth }) => {
       auth.check();
+      const { user } = auth;
       const { campaignId, payload } = input;
-      const campaign = await Campaign.findAndAssignValue(campaignId, 'criteria', payload);
+      const campaign = await Campaign.strictFindActiveById(campaignId);
+      campaign.criteria = payload;
+      campaign.updatedById = user.id;
+      await campaign.save();
       return campaign.criteria;
     },
 
     campaignUrl: async (root, { input }, { auth }) => {
       const { campaignId, url } = input;
       auth.checkCampaignAccess(campaignId);
-      return Campaign.findAndAssignValue(campaignId, 'url', url);
+      const campaign = await Campaign.strictFindActiveById(campaignId);
+      campaign.url = url;
+      return campaign.save();
     },
 
     /**
@@ -164,8 +296,8 @@ module.exports = {
      */
     campaignCreativeStatus: async (root, { input }, { auth }) => {
       auth.check();
-      const { campaignId, creativeId, status } = input;
-      return CreativeService.setStatusFor(campaignId, creativeId, status);
+      const { campaignId, creativeId, active } = input;
+      return CreativeService.setStatusFor(campaignId, creativeId, active);
     },
 
     /**
@@ -174,8 +306,8 @@ module.exports = {
     campaignCreativeDetails: async (root, { input }, { auth }) => {
       const { campaignId, creativeId, payload } = input;
       auth.checkCampaignAccess(campaignId);
-      const { title, teaser, status } = payload;
-      return CreativeService.updateDetailsFor(campaignId, creativeId, { title, teaser, status });
+      const { title, teaser, active } = payload;
+      return CreativeService.updateDetailsFor(campaignId, creativeId, { title, teaser, active });
     },
 
     /**
@@ -190,11 +322,13 @@ module.exports = {
     /**
      *
      */
-    campaignContacts: (root, { input }, { auth }) => {
+    campaignContacts: async (root, { input }, { auth }) => {
       auth.check();
       const { id, type, contactIds } = input;
       const field = `notify.${type}`;
-      return Campaign.findAndAssignValue(id, field, contactIds);
+      const campaign = await Campaign.strictFindActiveById(id);
+      campaign.set(field, contactIds);
+      return campaign.save();
     },
   },
 };

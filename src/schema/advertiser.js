@@ -2,12 +2,14 @@ const { Schema } = require('mongoose');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
+  deleteablePlugin,
   imagePlugin,
   notifyPlugin,
   paginablePlugin,
   pushIdPlugin,
   repositoryPlugin,
   searchablePlugin,
+  userAttributionPlugin,
 } = require('../plugins');
 
 const schema = new Schema({
@@ -15,7 +17,6 @@ const schema = new Schema({
     type: String,
     required: true,
     trim: true,
-    unique: true,
   },
 }, { timestamps: true });
 
@@ -25,9 +26,23 @@ applyElasticPlugin(schema, 'advertisers');
 schema.plugin(notifyPlugin);
 schema.plugin(imagePlugin, { fieldName: 'logoImageId' });
 schema.plugin(pushIdPlugin, { required: true });
+schema.plugin(deleteablePlugin, {
+  es_indexed: true,
+  es_type: 'boolean',
+});
+schema.plugin(userAttributionPlugin);
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name'] });
+
+schema.pre('save', async function checkDelete() {
+  if (!this.isModified('deleted') || !this.deleted) return;
+
+  const stories = await connection.model('story').countActive({ advertiserId: this.id });
+  if (stories) throw new Error('You cannot delete an advertiser with related stories.');
+  const campaigns = await connection.model('campaign').countActive({ advertiserId: this.id });
+  if (campaigns) throw new Error('You cannot delete an advertiser with related campaigns.');
+});
 
 schema.pre('save', async function updateCampaigns() {
   if (this.isModified('name')) {

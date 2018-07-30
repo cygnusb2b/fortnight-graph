@@ -1,6 +1,11 @@
 const faker = require('faker');
 
-module.exports = ({ internalContactIds = [], externalContactIds = [] }) => {
+module.exports = async ({
+  internalContactIds = [],
+  externalContactIds = [],
+  createdById,
+  updatedById,
+}) => {
   const now = new Date();
 
   return {
@@ -8,6 +13,8 @@ module.exports = ({ internalContactIds = [], externalContactIds = [] }) => {
     logo: faker.image.imageUrl(100, 100, undefined, undefined, true),
     createdAt: now,
     updatedAt: now,
+    createdById: await createdById(),
+    updatedById: await updatedById(),
     notify: {
       internal: internalContactIds,
       external: externalContactIds,

@@ -8,6 +8,7 @@ type Query {
 type Mutation {
   createStory(input: CreateStoryInput!): Story!
   updateStory(input: UpdateStoryInput!): Story!
+  deleteStory(input: ModelIdInput!): String!
   # An empty imageId will unset the primary image.
   storyPrimaryImage(storyId: String!, imageId: String): Story!
   removeStoryImage(storyId: String!, imageId: String!): Story!
@@ -21,6 +22,14 @@ enum StorySortField {
   publishedAt
 }
 
+enum StoryStatus {
+  Deleted
+  Placeholder
+  Published
+  Scheduled
+  Draft
+}
+
 type Story {
   id: String!
   title: String!
@@ -28,11 +37,17 @@ type Story {
   advertiser: Advertiser!
   teaser: String
   body: String
+  status: StoryStatus!
+  placeholder: Boolean!
+  deleted: Boolean!
   publishedAt: Date
   primaryImage: Image
   images: [Image]
-  createdAt: Date
-  updatedAt: Date
+  campaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
+  createdAt: Date!
+  updatedAt: Date!
+  createdBy: User!
+  updatedBy: User!
 }
 
 type StoryConnection {

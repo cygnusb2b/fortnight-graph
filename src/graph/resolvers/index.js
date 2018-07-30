@@ -1,5 +1,6 @@
 const deepAssign = require('deep-assign');
 const { DateType, CursorType } = require('@limit0/graphql-custom-types');
+const GraphQLJSON = require('graphql-type-json');
 const MixedType = require('../types/mixed');
 
 const account = require('./account');
@@ -35,6 +36,7 @@ module.exports = deepAssign(
     Date: DateType,
     Cursor: CursorType,
     Mixed: MixedType,
+    JSON: GraphQLJSON,
 
     /**
      *

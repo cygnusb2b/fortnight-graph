@@ -9,6 +9,9 @@ type Query {
 type Mutation {
   createAdvertiser(input: CreateAdvertiserInput!): Advertiser!
   updateAdvertiser(input: UpdateAdvertiserInput!): Advertiser!
+  deleteAdvertiser(input: ModelIdInput!): String!
+  undeleteAdvertiser(input: ModelIdInput!): Advertiser!
+
   advertiserLogo(input: AdvertiserLogoInput!): Advertiser!
 
   setAdvertiserContacts(input: SetContactsInput!): Advertiser!
@@ -25,11 +28,14 @@ type Advertiser {
   hash: String!
   name: String!
   logo: Image
+  deleted: Boolean!
   createdAt: Date
   updatedAt: Date
-  campaigns: [Campaign]
-  campaignCount: Int
+  campaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
+  stories(pagination: PaginationInput = {}, sort: StorySortInput = {}): StoryConnection!
   notify: NotificationLists
+  createdBy: User!
+  updatedBy: User!
 }
 
 type AdvertiserConnection {

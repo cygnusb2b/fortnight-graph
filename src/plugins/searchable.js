@@ -9,17 +9,45 @@ module.exports = function searchablePlugin(schema, {
   beforeSearch,
   beforeAutocomplete,
 } = {}) {
-  // eslint-disable-next-line no-param-reassign
-  schema.statics.search = function search(phrase, { pagination, postFilter } = {}) {
-    const query = buildEntityNameQuery(phrase, fieldNames);
+  /**
+   * The `search` static method.
+   */
+  schema.static('search', function search(phrase, {
+    pagination,
+    postFilter,
+    filter,
+    must,
+    mustNot,
+    minMatch,
+  } = {}) {
+    const query = buildEntityNameQuery(phrase, fieldNames, {
+      filter,
+      must,
+      mustNot,
+      minMatch,
+    });
     if (typeof beforeSearch === 'function') beforeSearch(query, phrase);
     return paginateSearch(this, phrase, query, { pagination, postFilter });
-  };
+  });
 
-  // eslint-disable-next-line no-param-reassign
-  schema.statics.autocomplete = function autocomplete(phrase, { pagination, postFilter } = {}) {
-    const query = buildEntityAutocomplete(phrase, fieldNames);
+  /**
+   * The `autocomplete` static method.
+   */
+  schema.static('autocomplete', function autocomplete(phrase, {
+    pagination,
+    postFilter,
+    filter,
+    must,
+    mustNot,
+    minMatch,
+  } = {}) {
+    const query = buildEntityAutocomplete(phrase, fieldNames, {
+      filter,
+      must,
+      mustNot,
+      minMatch,
+    });
     if (typeof beforeAutocomplete === 'function') beforeAutocomplete(query, phrase);
     return paginateSearch(this, phrase, query, { pagination, postFilter });
-  };
+  });
 };

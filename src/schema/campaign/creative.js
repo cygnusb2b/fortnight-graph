@@ -10,10 +10,10 @@ const schema = new Schema({
     type: String,
     trim: true,
   },
-  status: {
-    type: String,
-    default: 'Active',
-    enum: ['Draft', 'Active'],
+  active: {
+    type: Boolean,
+    required: true,
+    default: true,
   },
 });
 

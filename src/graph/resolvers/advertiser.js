@@ -3,14 +3,22 @@ const Advertiser = require('../../models/advertiser');
 const Campaign = require('../../models/campaign');
 const Contact = require('../../models/contact');
 const Image = require('../../models/image');
+const Story = require('../../models/story');
+const User = require('../../models/user');
 
 module.exports = {
   /**
    *
    */
   Advertiser: {
-    campaigns: advertiser => Campaign.find({ advertiserId: advertiser.id }),
-    campaignCount: advertiser => Campaign.find({ advertiserId: advertiser.id }).count(),
+    campaigns: (advertiser, { pagination, sort }) => {
+      const criteria = { advertiserId: advertiser.id, deleted: false };
+      return Campaign.paginate({ pagination, criteria, sort });
+    },
+    stories: (advertiser, { pagination, sort }) => {
+      const criteria = { advertiserId: advertiser.id, deleted: false };
+      return Story.paginate({ pagination, criteria, sort });
+    },
     notify: async (advertiser) => {
       const internal = await Contact.find({ _id: { $in: advertiser.notify.internal } });
       const external = await Contact.find({ _id: { $in: advertiser.notify.external } });
@@ -18,6 +26,8 @@ module.exports = {
     },
     logo: advertiser => Image.findById(advertiser.logoImageId),
     hash: advertiser => advertiser.pushId,
+    createdBy: advertiser => User.findById(advertiser.createdById),
+    updatedBy: advertiser => User.findById(advertiser.updatedById),
   },
 
   /**
@@ -35,15 +45,15 @@ module.exports = {
     advertiser: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      return Advertiser.strictFindById(id);
+      return Advertiser.strictFindActiveById(id);
     },
 
     /**
      *
      */
-    advertiserHash: async (root, { input }) => {
+    advertiserHash: (root, { input }) => {
       const { hash } = input;
-      return Advertiser.strictFindOne({ pushId: hash });
+      return Advertiser.strictFindActiveOne({ pushId: hash });
     },
 
     /**
@@ -51,7 +61,8 @@ module.exports = {
      */
     allAdvertisers: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return Advertiser.paginate({ pagination, sort });
+      const criteria = { deleted: false };
+      return Advertiser.paginate({ criteria, pagination, sort });
     },
 
     /**
@@ -59,7 +70,8 @@ module.exports = {
      */
     autocompleteAdvertisers: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Advertiser.autocomplete(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Advertiser.autocomplete(phrase, { pagination, filter });
     },
 
     /**
@@ -67,7 +79,8 @@ module.exports = {
      */
     searchAdvertisers: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Advertiser.search(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Advertiser.search(phrase, { pagination, filter });
     },
   },
 
@@ -80,17 +93,47 @@ module.exports = {
      */
     createAdvertiser: (root, { input }, { auth }) => {
       auth.check();
+      const { user } = auth;
       const { payload } = input;
-      return Advertiser.create(payload);
+
+      return Advertiser.create({
+        ...payload,
+        createdById: user.id,
+        updatedById: user.id,
+      });
     },
 
     /**
      *
      */
-    updateAdvertiser: (root, { input }, { auth }) => {
+    updateAdvertiser: async (root, { input }, { auth }) => {
       auth.check();
+      const { user } = auth;
       const { id, payload } = input;
-      return Advertiser.findAndSetUpdate(id, payload);
+
+      const advertiser = await Advertiser.strictFindActiveById(id);
+      advertiser.set({
+        ...payload,
+        updatedById: user.id,
+      });
+      return advertiser.save();
+    },
+
+    deleteAdvertiser: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const advertiser = await Advertiser.strictFindActiveById(id);
+      return advertiser.softDelete();
+    },
+
+    /**
+     *
+     */
+    undeleteAdvertiser: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const advertiser = await Advertiser.strictFindById(id);
+      return advertiser.undelete();
     },
 
     /**
@@ -99,7 +142,7 @@ module.exports = {
     advertiserLogo: async (root, { input }, { auth }) => {
       auth.check();
       const { id, imageId } = input;
-      const advertiser = await Advertiser.strictFindById(id);
+      const advertiser = await Advertiser.strictFindActiveById(id);
       advertiser.logoImageId = imageId;
       return advertiser.save();
     },
@@ -110,7 +153,7 @@ module.exports = {
     setAdvertiserContacts: async (root, { input }, { auth }) => {
       auth.check();
       const { id, type, contactIds } = input;
-      const advertiser = await Advertiser.strictFindById(id);
+      const advertiser = await Advertiser.strictFindActiveById(id);
       advertiser.set(`notify.${type}`, contactIds);
       return advertiser.save();
     },

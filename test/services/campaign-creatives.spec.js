@@ -24,11 +24,11 @@ describe('services/campaign-creatives', function() {
       campaign = await seed.campaigns(1);
     });
     it('should reject when no campaign ID is provided.', async function() {
-      await expect(CampaignCreatives.createFor()).to.be.rejectedWith(Error, 'Unable to handle creative: no campaign ID was provided.');
+      await expect(CampaignCreatives.createFor()).to.be.rejectedWith(Error, `No campaign found for ID 'undefined'`);
     });
     it('should reject when the provided campaign does not exist.', async function() {
       const campaignId = '507f1f77bcf86cd799439011';
-      await expect(CampaignCreatives.createFor(campaignId)).to.be.rejectedWith(Error, 'Unable to handle creative: no campaign was found.');
+      await expect(CampaignCreatives.createFor(campaignId)).to.be.rejectedWith(Error, `No campaign found for ID '507f1f77bcf86cd799439011'`);
     });
     it('should fulfill and add the creative.', async function() {
       const payload = { title: 'Some new title' };
@@ -49,11 +49,11 @@ describe('services/campaign-creatives', function() {
       await expect(CampaignCreatives.removeFrom(campaignId)).to.be.rejectedWith(Error, 'Unable to handle creative: no creative ID was provided.');
     });
     it('should reject when no campaign ID is provided.', async function() {
-      await expect(CampaignCreatives.removeFrom(undefined, '507f1f77bcf86cd799439011')).to.be.rejectedWith(Error, 'Unable to handle creative: no campaign ID was provided.');
+      await expect(CampaignCreatives.removeFrom(undefined, '507f1f77bcf86cd799439011')).to.be.rejectedWith(Error, `No campaign found for ID 'undefined'`);
     });
     it('should reject when the provided campaign does not exist.', async function() {
       const campaignId = '507f1f77bcf86cd799439011';
-      await expect(CampaignCreatives.removeFrom(campaignId, '507f1f77bcf86cd799439011')).to.be.rejectedWith(Error, 'Unable to handle creative: no campaign was found.');
+      await expect(CampaignCreatives.removeFrom(campaignId, '507f1f77bcf86cd799439011')).to.be.rejectedWith(Error, `No campaign found for ID '507f1f77bcf86cd799439011'`);
     });
     it('should reject when attempting to remove a creative that does not exist.', async function() {
       const creativeId = '507f1f77bcf86cd799439011';

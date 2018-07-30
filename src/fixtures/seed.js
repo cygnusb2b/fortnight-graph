@@ -19,7 +19,12 @@ module.exports = {
    */
   async advertisers(count) {
     const { Advertiser } = models;
-    return create(Advertiser, count);
+    const user = await this.users(1);
+    const params = {
+      updatedById: () => user.id,
+      createdById: () => user.id,
+    };
+    return create(Advertiser, count, params);
   },
 
   /**
@@ -27,6 +32,7 @@ module.exports = {
    */
   async campaigns(count) {
     const { Campaign } = models;
+    const user = await this.users(1);
     const advertiser = await this.advertisers(1);
     const placements = await this.placements(2);
     const image = await this.images(1);
@@ -34,6 +40,8 @@ module.exports = {
       advertiserId: () => advertiser.id,
       placementIds: () => placements.map(placement => placement.id),
       creativeImageId: () => image.id,
+      updatedById: () => user.id,
+      createdById: () => user.id,
     };
     return create(Campaign, count, params);
   },
@@ -84,12 +92,15 @@ module.exports = {
    */
   async stories(count) {
     const { Story } = models;
+    const user = await this.users(1);
     const advertiser = await this.advertisers(1);
     const images = await this.images(3);
     const params = {
       advertiserId: () => advertiser.id,
       primaryImageId: () => images[0].id,
       imageIds: () => images.map(image => image.id),
+      updatedById: () => user.id,
+      createdById: () => user.id,
     };
     return create(Story, count, params);
   },

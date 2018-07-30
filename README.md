@@ -126,6 +126,55 @@ The above example is for illustrative purposes. An actual request would be simil
 `GET /placement/{pid}.html?opts={"n":1,"cv":{"foo":"bar","key":"value"},"mv":{"foo":"bar","key":"value"},"fv":{"foo":"bar","key":"value"}}`
 When URL encoded: `opts=%7B%22n%22%3A1%2C%22cv%22%3A%7B%22foo%22%3A%22bar%22%2C%22key%22%3A%22value%22%7D%2C%22mv%22%3A%7B%22foo%22%3A%22bar%22%2C%22key%22%3A%22value%22%7D%2C%22fv%22%3A%7B%22foo%22%3A%22bar%22%2C%22key%22%3A%22value%22%7D%7D`
 
+### Campaign Status
+
+#### Flags
+**Deleted (`deleted: true|false`)**
+Defaults to false.
+Determines if the campaign has been outright deleted from the system.
+Campaigns can be deleted via the interface.
+
+**Ready (`ready: true|false`)**
+Defaults to false.
+Determines if the campaign is ready to be delivered.
+Is controlled (and saved) by the backend. Is _not_ toggleable in the interface.
+Is true when:
+- `criteria.start` has a date value
+- `criteria.placements.length` is greater than one
+- At least one creative from `creatives` array has `active` set to `true`
+- For URL campaigns: the `url` value is set
+- For Story campaigns: the related `storyId` is published
+
+**Paused (`paused: true|false`)**
+Defaults to false.
+Is directly toggleable in the interface.
+
+#### Status
+This field is not saved directly on the model and, instead, is calculated using flags.
+In priority order (acts like a `switch` block):
+- Deleted
+  - When `deleted: true`
+- Finished
+  - When `criteria.end` exists and is less than or equal to now
+- Incomplete
+  - When `ready: false`
+- Paused
+  - When `paused: true`
+- Running
+  - And `criteria.start` is less than or equal to now
+- Scheduled
+  - When all of the above criteria is not met
+
+
+#### Serving
+In order for a campaign to serve, it must meet the following conditions globally (in addition to targeting-specific criteria):
+1. `deleted: false`
+2. `ready: true`
+3. `paused: false`
+4. `criteria.start: { $lte: [now] }`
+5. `$or: [ { criteria.end: { $gt: [now] } }, { crteria.end: { $exists: false } }, { criteria.end: null } ]`
+
+
 ## Development
 ### Docker Compose
 The development and testing environments are now set up using Docker Compose. Changes to environments (such as database version or new environment variables) should be made within the relevant `docker-compose.yml` file.
