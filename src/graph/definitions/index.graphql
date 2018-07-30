@@ -1,3 +1,4 @@
+# import * from 'account.graphql'
 # import * from 'advertiser.graphql'
 # import * from 'campaign.graphql'
 # import * from 'contact.graphql'
