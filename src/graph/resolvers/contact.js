@@ -66,7 +66,9 @@ module.exports = {
     createContact: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
-      return Contact.create(payload);
+      const contact = new Contact(payload);
+      contact.setUserContext(auth.user);
+      return Contact.save();
     },
 
     /**
@@ -76,6 +78,7 @@ module.exports = {
       auth.check();
       const { id, payload } = input;
       const contact = await Contact.strictFindActiveById(id);
+      contact.setUserContext(auth.user);
       contact.set(payload);
       return contact.save();
     },
@@ -87,6 +90,7 @@ module.exports = {
       auth.check();
       const { id } = input;
       const contact = await Contact.strictFindActiveById(id);
+      contact.setUserContext(auth.user);
       await contact.softDelete();
       return 'ok';
     },
