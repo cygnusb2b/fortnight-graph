@@ -1,5 +1,6 @@
 const { Schema } = require('mongoose');
 const validator = require('validator');
+const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
   deleteablePlugin,
@@ -82,6 +83,28 @@ schema.plugin(searchablePlugin, {
 schema.pre('save', function setName(next) {
   this.name = `${this.givenName} ${this.familyName}`;
   next();
+});
+
+const removeContactsFor = async (modelType, contactId) => {
+  const docs = await connection.model(modelType).find({
+    $or: [
+      { 'notify.internal': contactId },
+      { 'notify.external': contactId },
+    ],
+  });
+  return Promise.all(docs.map((doc) => {
+    doc.removeContactIdAll(contactId);
+    return doc.save();
+  }));
+};
+
+schema.pre('save', async function removeRelsOnDelete() {
+  if (!this.isModified('deleted') || !this.deleted) return;
+
+  await Promise.all([
+    removeContactsFor('advertiser', this.id),
+    removeContactsFor('campaign', this.id),
+  ]);
 });
 
 schema.statics.getOrCreateFor = async function getOrCreateFor({ email, givenName, familyName }) {
