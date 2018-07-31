@@ -80,7 +80,9 @@ module.exports = {
     createTopic: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
-      return Topic.create(payload);
+      const topic = new Topic(payload);
+      topic.setUserContext(auth.user);
+      return topic.save();
     },
 
     /**
@@ -90,6 +92,7 @@ module.exports = {
       auth.check();
       const { id, payload } = input;
       const topic = await Topic.strictFindActiveById(id);
+      topic.setUserContext(auth.user);
       topic.set(payload);
       return topic.save();
     },
@@ -101,6 +104,7 @@ module.exports = {
       auth.check();
       const { id } = input;
       const topic = await Topic.strictFindActiveById(id);
+      topic.setUserContext(auth.user);
       await topic.softDelete();
       return 'ok';
     },
