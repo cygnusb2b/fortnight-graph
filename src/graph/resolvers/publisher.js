@@ -12,17 +12,17 @@ module.exports = {
   Publisher: {
     logo: publisher => Image.findById(publisher.logoImageId),
     topics: (publisher, { pagination, sort }) => {
-      const criteria = { publisherId: publisher.id };
+      const criteria = { publisherId: publisher.id, deleted: false };
       return Topic.paginate({ criteria, pagination, sort });
     },
     placements: (publisher, { pagination, sort }) => {
-      const criteria = { publisherId: publisher.id };
+      const criteria = { publisherId: publisher.id, deleted: false };
       return Placement.paginate({ criteria, pagination, sort });
     },
     campaigns: async (publisher, { pagination, sort }) => {
       const placements = await Placement.find({ publisherId: publisher.id }, { _id: 1 });
       const placementIds = placements.map(placement => placement.id);
-      const criteria = { 'criteria.placementIds': { $in: placementIds } };
+      const criteria = { 'criteria.placementIds': { $in: placementIds }, deleted: false };
       return Campaign.paginate({ criteria, pagination, sort });
     },
   },

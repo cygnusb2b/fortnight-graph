@@ -10,7 +10,7 @@ module.exports = {
   Topic: {
     publisher: topic => Publisher.findById(topic.publisherId),
     placements: (topic, { pagination, sort }) => {
-      const criteria = { topicId: topic.id };
+      const criteria = { topicId: topic.id, deleted: false };
       return Placement.paginate({ criteria, pagination, sort });
     },
   },

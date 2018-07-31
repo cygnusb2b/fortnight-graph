@@ -51,7 +51,7 @@ module.exports = {
     },
     publishers: async (campaign, { pagination, sort }) => {
       const placementIds = campaign.get('criteria.placementIds');
-      const publisherIds = await Placement.distinct('publisherId', { _id: { $in: placementIds } });
+      const publisherIds = await Placement.distinct('publisherId', { _id: { $in: placementIds }, deleted: false });
       const criteria = { _id: { $in: publisherIds } };
       return Publisher.paginate({ pagination, criteria, sort });
     },
