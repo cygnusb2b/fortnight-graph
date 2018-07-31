@@ -68,7 +68,7 @@ module.exports = {
       const { payload } = input;
       const contact = new Contact(payload);
       contact.setUserContext(auth.user);
-      return Contact.save();
+      return contact.save();
     },
 
     /**

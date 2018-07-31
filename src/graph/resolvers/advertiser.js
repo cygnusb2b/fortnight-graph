@@ -101,7 +101,7 @@ module.exports = {
       const { payload } = input;
       const advertiser = new Advertiser(payload);
       advertiser.setUserContext(auth.user);
-      return Advertiser.save();
+      return advertiser.save();
     },
 
     /**
