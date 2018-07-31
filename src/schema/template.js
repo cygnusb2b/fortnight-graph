@@ -131,6 +131,13 @@ schema.pre('save', async function updatePlacements() {
   }
 });
 
+schema.pre('save', async function checkDelete() {
+  if (!this.isModified('deleted') || !this.deleted) return;
+
+  const placements = await connection.model('placement').countActive({ templateId: this.id });
+  if (placements) throw new Error('You cannot delete a template with related placements.');
+});
+
 /**
  * Renders/compiles a template from the provided source with the
  * provided data hash.
