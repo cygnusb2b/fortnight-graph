@@ -11,7 +11,7 @@ type Authentication {
   session: Session!
 }
 
-type User {
+type User implements Timestampable {
   id: String!
   email: String!
   role: String!

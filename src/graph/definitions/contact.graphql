@@ -17,7 +17,7 @@ enum ContactSortField {
   updatedAt
 }
 
-type Contact implements UserAttribution {
+type Contact implements UserAttribution & Timestampable {
   id: String!
   name: String!
   email: String!

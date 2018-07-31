@@ -30,7 +30,7 @@ enum StoryStatus {
   Draft
 }
 
-type Story implements UserAttribution {
+type Story implements UserAttribution & Timestampable {
   id: String!
   title: String!
   slug: String!
