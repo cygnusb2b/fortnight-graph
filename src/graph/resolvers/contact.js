@@ -17,7 +17,7 @@ module.exports = {
     contact: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      return Contact.strictFindById(id);
+      return Contact.strictFindActiveById(id);
     },
 
     /**
@@ -25,7 +25,8 @@ module.exports = {
      */
     allContacts: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return Contact.paginate({ pagination, sort });
+      const criteria = { deleted: false };
+      return Contact.paginate({ criteria, pagination, sort });
     },
 
     /**
@@ -33,7 +34,8 @@ module.exports = {
      */
     searchContacts: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Contact.search(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Contact.search(phrase, { pagination, filter });
     },
 
     /**
@@ -41,7 +43,8 @@ module.exports = {
      */
     autocompleteContacts: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Contact.autocomplete(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Contact.autocomplete(phrase, { pagination, filter });
     },
   },
 
@@ -61,10 +64,12 @@ module.exports = {
     /**
      *
      */
-    updateContact: (root, { input }, { auth }) => {
+    updateContact: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return Contact.findAndSetUpdate(id, payload);
+      const contact = await Contact.strictFindActiveById(id);
+      contact.set(payload);
+      return contact.save();
     },
 
     /**
