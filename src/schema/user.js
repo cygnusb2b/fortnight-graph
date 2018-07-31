@@ -2,13 +2,20 @@ const bcrypt = require('bcrypt');
 const { Schema } = require('mongoose');
 const validator = require('validator');
 const crypto = require('crypto');
+const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
+const {
+  deleteablePlugin,
+  paginablePlugin,
+  repositoryPlugin,
+  searchablePlugin,
+} = require('../plugins');
+
 
 const schema = new Schema({
   email: {
     type: String,
     required: true,
     trim: true,
-    unique: true,
     lowercase: true,
     validate: [
       {
@@ -25,6 +32,11 @@ const schema = new Schema({
     trim: true,
   },
   familyName: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  name: {
     type: String,
     required: true,
     trim: true,
@@ -71,14 +83,44 @@ const schema = new Schema({
   timestamps: true,
 });
 
+setEntityFields(schema, 'name');
+applyElasticPlugin(schema, 'users');
+
+schema.plugin(deleteablePlugin, {
+  es_indexed: true,
+  es_type: 'boolean',
+});
+schema.plugin(repositoryPlugin);
+schema.plugin(paginablePlugin);
+schema.plugin(searchablePlugin, {
+  fieldNames: ['name'],
+  beforeSearch: (query, phrase) => {
+    const { should } = query.bool;
+    should.push({ match: { email: { query: phrase, boost: 5 } } });
+    should.push({ match: { 'email.edge': { query: phrase, operator: 'and', boost: 2 } } });
+    should.push({ match: { 'email.edge': { query: phrase, boost: 1 } } });
+  },
+  beforeAutocomplete: (query, phrase) => {
+    const { should } = query.bool;
+    should.push({ match: { 'email.edge': { query: phrase, operator: 'and', boost: 2 } } });
+    should.push({ match: { 'email.edge': { query: phrase, boost: 1 } } });
+  },
+});
+
 /**
  * Indexes
  */
 schema.index({ email: 1, isEmailVerified: 1 });
+schema.index({ email: 1, deleted: 1 }, { unique: true });
 
 /**
  * Hooks.
  */
+schema.pre('save', function setName(next) {
+  this.name = `${this.givenName} ${this.familyName}`;
+  next();
+});
+
 schema.pre('save', function setPassword(next) {
   if (!this.isModified('password')) {
     next();
@@ -89,6 +131,7 @@ schema.pre('save', function setPassword(next) {
     }).catch(next);
   }
 });
+
 schema.pre('save', function setPhotoURL(next) {
   if (!this.photoURL) {
     const hash = crypto.createHash('md5').update(this.email).digest('hex');
