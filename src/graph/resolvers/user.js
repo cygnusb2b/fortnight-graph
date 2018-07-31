@@ -66,7 +66,7 @@ module.exports = {
       const { id, value, confirm } = input;
       if (user.id.valueOf() === id || auth.isAdmin()) {
         validatePassword(value, confirm);
-        const record = await User.findOne({ _id: id });
+        const record = await User.findActiveById(id);
         if (!record) throw new Error(`No user record found for ID ${id}.`);
         record.password = value;
         return record.save();
