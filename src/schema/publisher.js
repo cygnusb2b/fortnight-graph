@@ -42,6 +42,15 @@ schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name'] });
 
+schema.pre('save', async function checkDelete() {
+  if (!this.isModified('deleted') || !this.deleted) return;
+
+  const placements = await connection.model('placement').countActive({ publisherId: this.id });
+  if (placements) throw new Error('You cannot delete a publisher that has related placements.');
+  const topics = await connection.model('topic').countActive({ publisherId: this.id });
+  if (topics) throw new Error('You cannot delete a publisher that has related topics.');
+});
+
 schema.pre('save', async function updatePlacements() {
   if (this.isModified('name')) {
     // This isn't as efficient as calling `updateMany`, but the ElasticSearch
