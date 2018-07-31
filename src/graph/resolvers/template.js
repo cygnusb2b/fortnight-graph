@@ -66,5 +66,16 @@ module.exports = {
       const { id, payload } = input;
       return Template.findAndSetUpdate(id, payload);
     },
+
+    /**
+     *
+     */
+    deleteTemplate: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const template = await Template.strictFindActiveById(id);
+      await template.softDelete();
+      return 'ok';
+    },
   },
 };
