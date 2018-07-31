@@ -1,7 +1,9 @@
 const { Schema } = require('mongoose');
 const validator = require('validator');
+const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
+  deleteablePlugin,
   paginablePlugin,
   repositoryPlugin,
   searchablePlugin,
@@ -12,7 +14,6 @@ const schema = new Schema({
     type: String,
     required: true,
     trim: true,
-    unique: true,
     lowercase: true,
     validate: [
       {
@@ -58,6 +59,10 @@ const schema = new Schema({
 setEntityFields(schema, 'name');
 applyElasticPlugin(schema, 'contacts');
 
+schema.plugin(deleteablePlugin, {
+  es_indexed: true,
+  es_type: 'boolean',
+});
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, {
@@ -75,9 +80,31 @@ schema.plugin(searchablePlugin, {
   },
 });
 
-schema.pre('save', function setName(next) {
+schema.pre('validate', function setName(next) {
   this.name = `${this.givenName} ${this.familyName}`;
   next();
+});
+
+const removeContactsFor = async (modelType, contactId) => {
+  const docs = await connection.model(modelType).find({
+    $or: [
+      { 'notify.internal': contactId },
+      { 'notify.external': contactId },
+    ],
+  });
+  return Promise.all(docs.map((doc) => {
+    doc.removeContactIdAll(contactId);
+    return doc.save();
+  }));
+};
+
+schema.pre('save', async function removeRelsOnDelete() {
+  if (!this.isModified('deleted') || !this.deleted) return;
+
+  await Promise.all([
+    removeContactsFor('advertiser', this.id),
+    removeContactsFor('campaign', this.id),
+  ]);
 });
 
 schema.statics.getOrCreateFor = async function getOrCreateFor({ email, givenName, familyName }) {
@@ -86,6 +113,7 @@ schema.statics.getOrCreateFor = async function getOrCreateFor({ email, givenName
   return this.create({ givenName, familyName, email });
 };
 
+schema.index({ email: 1, deleted: 1 }, { unique: true });
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
 schema.index({ updatedAt: 1, _id: 1 }, { unique: true });

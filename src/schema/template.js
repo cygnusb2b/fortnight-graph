@@ -3,6 +3,7 @@ const handlebars = require('../handlebars');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
+  deleteablePlugin,
   paginablePlugin,
   repositoryPlugin,
   searchablePlugin,
@@ -108,6 +109,10 @@ const schema = new Schema({
 setEntityFields(schema, 'name');
 applyElasticPlugin(schema, 'templates');
 
+schema.plugin(deleteablePlugin, {
+  es_indexed: true,
+  es_type: 'boolean',
+});
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name'] });
@@ -124,6 +129,13 @@ schema.pre('save', async function updatePlacements() {
       doc.save();
     });
   }
+});
+
+schema.pre('save', async function checkDelete() {
+  if (!this.isModified('deleted') || !this.deleted) return;
+
+  const placements = await connection.model('placement').countActive({ templateId: this.id });
+  if (placements) throw new Error('You cannot delete a template that has related placements.');
 });
 
 /**

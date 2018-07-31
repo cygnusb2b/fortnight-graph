@@ -80,7 +80,7 @@ schema.virtual('status').get(function getStatus() {
 schema.pre('save', async function checkDelete() {
   if (!this.isModified('deleted') || !this.deleted) return;
   const count = await connection.model('campaign').countActive({ storyId: this.id });
-  if (count) throw new Error('You cannot delete a story with related campaigns');
+  if (count) throw new Error('You cannot delete a story that has related campaigns.');
 });
 
 schema.pre('save', async function setAdvertiserName() {

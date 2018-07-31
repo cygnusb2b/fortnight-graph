@@ -8,6 +8,7 @@ type Query {
 type Mutation {
   createTemplate(input: CreateTemplateInput!): Template!
   updateTemplate(input: UpdateTemplateInput!): Template!
+  deleteTemplate(input: ModelIdInput!): String!
 }
 
 enum TemplateSortField {

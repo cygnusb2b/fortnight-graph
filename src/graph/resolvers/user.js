@@ -27,6 +27,9 @@ module.exports = {
       return { user, session };
     },
   },
+  /**
+   *
+   */
   Mutation: {
     /**
      *
@@ -63,7 +66,7 @@ module.exports = {
       const { id, value, confirm } = input;
       if (user.id.valueOf() === id || auth.isAdmin()) {
         validatePassword(value, confirm);
-        const record = await User.findOne({ _id: id });
+        const record = await User.findActiveById(id);
         if (!record) throw new Error(`No user record found for ID ${id}.`);
         record.password = value;
         return record.save();
@@ -80,6 +83,16 @@ module.exports = {
       const { user } = auth;
       user.set({ givenName, familyName });
       return user.save();
+    },
+
+    /**
+     *
+     */
+    deleteUser: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const user = await User.strictFindById(id);
+      return user.softDelete();
     },
   },
 };

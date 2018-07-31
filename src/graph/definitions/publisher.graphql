@@ -9,6 +9,7 @@ type Mutation {
   createPublisher(input: CreatePublisherInput!): Publisher!
   updatePublisher(input: UpdatePublisherInput!): Publisher!
   publisherLogo(input: PublisherLogoInput!): Publisher!
+  deletePublisher(input: ModelIdInput!): String!
 }
 
 enum PublisherSortField {

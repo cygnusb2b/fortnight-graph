@@ -29,7 +29,7 @@ module.exports = {
     placement: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      return Placement.strictFindById(id);
+      return Placement.strictFindActiveById(id);
     },
 
     /**
@@ -37,7 +37,8 @@ module.exports = {
      */
     allPlacements: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return Placement.paginate({ pagination, sort });
+      const criteria = { deleted: false };
+      return Placement.paginate({ criteria, pagination, sort });
     },
 
     /**
@@ -45,7 +46,8 @@ module.exports = {
      */
     searchPlacements: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Placement.search(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Placement.search(phrase, { pagination, filter });
     },
 
     /**
@@ -53,7 +55,8 @@ module.exports = {
      */
     autocompletePlacements: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Placement.autocomplete(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Placement.autocomplete(phrase, { pagination, filter });
     },
   },
 
@@ -89,7 +92,7 @@ module.exports = {
     updatePlacement: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      const placement = await Placement.strictFindById(id);
+      const placement = await Placement.strictFindActiveById(id);
       const {
         name,
         publisherId,
@@ -105,6 +108,17 @@ module.exports = {
         reservePct,
       });
       return placement.save();
+    },
+
+    /**
+     *
+     */
+    deletePlacement: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const placement = await Placement.strictFindActiveById(id);
+      await placement.softDelete();
+      return 'ok';
     },
   },
 };

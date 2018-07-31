@@ -8,6 +8,7 @@ type Query {
 type Mutation {
   createPlacement(input: CreatePlacementInput!): Placement!
   updatePlacement(input: UpdatePlacementInput!): Placement!
+  deletePlacement(input: ModelIdInput!): String!
 }
 
 enum PlacementSortField {

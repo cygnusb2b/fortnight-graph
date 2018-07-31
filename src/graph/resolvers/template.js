@@ -17,7 +17,7 @@ module.exports = {
     template: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      return Template.strictFindById(id);
+      return Template.strictFindActiveById(id);
     },
 
     /**
@@ -25,7 +25,8 @@ module.exports = {
      */
     allTemplates: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return Template.paginate({ pagination, sort });
+      const criteria = { deleted: false };
+      return Template.paginate({ criteria, pagination, sort });
     },
 
     /**
@@ -33,7 +34,8 @@ module.exports = {
      */
     searchTemplates: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Template.search(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Template.search(phrase, { pagination, filter });
     },
 
     /**
@@ -41,7 +43,8 @@ module.exports = {
      */
     autocompleteTemplates: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Template.autocomplete(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Template.autocomplete(phrase, { pagination, filter });
     },
   },
 
@@ -61,10 +64,23 @@ module.exports = {
     /**
      *
      */
-    updateTemplate: (root, { input }, { auth }) => {
+    updateTemplate: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return Template.findAndSetUpdate(id, payload);
+      const template = await Template.strictFindActiveById(id);
+      template.set(payload);
+      return template.save();
+    },
+
+    /**
+     *
+     */
+    deleteTemplate: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const template = await Template.strictFindActiveById(id);
+      await template.softDelete();
+      return 'ok';
     },
   },
 };

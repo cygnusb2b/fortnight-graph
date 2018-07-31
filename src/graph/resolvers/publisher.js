@@ -12,17 +12,17 @@ module.exports = {
   Publisher: {
     logo: publisher => Image.findById(publisher.logoImageId),
     topics: (publisher, { pagination, sort }) => {
-      const criteria = { publisherId: publisher.id };
+      const criteria = { publisherId: publisher.id, deleted: false };
       return Topic.paginate({ criteria, pagination, sort });
     },
     placements: (publisher, { pagination, sort }) => {
-      const criteria = { publisherId: publisher.id };
+      const criteria = { publisherId: publisher.id, deleted: false };
       return Placement.paginate({ criteria, pagination, sort });
     },
     campaigns: async (publisher, { pagination, sort }) => {
       const placements = await Placement.find({ publisherId: publisher.id }, { _id: 1 });
       const placementIds = placements.map(placement => placement.id);
-      const criteria = { 'criteria.placementIds': { $in: placementIds } };
+      const criteria = { 'criteria.placementIds': { $in: placementIds }, deleted: false };
       return Campaign.paginate({ criteria, pagination, sort });
     },
   },
@@ -42,7 +42,7 @@ module.exports = {
     publisher: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      return Publisher.strictFindById(id);
+      return Publisher.strictFindActiveById(id);
     },
 
     /**
@@ -50,7 +50,8 @@ module.exports = {
      */
     allPublishers: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return Publisher.paginate({ pagination, sort });
+      const criteria = { deleted: false };
+      return Publisher.paginate({ criteria, pagination, sort });
     },
 
     /**
@@ -58,7 +59,8 @@ module.exports = {
      */
     searchPublishers: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Publisher.search(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Publisher.search(phrase, { pagination, filter });
     },
 
     /**
@@ -66,7 +68,8 @@ module.exports = {
      */
     autocompletePublishers: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Publisher.autocomplete(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Publisher.autocomplete(phrase, { pagination, filter });
     },
   },
 
@@ -101,6 +104,17 @@ module.exports = {
       const publisher = await Publisher.strictFindById(id);
       publisher.logoImageId = imageId;
       return publisher.save();
+    },
+
+    /**
+     *
+     */
+    deletePublisher: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const publisher = await Publisher.strictFindActiveById(id);
+      await publisher.softDelete();
+      return 'ok';
     },
   },
 };

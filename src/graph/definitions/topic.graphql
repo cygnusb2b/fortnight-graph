@@ -9,6 +9,7 @@ type Query {
 type Mutation {
   createTopic(input: CreateTopicInput!): Topic!
   updateTopic(input: UpdateTopicInput!): Topic!
+  deleteTopic(input: ModelIdInput!): String!
 }
 
 enum TopicSortField {

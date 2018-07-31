@@ -12,9 +12,12 @@ const contactNotifier = require('../../services/contact-notifier');
 
 const getNotifyDefaults = async (advertiserId, user) => {
   const advertiser = await Advertiser.strictFindById(advertiserId);
+  const internal = await advertiser.get('notify.internal');
+  const external = await advertiser.get('notify.external');
+
   const notify = {
-    internal: await advertiser.get('notify.internal'),
-    external: await advertiser.get('notify.external'),
+    internal: internal.filter(c => !c.deleted),
+    external: external.filter(c => !c.deleted),
   };
   const contact = await Contact.getOrCreateFor(user);
   notify.internal.push(contact.id);
@@ -28,8 +31,14 @@ module.exports = {
   Campaign: {
     advertiser: campaign => Advertiser.findById(campaign.advertiserId),
     notify: async (campaign) => {
-      const internal = await Contact.find({ _id: { $in: campaign.notify.internal } });
-      const external = await Contact.find({ _id: { $in: campaign.notify.external } });
+      const internal = await Contact.find({
+        _id: { $in: campaign.notify.internal },
+        deleted: false,
+      });
+      const external = await Contact.find({
+        _id: { $in: campaign.notify.external },
+        deleted: false,
+      });
       return { internal, external };
     },
     hash: campaign => campaign.pushId,
@@ -42,7 +51,7 @@ module.exports = {
     },
     publishers: async (campaign, { pagination, sort }) => {
       const placementIds = campaign.get('criteria.placementIds');
-      const publisherIds = await Placement.distinct('publisherId', { _id: { $in: placementIds } });
+      const publisherIds = await Placement.distinct('publisherId', { _id: { $in: placementIds }, deleted: false });
       const criteria = { _id: { $in: publisherIds } };
       return Publisher.paginate({ pagination, criteria, sort });
     },

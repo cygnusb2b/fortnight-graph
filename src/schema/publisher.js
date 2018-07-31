@@ -3,6 +3,7 @@ const { isFQDN } = require('validator');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
+  deleteablePlugin,
   imagePlugin,
   paginablePlugin,
   repositoryPlugin,
@@ -32,10 +33,23 @@ const schema = new Schema({
 setEntityFields(schema, 'name');
 applyElasticPlugin(schema, 'publishers');
 
+schema.plugin(deleteablePlugin, {
+  es_indexed: true,
+  es_type: 'boolean',
+});
 schema.plugin(imagePlugin, { fieldName: 'logoImageId' });
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name'] });
+
+schema.pre('save', async function checkDelete() {
+  if (!this.isModified('deleted') || !this.deleted) return;
+
+  const placements = await connection.model('placement').countActive({ publisherId: this.id });
+  if (placements) throw new Error('You cannot delete a publisher that has related placements.');
+  const topics = await connection.model('topic').countActive({ publisherId: this.id });
+  if (topics) throw new Error('You cannot delete a publisher that has related topics.');
+});
 
 schema.pre('save', async function updatePlacements() {
   if (this.isModified('name')) {
