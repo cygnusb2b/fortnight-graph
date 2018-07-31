@@ -61,7 +61,7 @@ schema.plugin(searchablePlugin, { fieldNames: ['name', 'publisherName', 'topicNa
 schema.pre('save', async function checkDelete() {
   if (!this.isModified('deleted') || !this.deleted) return;
 
-  const campaigns = await connection.model('campaigns').countActive({ 'criteria.placementIds': this.id });
+  const campaigns = await connection.model('campaign').countActive({ 'criteria.placementIds': this.id });
   if (campaigns) throw new Error('You cannot delete a placement that has related campaigns.');
 });
 
