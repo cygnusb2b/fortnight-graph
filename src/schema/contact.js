@@ -13,7 +13,6 @@ const schema = new Schema({
     type: String,
     required: true,
     trim: true,
-    unique: true,
     lowercase: true,
     validate: [
       {
@@ -91,6 +90,7 @@ schema.statics.getOrCreateFor = async function getOrCreateFor({ email, givenName
   return this.create({ givenName, familyName, email });
 };
 
+schema.index({ email: 1, deleted: 1 }, { unique: true });
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
 schema.index({ updatedAt: 1, _id: 1 }, { unique: true });
