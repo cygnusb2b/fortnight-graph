@@ -102,5 +102,16 @@ module.exports = {
       publisher.logoImageId = imageId;
       return publisher.save();
     },
+
+    /**
+     *
+     */
+    deletePublisher: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const publisher = await Publisher.strictFindActiveById(id);
+      await publisher.softDelete();
+      return 'ok';
+    },
   },
 };
