@@ -135,7 +135,7 @@ schema.pre('validate', function setName(next) {
 });
 
 schema.pre('save', function setPassword(next) {
-  if (!this.isModified('password')) {
+  if (!this.isModified('password') || this.password.match(/^\$2[ayb]\$.{56}$/)) {
     next();
   } else {
     bcrypt.hash(this.password, 13).then((hash) => {

@@ -4,7 +4,8 @@ module.exports = () => {
   const now = new Date();
   return {
     email: faker.internet.email(),
-    password: faker.internet.password(8, true),
+    // Password: 12345678
+    password: '$2a$04$jDkU4cQhPvhFb2TTOeHSy.gRhexgWBir4ADIRo.JArSzQm/P7C8Au',
     givenName: faker.name.firstName(),
     familyName: faker.name.lastName(),
     logins: faker.random.number({ min: 0, max: 100 }),
