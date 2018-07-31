@@ -89,6 +89,7 @@ module.exports = {
       const { id, payload } = input;
       const topic = await Topic.strictFindActiveById(id);
       topic.set(payload);
+      return topic.save();
     },
 
     /**
