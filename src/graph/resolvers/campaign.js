@@ -132,6 +132,7 @@ module.exports = {
       auth.check();
       const { id } = input;
       const campaign = await Campaign.strictFindActiveById(id);
+      campaign.setUserContext(auth.user);
       return campaign.softDelete();
     },
 

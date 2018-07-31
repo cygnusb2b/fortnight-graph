@@ -120,6 +120,7 @@ module.exports = {
       auth.check();
       const { id } = input;
       const advertiser = await Advertiser.strictFindActiveById(id);
+      advertiser.setUserContext(auth.user);
       return advertiser.softDelete();
     },
 
@@ -130,6 +131,7 @@ module.exports = {
       auth.check();
       const { id } = input;
       const advertiser = await Advertiser.strictFindById(id);
+      advertiser.setUserContext(auth.user);
       return advertiser.undelete();
     },
 
