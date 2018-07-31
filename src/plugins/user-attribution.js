@@ -19,4 +19,19 @@ module.exports = function userAttributionPlugin(schema) {
     createdById: UserReference,
     updatedById: UserReference,
   });
+
+  schema.method('setUserContext', function setUserContext({ id }) {
+    this.$userContext = { id };
+  });
+
+  schema.pre('validate', function setAttribution() {
+    if (this.$userContext) {
+      const { id } = this.$userContext;
+      if (this.isNew) {
+        this.set({ createdById: id, updatedById: id });
+      } else {
+        this.set({ updatedById: id });
+      }
+    }
+  });
 };
