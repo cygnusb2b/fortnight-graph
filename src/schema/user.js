@@ -116,7 +116,7 @@ schema.index({ email: 1, deleted: 1 }, { unique: true });
 /**
  * Hooks.
  */
-schema.pre('save', function setName(next) {
+schema.pre('validate', function setName(next) {
   this.name = `${this.givenName} ${this.familyName}`;
   next();
 });

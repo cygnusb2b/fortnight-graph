@@ -80,7 +80,7 @@ schema.plugin(searchablePlugin, {
   },
 });
 
-schema.pre('save', function setName(next) {
+schema.pre('validate', function setName(next) {
   this.name = `${this.givenName} ${this.familyName}`;
   next();
 });
