@@ -20,8 +20,14 @@ module.exports = {
       return Story.paginate({ pagination, criteria, sort });
     },
     notify: async (advertiser) => {
-      const internal = await Contact.find({ _id: { $in: advertiser.notify.internal } });
-      const external = await Contact.find({ _id: { $in: advertiser.notify.external } });
+      const internal = await Contact.find({
+        _id: { $in: advertiser.notify.internal },
+        deleted: false,
+      });
+      const external = await Contact.find({
+        _id: { $in: advertiser.notify.external },
+        deleted: false,
+      });
       return { internal, external };
     },
     logo: advertiser => Image.findById(advertiser.logoImageId),
