@@ -135,7 +135,7 @@ schema.pre('save', async function checkDelete() {
   if (!this.isModified('deleted') || !this.deleted) return;
 
   const placements = await connection.model('placement').countActive({ templateId: this.id });
-  if (placements) throw new Error('You cannot delete a template with related placements.');
+  if (placements) throw new Error('You cannot delete a template that has related placements.');
 });
 
 /**

@@ -39,9 +39,9 @@ schema.pre('save', async function checkDelete() {
   if (!this.isModified('deleted') || !this.deleted) return;
 
   const stories = await connection.model('story').countActive({ advertiserId: this.id });
-  if (stories) throw new Error('You cannot delete an advertiser with related stories.');
+  if (stories) throw new Error('You cannot delete an advertiser that has related stories.');
   const campaigns = await connection.model('campaign').countActive({ advertiserId: this.id });
-  if (campaigns) throw new Error('You cannot delete an advertiser with related campaigns.');
+  if (campaigns) throw new Error('You cannot delete an advertiser that has related campaigns.');
 });
 
 schema.pre('save', async function updateCampaigns() {
