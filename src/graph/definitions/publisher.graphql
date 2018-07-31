@@ -28,6 +28,8 @@ type Publisher {
   campaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
   updatedAt: Date
   createdAt: Date
+  createdBy: User!
+  updatedBy: User!
 }
 
 type PublisherConnection {
