@@ -42,7 +42,7 @@ module.exports = {
     publisher: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      return Publisher.strictFindById(id);
+      return Publisher.strictFindActiveById(id);
     },
 
     /**
@@ -50,7 +50,8 @@ module.exports = {
      */
     allPublishers: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return Publisher.paginate({ pagination, sort });
+      const criteria = { deleted: false };
+      return Publisher.paginate({ criteria, pagination, sort });
     },
 
     /**
@@ -58,7 +59,8 @@ module.exports = {
      */
     searchPublishers: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Publisher.search(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Publisher.search(phrase, { pagination, filter });
     },
 
     /**
@@ -66,7 +68,8 @@ module.exports = {
      */
     autocompletePublishers: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Publisher.autocomplete(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Publisher.autocomplete(phrase, { pagination, filter });
     },
   },
 
