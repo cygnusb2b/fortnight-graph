@@ -2,6 +2,7 @@ const { Schema } = require('mongoose');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
+  deleteablePlugin,
   paginablePlugin,
   referencePlugin,
   repositoryPlugin,
@@ -47,6 +48,10 @@ schema.plugin(referencePlugin, {
   name: 'topicId',
   connection,
   modelName: 'topic',
+});
+schema.plugin(deleteablePlugin, {
+  es_indexed: true,
+  es_type: 'boolean',
 });
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
