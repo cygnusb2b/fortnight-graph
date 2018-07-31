@@ -18,7 +18,7 @@ enum PublisherSortField {
   updatedAt
 }
 
-type Publisher {
+type Publisher implements UserAttribution {
   id: String!
   name: String!
   domainName: String
