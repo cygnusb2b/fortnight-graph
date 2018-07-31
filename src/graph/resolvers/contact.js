@@ -66,5 +66,16 @@ module.exports = {
       const { id, payload } = input;
       return Contact.findAndSetUpdate(id, payload);
     },
+
+    /**
+     *
+     */
+    deleteContact: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const contact = await Contact.strictFindActiveById(id);
+      await contact.softDelete();
+      return 'ok';
+    },
   },
 };
