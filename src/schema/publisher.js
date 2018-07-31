@@ -8,6 +8,7 @@ const {
   paginablePlugin,
   repositoryPlugin,
   searchablePlugin,
+  userAttributionPlugin,
 } = require('../plugins');
 
 const schema = new Schema({
@@ -37,6 +38,7 @@ schema.plugin(deleteablePlugin, {
   es_indexed: true,
   es_type: 'boolean',
 });
+schema.plugin(userAttributionPlugin);
 schema.plugin(imagePlugin, { fieldName: 'logoImageId' });
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
