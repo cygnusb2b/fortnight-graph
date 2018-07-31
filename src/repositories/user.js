@@ -17,7 +17,7 @@ module.exports = {
   findByEmail(email) {
     const value = this.normalizeEmail(email);
     if (!value) return Promise.reject(new Error('Unable to find user: no email address was provided.'));
-    return User.findOne({ email: value });
+    return User.findOne({ email: value, deleted: false });
   },
 
   normalizeEmail(email) {
@@ -32,7 +32,7 @@ module.exports = {
    */
   findById(id) {
     if (!id) return Promise.reject(new Error('Unable to find user: no ID was provided.'));
-    return User.findOne({ _id: id });
+    return User.findOne({ _id: id, deleted: false });
   },
 
   removeByEmail(email) {
