@@ -79,13 +79,16 @@ module.exports = {
         topicId,
         reservePct,
       } = payload;
-      return Placement.create({
+
+      const placement = new Placement({
         name,
         publisherId,
         templateId,
         topicId,
         reservePct,
       });
+      placement.setUserContext(auth.user);
+      return placement.save();
     },
 
     /**
@@ -109,6 +112,7 @@ module.exports = {
         topicId,
         reservePct,
       });
+      placement.setUserContext(auth.user);
       return placement.save();
     },
 
@@ -119,6 +123,7 @@ module.exports = {
       auth.check();
       const { id } = input;
       const placement = await Placement.strictFindActiveById(id);
+      placement.setUserContext(auth.user);
       await placement.softDelete();
       return 'ok';
     },
