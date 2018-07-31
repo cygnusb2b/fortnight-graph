@@ -27,6 +27,9 @@ module.exports = {
       return { user, session };
     },
   },
+  /**
+   *
+   */
   Mutation: {
     /**
      *
@@ -80,6 +83,16 @@ module.exports = {
       const { user } = auth;
       user.set({ givenName, familyName });
       return user.save();
+    },
+
+    /**
+     *
+     */
+    deleteUser: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const user = await User.strictFindById(id);
+      return user.softDelete();
     },
   },
 };

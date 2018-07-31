@@ -34,6 +34,7 @@ type Mutation {
   deleteSession: String
   changeUserPassword(input: ChangeUserPasswordInput!): User
   updateCurrentUserProfile(input: CurrentUserProfileInput!): User
+  deleteUser(input: ModelIdInput!): String!
 }
 
 input ChangeUserPasswordInput {
