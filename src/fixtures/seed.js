@@ -32,10 +32,17 @@ module.exports = {
    */
   async campaigns(count) {
     const { Campaign } = models;
-    const user = await this.users(1);
-    const advertiser = await this.advertisers(1);
-    const placements = await this.placements(2);
-    const image = await this.images(1);
+    const {
+      user,
+      advertiser,
+      placements,
+      image,
+    } = await Promise.props({
+      user: this.users(1),
+      advertiser: this.advertisers(1),
+      placements: this.placements(2),
+      image: this.images(1),
+    });
     const params = {
       advertiserId: () => advertiser.id,
       placementIds: () => placements.map(placement => placement.id),
