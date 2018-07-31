@@ -1,7 +1,15 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const userAttributionFields = require('./user-attribution');
 const Contact = require('../../models/contact');
 
 module.exports = {
+  /**
+   *
+   */
+  Contact: {
+    ...userAttributionFields,
+  },
+
   /**
    *
    */

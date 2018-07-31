@@ -7,6 +7,7 @@ const {
   paginablePlugin,
   repositoryPlugin,
   searchablePlugin,
+  userAttributionPlugin,
 } = require('../plugins');
 
 const schema = new Schema({
@@ -65,6 +66,7 @@ schema.plugin(deleteablePlugin, {
 });
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
+schema.plugin(userAttributionPlugin);
 schema.plugin(searchablePlugin, {
   fieldNames: ['name'],
   beforeSearch: (query, phrase) => {
