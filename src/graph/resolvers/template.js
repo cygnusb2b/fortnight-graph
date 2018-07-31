@@ -66,7 +66,9 @@ module.exports = {
     createTemplate: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
-      return Template.create(payload);
+      const template = new Template(payload);
+      template.setUserContext(auth.user);
+      return template.save();
     },
 
     /**
@@ -77,6 +79,7 @@ module.exports = {
       const { id, payload } = input;
       const template = await Template.strictFindActiveById(id);
       template.set(payload);
+      template.setUserContext(auth.user);
       return template.save();
     },
 
