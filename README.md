@@ -174,6 +174,41 @@ In order for a campaign to serve, it must meet the following conditions globally
 4. `criteria.start: { $lte: [now] }`
 5. `$or: [ { criteria.end: { $gt: [now] } }, { crteria.end: { $exists: false } }, { criteria.end: null } ]`
 
+### Deletion Rules
+The following models _cannot_ be soft-deleted when... (note: by "active" we mean "non-deleted" [`deleted: false`])
+
+**Advertiser**
+- An active Story exists with `Story.advertiserId` equal to `Advertiser.id`
+- An active Campaign exists with `Campaign.advertiserId` equal to `Advertiser.id`
+
+**Story**
+- An active Campaign exists with `Campaign.storyId` equal to `Story.id`
+
+**Campaign**
+- No restrictions.
+
+**Publisher**
+- An active Placement exists with `Placement.publisherId` equal to `Publisher.id`
+- An active Topic exists with `Topic.publisherId` equal to `Publisher.id`
+
+**Placement**
+- An active Campaign exists with `Campaign.criteria.placementIds` containing `Placement.id`
+
+**Template**
+- An active Placement exists with `Placement.templateId` equal to `Template.id`
+
+**Topic**
+- An active Placement exists with `Placement.topicId` equal to `Topic.id`
+
+**Contact**
+- No restrictions. _Note:_ When a contact is deleted, it is also removed from the `notify.internal` and `notify.external` fields of `Advertiser` and `Campaign`.
+
+**User**
+- No restrictions. _Note:_ Unlike other models, soft-deleted users will continue to display throughout the interface. This is to ensure that user attribution information is retained.
+
+**Image**
+- Not soft-deleteable.
+
 
 ## Development
 ### Docker Compose
