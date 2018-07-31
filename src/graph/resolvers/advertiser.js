@@ -98,14 +98,10 @@ module.exports = {
      */
     createAdvertiser: (root, { input }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const { payload } = input;
-
-      return Advertiser.create({
-        ...payload,
-        createdById: user.id,
-        updatedById: user.id,
-      });
+      const advertiser = new Advertiser(payload);
+      advertiser.setUserContext(auth.user);
+      return Advertiser.save();
     },
 
     /**
@@ -113,14 +109,10 @@ module.exports = {
      */
     updateAdvertiser: async (root, { input }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const { id, payload } = input;
-
       const advertiser = await Advertiser.strictFindActiveById(id);
-      advertiser.set({
-        ...payload,
-        updatedById: user.id,
-      });
+      advertiser.setUserContext(auth.user);
+      advertiser.set(payload);
       return advertiser.save();
     },
 
@@ -148,6 +140,7 @@ module.exports = {
       auth.check();
       const { id, imageId } = input;
       const advertiser = await Advertiser.strictFindActiveById(id);
+      advertiser.setUserContext(auth.user);
       advertiser.logoImageId = imageId;
       return advertiser.save();
     },
@@ -159,6 +152,7 @@ module.exports = {
       auth.check();
       const { id, type, contactIds } = input;
       const advertiser = await Advertiser.strictFindActiveById(id);
+      advertiser.setUserContext(auth.user);
       advertiser.set(`notify.${type}`, contactIds);
       return advertiser.save();
     },
