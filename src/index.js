@@ -1,5 +1,4 @@
 require('./newrelic');
-require('./datadog');
 
 const env = require('./env');
 const output = require('./output');

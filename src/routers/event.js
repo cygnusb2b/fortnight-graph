@@ -28,7 +28,7 @@ const trackEvent = (req, res) => {
     ua: req.get('User-Agent'),
     ip: req.ip,
     ref: req.get('Referer'),
-  }).catch(newrelic.noticeError);
+  }).catch(newrelic.noticeError.bind(newrelic));
   send(res, 200);
 };
 
