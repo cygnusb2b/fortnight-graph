@@ -2,6 +2,7 @@ const { Schema } = require('mongoose');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
+  deleteablePlugin,
   paginablePlugin,
   referencePlugin,
   repositoryPlugin,
@@ -33,9 +34,20 @@ schema.plugin(referencePlugin, {
   modelName: 'publisher',
   options: { required: true, es_indexed: true, es_type: 'keyword' },
 });
+schema.plugin(deleteablePlugin, {
+  es_indexed: true,
+  es_type: 'boolean',
+});
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name', 'publisherName'] });
+
+schema.pre('save', async function checkDelete() {
+  if (!this.isModified('deleted') || !this.deleted) return;
+
+  const placements = await connection.model('placement').countActive({ templateId: this.id });
+  if (placements) throw new Error('You cannot delete a topic that has related placements.');
+});
 
 schema.pre('save', async function setPublisherName() {
   if (this.isModified('publisherId') || !this.publisherName) {
