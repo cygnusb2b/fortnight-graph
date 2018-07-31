@@ -30,7 +30,7 @@ module.exports = {
     topic: (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      return Topic.strictFindById(id);
+      return Topic.strictFindActiveById(id);
     },
 
     /**
@@ -38,7 +38,8 @@ module.exports = {
      */
     allTopics: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      return Topic.paginate({ pagination, sort });
+      const criteria = { deleted: false };
+      return Topic.paginate({ criteria, pagination, sort });
     },
 
     /**
@@ -46,7 +47,8 @@ module.exports = {
      */
     searchTopics: (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Topic.search(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Topic.search(phrase, { pagination, filter });
     },
 
     /**
@@ -54,13 +56,15 @@ module.exports = {
      */
     autocompleteTopics: async (root, { pagination, phrase }, { auth }) => {
       auth.check();
-      return Topic.autocomplete(phrase, { pagination });
+      const filter = { term: { deleted: false } };
+      return Topic.autocomplete(phrase, { pagination, filter });
     },
 
     autocompletePublisherTopics: async (root, { publisherId, pagination, phrase }, { auth }) => {
       auth.check();
       const postFilter = { term: { publisherId } };
-      return Topic.autocomplete(phrase, { pagination, postFilter });
+      const filter = { term: { deleted: false } };
+      return Topic.autocomplete(phrase, { pagination, postFilter, filter });
     },
   },
 
@@ -83,7 +87,8 @@ module.exports = {
     updateTopic: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return Topic.findAndSetUpdate(id, payload);
+      const topic = await Topic.strictFindActiveById(id);
+      topic.set(payload);
     },
 
     /**
@@ -92,8 +97,8 @@ module.exports = {
     deleteTopic: async (root, { input }, { auth }) => {
       auth.check();
       const { id } = input;
-      const template = await Topic.strictFindActiveById(id);
-      await template.softDelete();
+      const topic = await Topic.strictFindActiveById(id);
+      await topic.softDelete();
       return 'ok';
     },
   },
