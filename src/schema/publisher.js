@@ -3,6 +3,7 @@ const { isFQDN } = require('validator');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
+  deleteablePlugin,
   imagePlugin,
   paginablePlugin,
   repositoryPlugin,
@@ -32,6 +33,10 @@ const schema = new Schema({
 setEntityFields(schema, 'name');
 applyElasticPlugin(schema, 'publishers');
 
+schema.plugin(deleteablePlugin, {
+  es_indexed: true,
+  es_type: 'boolean',
+});
 schema.plugin(imagePlugin, { fieldName: 'logoImageId' });
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
