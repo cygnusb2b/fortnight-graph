@@ -137,7 +137,7 @@ const fallback = `
 </div>
 `;
 
-module.exports = () => {
+module.exports = async ({ createdById, updatedById }) => {
   const now = new Date();
   return {
     name: faker.lorem.words(10),
@@ -145,5 +145,7 @@ module.exports = () => {
     fallback,
     createdAt: now,
     updatedAt: now,
+    createdById: await createdById(),
+    updatedById: await updatedById(),
   };
 };
