@@ -1,4 +1,5 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const userAttributionFields = require('./user-attribution');
 const Publisher = require('../../models/publisher');
 const Topic = require('../../models/topic');
 const Placement = require('../../models/placement');
@@ -13,6 +14,7 @@ module.exports = {
       const criteria = { topicId: topic.id, deleted: false };
       return Placement.paginate({ criteria, pagination, sort });
     },
+    ...userAttributionFields,
   },
 
   /**
