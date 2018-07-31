@@ -2,6 +2,7 @@ const { Schema } = require('mongoose');
 const validator = require('validator');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
+  deleteablePlugin,
   paginablePlugin,
   repositoryPlugin,
   searchablePlugin,
@@ -58,6 +59,10 @@ const schema = new Schema({
 setEntityFields(schema, 'name');
 applyElasticPlugin(schema, 'contacts');
 
+schema.plugin(deleteablePlugin, {
+  es_indexed: true,
+  es_type: 'boolean',
+});
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, {
