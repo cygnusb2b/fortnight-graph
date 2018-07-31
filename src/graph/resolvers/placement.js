@@ -106,5 +106,16 @@ module.exports = {
       });
       return placement.save();
     },
+
+    /**
+     *
+     */
+    deletePlacement: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const placement = await Placement.strictFindActiveById(id);
+      await placement.softDelete();
+      return 'ok';
+    },
   },
 };
