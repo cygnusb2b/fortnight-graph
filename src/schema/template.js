@@ -7,6 +7,7 @@ const {
   paginablePlugin,
   repositoryPlugin,
   searchablePlugin,
+  userAttributionPlugin,
 } = require('../plugins');
 
 const validateBeacon = (v) => {
@@ -113,6 +114,7 @@ schema.plugin(deleteablePlugin, {
   es_indexed: true,
   es_type: 'boolean',
 });
+schema.plugin(userAttributionPlugin);
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name'] });

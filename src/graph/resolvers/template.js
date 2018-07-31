@@ -1,7 +1,15 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const userAttributionFields = require('./user-attribution');
 const Template = require('../../models/template');
 
 module.exports = {
+  /**
+   *
+   */
+  Template: {
+    ...userAttributionFields,
+  },
+
   /**
    *
    */
