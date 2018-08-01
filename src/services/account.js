@@ -41,4 +41,9 @@ module.exports = {
     return ACCOUNT_KEY;
   },
 
+  getStoryHost() {
+    const { BASE_URI } = env;
+    return `${this.getKey()}.stories.${BASE_URI}`;
+  },
+
 };
