@@ -22,6 +22,15 @@ module.exports = {
     /**
      *
      */
+    user: (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      return User.strictFindById(id);
+    },
+
+    /**
+     *
+     */
     allUsers: (root, { pagination, sort }, { auth }) => {
       auth.check();
       return User.paginate({ pagination, sort });
