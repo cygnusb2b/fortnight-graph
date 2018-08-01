@@ -66,7 +66,7 @@ module.exports = {
      *
      */
     createUser: (root, { input }, { auth }) => {
-      auth.check();
+      auth.checkAdmin();
       const { payload } = input;
       const {
         email,
@@ -85,7 +85,7 @@ module.exports = {
     },
 
     updateUser: async (root, { input }, { auth }) => {
-      auth.check();
+      auth.checkAdmin();
       // Note, this resolver will not update passwords. Use `changeUserPassword` instead.
       const { id, payload } = input;
       const {
@@ -127,12 +127,11 @@ module.exports = {
       auth.check();
       const { user } = auth;
       const { id, value, confirm } = input;
-      if (user.id.valueOf() === id || auth.isAdmin()) {
+      if (`${user.id}` === `${id}` || auth.isAdmin()) {
         validatePassword(value, confirm);
-        const record = await User.findActiveById(id);
-        if (!record) throw new Error(`No user record found for ID ${id}.`);
-        record.password = value;
-        return record.save();
+        const user = await User.strictFindById(id);
+        user.password = value;
+        return user.save();
       }
       throw new Error('Only administrators can change passwords for other users.');
     },
@@ -152,8 +151,10 @@ module.exports = {
      *
      */
     deleteUser: async (root, { input }, { auth }) => {
-      auth.check();
+      auth.checkAdmin();
       const { id } = input;
+      if (`${auth.user.id}` === `${id}`) throw new Error('You are currently logged-in and cannot delete yourself.');
+
       const user = await User.strictFindById(id);
       return user.softDelete();
     },
@@ -162,7 +163,7 @@ module.exports = {
      *
      */
     undeleteUser: async (root, { input }, { auth }) => {
-      auth.check();
+      auth.checkAdmin();
       const { id } = input;
       const user = await User.strictFindById(id);
       return user.undelete();
