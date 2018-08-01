@@ -1,3 +1,4 @@
+const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const User = require('../../models/user');
 const UserRepo = require('../../repositories/user');
 const SessionRepo = require('../../repositories/session');
@@ -12,7 +13,37 @@ module.exports = {
   /**
    *
    */
+  UserConnection: paginationResolvers.connection,
+
+  /**
+   *
+   */
   Query: {
+    /**
+     *
+     */
+    user: (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      return User.strictFindById(id);
+    },
+
+    /**
+     *
+     */
+    allUsers: (root, { pagination, sort }, { auth }) => {
+      auth.check();
+      return User.paginate({ pagination, sort });
+    },
+
+    /**
+     *
+     */
+    searchUsers: (root, { pagination, phrase }, { auth }) => {
+      auth.check();
+      return User.search(phrase, { pagination });
+    },
+
     /**
      *
      */
@@ -34,9 +65,45 @@ module.exports = {
     /**
      *
      */
-    createUser: (root, { input }) => {
+    createUser: (root, { input }, { auth }) => {
+      auth.checkAdmin();
       const { payload } = input;
-      return UserRepo.create(payload);
+      const {
+        email,
+        givenName,
+        familyName,
+        password,
+        confirmPassword,
+        role,
+      } = payload;
+      validatePassword(password, confirmPassword);
+      return UserRepo.create({
+        email,
+        givenName,
+        familyName,
+        password,
+        role,
+      });
+    },
+
+    updateUser: async (root, { input }, { auth }) => {
+      auth.checkAdmin();
+      // Note, this resolver will not update passwords. Use `changeUserPassword` instead.
+      const { id, payload } = input;
+      const {
+        email,
+        givenName,
+        familyName,
+        role,
+      } = payload;
+      const user = await User.strictFindById(id);
+      user.set({
+        email,
+        givenName,
+        familyName,
+        role,
+      });
+      return user.save();
     },
 
     /**
@@ -62,14 +129,12 @@ module.exports = {
      */
     changeUserPassword: async (root, { input }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const { id, value, confirm } = input;
-      if (user.id.valueOf() === id || auth.isAdmin()) {
+      if (`${auth.user.id}` === `${id}` || auth.isAdmin()) {
         validatePassword(value, confirm);
-        const record = await User.findActiveById(id);
-        if (!record) throw new Error(`No user record found for ID ${id}.`);
-        record.password = value;
-        return record.save();
+        const user = await User.strictFindById(id);
+        user.password = value;
+        return user.save();
       }
       throw new Error('Only administrators can change passwords for other users.');
     },
@@ -89,10 +154,22 @@ module.exports = {
      *
      */
     deleteUser: async (root, { input }, { auth }) => {
-      auth.check();
+      auth.checkAdmin();
       const { id } = input;
+      if (`${auth.user.id}` === `${id}`) throw new Error('You are currently logged-in and cannot delete yourself.');
+
       const user = await User.strictFindById(id);
       return user.softDelete();
+    },
+
+    /**
+     *
+     */
+    undeleteUser: async (root, { input }, { auth }) => {
+      auth.checkAdmin();
+      const { id } = input;
+      const user = await User.strictFindById(id);
+      return user.undelete();
     },
   },
 };

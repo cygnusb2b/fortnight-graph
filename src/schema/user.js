@@ -16,6 +16,7 @@ const schema = new Schema({
     type: String,
     required: true,
     trim: true,
+    unique: true,
     lowercase: true,
     validate: [
       {
@@ -124,7 +125,6 @@ schema.plugin(searchablePlugin, {
  * Indexes
  */
 schema.index({ email: 1, isEmailVerified: 1 });
-schema.index({ email: 1, deleted: 1 }, { unique: true });
 
 /**
  * Hooks.

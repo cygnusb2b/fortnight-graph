@@ -1,3 +1,22 @@
+type Query {
+  user(input: ModelIdInput!): User!
+  allUsers(pagination: PaginationInput = {}, sort: UserSortInput = {}): UserConnection!
+  searchUsers(pagination: PaginationInput = {}, phrase: String!): UserConnection!
+  currentUser: User
+  checkSession(input: SessionTokenInput!): Authentication
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): User
+  updateUser(input: UpdateUserInput!): User
+  loginUser(input: LoginInput!): Authentication
+  deleteSession: String
+  changeUserPassword(input: ChangeUserPasswordInput!): User
+  updateCurrentUserProfile(input: CurrentUserProfileInput!): User
+  deleteUser(input: ModelIdInput!): String!
+  undeleteUser(input: ModelIdInput!): User!
+}
+
 type Session {
   id: String!
   uid: String!
@@ -14,7 +33,8 @@ type Authentication {
 type User implements Timestampable {
   id: String!
   email: String!
-  role: String!
+  role: UserRoleField!
+  deleted: Boolean!
   givenName: String
   familyName: String
   logins: Int
@@ -23,18 +43,33 @@ type User implements Timestampable {
   updatedAt: Date
 }
 
-type Query {
-  currentUser: User
-  checkSession(input: SessionTokenInput!): Authentication
+type UserConnection {
+  totalCount: Int!
+  edges: [UserEdge]!
+  pageInfo: PageInfo!
 }
 
-type Mutation {
-  createUser(input: CreateUserInput!): User
-  loginUser(input: LoginInput!): Authentication
-  deleteSession: String
-  changeUserPassword(input: ChangeUserPasswordInput!): User
-  updateCurrentUserProfile(input: CurrentUserProfileInput!): User
-  deleteUser(input: ModelIdInput!): String!
+type UserEdge {
+  node: User!
+  cursor: Cursor!
+}
+
+enum UserSortField {
+  givenName
+  familyName
+  email
+  createdAt
+  updatedAt
+}
+
+enum UserRoleField {
+  Admin
+  Member
+}
+
+input UserSortInput {
+  field: UserSortField! = createdAt
+  order: Int! = -1
 }
 
 input ChangeUserPasswordInput {
@@ -51,8 +86,22 @@ input CurrentUserProfileInput {
 input NewUserPayloadInput {
   email: String!
   password: String!
+  confirmPassword: String!
   givenName: String!
   familyName: String!
+  role: UserRoleField! = Member
+}
+
+input UpdateUserPayloadInput {
+  email: String!
+  givenName: String!
+  familyName: String!
+  role: UserRoleField! = Member
+}
+
+input UpdateUserInput {
+  id: String!
+  payload: UpdateUserPayloadInput!
 }
 
 input CreateUserInput {
