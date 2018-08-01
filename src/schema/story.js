@@ -1,5 +1,7 @@
 const { Schema } = require('mongoose');
 const slug = require('slug');
+const accountService = require('../services/account');
+const storyUrl = require('../utils/story-url');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
@@ -63,6 +65,10 @@ schema.plugin(imagePlugin, { fieldName: 'imageIds', multiple: true });
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['title', 'advertiserName'] });
+
+schema.virtual('url').get(function getUrl() {
+  return storyUrl(accountService.getStoryHost(), this.id);
+});
 
 schema.virtual('slug').get(function getSlug() {
   return slug(this.title).toLowerCase();
