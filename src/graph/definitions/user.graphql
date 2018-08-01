@@ -33,7 +33,7 @@ type Authentication {
 type User implements Timestampable {
   id: String!
   email: String!
-  role: String!
+  role: UserRoleField!
   deleted: Boolean!
   givenName: String
   familyName: String
@@ -62,6 +62,11 @@ enum UserSortField {
   updatedAt
 }
 
+enum UserRoleField {
+  Admin
+  Member
+}
+
 input UserSortInput {
   field: UserSortField! = createdAt
   order: Int! = -1
@@ -84,12 +89,14 @@ input NewUserPayloadInput {
   confirmPassword: String!
   givenName: String!
   familyName: String!
+  role: UserRoleField! = Member
 }
 
 input UpdateUserPayloadInput {
   email: String!
   givenName: String!
   familyName: String!
+  role: UserRoleField! = Member
 }
 
 input UpdateUserInput {

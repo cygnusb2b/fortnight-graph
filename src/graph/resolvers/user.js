@@ -74,6 +74,7 @@ module.exports = {
         familyName,
         password,
         confirmPassword,
+        role,
       } = payload;
       validatePassword(password, confirmPassword);
       return UserRepo.create({
@@ -81,6 +82,7 @@ module.exports = {
         givenName,
         familyName,
         password,
+        role,
       });
     },
 
@@ -92,12 +94,14 @@ module.exports = {
         email,
         givenName,
         familyName,
+        role,
       } = payload;
       const user = await User.strictFindById(id);
       user.set({
         email,
         givenName,
         familyName,
+        role,
       });
       return user.save();
     },
