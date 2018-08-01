@@ -8,11 +8,13 @@ type Query {
 
 type Mutation {
   createUser(input: CreateUserInput!): User
+  updateUser(input: UpdateUserInput!): User
   loginUser(input: LoginInput!): Authentication
   deleteSession: String
   changeUserPassword(input: ChangeUserPasswordInput!): User
   updateCurrentUserProfile(input: CurrentUserProfileInput!): User
   deleteUser(input: ModelIdInput!): String!
+  undeleteUser(input: ModelIdInput!): User!
 }
 
 type Session {
@@ -82,6 +84,17 @@ input NewUserPayloadInput {
   confirmPassword: String!
   givenName: String!
   familyName: String!
+}
+
+input UpdateUserPayloadInput {
+  email: String!
+  givenName: String!
+  familyName: String!
+}
+
+input UpdateUserInput {
+  id: String!
+  payload: UpdateUserPayloadInput!
 }
 
 input CreateUserInput {

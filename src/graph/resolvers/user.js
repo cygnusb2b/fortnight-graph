@@ -84,6 +84,24 @@ module.exports = {
       });
     },
 
+    updateUser: async (root, { input }, { auth }) => {
+      auth.check();
+      // Note, this resolver will not update passwords. Use `changeUserPassword` instead.
+      const { id, payload } = input;
+      const {
+        email,
+        givenName,
+        familyName,
+      } = payload;
+      const user = await User.strictFindById(id);
+      user.set({
+        email,
+        givenName,
+        familyName,
+      });
+      return user.save();
+    },
+
     /**
      *
      */
@@ -138,6 +156,16 @@ module.exports = {
       const { id } = input;
       const user = await User.strictFindById(id);
       return user.softDelete();
+    },
+
+    /**
+     *
+     */
+    undeleteUser: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const user = await User.strictFindById(id);
+      return user.undelete();
     },
   },
 };
