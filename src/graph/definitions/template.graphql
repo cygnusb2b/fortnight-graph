@@ -17,7 +17,7 @@ enum TemplateSortField {
   updatedAt
 }
 
-type Template {
+type Template implements UserAttribution & Timestampable {
   id: String!
   name: String!
   description: String
@@ -25,6 +25,8 @@ type Template {
   fallback: String
   updatedAt: Date
   createdAt: Date
+  createdBy: User!
+  updatedBy: User!
 }
 
 type TemplateConnection {

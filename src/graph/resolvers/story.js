@@ -1,9 +1,9 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const userAttributionFields = require('./user-attribution');
 const Advertiser = require('../../models/advertiser');
 const Campaign = require('../../models/campaign');
 const Story = require('../../models/story');
 const Image = require('../../models/image');
-const User = require('../../models/user');
 
 const storySearchFilter = [
   {
@@ -23,12 +23,11 @@ module.exports = {
     advertiser: story => Advertiser.findById(story.advertiserId),
     primaryImage: story => Image.findById(story.primaryImageId),
     images: story => Image.find({ _id: { $in: story.imageIds } }),
-    createdBy: story => User.findById(story.createdById),
-    updatedBy: story => User.findById(story.updatedById),
     campaigns: (story, { pagination, sort }) => {
       const criteria = { storyId: story.id, deleted: false };
       return Campaign.paginate({ pagination, criteria, sort });
     },
+    ...userAttributionFields,
   },
 
   /**
@@ -80,7 +79,6 @@ module.exports = {
      */
     createStory: (root, { input }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const { payload } = input;
       const {
         title,
@@ -88,13 +86,13 @@ module.exports = {
         publishedAt,
       } = payload;
 
-      return Story.create({
+      const story = new Story({
         title,
         advertiserId,
         publishedAt,
-        createdById: user.id,
-        updatedById: user.id,
       });
+      story.setUserContext(auth.user);
+      return story.save();
     },
 
     /**
@@ -104,6 +102,7 @@ module.exports = {
       auth.check();
       const { id } = input;
       const story = await Story.strictFindActiveById(id);
+      story.setUserContext(auth.user);
       return story.softDelete();
     },
 
@@ -112,7 +111,6 @@ module.exports = {
      */
     updateStory: async (root, { input }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const { id, payload } = input;
       const {
         title,
@@ -123,13 +121,13 @@ module.exports = {
       } = payload;
 
       const story = await Story.strictFindActiveById(id);
+      story.setUserContext(auth.user);
       story.set({
         title,
         teaser,
         body,
         advertiserId,
         publishedAt,
-        updatedById: user.id,
       });
       return story.save();
     },
@@ -139,10 +137,9 @@ module.exports = {
      */
     removeStoryImage: async (root, { storyId, imageId }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const story = await Story.strictFindActiveById(storyId);
+      story.setUserContext(auth.user);
       story.removeImageId(imageId);
-      story.updatedById = user.id;
       return story.save();
     },
 
@@ -151,10 +148,9 @@ module.exports = {
      */
     addStoryImage: async (root, { storyId, imageId }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const story = await Story.strictFindActiveById(storyId);
+      story.setUserContext(auth.user);
       story.addImageId(imageId);
-      story.updatedById = user.id;
       return story.save();
     },
 
@@ -163,10 +159,9 @@ module.exports = {
      */
     storyPrimaryImage: async (root, { storyId, imageId }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const story = await Story.strictFindActiveById(storyId);
       story.primaryImageId = imageId || undefined;
-      story.updatedById = user.id;
+      story.setUserContext(auth.user);
       return story.save();
     },
   },

@@ -19,7 +19,7 @@ enum TopicSortField {
   publisherName
 }
 
-type Topic {
+type Topic implements UserAttribution & Timestampable {
   id: String!
   name: String!
   publisher: Publisher!
@@ -27,6 +27,8 @@ type Topic {
   externalId: String
   updatedAt: Date
   createdAt: Date
+  createdBy: User!
+  updatedBy: User!
 }
 
 type TopicConnection {

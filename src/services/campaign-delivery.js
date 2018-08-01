@@ -4,11 +4,12 @@ const uuidv4 = require('uuid/v4');
 const AnalyticsEvent = require('../models/analytics/event');
 const BotDetector = require('../services/bot-detector');
 const Campaign = require('../models/campaign');
+const Publisher = require('../models/publisher');
 const Image = require('../models/image');
 const Placement = require('../models/placement');
 const Template = require('../models/template');
 const Utils = require('../utils');
-const Account = require('./account');
+const accountService = require('./account');
 
 module.exports = {
   /**
@@ -81,6 +82,20 @@ module.exports = {
   },
 
   /**
+   * Determines the URL for the campaign.
+   *
+   * @param {object} campaign
+   * @param {object} placement
+   */
+  async getClickUrl({ storyId, url }, { publisherId }) {
+    if (!storyId) return url;
+    // Campaign is linked to a story, generate using publiser or account host.
+    const publisher = await Publisher.findById(publisherId, { domainName: 1 });
+    const host = publisher.domainName || accountService.getStoryHost();
+    return `https://${host}/story/${storyId}`;
+  },
+
+  /**
    * Selects the campaigns to return.
    * Shuffles the campaigns and returns the number based on the limit.
    *
@@ -105,6 +120,7 @@ module.exports = {
     const placement = await Placement.findOne({ _id: placementId }, {
       _id: 1,
       templateId: 1,
+      publisherId: 1,
       reservePct: 1,
     });
     if (!placement) throw createError(404, `No placement exists for ID '${placementId}'`);
@@ -136,7 +152,7 @@ module.exports = {
     vars = { custom: {}, fallback: {} },
   } = {}) {
     const { placement, template } = await this.getPlacementAndTemplate({ placementId });
-    const account = await Account.retrieve();
+    const account = await accountService.retrieve();
 
     const limit = num > 0 ? parseInt(num, 10) : 1;
     if (limit > 10) throw createError(400, 'You cannot return more than 10 ads in one request.');
@@ -165,6 +181,7 @@ module.exports = {
       });
       return this.buildAdFor({
         campaign,
+        placement,
         template,
         fallbackVars: vars.fallback,
         event,
@@ -259,6 +276,7 @@ module.exports = {
 
   async buildAdFor({
     campaign,
+    placement,
     template,
     fallbackVars,
     event,
@@ -291,7 +309,7 @@ module.exports = {
       uuid,
       pid,
       kv,
-      href: campaign.url,
+      href: await this.getClickUrl(campaign, placement),
       campaign,
       creative,
     };

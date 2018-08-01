@@ -17,7 +17,7 @@ enum PlacementSortField {
   updatedAt
 }
 
-type Placement {
+type Placement implements UserAttribution & Timestampable {
   id: String!
   name: String
   publisher: Publisher!
@@ -26,6 +26,8 @@ type Placement {
   reservePct: Int!
   updatedAt: Date
   createdAt: Date
+  createdBy: User!
+  updatedBy: User!
 }
 
 type PlacementConnection {

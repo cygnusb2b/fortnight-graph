@@ -1,4 +1,5 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const userAttributionFields = require('./user-attribution');
 const Placement = require('../../models/placement');
 const Publisher = require('../../models/publisher');
 const Template = require('../../models/template');
@@ -12,6 +13,7 @@ module.exports = {
     publisher: placement => Publisher.findById(placement.publisherId),
     topic: placement => Topic.findById(placement.topicId),
     template: placement => Template.findById(placement.templateId),
+    ...userAttributionFields,
   },
 
   /**
@@ -77,13 +79,16 @@ module.exports = {
         topicId,
         reservePct,
       } = payload;
-      return Placement.create({
+
+      const placement = new Placement({
         name,
         publisherId,
         templateId,
         topicId,
         reservePct,
       });
+      placement.setUserContext(auth.user);
+      return placement.save();
     },
 
     /**
@@ -107,6 +112,7 @@ module.exports = {
         topicId,
         reservePct,
       });
+      placement.setUserContext(auth.user);
       return placement.save();
     },
 
@@ -117,6 +123,7 @@ module.exports = {
       auth.check();
       const { id } = input;
       const placement = await Placement.strictFindActiveById(id);
+      placement.setUserContext(auth.user);
       await placement.softDelete();
       return 'ok';
     },

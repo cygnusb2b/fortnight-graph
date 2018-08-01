@@ -1,4 +1,5 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const userAttributionFields = require('./user-attribution');
 const Campaign = require('../../models/campaign');
 const Image = require('../../models/image');
 const Placement = require('../../models/placement');
@@ -25,6 +26,7 @@ module.exports = {
       const criteria = { 'criteria.placementIds': { $in: placementIds }, deleted: false };
       return Campaign.paginate({ criteria, pagination, sort });
     },
+    ...userAttributionFields,
   },
 
   /**
@@ -83,16 +85,21 @@ module.exports = {
     createPublisher: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
-      return Publisher.create(payload);
+      const publisher = new Publisher(payload);
+      publisher.setUserContext(auth.user);
+      return publisher.save();
     },
 
     /**
      *
      */
-    updatePublisher: (root, { input }, { auth }) => {
+    updatePublisher: async (root, { input }, { auth }) => {
       auth.check();
       const { id, payload } = input;
-      return Publisher.findAndSetUpdate(id, payload);
+      const publisher = await Publisher.strictFindActiveById(id);
+      publisher.setUserContext(auth.user);
+      publisher.set(payload);
+      return publisher.save();
     },
 
     /**
@@ -101,7 +108,8 @@ module.exports = {
     publisherLogo: async (root, { input }, { auth }) => {
       auth.check();
       const { id, imageId } = input;
-      const publisher = await Publisher.strictFindById(id);
+      const publisher = await Publisher.strictFindActiveById(id);
+      publisher.setUserContext(auth.user);
       publisher.logoImageId = imageId;
       return publisher.save();
     },
@@ -113,6 +121,7 @@ module.exports = {
       auth.check();
       const { id } = input;
       const publisher = await Publisher.strictFindActiveById(id);
+      publisher.setUserContext(auth.user);
       await publisher.softDelete();
       return 'ok';
     },

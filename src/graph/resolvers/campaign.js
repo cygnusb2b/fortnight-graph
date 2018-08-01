@@ -132,15 +132,15 @@ module.exports = {
       auth.check();
       const { id } = input;
       const campaign = await Campaign.strictFindActiveById(id);
+      campaign.setUserContext(auth.user);
       return campaign.softDelete();
     },
 
     pauseCampaign: async (root, { id, paused }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const campaign = await Campaign.strictFindActiveById(id);
+      campaign.setUserContext(auth.user);
       campaign.paused = paused;
-      campaign.updatedById = user.id;
       return campaign.save();
     },
 
@@ -149,18 +149,17 @@ module.exports = {
      */
     createExternalUrlCampaign: async (root, { input }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const { name, advertiserId } = input;
       const notify = await getNotifyDefaults(advertiserId, auth.user);
 
-      const campaign = await Campaign.create({
+      const campaign = new Campaign({
         name,
         advertiserId,
         criteria: {},
         notify,
-        updatedById: user.id,
-        createdById: user.id,
       });
+      campaign.setUserContext(auth.user);
+      await campaign.save();
 
       contactNotifier.sendInternalCampaignCreated({ campaign });
       contactNotifier.sendExternalCampaignCreated({ campaign });
@@ -172,7 +171,6 @@ module.exports = {
      */
     createExistingStoryCampaign: async (root, { input }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const { name, storyId } = input;
       const story = await Story.strictFindActiveById(storyId);
 
@@ -185,9 +183,8 @@ module.exports = {
         storyId,
         criteria: {},
         notify,
-        updatedById: user.id,
-        createdById: user.id,
       });
+      campaign.setUserContext(auth.user);
 
       campaign.creatives.push({
         title: story.title ? story.title.slice(0, 75) : undefined,
@@ -207,27 +204,27 @@ module.exports = {
      */
     createNewStoryCampaign: async (root, { input }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const { name, advertiserId } = input;
       const notify = await getNotifyDefaults(advertiserId, auth.user);
 
-      const story = await Story.create({
+      const story = new Story({
         title: 'Placeholder Story',
         advertiserId,
         placeholder: true,
-        updatedById: user.id,
-        createdById: user.id,
       });
+      story.setUserContext(auth.user);
+      await story.save();
 
-      const campaign = await Campaign.create({
+
+      const campaign = new Campaign({
         name,
         storyId: story.id,
         advertiserId,
         criteria: {},
         notify,
-        updatedById: user.id,
-        createdById: user.id,
       });
+      campaign.setUserContext(auth.user);
+      await campaign.save();
 
       contactNotifier.sendInternalCampaignCreated({ campaign });
       contactNotifier.sendExternalCampaignCreated({ campaign });
@@ -239,22 +236,23 @@ module.exports = {
      */
     updateCampaign: async (root, { input }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const { id, payload } = input;
       const campaign = await Campaign.strictFindActiveById(id);
-      campaign.set({
-        ...payload,
-        updatedById: user.id,
-      });
+      campaign.setUserContext(auth.user);
+      campaign.set(payload);
       return campaign.save();
     },
 
     /**
      *
      */
-    assignCampaignValue: async (root, { input }) => {
+    assignCampaignValue: async (root, { input }, { auth }) => {
       const { id, field, value } = input;
       const campaign = await Campaign.strictFindActiveById(id);
+
+      if (auth) {
+        campaign.setUserContext(auth.user);
+      }
       campaign.set(field, value);
       return campaign.save();
     },
@@ -264,11 +262,10 @@ module.exports = {
      */
     campaignCriteria: async (root, { input }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const { campaignId, payload } = input;
       const campaign = await Campaign.strictFindActiveById(campaignId);
+      campaign.setUserContext(auth.user);
       campaign.criteria = payload;
-      campaign.updatedById = user.id;
       await campaign.save();
       return campaign.criteria;
     },
@@ -277,6 +274,7 @@ module.exports = {
       const { campaignId, url } = input;
       auth.checkCampaignAccess(campaignId);
       const campaign = await Campaign.strictFindActiveById(campaignId);
+      campaign.setUserContext(auth.user);
       campaign.url = url;
       return campaign.save();
     },
@@ -337,6 +335,7 @@ module.exports = {
       const field = `notify.${type}`;
       const campaign = await Campaign.strictFindActiveById(id);
       campaign.set(field, contactIds);
+      campaign.setUserContext(auth.user);
       return campaign.save();
     },
   },

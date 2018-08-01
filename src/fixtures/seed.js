@@ -32,10 +32,17 @@ module.exports = {
    */
   async campaigns(count) {
     const { Campaign } = models;
-    const user = await this.users(1);
-    const advertiser = await this.advertisers(1);
-    const placements = await this.placements(2);
-    const image = await this.images(1);
+    const {
+      user,
+      advertiser,
+      placements,
+      image,
+    } = await Promise.props({
+      user: this.users(1),
+      advertiser: this.advertisers(1),
+      placements: this.placements(2),
+      image: this.images(1),
+    });
     const params = {
       advertiserId: () => advertiser.id,
       placementIds: () => placements.map(placement => placement.id),
@@ -50,8 +57,13 @@ module.exports = {
    * @param {number} count
    */
   async contacts(count) {
+    const user = await this.users(1);
+    const params = {
+      createdById: () => user.id,
+      updatedById: () => user.id,
+    };
     const { Contact } = models;
-    return create(Contact, count);
+    return create(Contact, count, params);
   },
 
   /**
@@ -67,6 +79,7 @@ module.exports = {
    */
   async placements(count) {
     const { Placement } = models;
+    const user = await this.users(1);
     const topic = await this.topics(1);
     const params = {
       templateId: async () => {
@@ -75,6 +88,8 @@ module.exports = {
       },
       publisherId: () => topic.publisherId,
       topicId: () => topic.id,
+      createdById: () => user.id,
+      updatedById: () => user.id,
     };
     return create(Placement, count, params);
   },
@@ -83,8 +98,13 @@ module.exports = {
    * @param {number} count
    */
   async publishers(count) {
+    const user = await this.users(1);
+    const params = {
+      createdById: () => user.id,
+      updatedById: () => user.id,
+    };
     const { Publisher } = models;
-    return create(Publisher, count);
+    return create(Publisher, count, params);
   },
 
   /**
@@ -109,18 +129,26 @@ module.exports = {
    * @param {number} count
    */
   async templates(count) {
+    const user = await this.users(1);
+    const params = {
+      createdById: () => user.id,
+      updatedById: () => user.id,
+    };
     const { Template } = models;
-    return create(Template, count);
+    return create(Template, count, params);
   },
 
   /**
    * @param {number} count
    */
   async topics(count) {
+    const user = await this.users(1);
     const { Topic } = models;
     const publisher = await this.publishers(1);
     const params = {
       publisherId: () => publisher.id,
+      createdById: () => user.id,
+      updatedById: () => user.id,
     };
     return create(Topic, count, params);
   },

@@ -23,7 +23,7 @@ enum AdvertiserSortField {
   updatedAt
 }
 
-type Advertiser {
+type Advertiser implements UserAttribution & Timestampable {
   id: String!
   hash: String!
   name: String!

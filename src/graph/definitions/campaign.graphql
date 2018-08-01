@@ -46,7 +46,7 @@ enum CampaignStatus {
   Scheduled
 }
 
-type Campaign {
+type Campaign implements UserAttribution & Timestampable {
   id: String!
   name: String!
   description: String

@@ -1,7 +1,15 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const userAttributionFields = require('./user-attribution');
 const Contact = require('../../models/contact');
 
 module.exports = {
+  /**
+   *
+   */
+  Contact: {
+    ...userAttributionFields,
+  },
+
   /**
    *
    */
@@ -58,7 +66,9 @@ module.exports = {
     createContact: (root, { input }, { auth }) => {
       auth.check();
       const { payload } = input;
-      return Contact.create(payload);
+      const contact = new Contact(payload);
+      contact.setUserContext(auth.user);
+      return contact.save();
     },
 
     /**
@@ -68,6 +78,7 @@ module.exports = {
       auth.check();
       const { id, payload } = input;
       const contact = await Contact.strictFindActiveById(id);
+      contact.setUserContext(auth.user);
       contact.set(payload);
       return contact.save();
     },
@@ -79,6 +90,7 @@ module.exports = {
       auth.check();
       const { id } = input;
       const contact = await Contact.strictFindActiveById(id);
+      contact.setUserContext(auth.user);
       await contact.softDelete();
       return 'ok';
     },

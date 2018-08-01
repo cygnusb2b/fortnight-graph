@@ -1,6 +1,6 @@
 const faker = require('faker');
 
-module.exports = () => {
+module.exports = async ({ createdById, updatedById }) => {
   const givenName = faker.name.firstName();
   const familyName = faker.name.lastName();
   return {
@@ -8,5 +8,7 @@ module.exports = () => {
     givenName,
     familyName,
     name: `${givenName} ${familyName}`,
+    createdById: await createdById(),
+    updatedById: await updatedById(),
   };
 };

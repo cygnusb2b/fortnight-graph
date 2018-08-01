@@ -7,6 +7,7 @@ const {
   referencePlugin,
   repositoryPlugin,
   searchablePlugin,
+  userAttributionPlugin,
 } = require('../plugins');
 
 const schema = new Schema({
@@ -38,6 +39,7 @@ schema.plugin(deleteablePlugin, {
   es_indexed: true,
   es_type: 'boolean',
 });
+schema.plugin(userAttributionPlugin);
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name', 'publisherName'] });

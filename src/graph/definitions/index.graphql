@@ -25,6 +25,16 @@ type Query {
   ping: String!
 }
 
+interface UserAttribution {
+  createdBy: User!
+  updatedBy: User!
+}
+
+interface Timestampable {
+  createdAt: Date
+  updatedAt: Date
+}
+
 type PageInfo {
   hasNextPage: Boolean!
   endCursor: Cursor
