@@ -1,3 +1,4 @@
+const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const User = require('../../models/user');
 const UserRepo = require('../../repositories/user');
 const SessionRepo = require('../../repositories/session');
@@ -12,7 +13,20 @@ module.exports = {
   /**
    *
    */
+  UserConnection: paginationResolvers.connection,
+
+  /**
+   *
+   */
   Query: {
+    /**
+     *
+     */
+    allUsers: (root, { pagination, sort }, { auth }) => {
+      auth.check();
+      return User.paginate({ pagination, sort });
+    },
+
     /**
      *
      */

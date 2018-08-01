@@ -1,3 +1,18 @@
+type Query {
+  allUsers(pagination: PaginationInput = {}, sort: UserSortInput = {}): UserConnection!
+  currentUser: User
+  checkSession(input: SessionTokenInput!): Authentication
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): User
+  loginUser(input: LoginInput!): Authentication
+  deleteSession: String
+  changeUserPassword(input: ChangeUserPasswordInput!): User
+  updateCurrentUserProfile(input: CurrentUserProfileInput!): User
+  deleteUser(input: ModelIdInput!): String!
+}
+
 type Session {
   id: String!
   uid: String!
@@ -23,18 +38,28 @@ type User implements Timestampable {
   updatedAt: Date
 }
 
-type Query {
-  currentUser: User
-  checkSession(input: SessionTokenInput!): Authentication
+type UserConnection {
+  totalCount: Int!
+  edges: [UserEdge]!
+  pageInfo: PageInfo!
 }
 
-type Mutation {
-  createUser(input: CreateUserInput!): User
-  loginUser(input: LoginInput!): Authentication
-  deleteSession: String
-  changeUserPassword(input: ChangeUserPasswordInput!): User
-  updateCurrentUserProfile(input: CurrentUserProfileInput!): User
-  deleteUser(input: ModelIdInput!): String!
+type UserEdge {
+  node: User!
+  cursor: Cursor!
+}
+
+enum UserSortField {
+  givenName
+  familyName
+  email
+  createdAt
+  updatedAt
+}
+
+input UserSortInput {
+  field: UserSortField! = createdAt
+  order: Int! = -1
 }
 
 input ChangeUserPasswordInput {
