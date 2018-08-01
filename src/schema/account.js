@@ -3,7 +3,7 @@ const slug = require('slug');
 const uuid = require('uuid/v4');
 const pushId = require('unique-push-id');
 const env = require('../env');
-const { reservePctPlugin } = require('../plugins');
+const { reservePctPlugin, repositoryPlugin } = require('../plugins');
 
 const sessionSchema = new Schema({
   globalSecret: {
@@ -65,6 +65,8 @@ const schema = new Schema({
     },
   },
 }, { timestamps: true });
+
+schema.plugin(repositoryPlugin);
 
 schema.virtual('uri').get(function getUrl() {
   const { BASE_URI, NODE_ENV } = env;
