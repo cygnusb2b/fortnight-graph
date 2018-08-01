@@ -129,9 +129,8 @@ module.exports = {
      */
     changeUserPassword: async (root, { input }, { auth }) => {
       auth.check();
-      const { user } = auth;
       const { id, value, confirm } = input;
-      if (`${user.id}` === `${id}` || auth.isAdmin()) {
+      if (`${auth.user.id}` === `${id}` || auth.isAdmin()) {
         validatePassword(value, confirm);
         const user = await User.strictFindById(id);
         user.password = value;
