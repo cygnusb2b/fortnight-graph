@@ -2,6 +2,10 @@ type Query {
   account: Account!
 }
 
+type Mutation {
+  updateAccount(input: UpdateAccountInput!): Account!
+}
+
 type Account {
   id: String!
   key: String!
@@ -15,5 +19,19 @@ type Account {
 type AccountSettings {
   id: String!
   cname: String!
+  reservePct: Int!
+}
+
+input UpdateAccountInput {
+  id: String!
+  payload: AccountUpdatePayloadInput!
+}
+
+input AccountUpdatePayloadInput {
+  name: String!
+  settings: AccountUpdateSettingsInput!
+}
+
+input AccountUpdateSettingsInput {
   reservePct: Int!
 }
