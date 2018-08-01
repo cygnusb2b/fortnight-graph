@@ -1,5 +1,6 @@
 type Query {
   allUsers(pagination: PaginationInput = {}, sort: UserSortInput = {}): UserConnection!
+  searchUsers(pagination: PaginationInput = {}, phrase: String!): UserConnection!
   currentUser: User
   checkSession(input: SessionTokenInput!): Authentication
 }

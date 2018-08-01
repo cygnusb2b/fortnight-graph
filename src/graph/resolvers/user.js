@@ -30,6 +30,14 @@ module.exports = {
     /**
      *
      */
+    searchUsers: (root, { pagination, phrase }, { auth }) => {
+      auth.check();
+      return User.search(phrase, { pagination });
+    },
+
+    /**
+     *
+     */
     currentUser: (root, args, { auth }) => (auth.isValid() ? auth.user : null),
 
     /**
