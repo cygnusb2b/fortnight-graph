@@ -56,9 +56,23 @@ module.exports = {
     /**
      *
      */
-    createUser: (root, { input }) => {
+    createUser: (root, { input }, { auth }) => {
+      auth.check();
       const { payload } = input;
-      return UserRepo.create(payload);
+      const {
+        email,
+        givenName,
+        familyName,
+        password,
+        confirmPassword,
+      } = payload;
+      validatePassword(password, confirmPassword);
+      return UserRepo.create({
+        email,
+        givenName,
+        familyName,
+        password,
+      });
     },
 
     /**

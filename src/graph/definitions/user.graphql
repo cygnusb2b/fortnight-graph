@@ -77,6 +77,7 @@ input CurrentUserProfileInput {
 input NewUserPayloadInput {
   email: String!
   password: String!
+  confirmPassword: String!
   givenName: String!
   familyName: String!
 }
