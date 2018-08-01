@@ -27,6 +27,7 @@ module.exports = {
       const criteria = { storyId: story.id, deleted: false };
       return Campaign.paginate({ pagination, criteria, sort });
     },
+    previewUrl: story => `${story.url}/?preview=true`,
     ...userAttributionFields,
   },
 

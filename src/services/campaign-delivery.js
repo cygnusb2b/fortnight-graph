@@ -9,6 +9,7 @@ const Image = require('../models/image');
 const Placement = require('../models/placement');
 const Template = require('../models/template');
 const Utils = require('../utils');
+const storyUrl = require('../utils/story-url');
 const accountService = require('./account');
 
 module.exports = {
@@ -87,12 +88,12 @@ module.exports = {
    * @param {object} campaign
    * @param {object} placement
    */
-  async getClickUrl({ storyId, url }, { publisherId }) {
+  async getClickUrl({ storyId, url }, { publisherId } = {}) {
     if (!storyId) return url;
     // Campaign is linked to a story, generate using publiser or account host.
     const publisher = await Publisher.findById(publisherId, { domainName: 1 });
     const host = publisher.domainName || accountService.getStoryHost();
-    return `https://${host}/story/${storyId}`;
+    return storyUrl(host, storyId);
   },
 
   /**
