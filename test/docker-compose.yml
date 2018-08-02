@@ -15,7 +15,8 @@ services:
       ACCOUNT_KEY: dev-tenant
       AWS_ACCESS_KEY_ID: 1234
       AWS_SECRET_ACCESS_KEY: notarealkey
-      BASE_URI: localhost:8100
+      APP_HOST: localhost:8100
+      STORY_HOST: localhost:8100
       ELASTIC_HOST: http://elasticsearch:9200
       IMGIX_URL: https://imgix.net
       MONGO_DSN: mongodb://mongo:27017/fortnight
