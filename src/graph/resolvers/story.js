@@ -137,9 +137,11 @@ module.exports = {
      *
      */
     removeStoryImage: async (root, { storyId, imageId }, { auth }) => {
-      auth.check();
+      auth.checkPortalAccess();
       const story = await Story.strictFindActiveById(storyId);
-      story.setUserContext(auth.user);
+      if (auth.user) {
+        story.setUserContext(auth.user);
+      }
       story.removeImageId(imageId);
       return story.save();
     },
@@ -148,9 +150,11 @@ module.exports = {
      *
      */
     addStoryImage: async (root, { storyId, imageId }, { auth }) => {
-      auth.check();
+      auth.checkPortalAccess();
       const story = await Story.strictFindActiveById(storyId);
-      story.setUserContext(auth.user);
+      if (auth.user) {
+        story.setUserContext(auth.user);
+      }
       story.addImageId(imageId);
       return story.save();
     },
@@ -159,10 +163,12 @@ module.exports = {
      *
      */
     storyPrimaryImage: async (root, { storyId, imageId }, { auth }) => {
-      auth.check();
+      auth.checkPortalAccess();
       const story = await Story.strictFindActiveById(storyId);
       story.primaryImageId = imageId || undefined;
-      story.setUserContext(auth.user);
+      if (auth.user) {
+        story.setUserContext(auth.user);
+      }
       return story.save();
     },
 
@@ -173,7 +179,7 @@ module.exports = {
       auth.checkPortalAccess();
       const story = await Story.strictFindActiveById(id);
 
-      if (auth.isValid()) {
+      if (auth.user) {
         story.setUserContext(auth.user);
       }
       if (story.placeholder === true) {
@@ -190,7 +196,7 @@ module.exports = {
       auth.checkPortalAccess();
       const story = await Story.strictFindActiveById(id);
 
-      if (auth.isValid()) {
+      if (auth.user) {
         story.setUserContext(auth.user);
       }
       story.teaser = value;
