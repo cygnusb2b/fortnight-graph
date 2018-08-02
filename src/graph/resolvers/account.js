@@ -1,7 +1,15 @@
 const Account = require('../../models/account');
 const AccountService = require('../../services/account');
+const env = require('../../env');
 
 module.exports = {
+  /**
+   *
+   */
+  AccountSettings: {
+    cname: () => env.STORY_HOST,
+  },
+
   /**
    *
    */

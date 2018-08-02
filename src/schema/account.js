@@ -27,9 +27,6 @@ const sessionSchema = new Schema({
 });
 
 const settingsSchema = new Schema({
-  cname: {
-    type: String,
-  },
   bcc: {
     type: String,
   },
@@ -68,10 +65,16 @@ const schema = new Schema({
 
 schema.plugin(repositoryPlugin);
 
-schema.virtual('uri').get(function getUrl() {
-  const { BASE_URI, NODE_ENV } = env;
+schema.virtual('uri').get(() => {
+  const { APP_HOST, NODE_ENV } = env;
   const protocol = NODE_ENV === 'production' ? 'https' : 'http';
-  return `${protocol}://${this.key}.${BASE_URI}`;
+  return `${protocol}://${APP_HOST}`;
+});
+
+schema.virtual('storyUri').get(() => {
+  const { STORY_HOST, NODE_ENV } = env;
+  const protocol = NODE_ENV === 'production' ? 'https' : 'http';
+  return `${protocol}://${STORY_HOST}`;
 });
 
 module.exports = schema;
