@@ -165,5 +165,19 @@ module.exports = {
       story.setUserContext(auth.user);
       return story.save();
     },
+
+    /**
+     *
+     */
+    storyTitle: async (root, { id, value }, { auth }) => {
+      auth.checkPortalAccess();
+      const story = await Story.strictFindActiveById(id);
+
+      if (auth) {
+        story.setUserContext(auth.user);
+      }
+      story.set('title', value);
+      return story.save();
+    },
   },
 };

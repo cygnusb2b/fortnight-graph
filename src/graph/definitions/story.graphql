@@ -13,6 +13,8 @@ type Mutation {
   storyPrimaryImage(storyId: String!, imageId: String): Story!
   removeStoryImage(storyId: String!, imageId: String!): Story!
   addStoryImage(storyId: String!, imageId: String!): Story!
+
+  storyTitle(id: String!, value: String!): Story!
 }
 
 enum StorySortField {
@@ -95,4 +97,10 @@ input CreateStoryInput {
 input UpdateStoryInput {
   id: String!
   payload: StoryPayloadInput!
+}
+
+input AssignStoryValueInput {
+  id: String!
+  field: String!
+  value: Mixed
 }
