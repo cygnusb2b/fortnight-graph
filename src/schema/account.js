@@ -1,4 +1,5 @@
 const { Schema } = require('mongoose');
+const { isFQDN } = require('validator');
 const slug = require('slug');
 const uuid = require('uuid/v4');
 const pushId = require('unique-push-id');
@@ -29,6 +30,14 @@ const sessionSchema = new Schema({
 const settingsSchema = new Schema({
   cname: {
     type: String,
+    trim: true,
+    validate: {
+      validator(v) {
+        if (!v) return true;
+        return isFQDN(String(v));
+      },
+      message: 'Invalid domain name: {VALUE}',
+    },
   },
   bcc: {
     type: String,

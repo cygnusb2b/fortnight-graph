@@ -18,7 +18,7 @@ type Account {
 
 type AccountSettings {
   id: String!
-  cname: String! # Keep this?
+  cname: String
   reservePct: Int!
 }
 
