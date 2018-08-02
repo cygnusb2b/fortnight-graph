@@ -182,5 +182,19 @@ module.exports = {
       story.title = value;
       return story.save();
     },
+
+    /**
+     *
+     */
+    storyTeaser: async (root, { id, value }, { auth }) => {
+      auth.checkPortalAccess();
+      const story = await Story.strictFindActiveById(id);
+
+      if (auth.isValid()) {
+        story.setUserContext(auth.user);
+      }
+      story.teaser = value;
+      return story.save();
+    },
   },
 };
