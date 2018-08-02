@@ -1,5 +1,4 @@
 const { Schema } = require('mongoose');
-const { isFQDN } = require('validator');
 const slug = require('slug');
 const uuid = require('uuid/v4');
 const pushId = require('unique-push-id');
@@ -28,17 +27,6 @@ const sessionSchema = new Schema({
 });
 
 const settingsSchema = new Schema({
-  cname: {
-    type: String,
-    trim: true,
-    validate: {
-      validator(v) {
-        if (!v) return true;
-        return isFQDN(String(v));
-      },
-      message: 'Invalid domain name: {VALUE}',
-    },
-  },
   bcc: {
     type: String,
   },
@@ -77,10 +65,16 @@ const schema = new Schema({
 
 schema.plugin(repositoryPlugin);
 
-schema.virtual('uri').get(function getUrl() {
-  const { BASE_URI, NODE_ENV } = env;
+schema.virtual('uri').get(() => {
+  const { APP_HOST, NODE_ENV } = env;
   const protocol = NODE_ENV === 'production' ? 'https' : 'http';
-  return `${protocol}://${this.key}.${BASE_URI}`;
+  return `${protocol}://${APP_HOST}`;
+});
+
+schema.virtual('storyUri').get(() => {
+  const { STORY_HOST, NODE_ENV } = env;
+  const protocol = NODE_ENV === 'production' ? 'https' : 'http';
+  return `${protocol}://${STORY_HOST}`;
 });
 
 module.exports = schema;

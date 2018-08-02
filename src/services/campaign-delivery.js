@@ -92,8 +92,8 @@ module.exports = {
     if (!storyId) return url;
     // Campaign is linked to a story, generate using publiser or account host.
     const publisher = await Publisher.findById(publisherId, { domainName: 1 });
-    const host = publisher.domainName || accountService.getStoryHost();
-    return storyUrl(host, storyId);
+    const account = await accountService.retrieve();
+    return storyUrl(publisher.customUri || account.storyUri, storyId);
   },
 
   /**

@@ -1,5 +1,6 @@
 const { Schema } = require('mongoose');
 const { isFQDN } = require('validator');
+const env = require('../env');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
@@ -33,6 +34,14 @@ const schema = new Schema({
 
 setEntityFields(schema, 'name');
 applyElasticPlugin(schema, 'publishers');
+
+schema.virtual('customUri').get(function getCustomUri() {
+  const { domainName } = this;
+  if (!domainName) return null;
+  const { NODE_ENV } = env;
+  const protocol = NODE_ENV === 'production' ? 'https' : 'http';
+  return `${protocol}://${domainName}`;
+});
 
 schema.plugin(deleteablePlugin, {
   es_indexed: true,
