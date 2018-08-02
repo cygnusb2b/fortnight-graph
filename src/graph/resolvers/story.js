@@ -202,5 +202,19 @@ module.exports = {
       story.teaser = value;
       return story.save();
     },
+
+    /**
+     *
+     */
+    storyBody: async (root, { id, value }, { auth }) => {
+      const story = await Story.strictFindActiveById(id);
+      auth.checkAdvertiserAccess(story.advertiserId);
+
+      if (auth.user) {
+        story.setUserContext(auth.user);
+      }
+      story.body = value;
+      return story.save();
+    },
   },
 };

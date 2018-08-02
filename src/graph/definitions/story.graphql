@@ -16,6 +16,7 @@ type Mutation {
 
   storyTitle(id: String!, value: String!): Story!
   storyTeaser(id: String!, value: String!): Story!
+  storyBody(id: String!, value: String!): Story!
 }
 
 enum StorySortField {
