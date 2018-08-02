@@ -250,7 +250,7 @@ module.exports = {
       const { id, field, value } = input;
       const campaign = await Campaign.strictFindActiveById(id);
 
-      if (auth) {
+      if (auth.isValid()) {
         campaign.setUserContext(auth.user);
       }
       campaign.set(field, value);

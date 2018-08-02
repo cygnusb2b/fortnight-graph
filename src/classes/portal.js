@@ -12,12 +12,12 @@ class Portal {
 
   canAccessAdvertiser(id) {
     if (!this.isValid()) return false;
-    return id === this.id;
+    return `${id}` === `${this.id}`;
   }
 
   canAccessCampaign(id) {
     if (!this.isValid()) return false;
-    const campaign = this.campaigns.find(c => c.id === id);
+    const campaign = this.campaigns.find(c => `${c.id}` === `${id}`);
     if (campaign) return true;
     return false;
   }

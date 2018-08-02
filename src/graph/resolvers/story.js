@@ -137,9 +137,11 @@ module.exports = {
      *
      */
     removeStoryImage: async (root, { storyId, imageId }, { auth }) => {
-      auth.check();
       const story = await Story.strictFindActiveById(storyId);
-      story.setUserContext(auth.user);
+      auth.checkAdvertiserAccess(story.advertiserId);
+      if (auth.user) {
+        story.setUserContext(auth.user);
+      }
       story.removeImageId(imageId);
       return story.save();
     },
@@ -148,9 +150,11 @@ module.exports = {
      *
      */
     addStoryImage: async (root, { storyId, imageId }, { auth }) => {
-      auth.check();
       const story = await Story.strictFindActiveById(storyId);
-      story.setUserContext(auth.user);
+      auth.checkAdvertiserAccess(story.advertiserId);
+      if (auth.user) {
+        story.setUserContext(auth.user);
+      }
       story.addImageId(imageId);
       return story.save();
     },
@@ -159,10 +163,78 @@ module.exports = {
      *
      */
     storyPrimaryImage: async (root, { storyId, imageId }, { auth }) => {
-      auth.check();
       const story = await Story.strictFindActiveById(storyId);
+      auth.checkAdvertiserAccess(story.advertiserId);
       story.primaryImageId = imageId || undefined;
-      story.setUserContext(auth.user);
+      if (auth.user) {
+        story.setUserContext(auth.user);
+      }
+      return story.save();
+    },
+
+    /**
+     *
+     */
+    storyTitle: async (root, { id, value }, { auth }) => {
+      const story = await Story.strictFindActiveById(id);
+      auth.checkAdvertiserAccess(story.advertiserId);
+
+      if (auth.user) {
+        story.setUserContext(auth.user);
+      }
+      if (story.placeholder === true) {
+        story.placeholder = false;
+      }
+      story.title = value;
+      return story.save();
+    },
+
+    /**
+     *
+     */
+    storyTeaser: async (root, { id, value }, { auth }) => {
+      const story = await Story.strictFindActiveById(id);
+      auth.checkAdvertiserAccess(story.advertiserId);
+
+      if (auth.user) {
+        story.setUserContext(auth.user);
+      }
+      story.teaser = value;
+      return story.save();
+    },
+
+    /**
+     *
+     */
+    storyBody: async (root, { id, value }, { auth }) => {
+      const story = await Story.strictFindActiveById(id);
+      auth.checkAdvertiserAccess(story.advertiserId);
+
+      if (auth.user) {
+        story.setUserContext(auth.user);
+      }
+      story.body = value;
+      return story.save();
+    },
+
+    /**
+     *
+     */
+    storyPublishedAt: async (root, { id, value }, { auth }) => {
+      const story = await Story.strictFindActiveById(id);
+      auth.checkAdvertiserAccess(story.advertiserId);
+
+      if (value) {
+        ['title', 'body', 'primaryImageId'].forEach((key) => {
+          if (!story.get(key)) {
+            throw new Error(`You must set the story's ${key} before publishing.`);
+          }
+        });
+      }
+      if (auth.user) {
+        story.setUserContext(auth.user);
+      }
+      story.publishedAt = value;
       return story.save();
     },
   },
