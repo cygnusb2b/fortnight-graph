@@ -173,7 +173,7 @@ module.exports = {
       auth.checkPortalAccess();
       const story = await Story.strictFindActiveById(id);
 
-      if (auth) {
+      if (auth.isValid()) {
         story.setUserContext(auth.user);
       }
       if (story.placeholder === true) {
