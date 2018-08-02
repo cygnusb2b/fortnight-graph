@@ -176,7 +176,10 @@ module.exports = {
       if (auth) {
         story.setUserContext(auth.user);
       }
-      story.set('title', value);
+      if (story.placeholder === true) {
+        story.placeholder = false;
+      }
+      story.title = value;
       return story.save();
     },
   },
