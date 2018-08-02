@@ -216,5 +216,26 @@ module.exports = {
       story.body = value;
       return story.save();
     },
+
+    /**
+     *
+     */
+    storyPublishedAt: async (root, { id, value }, { auth }) => {
+      const story = await Story.strictFindActiveById(id);
+      auth.checkAdvertiserAccess(story.advertiserId);
+
+      if (value) {
+        ['title', 'body', 'primaryImageId'].forEach((key) => {
+          if (!story.get(key)) {
+            throw new Error(`You must set the story's ${key} before publishing.`);
+          }
+        });
+      }
+      if (auth.user) {
+        story.setUserContext(auth.user);
+      }
+      story.publishedAt = value;
+      return story.save();
+    },
   },
 };
