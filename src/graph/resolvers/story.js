@@ -33,6 +33,7 @@ module.exports = {
       const account = await accountService.retrieve();
       return `${storyUrl(account.storyUri, story.id)}/?preview=true`;
     },
+    hash: story => story.pushId,
     ...userAttributionFields,
   },
 

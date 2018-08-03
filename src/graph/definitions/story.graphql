@@ -38,6 +38,7 @@ enum StoryStatus {
 
 type Story implements UserAttribution & Timestampable {
   id: String!
+  hash: String!
   title: String!
   slug: String!
   advertiser: Advertiser!
