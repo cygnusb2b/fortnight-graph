@@ -365,5 +365,17 @@ module.exports = {
       campaign.get('notify.external').push(contact.id);
       return campaign.save();
     },
+
+    removeCampaignExternalContact: async (root, { input }, { auth }) => {
+      const { campaignId, contactId } = input;
+      auth.checkCampaignAccess(campaignId);
+      const campaign = await Campaign.strictFindActiveById(campaignId);
+
+      campaign.removeExternalContactId(contactId);
+      if (auth.user) {
+        campaign.setUserContext(auth.user);
+      }
+      return campaign.save();
+    },
   },
 };
