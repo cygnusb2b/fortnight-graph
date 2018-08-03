@@ -250,7 +250,7 @@ module.exports = {
       const { id, field, value } = input;
       const campaign = await Campaign.strictFindActiveById(id);
 
-      if (auth.isValid()) {
+      if (auth.user) {
         campaign.setUserContext(auth.user);
       }
       campaign.set(field, value);
@@ -336,6 +336,34 @@ module.exports = {
       const campaign = await Campaign.strictFindActiveById(id);
       campaign.set(field, contactIds);
       campaign.setUserContext(auth.user);
+      return campaign.save();
+    },
+
+    campaignExternalContact: async (root, { input }, { auth }) => {
+      const { campaignId, contactId, payload } = input;
+      const { email, givenName, familyName } = payload;
+      auth.checkCampaignAccess(campaignId);
+      const campaign = await Campaign.strictFindActiveById(campaignId);
+
+      const criteria = contactId ? { _id: contactId } : { email, deleted: false };
+      const contact = await Contact.findOneAndUpdate(criteria, {
+        $set: {
+          familyName,
+          givenName,
+          name: `${givenName} ${familyName}`,
+        },
+        $setOnInsert: { email, deleted: false },
+      }, {
+        new: true,
+        upsert: true,
+        setDefaultsOnInsert: true,
+        runValidators: true,
+      });
+
+      if (auth.user) {
+        campaign.setUserContext(auth.user);
+      }
+      campaign.get('notify.external').push(contact.id);
       return campaign.save();
     },
   },
