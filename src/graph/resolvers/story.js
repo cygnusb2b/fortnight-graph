@@ -56,6 +56,14 @@ module.exports = {
     /**
      *
      */
+    storyHash: (root, { input }) => {
+      const { advertiserId, hash } = input;
+      return Story.strictFindActiveOne({ advertiserId, pushId: hash });
+    },
+
+    /**
+     *
+     */
     allStories: (root, { pagination, sort }) => {
       const criteria = {
         deleted: false,

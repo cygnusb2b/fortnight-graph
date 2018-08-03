@@ -3,6 +3,7 @@ type Query {
   searchStories(pagination: PaginationInput = {}, phrase: String!): StoryConnection!
   autocompleteStories(pagination: PaginationInput = {}, phrase: String!): StoryConnection!
   story(input: ModelIdInput!): Story!
+  storyHash(input: StoryHashInput!): Story!
 }
 
 type Mutation {
@@ -79,6 +80,12 @@ input StoryTypeAheadInput {
 enum StoryTypeAheadField {
   title
 }
+
+input StoryHashInput {
+  advertiserId: String!
+  hash: String!
+}
+
 
 input StorySortInput {
   field: StorySortField! = createdAt
