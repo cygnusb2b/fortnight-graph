@@ -6,6 +6,7 @@ const {
   deleteablePlugin,
   imagePlugin,
   paginablePlugin,
+  pushIdPlugin,
   referencePlugin,
   repositoryPlugin,
   searchablePlugin,
@@ -57,6 +58,7 @@ schema.plugin(deleteablePlugin, {
   es_indexed: true,
   es_type: 'boolean',
 });
+schema.plugin(pushIdPlugin, { required: true });
 schema.plugin(userAttributionPlugin);
 schema.plugin(imagePlugin, { fieldName: 'primaryImageId' });
 schema.plugin(imagePlugin, { fieldName: 'imageIds', multiple: true });

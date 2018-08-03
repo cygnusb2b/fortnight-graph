@@ -33,6 +33,7 @@ module.exports = {
       const account = await accountService.retrieve();
       return `${storyUrl(account.storyUri, story.id)}/?preview=true`;
     },
+    hash: story => story.pushId,
     ...userAttributionFields,
   },
 
@@ -51,6 +52,14 @@ module.exports = {
     story: (root, { input }) => {
       const { id } = input;
       return Story.strictFindActiveById(id);
+    },
+
+    /**
+     *
+     */
+    storyHash: (root, { input }) => {
+      const { advertiserId, hash } = input;
+      return Story.strictFindActiveOne({ advertiserId, pushId: hash });
     },
 
     /**
