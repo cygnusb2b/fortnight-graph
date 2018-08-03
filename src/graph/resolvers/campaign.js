@@ -340,13 +340,12 @@ module.exports = {
     },
 
     campaignExternalContact: async (root, { input }, { auth }) => {
-      const { campaignId, contactId, payload } = input;
+      const { campaignId, payload } = input;
       const { email, givenName, familyName } = payload;
       auth.checkCampaignAccess(campaignId);
       const campaign = await Campaign.strictFindActiveById(campaignId);
 
-      const criteria = contactId ? { _id: contactId } : { email, deleted: false };
-      const contact = await Contact.findOneAndUpdate(criteria, {
+      const contact = await Contact.findOneAndUpdate({ email, deleted: false }, {
         $set: {
           familyName,
           givenName,

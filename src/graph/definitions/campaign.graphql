@@ -111,7 +111,6 @@ type CampaignEdge {
 
 input CampaignExternalContactInput {
   campaignId: String!
-  contactId: String # A null id here signifies a new assignment
   payload: CampaignExternalContactPayloadInput!
 }
 
