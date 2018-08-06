@@ -21,6 +21,7 @@ module.exports = {
       };
 
       const campaignCriteria = campaignDelivery.getDefaultCampaignCriteria();
+      delete campaignCriteria.paused;
       const campaigns = await Campaign.find(campaignCriteria, { _id: 1 });
       if (!campaigns.length) return defaultResult;
 
