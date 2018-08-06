@@ -1,9 +1,17 @@
 type Query {
   dailyCampaignMetrics(day: Date!): DailyCampaignMetrics!
+  dailyFallbackMetrics(day: Date!): DailyFallbackMetrics!
 }
 
 type DailyCampaignMetrics {
   campaigns: Int!
+  views: Int!
+  clicks: Int!
+  ctr: Float!
+}
+
+type DailyFallbackMetrics {
+  placements: Int!
   views: Int!
   clicks: Int!
   ctr: Float!
