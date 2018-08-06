@@ -110,4 +110,6 @@ const schema = new Schema({
   },
 });
 
+schema.index({ d: 1, e: 1 });
+
 module.exports = schema;
