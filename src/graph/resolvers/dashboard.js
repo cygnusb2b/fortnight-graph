@@ -65,8 +65,8 @@ module.exports = {
 
       const result = await AnalyticsEvent.aggregate(pipeline);
       return result[0] ? result[0] : {
+        campaigns: 0,
         views: 0,
-        impressions: 0,
         clicks: 0,
         ctr: 0,
       };
