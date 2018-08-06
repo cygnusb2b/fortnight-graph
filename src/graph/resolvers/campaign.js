@@ -143,6 +143,28 @@ module.exports = {
       };
       return Campaign.paginate({ criteria, pagination, sort });
     },
+
+    /**
+     *
+     */
+    incompleteCampaigns: (root, { pagination, sort }, { auth }) => {
+      auth.check();
+      const now = new Date();
+      const criteria = {
+        deleted: false,
+        ready: false,
+        $and: [
+          {
+            $or: [
+              { 'criteria.end': { $exists: false } },
+              { 'criteria.end': null },
+              { 'criteria.end': { $gt: now } },
+            ],
+          },
+        ],
+      };
+      return Campaign.paginate({ criteria, pagination, sort });
+    },
   },
 
   /**

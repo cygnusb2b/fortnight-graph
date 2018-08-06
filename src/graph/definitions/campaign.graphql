@@ -1,6 +1,7 @@
 type Query {
   allCampaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
   runningCampaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
+  incompleteCampaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
   campaign(input: ModelIdInput!): Campaign!
   searchCampaigns(pagination: PaginationInput = {}, phrase: String!): CampaignConnection!
   campaignHash(input: CampaignHashInput!): Campaign!
