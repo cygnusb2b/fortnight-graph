@@ -9,6 +9,7 @@ const Publisher = require('../../models/publisher');
 const Image = require('../../models/image');
 const Placement = require('../../models/placement');
 const User = require('../../models/user');
+const campaignDelivery = require('../../services/campaign-delivery');
 const contactNotifier = require('../../services/contact-notifier');
 
 const getNotifyDefaults = async (advertiserId, user) => {
@@ -173,22 +174,7 @@ module.exports = {
      */
     runningCampaigns: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      const now = new Date();
-      const criteria = {
-        deleted: false,
-        ready: true,
-        paused: false,
-        'criteria.start': { $lte: now },
-        $and: [
-          {
-            $or: [
-              { 'criteria.end': { $exists: false } },
-              { 'criteria.end': null },
-              { 'criteria.end': { $gt: now } },
-            ],
-          },
-        ],
-      };
+      const criteria = campaignDelivery.getDefaultCampaignCriteria();
       return Campaign.paginate({ criteria, pagination, sort });
     },
 
