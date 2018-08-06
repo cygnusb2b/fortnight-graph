@@ -29,6 +29,9 @@ type Mutation {
   campaignCreativeImage(input: CampaignCreativeImageInput!): CampaignCreative!
 
   campaignContacts(input: SetContactsInput!): Campaign!
+
+  campaignExternalContact(input: CampaignExternalContactInput!): Campaign!
+  removeCampaignExternalContact(input: RemoveCampaignExternalContactInput!): Campaign!
 }
 
 enum CampaignSortField {
@@ -105,6 +108,22 @@ type CampaignConnection {
 type CampaignEdge {
   node: Campaign!
   cursor: Cursor!
+}
+
+input RemoveCampaignExternalContactInput {
+  campaignId: String!
+  contactId: String!
+}
+
+input CampaignExternalContactInput {
+  campaignId: String!
+  payload: CampaignExternalContactPayloadInput!
+}
+
+input CampaignExternalContactPayloadInput {
+  email: String!
+  givenName: String!
+  familyName: String!
 }
 
 input AssignCampaignValueInput {
