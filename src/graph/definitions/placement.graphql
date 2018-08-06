@@ -28,6 +28,14 @@ type Placement implements UserAttribution & Timestampable {
   createdAt: Date
   createdBy: User!
   updatedBy: User!
+  metrics(start: Date!, end: Date!): PlacementMetrics!
+}
+
+type PlacementMetrics {
+  loads: Int!
+  views: Int!
+  clicks: Int!
+  ctr: Float!
 }
 
 type PlacementConnection {
