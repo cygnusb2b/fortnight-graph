@@ -30,6 +30,14 @@ type Publisher implements UserAttribution & Timestampable {
   createdAt: Date
   createdBy: User!
   updatedBy: User!
+  metrics(start: Date!, end: Date!): PublisherMetrics!
+}
+
+type PublisherMetrics {
+  loads: Int!
+  views: Int!
+  clicks: Int!
+  ctr: Float!
 }
 
 type PublisherConnection {
