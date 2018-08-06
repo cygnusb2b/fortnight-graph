@@ -147,7 +147,7 @@ input CampaignHashInput {
 }
 
 input CampaignSortInput {
-  field: String! = createdAt
+  field: String! = "createdAt"
   order: Int! = -1
 }
 
