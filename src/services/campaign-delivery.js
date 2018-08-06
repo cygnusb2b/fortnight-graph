@@ -32,19 +32,21 @@ module.exports = {
    * @param {?Date} startDate
    * @returns {object}
    */
-  getDefaultCampaignCriteria(startDate) {
-    const now = startDate instanceof Date ? startDate : new Date();
+  getDefaultCampaignCriteria(startDate, endDate) {
+    const now = new Date();
+    const start = startDate instanceof Date ? startDate : now;
+    const end = endDate instanceof Date ? endDate : now;
     return {
       deleted: false,
       ready: true,
       paused: false,
-      'criteria.start': { $lte: now },
+      'criteria.start': { $lte: start },
       $and: [
         {
           $or: [
             { 'criteria.end': { $exists: false } },
             { 'criteria.end': null },
-            { 'criteria.end': { $gt: now } },
+            { 'criteria.end': { $gt: end } },
           ],
         },
       ],
