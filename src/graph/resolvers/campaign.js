@@ -96,7 +96,6 @@ module.exports = {
       });
 
       const result = await AnalyticsEvent.aggregate(pipeline);
-      console.info(result);
       return result[0] ? result[0] : {
         loads: 0,
         views: 0,
