@@ -18,6 +18,7 @@ module.exports = {
       const pipeline = [];
       pipeline.push({
         $match: {
+          e: { $in: ['load-js', 'view-js', 'click-js'] },
           pid: placement._id,
           d: { $gte: start, $lte: end },
         },
