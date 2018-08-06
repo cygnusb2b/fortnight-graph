@@ -1,5 +1,6 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const Advertiser = require('../../models/advertiser');
+const AnalyticsEvent = require('../../models/analytics/event');
 const CreativeService = require('../../services/campaign-creatives');
 const Campaign = require('../../models/campaign');
 const Story = require('../../models/story');
@@ -54,6 +55,54 @@ module.exports = {
       const publisherIds = await Placement.distinct('publisherId', { _id: { $in: placementIds }, deleted: false });
       const criteria = { _id: { $in: publisherIds } };
       return Publisher.paginate({ pagination, criteria, sort });
+    },
+    metrics: async (campaign) => {
+      const pipeline = [];
+      pipeline.push({ $match: { cid: campaign._id } });
+      pipeline.push({
+        $project: {
+          cid: 1,
+          view: { $cond: [{ $eq: ['$e', 'view-js'] }, 1, 0] },
+          click: { $cond: [{ $eq: ['$e', 'click-js'] }, 1, 0] },
+          load: { $cond: [{ $eq: ['$e', 'load-js'] }, 1, 0] },
+        },
+      });
+      pipeline.push({
+        $group: {
+          _id: '$cid',
+          loads: { $sum: '$load' },
+          views: { $sum: '$view' },
+          clicks: { $sum: '$click' },
+        },
+      });
+      pipeline.push({
+        $project: {
+          _id: 0,
+          loads: 1,
+          views: 1,
+          clicks: 1,
+          ctr: {
+            $cond: {
+              if: {
+                $eq: ['$views', 0],
+              },
+              then: 0,
+              else: {
+                $divide: ['$clicks', '$views'],
+              },
+            },
+          },
+        },
+      });
+
+      const result = await AnalyticsEvent.aggregate(pipeline);
+      console.info(result);
+      return result[0] ? result[0] : {
+        loads: 0,
+        views: 0,
+        clicks: 0,
+        ctr: 0,
+      };
     },
     createdBy: campaign => User.findById(campaign.createdById),
     updatedBy: campaign => User.findById(campaign.updatedById),

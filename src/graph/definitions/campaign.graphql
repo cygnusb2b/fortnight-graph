@@ -73,6 +73,14 @@ type Campaign implements UserAttribution & Timestampable {
   notify: NotificationLists
   createdBy: User!
   updatedBy: User!
+  metrics: CampaignMetrics!
+}
+
+type CampaignMetrics {
+  loads: Int!
+  views: Int!
+  clicks: Int!
+  ctr: Float!
 }
 
 type CampaignCreative {
