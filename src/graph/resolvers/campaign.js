@@ -1,4 +1,5 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const moment = require('moment');
 const Advertiser = require('../../models/advertiser');
 const AnalyticsEvent = require('../../models/analytics/event');
 const CreativeService = require('../../services/campaign-creatives');
@@ -175,6 +176,34 @@ module.exports = {
     runningCampaigns: (root, { pagination, sort }, { auth }) => {
       auth.check();
       const criteria = campaignDelivery.getDefaultCampaignCriteria();
+      delete criteria.paused;
+      return Campaign.paginate({ criteria, pagination, sort });
+    },
+
+    /**
+     *
+     */
+    campaignsStartingSoon: (root, { pagination, sort }, { auth }) => {
+      auth.check();
+      const start = moment().add(7, 'days').toDate();
+      const criteria = {
+        deleted: false,
+        'criteria.start': { $gte: new Date(), $lte: start },
+      };
+      return Campaign.paginate({ criteria, pagination, sort });
+    },
+
+    /**
+     *
+     */
+    campaignsEndingSoon: (root, { pagination, sort }, { auth }) => {
+      auth.check();
+      const end = moment().add(7, 'days').toDate();
+      const criteria = {
+        deleted: false,
+        ready: true,
+        'criteria.end': { $gte: new Date(), $lte: end },
+      };
       return Campaign.paginate({ criteria, pagination, sort });
     },
 
