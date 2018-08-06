@@ -7,6 +7,7 @@ const account = require('./account');
 const advertiser = require('./advertiser');
 const campaign = require('./campaign');
 const contact = require('./contact');
+const dashboard = require('./dashboard');
 const image = require('./image');
 const placement = require('./placement');
 const publisher = require('./publisher');
@@ -21,6 +22,7 @@ module.exports = deepAssign(
   advertiser,
   campaign,
   contact,
+  dashboard,
   image,
   placement,
   publisher,

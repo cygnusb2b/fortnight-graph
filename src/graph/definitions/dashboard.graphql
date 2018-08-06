@@ -1,0 +1,10 @@
+type Query {
+  dailyCampaignMetrics(day: Date!): DailyCampaignMetrics!
+}
+
+type DailyCampaignMetrics {
+  campaigns: Int!
+  views: Int!
+  clicks: Int!
+  ctr: Float!
+}
