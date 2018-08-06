@@ -36,12 +36,6 @@ type Mutation {
   removeCampaignExternalContact(input: RemoveCampaignExternalContactInput!): Campaign!
 }
 
-enum CampaignSortField {
-  name
-  createdAt
-  updatedAt
-}
-
 enum CampaignStatus {
   Deleted
   Incomplete
@@ -153,7 +147,7 @@ input CampaignHashInput {
 }
 
 input CampaignSortInput {
-  field: CampaignSortField! = createdAt
+  field: String! = createdAt
   order: Int! = -1
 }
 
