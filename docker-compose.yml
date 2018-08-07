@@ -28,6 +28,8 @@ services:
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
       SENDGRID_FROM: ${SENDGRID_FROM}
       GOOGLE_APPLICATION_CREDENTIALS: /app/.google-cloud.json
+      DD_ENABLED: ${DD_ENABLED-false}
+      DD_TRACE_DEBUG: ${DD_TRACE_DEBUG-false}
   redis:
     image: redis:alpine
   mongo:

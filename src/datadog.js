@@ -1,21 +1,17 @@
-// const tracer = require('dd-trace');
-// const {
-//   DD_ENABLED,
-//   DD_TRACE_DEBUG,
-//   DD_SERVICE_NAME,
-//   DD_TRACE_AGENT_HOSTNAME,
-//   DD_TRACE_AGENT_PORT,
-//   DD_ENV,
-// } = require('./env');
+const tracer = require('dd-trace');
+const { DD_ENABLED, DD_SERVICE_NAME } = require('./env');
+const { NODE_ENV } = process.env;
 
-// if (DD_ENABLED) {
-//   tracer.init({
-//     debug: DD_TRACE_DEBUG,
-//     service: DD_SERVICE_NAME,
-//     hostname: DD_TRACE_AGENT_HOSTNAME,
-//     port: DD_TRACE_AGENT_PORT,
-//     env: DD_ENV,
-//   });
-// }
+if (DD_ENABLED) {
+  tracer.init({
+    env: NODE_ENV,
+    service: DD_SERVICE_NAME,
+    plugins: false,
+  });
 
-// module.exports = tracer;
+  tracer.use('express');
+  tracer.use('mongodb-core');
+  tracer.use('graphql');
+}
+
+module.exports = tracer;
