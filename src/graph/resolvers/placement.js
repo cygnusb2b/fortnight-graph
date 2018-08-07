@@ -1,5 +1,6 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const userAttributionFields = require('./user-attribution');
+const AnalyticsEvent = require('../../models/analytics/event');
 const Placement = require('../../models/placement');
 const Publisher = require('../../models/publisher');
 const Template = require('../../models/template');
@@ -13,6 +14,59 @@ module.exports = {
     publisher: placement => Publisher.findById(placement.publisherId),
     topic: placement => Topic.findById(placement.topicId),
     template: placement => Template.findById(placement.templateId),
+    metrics: async (placement, { start, end }) => {
+      const pipeline = [];
+      pipeline.push({
+        $match: {
+          e: { $in: ['load-js', 'view-js', 'click-js'] },
+          pid: placement._id,
+          d: { $gte: start, $lte: end },
+        },
+      });
+      pipeline.push({
+        $project: {
+          pid: 1,
+          view: { $cond: [{ $eq: ['$e', 'view-js'] }, 1, 0] },
+          click: { $cond: [{ $eq: ['$e', 'click-js'] }, 1, 0] },
+          load: { $cond: [{ $eq: ['$e', 'load-js'] }, 1, 0] },
+        },
+      });
+      pipeline.push({
+        $group: {
+          _id: '$pid',
+          loads: { $sum: '$load' },
+          views: { $sum: '$view' },
+          clicks: { $sum: '$click' },
+        },
+      });
+      pipeline.push({
+        $project: {
+          _id: 0,
+          loads: 1,
+          views: 1,
+          clicks: 1,
+          ctr: {
+            $cond: {
+              if: {
+                $eq: ['$views', 0],
+              },
+              then: 0,
+              else: {
+                $divide: ['$clicks', '$views'],
+              },
+            },
+          },
+        },
+      });
+
+      const result = await AnalyticsEvent.aggregate(pipeline);
+      return result[0] ? result[0] : {
+        loads: 0,
+        views: 0,
+        clicks: 0,
+        ctr: 0,
+      };
+    },
     ...userAttributionFields,
   },
 

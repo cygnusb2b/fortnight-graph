@@ -27,6 +27,33 @@ module.exports = {
   },
 
   /**
+   * Gets the default campaign criteria for the provided start date.
+   *
+   * @param {?Date} startDate
+   * @returns {object}
+   */
+  getDefaultCampaignCriteria(startDate, endDate) {
+    const now = new Date();
+    const start = startDate instanceof Date ? startDate : now;
+    const end = endDate instanceof Date ? endDate : now;
+    return {
+      deleted: false,
+      ready: true,
+      paused: false,
+      'criteria.start': { $lte: start },
+      $and: [
+        {
+          $or: [
+            { 'criteria.end': { $exists: false } },
+            { 'criteria.end': null },
+            { 'criteria.end': { $gt: end } },
+          ],
+        },
+      ],
+    };
+  },
+
+  /**
    * Queries for campaigns.
    *
    * @param {object} params
@@ -43,20 +70,8 @@ module.exports = {
     limit,
   }) {
     const criteria = {
-      deleted: false,
-      ready: true,
-      paused: false,
-      'criteria.start': { $lte: startDate },
+      ...this.getDefaultCampaignCriteria(startDate),
       'criteria.placementIds': placementId,
-      $and: [
-        {
-          $or: [
-            { 'criteria.end': { $exists: false } },
-            { 'criteria.end': null },
-            { 'criteria.end': { $gt: startDate } },
-          ],
-        },
-      ],
     };
 
     Utils.cleanValues(keyValues);

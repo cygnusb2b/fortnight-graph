@@ -1,5 +1,9 @@
 type Query {
   allCampaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
+  runningCampaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
+  incompleteCampaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
+  campaignsStartingSoon(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
+  campaignsEndingSoon(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
   campaign(input: ModelIdInput!): Campaign!
   searchCampaigns(pagination: PaginationInput = {}, phrase: String!): CampaignConnection!
   campaignHash(input: CampaignHashInput!): Campaign!
@@ -34,12 +38,6 @@ type Mutation {
   removeCampaignExternalContact(input: RemoveCampaignExternalContactInput!): Campaign!
 }
 
-enum CampaignSortField {
-  name
-  createdAt
-  updatedAt
-}
-
 enum CampaignStatus {
   Deleted
   Incomplete
@@ -71,6 +69,14 @@ type Campaign implements UserAttribution & Timestampable {
   notify: NotificationLists
   createdBy: User!
   updatedBy: User!
+  metrics: CampaignMetrics!
+}
+
+type CampaignMetrics {
+  loads: Int!
+  views: Int!
+  clicks: Int!
+  ctr: Float!
 }
 
 type CampaignCreative {
@@ -143,7 +149,7 @@ input CampaignHashInput {
 }
 
 input CampaignSortInput {
-  field: CampaignSortField! = createdAt
+  field: String! = "createdAt"
   order: Int! = -1
 }
 
