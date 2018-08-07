@@ -56,6 +56,7 @@ module.exports = cleanEnv(process.env, {
   MONGO_DSN: mongodsn({ desc: 'The MongoDB DSN to connect to.' }),
   NEW_RELIC_ENABLED: bool({ desc: 'Whether New Relic is enabled.', default: true, devDefault: false }),
   NEW_RELIC_LICENSE_KEY: nonemptystr({ desc: 'The license key for New Relic.', devDefault: '(unset)' }),
+  NEW_RELIC_APP_NAME: nonemptystr({ desc: 'The application name for New Relic.', devDefault: 'nativex-graph-dev' }),
   DD_ENABLED: bool({ desc: 'Whether Datadog is enabled.', default: true, devDefault: false }),
   DD_TRACE_AGENT_HOSTNAME: nonemptystr({ desc: 'The Datadog agent hostname', devDefault: 'datadog-agent' }),
   DD_SERVICE_NAME: nonemptystr({ desc: 'The Datadog service name', default: 'nativex-graph' }),
