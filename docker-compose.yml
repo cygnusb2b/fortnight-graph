@@ -16,7 +16,8 @@ services:
     entrypoint: node_modules/.bin/gulp
     environment:
       ACCOUNT_KEY: ${ACCOUNT_KEY-dev-tenant}
-      BASE_URI: localhost:8100
+      APP_HOST: ${APP_HOST-localhost:8100}
+      STORY_HOST: ${STORY_HOST-localhost:3105}
       DEBUG: ${DEBUG}
       ELASTIC_HOST: http://elasticsearch:9200
       ELASTIC_INDEX_RECREATE: ${ELASTIC_INDEX_RECREATE-false}
