@@ -10,7 +10,6 @@ if (DD_ENABLED) {
   });
 
   tracer.use('express');
-  tracer.use('mongodb-core');
   tracer.use('graphql');
 }
 
