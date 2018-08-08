@@ -7,8 +7,7 @@ services:
       - "${GRAPH_APP_PORT-8100}:8100"
     volumes:
       - .:/app:cached
-      # - node_modules:/app/node_modules
-      - ./node_modules:/app/node_modules
+      - node_modules:/app/node_modules
     depends_on:
       - redis
       - mongo
