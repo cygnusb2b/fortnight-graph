@@ -61,6 +61,20 @@ module.exports = {
     /**
      *
      */
+    publishedStory: async (root, { input }) => {
+      const { id, preview } = input;
+      const story = await Story.strictFindActiveById(id);
+      if (preview) return story;
+      const { publishedAt } = story;
+      if (!publishedAt || publishedAt.valueOf() > Date.now()) {
+        throw new Error(`No story found for ID '${id}'`);
+      }
+      return story;
+    },
+
+    /**
+     *
+     */
     storyHash: (root, { input }) => {
       const { advertiserId, hash } = input;
       return Story.strictFindActiveOne({ advertiserId, pushId: hash });
