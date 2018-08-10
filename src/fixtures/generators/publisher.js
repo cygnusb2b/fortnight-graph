@@ -7,6 +7,7 @@ module.exports = async ({ createdById, updatedById }) => {
     logo: faker.image.imageUrl(100, 100, undefined, undefined, true),
     createdAt: now,
     updatedAt: now,
+    website: faker.internet.url(),
     createdById: await createdById(),
     updatedById: await updatedById(),
   };
