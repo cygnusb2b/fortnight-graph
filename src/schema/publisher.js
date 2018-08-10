@@ -59,6 +59,8 @@ schema.pre('save', async function checkDelete() {
   if (placements) throw new Error('You cannot delete a publisher that has related placements.');
   const topics = await connection.model('topic').countActive({ publisherId: this.id });
   if (topics) throw new Error('You cannot delete a publisher that has related topics.');
+  const stories = await connection.model('story').countActive({ publisherId: this.id });
+  if (stories) throw new Error('You cannot delete a publisher that has related stories.');
 });
 
 schema.pre('save', async function updatePlacements() {
