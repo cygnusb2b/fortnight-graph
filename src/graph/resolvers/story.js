@@ -34,6 +34,10 @@ module.exports = {
       return `${storyUrl(account.storyUri, story.id)}/?preview=true`;
     },
     hash: story => story.pushId,
+    path: async (story) => {
+      const advertiser = await Advertiser.findById(story.advertiserId);
+      return `${advertiser.slug}/${story.slug}/${story.id}`;
+    },
     ...userAttributionFields,
   },
 
@@ -57,6 +61,20 @@ module.exports = {
     /**
      *
      */
+    publishedStory: async (root, { input }) => {
+      const { id, preview } = input;
+      const story = await Story.strictFindActiveById(id);
+      if (preview) return story;
+      const { publishedAt } = story;
+      if (!publishedAt || publishedAt.valueOf() > Date.now()) {
+        throw new Error(`No story found for ID '${id}'`);
+      }
+      return story;
+    },
+
+    /**
+     *
+     */
     storyHash: (root, { input }) => {
       const { advertiserId, hash } = input;
       return Story.strictFindActiveOne({ advertiserId, pushId: hash });
@@ -69,6 +87,18 @@ module.exports = {
       const criteria = {
         deleted: false,
         placeholder: false,
+      };
+      return Story.paginate({ criteria, pagination, sort });
+    },
+
+    /**
+     *
+     */
+    publishedStories: (root, { pagination, sort }) => {
+      const criteria = {
+        deleted: false,
+        placeholder: false,
+        publishedAt: { $lte: new Date() },
       };
       return Story.paginate({ criteria, pagination, sort });
     },

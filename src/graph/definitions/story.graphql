@@ -1,8 +1,10 @@
 type Query {
   allStories(pagination: PaginationInput = {}, sort: StorySortInput = {}): StoryConnection!
+  publishedStories(pagination: PaginationInput = {}, sort: StorySortInput = {}): StoryConnection!
   searchStories(pagination: PaginationInput = {}, phrase: String!): StoryConnection!
   autocompleteStories(pagination: PaginationInput = {}, phrase: String!): StoryConnection!
   story(input: ModelIdInput!): Story!
+  publishedStory(input: PublishedStoryInput!): Story!
   storyHash(input: StoryHashInput!): Story!
 }
 
@@ -44,6 +46,7 @@ type Story implements UserAttribution & Timestampable {
   advertiser: Advertiser!
   teaser: String
   body: String
+  path: String!
   status: StoryStatus!
   placeholder: Boolean!
   deleted: Boolean!
@@ -87,6 +90,10 @@ input StoryHashInput {
   hash: String!
 }
 
+input PublishedStoryInput {
+  id: String!
+  preview: Boolean = false
+}
 
 input StorySortInput {
   field: StorySortField! = createdAt
