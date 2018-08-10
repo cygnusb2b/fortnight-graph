@@ -26,6 +26,7 @@ services:
       SENDGRID_API_KEY: 1234
       SENDGRID_FROM: Test Testerson <test@test.io>
       GOOGLE_APPLICATION_CREDENTIALS: /app/.google-cloud.json
+      GA_TRACKING_ID: UA-00000000-1
   redis:
     image: redis:alpine
     volumes:
