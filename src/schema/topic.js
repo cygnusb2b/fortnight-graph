@@ -72,7 +72,7 @@ schema.pre('save', async function updatePlacements() {
   }
 });
 
-schema.index({ publisherId: 1, name: 1, deleted: true }, { unique: true });
+schema.index({ publisherId: 1, name: 1, deleted: 1 }, { unique: true });
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
 schema.index({ updatedAt: 1, _id: 1 }, { unique: true });
