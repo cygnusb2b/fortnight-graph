@@ -33,13 +33,11 @@ module.exports = {
     },
     previewUrl: async (story) => {
       const account = await accountService.retrieve();
-      return `${storyUrl(account.storyUri, story.id)}/?preview=true`;
+      const path = await story.getPath();
+      return `${storyUrl(account.storyUri, path)}/?preview=true`;
     },
     hash: story => story.pushId,
-    path: async (story) => {
-      const advertiser = await Advertiser.findById(story.advertiserId);
-      return `${advertiser.slug}/${story.slug}/${story.id}`;
-    },
+    path: story => story.getPath(),
     ...userAttributionFields,
   },
 

@@ -1,1 +1,1 @@
-module.exports = (uri, storyId) => `${uri}/story/${storyId}`;
+module.exports = (uri, path) => `${uri}/${path}`;
