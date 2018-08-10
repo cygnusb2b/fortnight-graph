@@ -1,5 +1,5 @@
 const { Schema } = require('mongoose');
-const { isFQDN } = require('validator');
+const { isFQDN, isURL } = require('validator');
 const env = require('../env');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
@@ -27,6 +27,20 @@ const schema = new Schema({
         return isFQDN(String(v));
       },
       message: 'Invalid domain name: {VALUE}',
+    },
+  },
+  website: {
+    type: String,
+    required: true,
+    trim: true,
+    validate: {
+      validator(v) {
+        return isURL(v, {
+          protocols: ['http', 'https'],
+          require_protocol: true,
+        });
+      },
+      message: 'Invalid publisher website URL for {VALUE}',
     },
   },
 }, { timestamps: true });
