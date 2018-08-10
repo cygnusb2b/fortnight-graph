@@ -15,6 +15,7 @@ module.exports = async ({
     updatedAt: now,
     createdById: await createdById(),
     updatedById: await updatedById(),
+    website: faker.internet.url(),
     notify: {
       internal: internalContactIds,
       external: externalContactIds,
