@@ -123,7 +123,7 @@ schema.post('save', async function handlePublishedAt() {
 });
 
 schema.index({ advertiserId: 1 });
-schema.index({ disposition: 1 });
+schema.index({ placeholder: 1 });
 schema.index({ title: 1, _id: 1 }, { unique: true });
 schema.index({ title: -1, _id: -1 }, { unique: true });
 schema.index({ updatedAt: 1, _id: 1 }, { unique: true });
