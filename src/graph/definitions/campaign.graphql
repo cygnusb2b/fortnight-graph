@@ -161,6 +161,7 @@ input CreateExternalUrlCampaignInput {
 input CreateNewStoryCampaignInput {
   name: String!
   advertiserId: String!
+  publisherId: String!
 }
 
 input CreateExistingStoryCampaignInput {
