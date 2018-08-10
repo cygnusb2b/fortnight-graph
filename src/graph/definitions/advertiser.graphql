@@ -28,6 +28,7 @@ type Advertiser implements UserAttribution & Timestampable {
   hash: String!
   name: String!
   logo: Image
+  website: String
   deleted: Boolean!
   createdAt: Date
   updatedAt: Date
@@ -69,6 +70,7 @@ input AdvertiserSortInput {
 
 input AdvertiserPayloadInput {
   name: String!
+  website: String
   notify: AdvertiserContactsInput
 }
 
