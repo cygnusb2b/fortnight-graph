@@ -54,6 +54,12 @@ schema.plugin(referencePlugin, {
   modelName: 'advertiser',
   options: { required: true, es_indexed: true, es_type: 'keyword' },
 });
+schema.plugin(referencePlugin, {
+  name: 'publisherId',
+  connection,
+  modelName: 'publisher',
+  options: { required: true },
+});
 schema.plugin(deleteablePlugin, {
   es_indexed: true,
   es_type: 'boolean',

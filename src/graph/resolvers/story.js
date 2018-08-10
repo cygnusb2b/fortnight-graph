@@ -2,6 +2,7 @@ const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const userAttributionFields = require('./user-attribution');
 const Advertiser = require('../../models/advertiser');
 const Campaign = require('../../models/campaign');
+const Publisher = require('../../models/publisher');
 const Story = require('../../models/story');
 const Image = require('../../models/image');
 const accountService = require('../../services/account');
@@ -23,6 +24,7 @@ module.exports = {
     // @todo Determine if this should run a strict/active find.
     // Ultimately, deleting an advertiser should delete it's stories?
     advertiser: story => Advertiser.findById(story.advertiserId),
+    publisher: story => Publisher.findById(story.publisherId),
     primaryImage: story => Image.findById(story.primaryImageId),
     images: story => Image.find({ _id: { $in: story.imageIds } }),
     campaigns: (story, { pagination, sort }) => {
@@ -128,12 +130,14 @@ module.exports = {
       const {
         title,
         advertiserId,
+        publisherId,
         publishedAt,
       } = payload;
 
       const story = new Story({
         title,
         advertiserId,
+        publisherId,
         publishedAt,
       });
       story.setUserContext(auth.user);
@@ -162,6 +166,7 @@ module.exports = {
         teaser,
         body,
         advertiserId,
+        publisherId,
         publishedAt,
       } = payload;
 
@@ -172,6 +177,7 @@ module.exports = {
         teaser,
         body,
         advertiserId,
+        publisherId,
         publishedAt,
       });
       return story.save();

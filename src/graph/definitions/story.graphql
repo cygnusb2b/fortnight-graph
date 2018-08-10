@@ -44,6 +44,7 @@ type Story implements UserAttribution & Timestampable {
   title: String!
   slug: String!
   advertiser: Advertiser!
+  publisher: Publisher!
   teaser: String
   body: String
   path: String!
@@ -105,6 +106,7 @@ input StoryPayloadInput {
   teaser: String
   body: String
   advertiserId: String!
+  publisherId: String!
   publishedAt: Date
 }
 
