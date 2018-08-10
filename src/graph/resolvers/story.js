@@ -80,6 +80,18 @@ module.exports = {
     /**
      *
      */
+    publishedStories: (root, { pagination, sort }) => {
+      const criteria = {
+        deleted: false,
+        placeholder: false,
+        publishedAt: { $lte: new Date() },
+      };
+      return Story.paginate({ criteria, pagination, sort });
+    },
+
+    /**
+     *
+     */
     searchStories: (root, { pagination, phrase }) => Story
       .search(phrase, { pagination, filter: storySearchFilter }),
 

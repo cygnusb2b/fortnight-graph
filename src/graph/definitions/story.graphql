@@ -1,5 +1,6 @@
 type Query {
   allStories(pagination: PaginationInput = {}, sort: StorySortInput = {}): StoryConnection!
+  publishedStories(pagination: PaginationInput = {}, sort: StorySortInput = {}): StoryConnection!
   searchStories(pagination: PaginationInput = {}, phrase: String!): StoryConnection!
   autocompleteStories(pagination: PaginationInput = {}, phrase: String!): StoryConnection!
   story(input: ModelIdInput!): Story!
