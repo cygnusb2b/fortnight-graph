@@ -85,6 +85,11 @@ schema.virtual('status').get(function getStatus() {
   return 'Draft';
 });
 
+schema.method('getPath', async function getPath() {
+  const advertiser = await connection.model('advertiser').findById(this.advertiserId);
+  return `${advertiser.slug}/${this.slug}/${this.id}`;
+});
+
 schema.pre('save', async function checkDelete() {
   if (!this.isModified('deleted') || !this.deleted) return;
   const count = await connection.model('campaign').countActive({ storyId: this.id });
