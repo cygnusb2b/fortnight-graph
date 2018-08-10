@@ -34,6 +34,10 @@ module.exports = {
       return `${storyUrl(account.storyUri, story.id)}/?preview=true`;
     },
     hash: story => story.pushId,
+    path: async (story) => {
+      const advertiser = await Advertiser.findById(story.advertiserId);
+      return `${advertiser.slug}/${story.slug}/${story.id}`;
+    },
     ...userAttributionFields,
   },
 

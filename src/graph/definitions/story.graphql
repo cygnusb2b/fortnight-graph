@@ -44,6 +44,7 @@ type Story implements UserAttribution & Timestampable {
   advertiser: Advertiser!
   teaser: String
   body: String
+  path: String!
   status: StoryStatus!
   placeholder: Boolean!
   deleted: Boolean!

@@ -1,4 +1,5 @@
 const { Schema } = require('mongoose');
+const slug = require('slug');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
@@ -34,6 +35,10 @@ schema.plugin(userAttributionPlugin);
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name'] });
+
+schema.virtual('slug').get(function getSlug() {
+  return slug(this.name).toLowerCase();
+});
 
 schema.pre('save', async function checkDelete() {
   if (!this.isModified('deleted') || !this.deleted) return;
