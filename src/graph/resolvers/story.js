@@ -30,7 +30,7 @@ module.exports = {
       const criteria = { storyId: story.id, deleted: false };
       return Campaign.paginate({ pagination, criteria, sort });
     },
-    previewUrl: story => story.getUrl(true),
+    previewUrl: story => story.getUrl({ preview: true }),
     url: story => story.getUrl(),
     hash: story => story.pushId,
     path: story => story.getPath(),

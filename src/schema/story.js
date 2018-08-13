@@ -92,11 +92,10 @@ schema.method('getPath', async function getPath() {
   return `${advertiser.slug}/${this.slug}/${this.id}`;
 });
 
-schema.method('getUrl', async function getUrl(preview) {
+schema.method('getUrl', async function getUrl(params) {
   const account = await accountService.retrieve();
   const path = await this.getPath();
-  const url = `${storyUrl(account.storyUri, path)}`;
-  return preview ? `${url}/?preview=true` : url;
+  return storyUrl(account.storyUri, path, params);
 });
 
 schema.pre('save', async function checkDelete() {
