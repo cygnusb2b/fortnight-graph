@@ -12,6 +12,8 @@ const {
   searchablePlugin,
   userAttributionPlugin,
 } = require('../plugins');
+const storyUrl = require('../utils/story-url');
+const accountService = require('../services/account');
 
 const schema = new Schema({
   title: {
@@ -54,6 +56,12 @@ schema.plugin(referencePlugin, {
   modelName: 'advertiser',
   options: { required: true, es_indexed: true, es_type: 'keyword' },
 });
+schema.plugin(referencePlugin, {
+  name: 'publisherId',
+  connection,
+  modelName: 'publisher',
+  options: { required: true },
+});
 schema.plugin(deleteablePlugin, {
   es_indexed: true,
   es_type: 'boolean',
@@ -77,6 +85,17 @@ schema.virtual('status').get(function getStatus() {
   if (publishedAt && publishedAt.valueOf() <= Date.now()) return 'Published';
   if (publishedAt && publishedAt.valueOf() > Date.now()) return 'Scheduled';
   return 'Draft';
+});
+
+schema.method('getPath', async function getPath() {
+  const advertiser = await connection.model('advertiser').findById(this.advertiserId);
+  return `${advertiser.slug}/${this.slug}/${this.id}`;
+});
+
+schema.method('getUrl', async function getUrl(params) {
+  const account = await accountService.retrieve();
+  const path = await this.getPath();
+  return storyUrl(account.storyUri, path, params);
 });
 
 schema.pre('save', async function checkDelete() {

@@ -313,12 +313,13 @@ module.exports = {
      */
     createNewStoryCampaign: async (root, { input }, { auth }) => {
       auth.check();
-      const { name, advertiserId } = input;
+      const { name, advertiserId, publisherId } = input;
       const notify = await getNotifyDefaults(advertiserId, auth.user);
 
       const story = new Story({
         title: 'Placeholder Story',
         advertiserId,
+        publisherId,
         placeholder: true,
       });
       story.setUserContext(auth.user);

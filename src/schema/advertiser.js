@@ -1,4 +1,5 @@
 const { Schema } = require('mongoose');
+const { isURL } = require('validator');
 const slug = require('slug');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
@@ -18,6 +19,20 @@ const schema = new Schema({
     type: String,
     required: true,
     trim: true,
+  },
+  website: {
+    type: String,
+    trim: true,
+    validate: {
+      validator(v) {
+        if (!v) return true;
+        return isURL(v, {
+          protocols: ['http', 'https'],
+          require_protocol: true,
+        });
+      },
+      message: 'Invalid publisher website URL for {VALUE}',
+    },
   },
 }, { timestamps: true });
 

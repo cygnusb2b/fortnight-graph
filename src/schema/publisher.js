@@ -1,5 +1,5 @@
 const { Schema } = require('mongoose');
-const { isFQDN } = require('validator');
+const { isFQDN, isURL } = require('validator');
 const env = require('../env');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
@@ -27,6 +27,20 @@ const schema = new Schema({
         return isFQDN(String(v));
       },
       message: 'Invalid domain name: {VALUE}',
+    },
+  },
+  website: {
+    type: String,
+    required: true,
+    trim: true,
+    validate: {
+      validator(v) {
+        return isURL(v, {
+          protocols: ['http', 'https'],
+          require_protocol: true,
+        });
+      },
+      message: 'Invalid publisher website URL for {VALUE}',
     },
   },
 }, { timestamps: true });
@@ -59,6 +73,8 @@ schema.pre('save', async function checkDelete() {
   if (placements) throw new Error('You cannot delete a publisher that has related placements.');
   const topics = await connection.model('topic').countActive({ publisherId: this.id });
   if (topics) throw new Error('You cannot delete a publisher that has related topics.');
+  const stories = await connection.model('story').countActive({ publisherId: this.id });
+  if (stories) throw new Error('You cannot delete a publisher that has related stories.');
 });
 
 schema.pre('save', async function updatePlacements() {

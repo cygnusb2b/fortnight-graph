@@ -1,11 +1,11 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const moment = require('moment');
 const userAttributionFields = require('./user-attribution');
 const Advertiser = require('../../models/advertiser');
 const Campaign = require('../../models/campaign');
+const Publisher = require('../../models/publisher');
 const Story = require('../../models/story');
 const Image = require('../../models/image');
-const accountService = require('../../services/account');
-const storyUrl = require('../../utils/story-url');
 
 const storySearchFilter = [
   {
@@ -23,22 +23,49 @@ module.exports = {
     // @todo Determine if this should run a strict/active find.
     // Ultimately, deleting an advertiser should delete it's stories?
     advertiser: story => Advertiser.findById(story.advertiserId),
+    publisher: (story, { contextId }) => {
+      const publisherId = contextId || story.publisherId;
+      return Publisher.findById(publisherId);
+    },
     primaryImage: story => Image.findById(story.primaryImageId),
     images: story => Image.find({ _id: { $in: story.imageIds } }),
     campaigns: (story, { pagination, sort }) => {
       const criteria = { storyId: story.id, deleted: false };
       return Campaign.paginate({ pagination, criteria, sort });
     },
-    previewUrl: async (story) => {
-      const account = await accountService.retrieve();
-      return `${storyUrl(account.storyUri, story.id)}/?preview=true`;
-    },
+    previewUrl: story => story.getUrl({ preview: true }),
+    url: story => story.getUrl(),
     hash: story => story.pushId,
-    path: async (story) => {
-      const advertiser = await Advertiser.findById(story.advertiserId);
-      return `${advertiser.slug}/${story.slug}/${story.id}`;
-    },
+    path: story => story.getPath(),
     ...userAttributionFields,
+  },
+
+  StorySitemapItem: {
+    loc: async (story) => {
+      const url = await story.getUrl();
+      /**
+       * Per the sitemap entity escaping section
+       * @see https://www.sitemaps.org/protocol.html#escaping
+       */
+      return url
+        .replace('&', '&amp;')
+        .replace('\'', '&apos;')
+        .replace('"', '&quot;')
+        .replace('>', '&gt;')
+        .replace('<', '&lt;');
+    },
+    lastmod: ({ updatedAt }) => (updatedAt ? moment(updatedAt).toISOString() : null),
+    changefreq: () => 'monthly',
+    priority: () => 0.5,
+    image: ({ primaryImageId }) => {
+      if (!primaryImageId) return null;
+      return Image.findById(primaryImageId);
+    },
+  },
+
+  StorySitemapImage: {
+    loc: image => image.getSrc(),
+    caption: () => null,
   },
 
   /**
@@ -103,6 +130,15 @@ module.exports = {
       return Story.paginate({ criteria, pagination, sort });
     },
 
+    storySitemap: () => {
+      const criteria = {
+        deleted: false,
+        placeholder: false,
+        publishedAt: { $lte: new Date() },
+      };
+      return Story.find(criteria).sort({ publishedAt: -1 });
+    },
+
     /**
      *
      */
@@ -128,12 +164,14 @@ module.exports = {
       const {
         title,
         advertiserId,
+        publisherId,
         publishedAt,
       } = payload;
 
       const story = new Story({
         title,
         advertiserId,
+        publisherId,
         publishedAt,
       });
       story.setUserContext(auth.user);
@@ -162,6 +200,7 @@ module.exports = {
         teaser,
         body,
         advertiserId,
+        publisherId,
         publishedAt,
       } = payload;
 
@@ -172,6 +211,7 @@ module.exports = {
         teaser,
         body,
         advertiserId,
+        publisherId,
         publishedAt,
       });
       return story.save();

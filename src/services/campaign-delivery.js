@@ -7,6 +7,7 @@ const Campaign = require('../models/campaign');
 const Publisher = require('../models/publisher');
 const Image = require('../models/image');
 const Placement = require('../models/placement');
+const Story = require('../models/story');
 const Template = require('../models/template');
 const Utils = require('../utils');
 const storyUrl = require('../utils/story-url');
@@ -108,7 +109,9 @@ module.exports = {
     // Campaign is linked to a story, generate using publiser or account host.
     const publisher = await Publisher.findById(publisherId, { domainName: 1 });
     const account = await accountService.retrieve();
-    return storyUrl(publisher.customUri || account.storyUri, storyId);
+    const story = await Story.findById(storyId, { body: 0 });
+    const path = await story.getPath();
+    return storyUrl(publisher.customUri || account.storyUri, path, { pubid: publisherId });
   },
 
   /**

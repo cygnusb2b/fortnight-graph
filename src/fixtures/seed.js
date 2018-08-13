@@ -114,9 +114,11 @@ module.exports = {
     const { Story } = models;
     const user = await this.users(1);
     const advertiser = await this.advertisers(1);
+    const publisher = await this.publishers(1);
     const images = await this.images(3);
     const params = {
       advertiserId: () => advertiser.id,
+      publisherId: () => publisher.id,
       primaryImageId: () => images[0].id,
       imageIds: () => images.map(image => image.id),
       updatedById: () => user.id,
