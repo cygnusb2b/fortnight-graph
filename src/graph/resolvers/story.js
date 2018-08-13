@@ -1,4 +1,5 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
+const moment = require('moment');
 const userAttributionFields = require('./user-attribution');
 const Advertiser = require('../../models/advertiser');
 const Campaign = require('../../models/campaign');
@@ -34,6 +35,25 @@ module.exports = {
     hash: story => story.pushId,
     path: story => story.getPath(),
     ...userAttributionFields,
+  },
+
+  StorySitemapItem: {
+    loc: async (story) => {
+      const url = await story.getUrl();
+      /**
+       * Per the sitemap entity escaping section
+       * @see https://www.sitemaps.org/protocol.html#escaping
+       */
+      return url
+        .replace('&', '&amp;')
+        .replace('\'', '&apos;')
+        .replace('"', '&quot;')
+        .replace('>', '&gt;')
+        .replace('<', '&lt;');
+    },
+    lastmod: ({ updatedAt }) => (updatedAt ? moment(updatedAt).toISOString() : null),
+    changefreq: () => 'monthly',
+    priority: () => 0.5,
   },
 
   /**
@@ -96,6 +116,15 @@ module.exports = {
         publishedAt: { $lte: new Date() },
       };
       return Story.paginate({ criteria, pagination, sort });
+    },
+
+    storySitemap: () => {
+      const criteria = {
+        deleted: false,
+        placeholder: false,
+        publishedAt: { $lte: new Date() },
+      };
+      return Story.find(criteria).sort({ publishedAt: -1 });
     },
 
     /**
