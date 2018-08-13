@@ -12,6 +12,8 @@ const {
   searchablePlugin,
   userAttributionPlugin,
 } = require('../plugins');
+const storyUrl = require('../utils/story-url');
+const accountService = require('../services/account');
 
 const schema = new Schema({
   title: {
@@ -88,6 +90,13 @@ schema.virtual('status').get(function getStatus() {
 schema.method('getPath', async function getPath() {
   const advertiser = await connection.model('advertiser').findById(this.advertiserId);
   return `${advertiser.slug}/${this.slug}/${this.id}`;
+});
+
+schema.method('getUrl', async function getUrl(preview) {
+  const account = await accountService.retrieve();
+  const path = await this.getPath();
+  const url = `${storyUrl(account.storyUri, path)}`;
+  return preview ? `${url}/?preview=true` : url;
 });
 
 schema.pre('save', async function checkDelete() {

@@ -5,8 +5,6 @@ const Campaign = require('../../models/campaign');
 const Publisher = require('../../models/publisher');
 const Story = require('../../models/story');
 const Image = require('../../models/image');
-const accountService = require('../../services/account');
-const storyUrl = require('../../utils/story-url');
 
 const storySearchFilter = [
   {
@@ -31,11 +29,8 @@ module.exports = {
       const criteria = { storyId: story.id, deleted: false };
       return Campaign.paginate({ pagination, criteria, sort });
     },
-    previewUrl: async (story) => {
-      const account = await accountService.retrieve();
-      const path = await story.getPath();
-      return `${storyUrl(account.storyUri, path)}/?preview=true`;
-    },
+    previewUrl: story => story.getUrl(true),
+    url: story => story.getUrl(),
     hash: story => story.pushId,
     path: story => story.getPath(),
     ...userAttributionFields,

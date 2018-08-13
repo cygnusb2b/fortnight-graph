@@ -55,6 +55,7 @@ type Story implements UserAttribution & Timestampable {
   primaryImage: Image
   images: [Image]
   previewUrl: String!
+  url: String!
   campaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
   createdAt: Date!
   updatedAt: Date!
