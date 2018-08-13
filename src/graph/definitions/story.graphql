@@ -70,6 +70,13 @@ type StorySitemapItem {
   lastmod: String
   changefreq: String
   priority: Float
+  image: StorySitemapImage
+}
+
+type StorySitemapImage {
+  id: String!
+  loc: String!
+  caption: String
 }
 
 type StoryConnection {

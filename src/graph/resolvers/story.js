@@ -54,6 +54,15 @@ module.exports = {
     lastmod: ({ updatedAt }) => (updatedAt ? moment(updatedAt).toISOString() : null),
     changefreq: () => 'monthly',
     priority: () => 0.5,
+    image: ({ primaryImageId }) => {
+      if (!primaryImageId) return null;
+      return Image.findById(primaryImageId);
+    },
+  },
+
+  StorySitemapImage: {
+    loc: image => image.getSrc(),
+    caption: () => null,
   },
 
   /**
