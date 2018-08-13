@@ -11,6 +11,7 @@ type Account {
   key: String!
   name: String!
   uri: String!
+  storyUri: String!
   settings: AccountSettings!
   createdAt: Date
   updatedAt: Date
