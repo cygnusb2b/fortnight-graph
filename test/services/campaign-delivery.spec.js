@@ -13,7 +13,7 @@ describe('services/campaign-delivery', function() {
       });
 
       sandbox.stub(Story, 'findById').resolves({
-        path: 'foo/bar',
+        getPath: () => Promise.resolve('foo/bar'),
       });
 
       sandbox.stub(Publisher, 'findById')
