@@ -45,7 +45,7 @@ type Story implements UserAttribution & Timestampable {
   title: String!
   slug: String!
   advertiser: Advertiser!
-  publisher: Publisher!
+  publisher(contextId: String): Publisher! #optionally can override the primary publisher.
   teaser: String
   body: String
   path: String!

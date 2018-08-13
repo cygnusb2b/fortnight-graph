@@ -23,7 +23,10 @@ module.exports = {
     // @todo Determine if this should run a strict/active find.
     // Ultimately, deleting an advertiser should delete it's stories?
     advertiser: story => Advertiser.findById(story.advertiserId),
-    publisher: story => Publisher.findById(story.publisherId),
+    publisher: (story, { contextId }) => {
+      const publisherId = contextId || story.publisherId;
+      return Publisher.findById(publisherId);
+    },
     primaryImage: story => Image.findById(story.primaryImageId),
     images: story => Image.find({ _id: { $in: story.imageIds } }),
     campaigns: (story, { pagination, sort }) => {
