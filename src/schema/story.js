@@ -89,7 +89,7 @@ schema.virtual('status').get(function getStatus() {
 
 schema.method('getPath', async function getPath() {
   const advertiser = await connection.model('advertiser').findById(this.advertiserId);
-  return `${advertiser.slug}/${this.slug}/${this.id}`;
+  return `story/${advertiser.slug}/${this.slug}/${this.id}`;
 });
 
 schema.method('getUrl', async function getUrl(params) {
