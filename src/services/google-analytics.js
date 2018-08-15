@@ -1,4 +1,5 @@
 const { titleize, underscore } = require('inflection');
+const moment = require('moment');
 const env = require('../env');
 const { google, auth } = require('../connections/google');
 
@@ -15,6 +16,54 @@ module.exports = {
       });
     }
     return conn;
+  },
+
+  /**
+   *
+   * @param {string} storyId
+   * @param {object} params
+   * @param {string|Date} params.startDate
+   * @param {string|Date} params.endDate
+   */
+  async storyReportByDay(storyId, { startDate, endDate }) {
+    if (!storyId) throw new Error('No story ID was provided.');
+    const dateRanges = [{ startDate, endDate }];
+    const dimensions = [{ name: 'ga:date' }];
+    const dimensionFilterClauses = [
+      { filters: [this.getStoryFilter(storyId)] },
+    ];
+
+    const request = {
+      viewId: GA_VIEW_ID,
+      dateRanges,
+      dimensions,
+      metrics: this.getStandardMetrics(),
+      dimensionFilterClauses,
+      includeEmptyRows: true,
+      hideTotals: true,
+      hideValueRanges: true,
+    };
+    const data = await this.sendReportRequests(request);
+    return this.formatStoryByDayReport(data.reports[0]);
+  },
+
+  formatStoryByDayReport(report) {
+    const { metricHeaderEntries } = report.columnHeader.metricHeader;
+    const headers = metricHeaderEntries.map((header) => {
+      const key = this.createKey(header.name);
+      return { ...header, key };
+    });
+    const { rows } = report.data;
+    return rows.reduce((arr, row) => {
+      arr.push({
+        day: moment(row.dimensions[0]).toDate(),
+        metrics: row.metrics[0].values.reduce((obj, value, index) => {
+          const { key } = headers[index];
+          return { ...obj, [key]: Number(value) };
+        }, {}),
+      });
+      return arr;
+    }, []);
   },
 
   /**
