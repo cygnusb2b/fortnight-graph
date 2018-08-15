@@ -27,7 +27,7 @@ module.exports = {
    */
   async storyReportByDay(storyId, { startDate, endDate }) {
     if (!storyId) throw new Error('No story ID was provided.');
-    const dateRanges = [{ startDate, endDate }];
+    const dateRanges = [this.formatDates({ startDate, endDate })];
     const dimensions = [{ name: 'ga:date' }];
     const dimensionFilterClauses = [
       { filters: [this.getStoryFilter(storyId)] },
@@ -58,7 +58,7 @@ module.exports = {
    */
   async storyReport(storyId, { startDate, endDate }) {
     if (!storyId) throw new Error('No story ID was provided.');
-    const dateRanges = [{ startDate, endDate }];
+    const dateRanges = [this.formatDates({ startDate, endDate })];
     const dimensionFilterClauses = [
       { filters: [this.getStoryFilter(storyId)] },
     ];
@@ -86,7 +86,7 @@ module.exports = {
    */
   async storyAcquisitionReport(storyId, { startDate, endDate }) {
     if (!storyId) throw new Error('No story ID was provided.');
-    const dateRanges = [{ startDate, endDate }];
+    const dateRanges = [this.formatDates({ startDate, endDate })];
     const dimensions = [{ name: 'ga:medium' }];
     const dimensionFilterClauses = [
       { filters: [this.getStoryFilter(storyId)] },
@@ -156,6 +156,18 @@ module.exports = {
       requestBody: { reportRequests },
     });
     return res.data;
+  },
+
+  formatDates({ startDate, endDate }) {
+    return {
+      startDate: this.formatDate(startDate),
+      endDate: this.formatDate(endDate),
+    };
+  },
+
+  formatDate(date) {
+    if (!date) return undefined;
+    return moment(date).startOf('day').format('YYYY-MM-DD');
   },
 
   getStoryFilter(storyId) {
