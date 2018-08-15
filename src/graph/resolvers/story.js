@@ -20,6 +20,31 @@ const storySearchFilter = [
 ];
 
 module.exports = {
+  /**
+   *
+   */
+  StoryReports: {
+    byDay: (story, { startDate, endDate }) => {
+      const { publishedAt } = story;
+      if (!publishedAt || publishedAt.valueOf() > Date.now()) {
+        return [];
+      }
+      const start = startDate.valueOf() < publishedAt.valueOf() ? publishedAt : startDate;
+      return ga.storyReportByDay(story.id, { startDate: start, endDate });
+    },
+
+    acquisition: (story, { startDate, endDate }) => {
+      const { publishedAt } = story;
+      if (!publishedAt || publishedAt.valueOf() > Date.now()) {
+        return [];
+      }
+      const start = startDate.valueOf() < publishedAt.valueOf() ? publishedAt : startDate;
+      return ga.storyAcquisitionReport(story.id, { startDate: start, endDate });
+    },
+  },
+  /**
+   *
+   */
   Story: {
     // @todo Determine if this should run a strict/active find.
     // Ultimately, deleting an advertiser should delete it's stories?
@@ -49,6 +74,7 @@ module.exports = {
       });
       return report.metrics;
     },
+    reports: story => story,
     ...userAttributionFields,
   },
 
