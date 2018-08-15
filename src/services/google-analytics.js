@@ -68,12 +68,11 @@ module.exports = {
     const { rows } = report.data;
     const values = rows && rows[0] ? rows[0].metrics[0].values : [];
 
-    return metricHeaderEntries.map((header) => {
-      const { name } = header;
-      const key = this.createKey(name);
-      const label = this.createLabel(name);
-      return { ...header, key, label };
-    });
+    return metricHeaderEntries.reduce((obj, header, index) => {
+      const key = this.createKey(header.name);
+      const value = Number(values[index]);
+      return { ...obj, [key]: value };
+    }, {});
   },
 
   createLabel(name) {
