@@ -9,8 +9,8 @@ router.use(helmet.noCache());
 router.get('/:storyId', asyncRoute(async (req, res) => {
   const { storyId } = req.params;
   const opts = { startDate: '2018-08-01', endDate: '2018-08-15' };
-  const data = await ga.storyReport(storyId, opts);
-  res.json({ data });
+  const report = await ga.storyReport(storyId, opts);
+  res.json(report);
 }));
 
 module.exports = router;

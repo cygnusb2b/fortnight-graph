@@ -60,7 +60,8 @@ module.exports = {
       hideTotals: true,
       hideValueRanges: true,
     };
-    return this.sendReportRequests(request);
+    const data = await this.sendReportRequests(request);
+    return this.formatReport(data.reports[0]);
   },
 
   /**
@@ -74,5 +75,9 @@ module.exports = {
       requestBody: { reportRequests },
     });
     return res.data;
+  },
+
+  formatReport(report) {
+    return report;
   },
 };
