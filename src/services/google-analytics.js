@@ -1,7 +1,8 @@
+const env = require('../env');
 const { google, auth } = require('../connections/google');
 
 const { isArray } = Array;
-const VIEW_ID = '178806143';
+const { GA_VIEW_ID } = env;
 
 let conn;
 
@@ -50,7 +51,7 @@ module.exports = {
     ];
 
     const request = {
-      viewId: VIEW_ID,
+      viewId: GA_VIEW_ID,
       dateRanges,
       dimensions,
       metrics,

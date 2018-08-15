@@ -48,6 +48,7 @@ module.exports = cleanEnv(process.env, {
   APP_HOST: nonemptystr({ desc: 'The hostname where the server instance is running.' }),
   STORY_HOST: nonemptystr({ desc: 'The hostname where the story website instance is running.' }),
   GA_TRACKING_ID: nonemptystr({ desc: 'The Google analytics ID that stories/sponsored content will use for tracking' }),
+  GA_VIEW_ID: nonemptystr({ desc: 'The Google analytics view ID that the API will use when querying data.' }),
   ELASTIC_HOST: url({ desc: 'The Elasticsearch DSN to connect to.' }),
   ELASTIC_INDEX_RECREATE: bool({ desc: 'Whether the Elasticsearch indexes should be re-created.', default: false }),
   IMGIX_URL: url({ desc: 'The Imgix URL for serving images.' }),
