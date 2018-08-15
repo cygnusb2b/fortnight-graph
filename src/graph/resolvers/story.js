@@ -6,6 +6,7 @@ const Campaign = require('../../models/campaign');
 const Publisher = require('../../models/publisher');
 const Story = require('../../models/story');
 const Image = require('../../models/image');
+const ga = require('../../services/google-analytics');
 
 const storySearchFilter = [
   {
@@ -37,6 +38,17 @@ module.exports = {
     url: story => story.getUrl(),
     hash: story => story.pushId,
     path: story => story.getPath(),
+    metrics: async (story) => {
+      const { publishedAt } = story;
+      if (!publishedAt || publishedAt.valueOf() > Date.now()) {
+        return ga.getDefaultMetricValues();
+      }
+      const report = await ga.storyReport(story.id, {
+        startDate: publishedAt,
+        endDate: new Date(),
+      });
+      return report.metrics;
+    },
     ...userAttributionFields,
   },
 
