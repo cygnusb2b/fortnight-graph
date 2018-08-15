@@ -53,7 +53,7 @@ module.exports = {
       const key = this.createKey(header.name);
       return { ...header, key };
     });
-    const { rows } = report.data;
+    const rows = report.data.rows || [];
     return rows.reduce((arr, row) => {
       arr.push({
         day: moment(row.dimensions[0]).toDate(),
@@ -103,6 +103,54 @@ module.exports = {
       const value = Number(values[index]);
       return { ...obj, [key]: value };
     }, {});
+  },
+
+  /**
+   *
+   * @param {string} storyId
+   * @param {object} params
+   * @param {string|Date} params.startDate
+   * @param {string|Date} params.endDate
+   */
+  async storyAcquisitionReport(storyId, { startDate, endDate }) {
+    if (!storyId) throw new Error('No story ID was provided.');
+    const dateRanges = [{ startDate, endDate }];
+    const dimensions = [{ name: 'ga:medium' }];
+    const dimensionFilterClauses = [
+      { filters: [this.getStoryFilter(storyId)] },
+    ];
+
+    const request = {
+      viewId: GA_VIEW_ID,
+      dateRanges,
+      dimensions,
+      metrics: this.getStandardMetrics(),
+      dimensionFilterClauses,
+      includeEmptyRows: true,
+      hideTotals: true,
+      hideValueRanges: true,
+    };
+    const data = await this.sendReportRequests(request);
+    return this.formatStoryAcquisitionReport(data.reports[0]);
+  },
+
+  formatStoryAcquisitionReport(report) {
+    const { metricHeaderEntries } = report.columnHeader.metricHeader;
+    const headers = metricHeaderEntries.map((header) => {
+      const key = this.createKey(header.name);
+      return { ...header, key };
+    });
+    const rows = report.data.rows || [];
+    return rows.reduce((arr, row) => {
+      arr.push({
+        medium: row.dimensions[0],
+        metrics: row.metrics[0].values.reduce((obj, value, index) => {
+          const { key } = headers[index];
+          return { ...obj, [key]: Number(value) };
+        }, {}),
+      });
+      return arr;
+    }, []);
   },
 
   createLabel(name) {
