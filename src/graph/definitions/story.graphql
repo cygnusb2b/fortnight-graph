@@ -105,6 +105,7 @@ type StoryMetrics {
   bounceRate: Float!
   timeOnPage: Float!
   avgTimeOnPage: Float!
+  shares: Int!
 }
 
 type StoryConnection {

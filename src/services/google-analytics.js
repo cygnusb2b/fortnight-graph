@@ -142,7 +142,11 @@ module.exports = {
   },
 
   createKey(name) {
-    return name.replace(/^ga:/, '');
+    const map = {
+      metric1: 'shares',
+    };
+    const key = name.replace(/^ga:/, '');
+    return map[key] ? map[key] : key;
   },
 
   /**
@@ -188,6 +192,7 @@ module.exports = {
       { expression: 'ga:bounceRate' },
       { expression: 'ga:timeOnPage' },
       { expression: 'ga:avgTimeOnPage' },
+      { expression: 'ga:metric1' },
     ];
   },
 
