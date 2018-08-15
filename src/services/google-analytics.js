@@ -1,3 +1,4 @@
+const { titleize, underscore } = require('inflection');
 const env = require('../env');
 const { google, auth } = require('../connections/google');
 
@@ -27,7 +28,6 @@ module.exports = {
   async storyReport(storyId, { startDate, endDate }) {
     if (!storyId) throw new Error('No story ID was provided.');
     const dateRanges = [{ startDate, endDate }];
-    const dimensions = [{ name: 'ga:dimension2' }];
     const metrics = [
       { expression: 'ga:pageviews' },
       { expression: 'ga:uniquePageviews' },
@@ -53,7 +53,6 @@ module.exports = {
     const request = {
       viewId: GA_VIEW_ID,
       dateRanges,
-      dimensions,
       metrics,
       dimensionFilterClauses,
       includeEmptyRows: true,
@@ -61,7 +60,28 @@ module.exports = {
       hideValueRanges: true,
     };
     const data = await this.sendReportRequests(request);
-    return this.formatReport(data.reports[0]);
+    return this.formatStoryReport(data.reports[0]);
+  },
+
+  formatStoryReport(report) {
+    const { metricHeaderEntries } = report.columnHeader.metricHeader;
+    const { rows } = report.data;
+    const values = rows && rows[0] ? rows[0].metrics[0].values : [];
+
+    return metricHeaderEntries.map((header) => {
+      const { name } = header;
+      const key = this.createKey(name);
+      const label = this.createLabel(name);
+      return { ...header, key, label };
+    });
+  },
+
+  createLabel(name) {
+    return titleize(underscore(this.createKey(name)));
+  },
+
+  createKey(name) {
+    return name.replace(/^ga:/, '');
   },
 
   /**
@@ -75,9 +95,5 @@ module.exports = {
       requestBody: { reportRequests },
     });
     return res.data;
-  },
-
-  formatReport(report) {
-    return report;
   },
 };
