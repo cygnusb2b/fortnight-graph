@@ -190,4 +190,11 @@ module.exports = {
       { expression: 'ga:avgTimeOnPage' },
     ];
   },
+
+  getDefaultMetricValues() {
+    return this.getStandardMetrics().reduce((obj, metric) => {
+      const key = this.createKey(metric.expression);
+      return { ...obj, [key]: 0 };
+    }, {});
+  },
 };
