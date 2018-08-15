@@ -19,27 +19,34 @@ const storySearchFilter = [
   },
 ];
 
+const getMetricStartDate = (publishedAt, startDate) =>
+  (startDate.valueOf() < publishedAt.valueOf() ? publishedAt : startDate);
+
 module.exports = {
   /**
    *
    */
   StoryReports: {
     byDay: (story, { startDate, endDate }) => {
-      const { publishedAt } = story;
-      if (!publishedAt || publishedAt.valueOf() > Date.now()) {
+      const { publishedAt, status } = story;
+      if (status !== 'Published') {
         return [];
       }
-      const start = startDate.valueOf() < publishedAt.valueOf() ? publishedAt : startDate;
-      return ga.storyReportByDay(story.id, { startDate: start, endDate });
+      return ga.storyReportByDay(story.id, {
+        endDate,
+        startDate: getMetricStartDate(publishedAt, startDate),
+      });
     },
 
     acquisition: (story, { startDate, endDate }) => {
-      const { publishedAt } = story;
-      if (!publishedAt || publishedAt.valueOf() > Date.now()) {
+      const { publishedAt, status } = story;
+      if (status !== 'Published') {
         return [];
       }
-      const start = startDate.valueOf() < publishedAt.valueOf() ? publishedAt : startDate;
-      return ga.storyAcquisitionReport(story.id, { startDate: start, endDate });
+      return ga.storyAcquisitionReport(story.id, {
+        endDate,
+        startDate: getMetricStartDate(publishedAt, startDate),
+      });
     },
   },
   /**
@@ -64,8 +71,8 @@ module.exports = {
     hash: story => story.pushId,
     path: story => story.getPath(),
     metrics: async (story) => {
-      const { publishedAt } = story;
-      if (!publishedAt || publishedAt.valueOf() > Date.now()) {
+      const { publishedAt, status } = story;
+      if (status !== 'Published') {
         return ga.getDefaultMetricValues();
       }
       const report = await ga.storyReport(story.id, {
@@ -130,8 +137,8 @@ module.exports = {
       const { id, preview } = input;
       const story = await Story.strictFindActiveById(id);
       if (preview) return story;
-      const { publishedAt } = story;
-      if (!publishedAt || publishedAt.valueOf() > Date.now()) {
+      const { status } = story;
+      if (status !== 'Published') {
         throw new Error(`No story found for ID '${id}'`);
       }
       return story;
