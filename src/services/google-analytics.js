@@ -44,26 +44,9 @@ module.exports = {
       hideValueRanges: true,
     };
     const data = await this.sendReportRequests(request);
-    return this.formatStoryByDayReport(data.reports[0]);
-  },
-
-  formatStoryByDayReport(report) {
-    const { metricHeaderEntries } = report.columnHeader.metricHeader;
-    const headers = metricHeaderEntries.map((header) => {
-      const key = this.createKey(header.name);
-      return { ...header, key };
+    return this.formatReport(data.reports[0], {
+      date: v => moment(v).toDate(),
     });
-    const rows = report.data.rows || [];
-    return rows.reduce((arr, row) => {
-      arr.push({
-        day: moment(row.dimensions[0]).toDate(),
-        metrics: row.metrics[0].values.reduce((obj, value, index) => {
-          const { key } = headers[index];
-          return { ...obj, [key]: Number(value) };
-        }, {}),
-      });
-      return arr;
-    }, []);
   },
 
   /**
@@ -90,19 +73,8 @@ module.exports = {
       hideValueRanges: true,
     };
     const data = await this.sendReportRequests(request);
-    return this.formatStoryReport(data.reports[0]);
-  },
-
-  formatStoryReport(report) {
-    const { metricHeaderEntries } = report.columnHeader.metricHeader;
-    const { rows } = report.data;
-    const values = rows && rows[0] ? rows[0].metrics[0].values : [];
-
-    return metricHeaderEntries.reduce((obj, header, index) => {
-      const key = this.createKey(header.name);
-      const value = Number(values[index]);
-      return { ...obj, [key]: value };
-    }, {});
+    const rows = this.formatReport(data.reports[0]);
+    return rows[0];
   },
 
   /**
@@ -131,26 +103,38 @@ module.exports = {
       hideValueRanges: true,
     };
     const data = await this.sendReportRequests(request);
-    return this.formatStoryAcquisitionReport(data.reports[0]);
+    return this.formatReport(data.reports[0]);
   },
 
-  formatStoryAcquisitionReport(report) {
-    const { metricHeaderEntries } = report.columnHeader.metricHeader;
-    const headers = metricHeaderEntries.map((header) => {
-      const key = this.createKey(header.name);
-      return { ...header, key };
-    });
+  formatReport(report, formatters = {}) {
+    const { columnHeader } = report;
+
+    const dimensionEntries = (columnHeader.dimensions || [])
+      .map(name => this.createKey(name));
+    const metricHeaderEntries = (columnHeader.metricHeader.metricHeaderEntries || [])
+      .map(o => ({ ...o, key: this.createKey(o.name) }));
     const rows = report.data.rows || [];
+
     return rows.reduce((arr, row) => {
+      const dimensions = row.dimensions || [];
       arr.push({
-        medium: row.dimensions[0],
+        ...dimensions.reduce((obj, value, index) => {
+          const key = dimensionEntries[index];
+          const fn = formatters[key];
+          return { ...obj, [key]: this.formatValue(value, fn) };
+        }, {}),
         metrics: row.metrics[0].values.reduce((obj, value, index) => {
-          const { key } = headers[index];
+          const { key } = metricHeaderEntries[index];
           return { ...obj, [key]: Number(value) };
         }, {}),
       });
       return arr;
     }, []);
+  },
+
+  formatValue(value, fn) {
+    if (typeof fn === 'function') return fn(value);
+    return value;
   },
 
   createLabel(name) {
