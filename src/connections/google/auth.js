@@ -1,5 +1,8 @@
 const { JWT } = require('googleapis').google.auth;
-const { client_email, private_key } = require('../../env').GOOGLE_APPLICATION_CREDENTIALS; // eslint-disable-line camelcase
+const env = require('../../env');
+
+// eslint-disable-next-line camelcase
+const { client_email, private_key } = env.GOOGLE_APPLICATION_CREDENTIALS;
 
 /**
  *
