@@ -59,11 +59,6 @@ handlebars.registerHelper('build-beacon', (context) => {
   return new handlebars.SafeString(`<script>fortnight('event', 'load', ${JSON.stringify(fields)}, { transport: 'beacon' });</script>`);
 });
 
-handlebars.registerHelper('build-ua-beacon', (context) => {
-  const { pid, cid } = extractFields(context);
-  return new handlebars.SafeString(`<script>if (window.ga) { ga('send', 'event', 'Fortnight', 'load', '${pid || ''}', '${cid || ''}'); }</script>`);
-});
-
 handlebars.registerHelper('link-to', (...parts) => parts.filter(el => typeof el === 'string').join('/'));
 
 module.exports = handlebars;

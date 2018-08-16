@@ -278,7 +278,7 @@ module.exports = {
       });
       ad.html = Template.render(template.fallback, vars);
     } else {
-      ad.html = Template.render(Template.getFallbackFallback(true), { pid, uuid, kv });
+      ad.html = Template.render(Template.getFallbackFallback(), { pid, uuid, kv });
     }
     return ad;
   },
