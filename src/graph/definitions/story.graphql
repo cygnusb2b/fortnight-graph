@@ -84,6 +84,7 @@ type StorySitemapImage {
 type StoryReports {
   byDay(startDate: Date!, endDate: Date!): [StoryReportByDay]!
   acquisition(startDate: Date!, endDate: Date!): [StoryReportAcquisition]!
+  devices(startDate: Date!, endDate: Date!): [StoryReportDevices]!
 }
 
 type StoryReportByDay {
@@ -93,6 +94,11 @@ type StoryReportByDay {
 
 type StoryReportAcquisition {
   medium: String!
+  metrics: StoryMetrics!
+}
+
+type StoryReportDevices {
+  deviceCategory: String!
   metrics: StoryMetrics!
 }
 

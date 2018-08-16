@@ -108,6 +108,35 @@ module.exports = {
     return this.formatReport(data.reports[0]);
   },
 
+  /**
+   *
+   * @param {string} storyId
+   * @param {object} params
+   * @param {string|Date} params.startDate
+   * @param {string|Date} params.endDate
+   */
+  async storyDeviceReport(storyId, { startDate, endDate }) {
+    if (!storyId) throw new Error('No story ID was provided.');
+    const dateRanges = [this.formatDates({ startDate, endDate })];
+    const dimensions = [{ name: 'ga:deviceCategory' }];
+    const dimensionFilterClauses = [
+      { filters: [this.getStoryFilter(storyId)] },
+    ];
+
+    const request = {
+      viewId: GA_VIEW_ID,
+      dateRanges,
+      dimensions,
+      metrics: this.getStandardMetrics(),
+      dimensionFilterClauses,
+      includeEmptyRows: true,
+      hideTotals: true,
+      hideValueRanges: true,
+    };
+    const data = await this.sendReportRequests(request);
+    return this.formatReport(data.reports[0]);
+  },
+
   formatReport(report, formatters = {}) {
     const { columnHeader } = report;
 

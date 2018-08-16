@@ -48,6 +48,17 @@ module.exports = {
         startDate: getMetricStartDate(publishedAt, startDate),
       });
     },
+
+    devices: (story, { startDate, endDate }) => {
+      const { publishedAt, status } = story;
+      if (status !== 'Published') {
+        return [];
+      }
+      return ga.storyDeviceReport(story.id, {
+        endDate,
+        startDate: getMetricStartDate(publishedAt, startDate),
+      });
+    },
   },
   /**
    *
