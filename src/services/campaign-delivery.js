@@ -103,15 +103,25 @@ module.exports = {
    *
    * @param {object} campaign
    * @param {object} placement
+   * @param {object} creative
    */
-  async getClickUrl({ storyId, url }, { publisherId } = {}) {
+  async getClickUrl(campaign, placement = {}, creative = {}) {
+    const { storyId, url } = campaign;
+    const { publisherId } = placement;
     if (!storyId) return url;
     // Campaign is linked to a story, generate using publiser or account host.
     const publisher = await Publisher.findById(publisherId, { domainName: 1 });
     const account = await accountService.retrieve();
     const story = await Story.findById(storyId, { body: 0 });
     const path = await story.getPath();
-    return storyUrl(publisher.customUri || account.storyUri, path, { pubid: publisherId });
+    return storyUrl(publisher.customUri || account.storyUri, path, {
+      pubid: publisherId,
+      utm_source: 'NativeX',
+      utm_medium: 'banner',
+      utm_campaign: campaign.id,
+      utm_term: placement.id,
+      utm_content: creative.id,
+    });
   },
 
   /**
@@ -328,7 +338,7 @@ module.exports = {
       uuid,
       pid,
       kv,
-      href: await this.getClickUrl(campaign, placement),
+      href: await this.getClickUrl(campaign, placement, creative),
       campaign,
       creative,
     };

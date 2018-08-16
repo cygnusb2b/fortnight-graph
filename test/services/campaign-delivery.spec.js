@@ -31,13 +31,13 @@ describe('services/campaign-delivery', function() {
       sandbox.assert.notCalled(accountService.retrieve);
     });
     it('should return the account based URI', async function() {
-      await expect(campaignDelivery.getClickUrl({ storyId: '1234' }, { publisherId: '1234' }))
-        .to.eventually.equal('https://www.google.com/foo/bar/?pubid=1234')
+      await expect(campaignDelivery.getClickUrl({ id: 'campaign-id', storyId: '1234' }, { id: 'placement-id', publisherId: '1234' }, { id: 'creative-id' }))
+        .to.eventually.equal('https://www.google.com/foo/bar/?pubid=1234&utm_source=NativeX&utm_medium=banner&utm_campaign=campaign-id&utm_term=placement-id&utm_content=creative-id')
       ;
     });
     it('should return the publisher based URI', async function() {
-      await expect(campaignDelivery.getClickUrl({ storyId: '1234' }, { publisherId: '5678' }))
-        .to.eventually.equal('https://www.msn.com/foo/bar/?pubid=5678')
+      await expect(campaignDelivery.getClickUrl({ id: 'campaign-id', storyId: '1234' }, { id: 'placement-id', publisherId: '5678' }, { id: 'creative-id' }))
+        .to.eventually.equal('https://www.msn.com/foo/bar/?pubid=5678&utm_source=NativeX&utm_medium=banner&utm_campaign=campaign-id&utm_term=placement-id&utm_content=creative-id')
       ;
     });
   });
