@@ -22,6 +22,7 @@ type AccountSettings {
   cname: String
   reservePct: Int!
   googleAnalyticsId: String!
+  siteVerificationMeta: String
 }
 
 input UpdateAccountInput {
