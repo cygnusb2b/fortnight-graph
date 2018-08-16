@@ -41,7 +41,7 @@ const schema = new Schema({
 });
 
 schema.index({ d: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 30 });
-schema.index({ e: 1 });
+schema.index({ act: 1 });
 schema.index({ cid: 1 });
 schema.index({ pid: 1 });
 
