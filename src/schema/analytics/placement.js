@@ -44,12 +44,12 @@ const schema = new Schema({
     },
   },
 
-  views: {
+  view: {
     type: Number,
     default: 0,
   },
 
-  clicks: {
+  click: {
     type: Number,
     default: 0,
   },
@@ -58,7 +58,7 @@ const schema = new Schema({
 schema.index({ pubid: 1 });
 schema.index({ pid: 1, day: 1 }, { unique: true });
 
-schema.method('aggregateSave', async function preAggregate(metric) {
+schema.method('aggregateSave', async function preAggregate(action) {
   await this.validate();
   const criteria = {
     pid: this.pid,
@@ -70,7 +70,7 @@ schema.method('aggregateSave', async function preAggregate(metric) {
     tid: this.tid || undefined,
   };
   const $set = { last: this.last };
-  const $inc = { [metric]: 1 };
+  const $inc = { [action]: 1 };
   const update = { $setOnInsert, $set, $inc };
   await this.model('analytics-placement').updateOne(criteria, update, { upsert: true });
 });

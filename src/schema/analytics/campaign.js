@@ -45,12 +45,12 @@ const schema = new Schema({
     },
   },
 
-  views: {
+  view: {
     type: Number,
     default: 0,
   },
 
-  clicks: {
+  click: {
     type: Number,
     default: 0,
   },
@@ -59,7 +59,7 @@ const schema = new Schema({
 schema.index({ advid: 1 });
 schema.index({ cid: 1, cre: 1, day: 1 }, { unique: true });
 
-schema.method('aggregateSave', async function preAggregate(metric) {
+schema.method('aggregateSave', async function preAggregate(action) {
   await this.validate();
   const criteria = {
     cid: this.cid,
@@ -71,7 +71,7 @@ schema.method('aggregateSave', async function preAggregate(metric) {
     advid: this.advid,
   };
   const $set = { last: this.last };
-  const $inc = { [metric]: 1 };
+  const $inc = { [action]: 1 };
   const update = { $setOnInsert, $set, $inc };
   await this.model('analytics-campaign').updateOne(criteria, update, { upsert: true });
 });
