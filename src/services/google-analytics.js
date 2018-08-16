@@ -26,8 +26,9 @@ module.exports = {
    * @param {object} params
    * @param {string|Date} params.startDate
    * @param {string|Date} params.endDate
+   * @param {string|Date} params.quotaUser The quota user value, for rate-limiting
    */
-  async storyReportByDay(storyId, { startDate, endDate }) {
+  async storyReportByDay(storyId, { startDate, endDate, quotaUser }) {
     if (!storyId) throw new Error('No story ID was provided.');
     const dateRanges = [this.formatDates({ startDate, endDate })];
     const dimensions = [{ name: 'ga:date' }];
@@ -45,7 +46,7 @@ module.exports = {
       hideTotals: true,
       hideValueRanges: true,
     };
-    const data = await this.sendReportRequests(request);
+    const data = await this.sendReportRequests(request, { quotaUser });
     return this.formatReport(data.reports[0], {
       date: v => moment(v),
     });
@@ -57,8 +58,9 @@ module.exports = {
    * @param {object} params
    * @param {string|Date} params.startDate
    * @param {string|Date} params.endDate
+   * @param {string|Date} params.quotaUser The quota user value, for rate-limiting
    */
-  async storyReport(storyId, { startDate, endDate }) {
+  async storyReport(storyId, { startDate, endDate, quotaUser }) {
     if (!storyId) throw new Error('No story ID was provided.');
     const dateRanges = [this.formatDates({ startDate, endDate })];
     const dimensionFilterClauses = [
@@ -74,7 +76,7 @@ module.exports = {
       hideTotals: true,
       hideValueRanges: true,
     };
-    const data = await this.sendReportRequests(request);
+    const data = await this.sendReportRequests(request, { quotaUser });
     const rows = this.formatReport(data.reports[0]);
     return rows[0];
   },
@@ -85,8 +87,9 @@ module.exports = {
    * @param {object} params
    * @param {string|Date} params.startDate
    * @param {string|Date} params.endDate
+   * @param {string|Date} params.quotaUser The quota user value, for rate-limiting
    */
-  async storyAcquisitionReport(storyId, { startDate, endDate }) {
+  async storyAcquisitionReport(storyId, { startDate, endDate, quotaUser }) {
     if (!storyId) throw new Error('No story ID was provided.');
     const dateRanges = [this.formatDates({ startDate, endDate })];
     const dimensions = [{ name: 'ga:channelGrouping' }];
@@ -104,7 +107,7 @@ module.exports = {
       hideTotals: true,
       hideValueRanges: true,
     };
-    const data = await this.sendReportRequests(request);
+    const data = await this.sendReportRequests(request, { quotaUser });
     return this.formatReport(data.reports[0]);
   },
 
@@ -114,8 +117,9 @@ module.exports = {
    * @param {object} params
    * @param {string|Date} params.startDate
    * @param {string|Date} params.endDate
+   * @param {string|Date} params.quotaUser The quota user value, for rate-limiting
    */
-  async storyDeviceReport(storyId, { startDate, endDate }) {
+  async storyDeviceReport(storyId, { startDate, endDate, quotaUser }) {
     if (!storyId) throw new Error('No story ID was provided.');
     const dateRanges = [this.formatDates({ startDate, endDate })];
     const dimensions = [{ name: 'ga:deviceCategory' }];
@@ -133,7 +137,7 @@ module.exports = {
       hideTotals: true,
       hideValueRanges: true,
     };
-    const data = await this.sendReportRequests(request);
+    const data = await this.sendReportRequests(request, { quotaUser });
     return this.formatReport(data.reports[0]);
   },
 
@@ -183,13 +187,14 @@ module.exports = {
   /**
    *
    * @param {array|object} requests An array of report request objects, or a single object.
+   * @param {?object} params Additional query parameters to send with the request.
    */
-  async sendReportRequests(requests) {
+  async sendReportRequests(requests, params) {
     const api = await this.connect();
     const reportRequests = isArray(requests) ? requests : [requests];
     const res = await api.reports.batchGet({
       requestBody: { reportRequests },
-    });
+    }, { params });
     return res.data;
   },
 
