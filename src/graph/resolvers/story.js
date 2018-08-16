@@ -22,39 +22,48 @@ const storySearchFilter = [
 const getMetricStartDate = (publishedAt, startDate) =>
   (startDate.valueOf() < publishedAt.valueOf() ? publishedAt : startDate);
 
+const quotaUser = ({ auth, ip }) => {
+  const { sessionId } = auth;
+  if (sessionId) return sessionId;
+  return ip;
+};
+
 module.exports = {
   /**
    *
    */
   StoryReports: {
-    byDay: (story, { startDate, endDate }) => {
+    byDay: (story, { startDate, endDate }, ctx) => {
       const { publishedAt, status } = story;
       if (status !== 'Published') {
         return [];
       }
       return ga.storyReportByDay(story.id, {
+        quotaUser: quotaUser(ctx),
         endDate,
         startDate: getMetricStartDate(publishedAt, startDate),
       });
     },
 
-    acquisition: (story) => {
+    acquisition: (story, args, ctx) => {
       const { publishedAt, status } = story;
       if (status !== 'Published') {
         return [];
       }
       return ga.storyAcquisitionReport(story.id, {
+        quotaUser: quotaUser(ctx),
         startDate: publishedAt,
         endDate: new Date(),
       });
     },
 
-    devices: (story) => {
+    devices: (story, args, ctx) => {
       const { publishedAt, status } = story;
       if (status !== 'Published') {
         return [];
       }
       return ga.storyDeviceReport(story.id, {
+        quotaUser: quotaUser(ctx),
         startDate: publishedAt,
         endDate: new Date(),
       });
@@ -88,7 +97,7 @@ module.exports = {
     url: story => story.getUrl(),
     hash: story => story.pushId,
     path: story => story.getPath(),
-    metrics: async (story) => {
+    metrics: async (story, args, ctx) => {
       const { publishedAt, status } = story;
       if (status !== 'Published') {
         return ga.getDefaultMetricValues();
@@ -96,6 +105,7 @@ module.exports = {
       const report = await ga.storyReport(story.id, {
         startDate: publishedAt,
         endDate: new Date(),
+        quotaUser: quotaUser(ctx),
       });
       return report.metrics;
     },

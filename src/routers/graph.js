@@ -70,8 +70,8 @@ router.use(
   authenticate,
   bodyParser.json(),
   graphqlExpress((req) => {
-    const { auth, portal } = req;
-    const context = { auth, portal };
+    const { auth, portal, ip } = req;
+    const context = { auth, portal, ip };
     return { schema, context };
   }),
 );
