@@ -83,7 +83,7 @@ type StorySitemapImage {
 
 type StoryReports {
   byDay(startDate: Date!, endDate: Date!): [StoryReportByDay]!
-  acquisition(startDate: Date!, endDate: Date!): [StoryReportAcquisition]!
+  acquisition: [StoryReportAcquisition]!
   devices(startDate: Date!, endDate: Date!): [StoryReportDevices]!
 }
 

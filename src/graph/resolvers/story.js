@@ -38,14 +38,14 @@ module.exports = {
       });
     },
 
-    acquisition: (story, { startDate, endDate }) => {
+    acquisition: (story) => {
       const { publishedAt, status } = story;
       if (status !== 'Published') {
         return [];
       }
       return ga.storyAcquisitionReport(story.id, {
-        endDate,
-        startDate: getMetricStartDate(publishedAt, startDate),
+        startDate: publishedAt,
+        endDate: new Date(),
       });
     },
 
