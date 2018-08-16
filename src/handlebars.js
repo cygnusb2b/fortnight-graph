@@ -58,9 +58,7 @@ handlebars.registerHelper('tracked-link', function trackedLink(context) {
  * No longer tracking loads in this manner.
  * @deprecated
  */
-handlebars.registerHelper('build-beacon', () => {
-  return new handlebars.SafeString('');
-});
+handlebars.registerHelper('build-beacon', () => new handlebars.SafeString(''));
 
 handlebars.registerHelper('link-to', (...parts) => parts.filter(el => typeof el === 'string').join('/'));
 
