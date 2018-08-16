@@ -47,7 +47,7 @@ module.exports = {
     };
     const data = await this.sendReportRequests(request);
     return this.formatReport(data.reports[0], {
-      date: v => moment(v).format('MMM D, YYYY'),
+      date: v => moment(v),
     });
   },
 

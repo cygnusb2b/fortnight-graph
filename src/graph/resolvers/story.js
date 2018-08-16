@@ -52,6 +52,13 @@ module.exports = {
   /**
    *
    */
+  StoryReportByDay: {
+    date: ({ date }, { format }) =>  moment(date).format(format),
+  },
+
+  /**
+   *
+   */
   Story: {
     // @todo Determine if this should run a strict/active find.
     // Ultimately, deleting an advertiser should delete it's stories?
