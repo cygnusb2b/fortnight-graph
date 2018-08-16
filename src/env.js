@@ -6,6 +6,7 @@ const {
   makeValidator,
   port,
   bool,
+  str,
   url,
 } = require('envalid');
 
@@ -49,6 +50,7 @@ module.exports = cleanEnv(process.env, {
   STORY_HOST: nonemptystr({ desc: 'The hostname where the story website instance is running.' }),
   GA_TRACKING_ID: nonemptystr({ desc: 'The Google analytics ID that stories/sponsored content will use for tracking' }),
   GA_VIEW_ID: nonemptystr({ desc: 'The Google analytics view ID that the API will use when querying data.' }),
+  GOOGLE_SITE_VERIFICATION: str({ desc: 'The Google Webmaster Tools site verification meta value.', default: '' }),
   ELASTIC_HOST: url({ desc: 'The Elasticsearch DSN to connect to.' }),
   ELASTIC_INDEX_RECREATE: bool({ desc: 'Whether the Elasticsearch indexes should be re-created.', default: false }),
   IMGIX_URL: url({ desc: 'The Imgix URL for serving images.' }),
