@@ -49,14 +49,14 @@ module.exports = {
       });
     },
 
-    devices: (story, { startDate, endDate }) => {
+    devices: (story) => {
       const { publishedAt, status } = story;
       if (status !== 'Published') {
         return [];
       }
       return ga.storyDeviceReport(story.id, {
-        endDate,
-        startDate: getMetricStartDate(publishedAt, startDate),
+        startDate: publishedAt,
+        endDate: new Date(),
       });
     },
   },
