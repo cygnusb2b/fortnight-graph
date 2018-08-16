@@ -89,7 +89,7 @@ module.exports = {
   async storyAcquisitionReport(storyId, { startDate, endDate }) {
     if (!storyId) throw new Error('No story ID was provided.');
     const dateRanges = [this.formatDates({ startDate, endDate })];
-    const dimensions = [{ name: 'ga:medium' }];
+    const dimensions = [{ name: 'ga:channelGrouping' }];
     const dimensionFilterClauses = [
       { filters: [this.getStoryFilter(storyId)] },
     ];

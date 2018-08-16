@@ -93,7 +93,7 @@ type StoryReportByDay {
 }
 
 type StoryReportAcquisition {
-  medium: String!
+  channelGrouping: String!
   metrics: StoryMetrics!
 }
 
