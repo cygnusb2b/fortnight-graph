@@ -53,7 +53,7 @@ module.exports = {
    *
    */
   StoryReportByDay: {
-    date: ({ date }, { format }) =>  moment(date).format(format),
+    date: ({ date }, { format }) => moment(date).format(format),
   },
 
   /**
