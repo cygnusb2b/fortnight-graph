@@ -63,8 +63,6 @@ const html = `
       </div>
     </div>
   </div>
-  {{build-beacon}}
-  {{{ beacon }}}
 </div>
 `;
 
@@ -131,8 +129,6 @@ const fallback = `
       </div>
     </div>
   </div>
-  {{build-beacon}}
-  {{{ beacon }}}
 </div>
 `;
 

@@ -54,9 +54,12 @@ handlebars.registerHelper('tracked-link', function trackedLink(context) {
   return new handlebars.SafeString(`<a ${attrs.join(' ')}>${context.fn(this)}</a>`);
 });
 
-handlebars.registerHelper('build-beacon', (context) => {
-  const fields = extractFields(context);
-  return new handlebars.SafeString(`<script>fortnight('event', 'load', ${JSON.stringify(fields)}, { transport: 'beacon' });</script>`);
+/**
+ * No longer tracking loads in this manner.
+ * @deprecated
+ */
+handlebars.registerHelper('build-beacon', () => {
+  return new handlebars.SafeString('');
 });
 
 handlebars.registerHelper('link-to', (...parts) => parts.filter(el => typeof el === 'string').join('/'));

@@ -10,13 +10,6 @@ const {
   userAttributionPlugin,
 } = require('../plugins');
 
-const validateBeacon = (v) => {
-  const results = v.match(/{{build-beacon}}/g);
-  if (!results) return false;
-  if (results.length > 1) return false;
-  return true;
-};
-
 const validateContainerAttrs = (v) => {
   const results = v.match(/{{build-container-attributes}}/g);
   if (!results) return false;
@@ -46,12 +39,6 @@ const schema = new Schema({
       },
       {
         validator(v) {
-          return validateBeacon(v);
-        },
-        message: 'The {{build-beacon}} helper must be present, exactly one time.',
-      },
-      {
-        validator(v) {
           return /{{#tracked-link href=href/g.test(v);
         },
         message: 'The {{#tracked-link href=href}}{{/tracked-link}} helper must be present.',
@@ -67,13 +54,6 @@ const schema = new Schema({
           return validateContainerAttrs(v);
         },
         message: 'The {{build-container-attributes}} helper must be present, exactly one time.',
-      },
-      {
-        validator(v) {
-          if (!v) return true;
-          return validateBeacon(v);
-        },
-        message: 'The {{build-beacon}} helper must be present, exactly one time.',
       },
       {
         validator(v) {
@@ -135,7 +115,7 @@ schema.statics.render = function render(source, data) {
  * Returns a handlebars template to use when no fallback is provided.
  */
 schema.statics.getFallbackFallback = function getFallbackFallback() {
-  return '<div style="width:1px;height:1px;" {{build-container-attributes}}>{{build-beacon}}</div>';
+  return '<div style="width:1px;height:1px;" {{build-container-attributes}}></div>';
 };
 
 schema.index({ name: 1, _id: 1 }, { unique: true });
