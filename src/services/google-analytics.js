@@ -1,10 +1,12 @@
 const { titleize, underscore } = require('inflection');
-const moment = require('moment');
+const moment = require('moment-timezone');
 const env = require('../env');
 const { google, auth } = require('../connections/google');
 
 const { isArray } = Array;
 const { GA_VIEW_ID } = env;
+// The timezone that the GA view is configured
+const VIEW_TZ = 'America/Chicago';
 
 let conn;
 module.exports = {
@@ -45,7 +47,7 @@ module.exports = {
     };
     const data = await this.sendReportRequests(request);
     return this.formatReport(data.reports[0], {
-      date: v => moment(v).toDate(),
+      date: v => moment(v).format('MMM D, YYYY'),
     });
   },
 
@@ -171,7 +173,7 @@ module.exports = {
 
   formatDate(date) {
     if (!date) return undefined;
-    return moment(date).startOf('day').format('YYYY-MM-DD');
+    return moment(date).tz(VIEW_TZ).startOf('day').format('YYYY-MM-DD');
   },
 
   getStoryFilter(storyId) {

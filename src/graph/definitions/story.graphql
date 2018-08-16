@@ -87,7 +87,7 @@ type StoryReports {
 }
 
 type StoryReportByDay {
-  date: Date!
+  date: String!
   metrics: StoryMetrics!
 }
 
