@@ -40,6 +40,7 @@ const schema = new Schema({
   },
 });
 
+schema.index({ d: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 30 });
 schema.index({ d: 1, e: 1 });
 schema.index({ e: 1, cid: 1, d: 1 });
 schema.index({ e: 1, pid: 1, d: 1 });
