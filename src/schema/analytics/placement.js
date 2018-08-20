@@ -59,7 +59,7 @@ schema.index({ pubid: 1 });
 schema.index({ tid: 1 });
 schema.index({ pid: 1, day: 1 }, { unique: true });
 
-schema.method('aggregateSave', async function preAggregate(action) {
+schema.method('preAggregate', async function preAggregate(action) {
   await this.validate();
   const criteria = {
     pid: this.pid,

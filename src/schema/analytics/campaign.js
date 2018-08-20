@@ -59,7 +59,7 @@ const schema = new Schema({
 schema.index({ advid: 1 });
 schema.index({ cid: 1, cre: 1, day: 1 }, { unique: true });
 
-schema.method('aggregateSave', async function preAggregate(action) {
+schema.method('preAggregate', async function preAggregate(action) {
   await this.validate();
   const criteria = {
     cid: this.cid,
