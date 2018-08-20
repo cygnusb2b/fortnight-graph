@@ -94,6 +94,7 @@ type CampaignCreative {
   teaser: String
   active: Boolean!
   image: Image
+  metrics: CampaignMetrics!
 }
 
 type CampaignCriteria {

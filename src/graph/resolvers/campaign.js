@@ -179,6 +179,42 @@ module.exports = {
 
   CampaignCreative: {
     image: creative => Image.findById(creative.imageId),
+    metrics: async (creative) => {
+      const pipeline = [];
+      pipeline.push({ $match: { cre: creative._id } });
+      pipeline.push({
+        $group: {
+          _id: null,
+          views: { $sum: '$view' },
+          clicks: { $sum: '$click' },
+        },
+      });
+      pipeline.push({
+        $project: {
+          _id: 0,
+          views: 1,
+          clicks: 1,
+          ctr: {
+            $cond: {
+              if: {
+                $eq: ['$views', 0],
+              },
+              then: 0,
+              else: {
+                $divide: ['$clicks', '$views'],
+              },
+            },
+          },
+        },
+      });
+
+      const result = await AnalyticsCampaign.aggregate(pipeline);
+      return result[0] ? result[0] : {
+        views: 0,
+        clicks: 0,
+        ctr: 0,
+      };
+    },
   },
 
   /**
