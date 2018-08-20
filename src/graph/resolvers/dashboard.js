@@ -1,5 +1,6 @@
 const moment = require('moment');
 const AnalyticsEvent = require('../../models/analytics/event');
+const AnalyticsCampaign = require('../../models/analytics/campaign');
 const Campaign = require('../../models/campaign');
 const campaignDelivery = require('../../services/campaign-delivery');
 
@@ -25,36 +26,14 @@ module.exports = {
       const campaigns = await Campaign.find(campaignCriteria, { _id: 1 });
       if (!campaigns.length) return defaultResult;
 
-      const end = moment(day).add(24, 'hours').toDate();
-
       const pipeline = [];
-      pipeline.push({
-        $match: {
-          e: { $in: ['view-js', 'click-js'] },
-          cid: { $in: campaigns.map(c => c._id) },
-          d: { $gte: day, $lt: end },
-        },
-      });
-      pipeline.push({
-        $project: {
-          cid: 1,
-          view: { $cond: [{ $eq: ['$e', 'view-js'] }, 1, 0] },
-          click: { $cond: [{ $eq: ['$e', 'click-js'] }, 1, 0] },
-        },
-      });
-      pipeline.push({
-        $group: {
-          _id: '$cid',
-          views: { $sum: '$view' },
-          clicks: { $sum: '$click' },
-        },
-      });
+      pipeline.push({ $match: { day } });
       pipeline.push({
         $group: {
           _id: null,
-          campaigns: { $push: '$_id' },
-          views: { $sum: '$views' },
-          clicks: { $sum: '$clicks' },
+          campaigns: { $push: '$cid' },
+          views: { $sum: '$view' },
+          clicks: { $sum: '$click' },
         },
       });
       pipeline.push({
@@ -77,7 +56,7 @@ module.exports = {
         },
       });
 
-      const result = await AnalyticsEvent.aggregate(pipeline);
+      const result = await AnalyticsCampaign.aggregate(pipeline);
       const data = result[0] ? result[0] : defaultResult;
       if (data.campaigns < campaigns.length) data.campaigns = campaigns.length;
       return data;
