@@ -70,6 +70,16 @@ type Campaign implements UserAttribution & Timestampable {
   createdBy: User!
   updatedBy: User!
   metrics: CampaignMetrics!
+  reports: CampaignReports!
+}
+
+type CampaignReports {
+  byDay(startDate: Date!, endDate: Date!): [CampaignReportByDay]!
+}
+
+type CampaignReportByDay {
+  day(format: String!): String!
+  metrics: CampaignMetrics!
 }
 
 type CampaignMetrics {

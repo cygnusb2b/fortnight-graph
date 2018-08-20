@@ -27,6 +27,16 @@ const getNotifyDefaults = async (advertiserId, user) => {
   return notify;
 };
 
+const createDateRange = (start, end) => {
+  const dates = [];
+  let current = start;
+  while (current <= end) {
+    dates.push(moment(current));
+    current = moment(current).add(1, 'days');
+  }
+  return dates;
+};
+
 module.exports = {
   /**
    *
@@ -94,8 +104,66 @@ module.exports = {
         ctr: 0,
       };
     },
+    reports: campaign => campaign,
     createdBy: campaign => User.findById(campaign.createdById),
     updatedBy: campaign => User.findById(campaign.updatedById),
+  },
+
+  /**
+   *
+   */
+  CampaignReportByDay: {
+    day: ({ day }, { format }) => moment(day).format(format),
+  },
+
+  /**
+   *
+   */
+  CampaignReports: {
+    byDay: async (campaign, { startDate, endDate }) => {
+      const defaultMetrics = {
+        views: 0,
+        clicks: 0,
+        ctr: 0,
+      };
+
+      const results = await AnalyticsCampaign.aggregate([
+        {
+          $match: {
+            cid: campaign._id,
+            day: { $gte: startDate, $lte: endDate },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            day: 1,
+            metrics: {
+              views: '$view',
+              clicks: '$click',
+              ctr: {
+                $cond: {
+                  if: { $eq: ['$view', 0] },
+                  then: 0,
+                  else: { $divide: ['$click', '$view'] },
+                },
+              },
+            },
+          },
+        },
+        {
+          $sort: { day: 1 },
+        },
+      ]);
+      const range = createDateRange(startDate, endDate);
+      const days = results.map(({ day }) => moment(day).format('YYYY-MM-DD'));
+
+      return range.map((date) => {
+        const day = moment(date).format('YYYY-MM-DD');
+        const index = days.findIndex(d => d === day);
+        return index !== -1 ? results[index] : { day: date.toDate(), metrics: defaultMetrics };
+      });
+    },
   },
 
   CampaignCriteria: {
