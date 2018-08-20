@@ -1,7 +1,7 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const moment = require('moment');
 const Advertiser = require('../../models/advertiser');
-const AnalyticsEvent = require('../../models/analytics/event');
+const AnalyticsCampaign = require('../../models/analytics/campaign');
 const CreativeService = require('../../services/campaign-creatives');
 const Campaign = require('../../models/campaign');
 const Story = require('../../models/story');
@@ -62,17 +62,8 @@ module.exports = {
       const pipeline = [];
       pipeline.push({ $match: { cid: campaign._id } });
       pipeline.push({
-        $project: {
-          cid: 1,
-          view: { $cond: [{ $eq: ['$e', 'view-js'] }, 1, 0] },
-          click: { $cond: [{ $eq: ['$e', 'click-js'] }, 1, 0] },
-          load: { $cond: [{ $eq: ['$e', 'load-js'] }, 1, 0] },
-        },
-      });
-      pipeline.push({
         $group: {
           _id: '$cid',
-          loads: { $sum: '$load' },
           views: { $sum: '$view' },
           clicks: { $sum: '$click' },
         },
@@ -80,7 +71,6 @@ module.exports = {
       pipeline.push({
         $project: {
           _id: 0,
-          loads: 1,
           views: 1,
           clicks: 1,
           ctr: {
@@ -97,9 +87,8 @@ module.exports = {
         },
       });
 
-      const result = await AnalyticsEvent.aggregate(pipeline);
+      const result = await AnalyticsCampaign.aggregate(pipeline);
       return result[0] ? result[0] : {
-        loads: 0,
         views: 0,
         clicks: 0,
         ctr: 0,

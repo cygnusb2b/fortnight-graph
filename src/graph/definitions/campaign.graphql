@@ -73,7 +73,6 @@ type Campaign implements UserAttribution & Timestampable {
 }
 
 type CampaignMetrics {
-  loads: Int!
   views: Int!
   clicks: Int!
   ctr: Float!
