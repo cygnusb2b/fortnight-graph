@@ -50,6 +50,7 @@ module.exports = {
       // Proceed with insert/aggregating analytics.
       await this.insertEvents({
         action,
+        ua,
         placement,
         campaign,
         creativeId,
@@ -64,6 +65,7 @@ module.exports = {
    */
   async insertEvents({
     action,
+    ua,
     placement,
     campaign,
     creativeId,
@@ -73,6 +75,7 @@ module.exports = {
     const act = this.createAnalyticsAction({
       now,
       action,
+      ua,
       placement,
       campaign,
       creativeId,
@@ -111,12 +114,14 @@ module.exports = {
   createAnalyticsAction({
     now,
     action,
+    ua,
     placement,
     campaign,
     creativeId,
   }) {
     return new AnalyticsAction({
       act: action,
+      ua,
       pid: placement.id,
       cid: campaign ? campaign.id : undefined,
       cre: creativeId,

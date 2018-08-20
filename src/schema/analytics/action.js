@@ -13,6 +13,13 @@ const schema = new Schema({
     ],
   },
   /**
+   * The user agent that performed.
+   */
+  ua: {
+    type: String,
+    trim: true,
+  },
+  /**
    * Placement ID
    */
   pid: {
