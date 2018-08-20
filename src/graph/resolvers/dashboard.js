@@ -30,7 +30,7 @@ module.exports = {
       pipeline.push({
         $group: {
           _id: null,
-          campaigns: { $push: '$cid' },
+          campaigns: { $addToSet: '$cid' },
           views: { $sum: '$view' },
           clicks: { $sum: '$click' },
         },
@@ -72,7 +72,7 @@ module.exports = {
       pipeline.push({
         $group: {
           _id: null,
-          placements: { $push: '$_id' },
+          placements: { $addToSet: '$_id' },
           views: { $sum: '$view' },
           clicks: { $sum: '$click' },
         },
