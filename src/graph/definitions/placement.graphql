@@ -32,7 +32,6 @@ type Placement implements UserAttribution & Timestampable {
 }
 
 type PlacementMetrics {
-  loads: Int!
   views: Int!
   clicks: Int!
   ctr: Float!

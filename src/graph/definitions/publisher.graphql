@@ -35,7 +35,6 @@ type Publisher implements UserAttribution & Timestampable {
 }
 
 type PublisherMetrics {
-  loads: Int!
   views: Int!
   clicks: Int!
   ctr: Float!
