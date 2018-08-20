@@ -135,17 +135,24 @@ module.exports = {
           },
         },
         {
+          $group: {
+            _id: '$day',
+            views: { $sum: '$view' },
+            clicks: { $sum: '$click' },
+          },
+        },
+        {
           $project: {
             _id: 0,
-            day: 1,
+            day: '$_id',
             metrics: {
-              views: '$view',
-              clicks: '$click',
+              views: '$views',
+              clicks: '$clicks',
               ctr: {
                 $cond: {
-                  if: { $eq: ['$view', 0] },
+                  if: { $eq: ['$views', 0] },
                   then: 0,
-                  else: { $divide: ['$click', '$view'] },
+                  else: { $divide: ['$clicks', '$views'] },
                 },
               },
             },
