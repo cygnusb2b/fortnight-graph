@@ -1,6 +1,5 @@
-const moment = require('moment');
-const AnalyticsEvent = require('../../models/analytics/event');
 const AnalyticsCampaign = require('../../models/analytics/campaign');
+const AnalyticsPlacement = require('../../models/analytics/placement');
 const Campaign = require('../../models/campaign');
 const campaignDelivery = require('../../services/campaign-delivery');
 
@@ -65,38 +64,17 @@ module.exports = {
     /**
      *
      */
-    dailyFallbackMetrics: async (root, { day }, { auth }) => {
+    dailyTotalMetrics: async (root, { day }, { auth }) => {
       auth.check();
-      const end = moment(day).add(24, 'hours').toDate();
 
       const pipeline = [];
-      pipeline.push({
-        $match: {
-          e: { $in: ['view-js', 'click-js'] },
-          cid: { $exists: false },
-          d: { $gte: day, $lt: end },
-        },
-      });
-      pipeline.push({
-        $project: {
-          pid: 1,
-          view: { $cond: [{ $eq: ['$e', 'view-js'] }, 1, 0] },
-          click: { $cond: [{ $eq: ['$e', 'click-js'] }, 1, 0] },
-        },
-      });
-      pipeline.push({
-        $group: {
-          _id: '$pid',
-          views: { $sum: '$view' },
-          clicks: { $sum: '$click' },
-        },
-      });
+      pipeline.push({ $match: { day } });
       pipeline.push({
         $group: {
           _id: null,
           placements: { $push: '$_id' },
-          views: { $sum: '$views' },
-          clicks: { $sum: '$clicks' },
+          views: { $sum: '$view' },
+          clicks: { $sum: '$click' },
         },
       });
       pipeline.push({
@@ -119,7 +97,7 @@ module.exports = {
         },
       });
 
-      const result = await AnalyticsEvent.aggregate(pipeline);
+      const result = await AnalyticsPlacement.aggregate(pipeline);
       return result[0] ? result[0] : {
         placements: 0,
         views: 0,
