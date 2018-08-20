@@ -2,6 +2,7 @@ const botDetector = require('./bot-detector');
 const Placement = require('../models/placement');
 const Campaign = require('../models/campaign');
 const AnalyticsAction = require('../models/analytics/action');
+const AnalyticsBot = require('../models/analytics/bot');
 const AnalyticsCampaign = require('../models/analytics/campaign');
 const AnalyticsPlacement = require('../models/analytics/placement');
 
@@ -94,8 +95,12 @@ module.exports = {
    *
    * @param {object} params
    */
-  async insertBot({ bot, ua }) {
-    console.info('insert bot', ua, bot);
+  insertBot({ bot, ua }) {
+    const doc = new AnalyticsBot({
+      ua,
+      bot,
+    });
+    return doc.preAggregate();
   },
 
   /**
