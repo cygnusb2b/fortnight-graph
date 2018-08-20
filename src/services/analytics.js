@@ -134,7 +134,7 @@ module.exports = {
   },
 
   /**
-   * Creates an AnalyticsCampagin model object.
+   * Creates an AnalyticsCampaign model object.
    *
    * @param {object} params
    */
