@@ -1,3 +1,4 @@
+const botDetector = require('./bot-detector');
 const Placement = require('../models/placement');
 const Campaign = require('../models/campaign');
 const AnalyticsAction = require('../models/analytics/action');
@@ -7,7 +8,14 @@ const AnalyticsPlacement = require('../models/analytics/placement');
 const mongoId = /[a-f0-9]{24}/;
 
 module.exports = {
-  async trackAction({ action, fields }) {
+  /**
+   *
+   * @param {object} params
+   * @param {string} params.action The event action, e.g. `view` or `click`.
+   * @param {object} params.fields The ad request fields, such as `pid` and `cid`.
+   * @param {string} params.ua The request user agent string.
+   */
+  async trackAction({ action, fields, ua }) {
     // Validate action.
     if (!['view', 'click'].includes(action)) throw new Error(`The provided action '${action}' is not supported.`);
 
@@ -33,37 +41,109 @@ module.exports = {
       }
     }
 
-    const now = new Date();
+    const bot = botDetector.detect(ua);
+    if (bot.detected) {
+      // Insert bot data into seperate collection.
+      await this.insertBot({ bot, ua });
+    } else {
+      // Proceed with insert/aggregating analytics.
+      await this.insertEvents({
+        action,
+        placement,
+        campaign,
+        creativeId,
+      });
+    }
+  },
 
+  /**
+   * Inserts/pre-aggregates the analytics events.
+   *
+   * @param {object} params
+   */
+  async insertEvents({
+    action,
+    placement,
+    campaign,
+    creativeId,
+  }) {
+    const now = new Date();
     // Insert the raw action.
-    const act = new AnalyticsAction({
+    const act = this.createAnalyticsAction({
+      now,
+      action,
+      placement,
+      campaign,
+      creativeId,
+    });
+    await act.save();
+
+    // Now pre-aggregate the placement and campaign analytics.
+    const promises = [];
+    promises
+      .push(this.createAnalyticsPlacement({ now, placement }).preAggregate(action));
+    if (campaign) {
+      promises
+        .push(this.createAnalyticsCampaign({ now, campaign, creativeId }).preAggregate(action));
+    }
+    return Promise.all(promises);
+  },
+
+  /**
+   * Inserts bot/crawler data.
+   *
+   * @param {object} params
+   */
+  async insertBot({ bot, ua }) {
+    console.info('insert bot', ua, bot);
+  },
+
+  /**
+   * Creates an AnalyticsAction model object.
+   *
+   * @param {object} params
+   */
+  createAnalyticsAction({
+    now,
+    action,
+    placement,
+    campaign,
+    creativeId,
+  }) {
+    return new AnalyticsAction({
       act: action,
-      pid,
+      pid: placement.id,
       cid: campaign ? campaign.id : undefined,
       cre: creativeId,
       d: now,
     });
-    await act.save();
+  },
 
-    // Now pre-aggregate
-    const promises = [];
-    const placementAgg = new AnalyticsPlacement({
+  /**
+   * Creates an AnalyticsPlacement model object.
+   *
+   * @param {object} params
+   */
+  createAnalyticsPlacement({ now, placement }) {
+    return new AnalyticsPlacement({
       last: now,
-      pid,
+      pid: placement.id,
       pubid: placement.publisherId,
       tid: placement.topicId || undefined,
     });
-    promises.push(placementAgg.preAggregate(action));
+  },
 
-    if (campaign) {
-      const campAgg = new AnalyticsCampaign({
-        last: now,
-        cid: campaign.id,
-        cre: creativeId,
-        advid: campaign.advertiserId,
-      });
-      promises.push(campAgg.preAggregate(action));
-    }
-    await Promise.all(promises);
+  /**
+   * Creates an AnalyticsCampagin model object.
+   *
+   * @param {object} params
+   */
+  createAnalyticsCampaign({ now, campaign, creativeId }) {
+    return new AnalyticsCampaign({
+      last: now,
+      cid: campaign.id,
+      cre: creativeId,
+      advid: campaign.advertiserId,
+    });
   },
 };
