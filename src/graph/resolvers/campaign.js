@@ -1,7 +1,6 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const moment = require('moment');
 const Advertiser = require('../../models/advertiser');
-const AnalyticsCampaign = require('../../models/analytics/campaign');
 const CreativeService = require('../../services/campaign-creatives');
 const Campaign = require('../../models/campaign');
 const Story = require('../../models/story');
@@ -59,42 +58,7 @@ module.exports = {
       const criteria = { _id: { $in: publisherIds } };
       return Publisher.paginate({ pagination, criteria, sort });
     },
-    metrics: async (campaign) => {
-      const pipeline = [];
-      pipeline.push({ $match: { cid: campaign._id } });
-      pipeline.push({
-        $group: {
-          _id: '$cid',
-          views: { $sum: '$view' },
-          clicks: { $sum: '$click' },
-        },
-      });
-      pipeline.push({
-        $project: {
-          _id: 0,
-          views: 1,
-          clicks: 1,
-          ctr: {
-            $cond: {
-              if: {
-                $eq: ['$views', 0],
-              },
-              then: 0,
-              else: {
-                $divide: ['$clicks', '$views'],
-              },
-            },
-          },
-        },
-      });
-
-      const result = await AnalyticsCampaign.aggregate(pipeline);
-      return result[0] ? result[0] : {
-        views: 0,
-        clicks: 0,
-        ctr: 0,
-      };
-    },
+    metrics: campaign => analytics.retrieveMetrics({ cid: campaign._id }),
     reports: campaign => campaign,
     createdBy: campaign => User.findById(campaign.createdById),
     updatedBy: campaign => User.findById(campaign.updatedById),
@@ -123,42 +87,7 @@ module.exports = {
 
   CampaignCreative: {
     image: creative => Image.findById(creative.imageId),
-    metrics: async (creative) => {
-      const pipeline = [];
-      pipeline.push({ $match: { cre: creative._id } });
-      pipeline.push({
-        $group: {
-          _id: null,
-          views: { $sum: '$view' },
-          clicks: { $sum: '$click' },
-        },
-      });
-      pipeline.push({
-        $project: {
-          _id: 0,
-          views: 1,
-          clicks: 1,
-          ctr: {
-            $cond: {
-              if: {
-                $eq: ['$views', 0],
-              },
-              then: 0,
-              else: {
-                $divide: ['$clicks', '$views'],
-              },
-            },
-          },
-        },
-      });
-
-      const result = await AnalyticsCampaign.aggregate(pipeline);
-      return result[0] ? result[0] : {
-        views: 0,
-        clicks: 0,
-        ctr: 0,
-      };
-    },
+    metrics: creative => analytics.retrieveMetrics({ cre: creative._id }),
     reports: creative => creative,
   },
 
