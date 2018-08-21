@@ -77,6 +77,10 @@ type CampaignReports {
   byDay(startDate: Date!, endDate: Date!): [CampaignReportByDay]!
 }
 
+type CampaignCreativeReports {
+  byDay(startDate: Date!, endDate: Date!): [CampaignReportByDay]!
+}
+
 type CampaignReportByDay {
   day(format: String!): String!
   metrics: CampaignMetrics!
@@ -95,6 +99,7 @@ type CampaignCreative {
   active: Boolean!
   image: Image
   metrics: CampaignMetrics!
+  reports: CampaignCreativeReports!
 }
 
 type CampaignCriteria {
