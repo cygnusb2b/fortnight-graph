@@ -162,6 +162,27 @@ module.exports = {
     return { views: 0, clicks: 0, ctr: 0 };
   },
 
+  getMetricsProjection() {
+    return {
+      views: '$views',
+      clicks: '$clicks',
+      ctr: {
+        $cond: {
+          if: { $eq: ['$views', 0] },
+          then: 0,
+          else: { $divide: ['$clicks', '$views'] },
+        },
+      },
+    };
+  },
+
+  getMetricsGroup() {
+    return {
+      views: { $sum: '$view' },
+      clicks: { $sum: '$click' },
+    };
+  },
+
   createDateRange(start, end) {
     const dates = [];
     let current = start;
@@ -175,72 +196,25 @@ module.exports = {
   async retrieveMetrics($match) {
     const pipeline = [];
     pipeline.push({ $match });
-    pipeline.push({
-      $group: {
-        _id: null,
-        views: { $sum: '$view' },
-        clicks: { $sum: '$click' },
-      },
-    });
-    pipeline.push({
-      $project: {
-        _id: 0,
-        views: 1,
-        clicks: 1,
-        ctr: {
-          $cond: {
-            if: {
-              $eq: ['$views', 0],
-            },
-            then: 0,
-            else: {
-              $divide: ['$clicks', '$views'],
-            },
-          },
-        },
-      },
-    });
+    pipeline.push({ $group: { _id: null, ...this.getMetricsGroup() } });
+    pipeline.push({ $project: { _id: 0, ...this.getMetricsProjection() } });
 
     const result = await AnalyticsCampaign.aggregate(pipeline);
     return result[0] ? result[0] : this.getDefaultMetrics();
   },
 
   async runCampaignByDayReport(criteria, { startDate, endDate }) {
-    const results = await AnalyticsCampaign.aggregate([
-      {
-        $match: {
-          day: { $gte: startDate, $lte: endDate },
-          ...criteria,
-        },
-      },
-      {
-        $group: {
-          _id: '$day',
-          views: { $sum: '$view' },
-          clicks: { $sum: '$click' },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          day: '$_id',
-          metrics: {
-            views: '$views',
-            clicks: '$clicks',
-            ctr: {
-              $cond: {
-                if: { $eq: ['$views', 0] },
-                then: 0,
-                else: { $divide: ['$clicks', '$views'] },
-              },
-            },
-          },
-        },
-      },
-      {
-        $sort: { day: 1 },
-      },
-    ]);
+    const pipeline = [];
+    pipeline.push({
+      $match: { ...criteria, day: { $gte: startDate, $lte: endDate } },
+    });
+    pipeline.push({ $group: { _id: '$day', ...this.getMetricsGroup() } });
+    pipeline.push({
+      $project: { _id: 0, day: '$_id', metrics: this.getMetricsProjection() },
+    });
+    pipeline.push({ $sort: { day: 1 } });
+
+    const results = await AnalyticsCampaign.aggregate(pipeline);
     const range = this.createDateRange(startDate, endDate);
     const days = results.map(({ day }) => moment(day).format('YYYY-MM-DD'));
 
