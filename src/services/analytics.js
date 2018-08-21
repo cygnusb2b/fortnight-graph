@@ -158,6 +158,10 @@ module.exports = {
     });
   },
 
+  getDefaultMetrics() {
+    return { views: 0, clicks: 0, ctr: 0 };
+  },
+
   createDateRange(start, end) {
     const dates = [];
     let current = start;
@@ -198,20 +202,10 @@ module.exports = {
     });
 
     const result = await AnalyticsCampaign.aggregate(pipeline);
-    return result[0] ? result[0] : {
-      views: 0,
-      clicks: 0,
-      ctr: 0,
-    };
+    return result[0] ? result[0] : this.getDefaultMetrics();
   },
 
   async runCampaignByDayReport(criteria, { startDate, endDate }) {
-    const defaultMetrics = {
-      views: 0,
-      clicks: 0,
-      ctr: 0,
-    };
-
     const results = await AnalyticsCampaign.aggregate([
       {
         $match: {
@@ -253,7 +247,10 @@ module.exports = {
     return range.map((date) => {
       const day = moment(date).format('YYYY-MM-DD');
       const index = days.findIndex(d => d === day);
-      return index !== -1 ? results[index] : { day: date.toDate(), metrics: defaultMetrics };
+      return index !== -1 ? results[index] : {
+        day: date.toDate(),
+        metrics: this.getDefaultMetrics(),
+      };
     });
   },
 };
