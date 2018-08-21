@@ -1,6 +1,7 @@
 type Query {
   dailyCampaignMetrics(day: Date!): DailyCampaignMetrics!
   dailyTotalMetrics(day: Date!): DailyTotalMetrics!
+  publisherMetricBreakouts(input: PublisherMetricsInput!): [PublisherBreakoutMetrics!]!
 }
 
 type DailyCampaignMetrics {
@@ -15,4 +16,25 @@ type DailyTotalMetrics {
   views: Int!
   clicks: Int!
   ctr: Float!
+}
+
+type PublisherBreakoutMetrics {
+  publisher: Publisher
+  placement: Placement
+  topic: Topic
+  views: Int!
+  clicks: Int!
+  ctr: Float!
+}
+
+input PublisherMetricsInput {
+  startDay: Date!
+  endDay: Date!
+  breakouts: PublisherMetricsBreakoutInput!
+}
+
+input PublisherMetricsBreakoutInput {
+  publisher: Boolean!
+  placement: Boolean!
+  topic: Boolean!
 }

@@ -1,9 +1,30 @@
 const AnalyticsCampaign = require('../../models/analytics/campaign');
 const AnalyticsPlacement = require('../../models/analytics/placement');
 const Campaign = require('../../models/campaign');
+const Placement = require('../../models/placement');
+const Publisher = require('../../models/publisher');
+const Topic = require('../../models/topic');
 const campaignDelivery = require('../../services/campaign-delivery');
 
 module.exports = {
+  /**
+   *
+   */
+  PublisherBreakoutMetrics: {
+    publisher: ({ pubid }) => {
+      if (!pubid) return null;
+      return Publisher.findById({ _id: pubid });
+    },
+    placement: ({ pid }) => {
+      if (!pid) return null;
+      return Placement.findById({ _id: pid });
+    },
+    topic: ({ tid }) => {
+      if (!tid) return null;
+      return Topic.findById({ _id: tid });
+    },
+  },
+
   /**
    *
    */
@@ -97,9 +118,65 @@ module.exports = {
         },
       });
 
+      return AnalyticsPlacement.aggregate(pipeline);
+    },
+
+    publisherMetricBreakouts: async (root, { input }, { auth }) => {
+      auth.check();
+      const { startDay, endDay, breakouts } = input;
+      const { publisher, placement, topic } = breakouts;
+
+      let groupId;
+      const $project = {
+        _id: 0,
+        views: 1,
+        clicks: 1,
+        ctr: {
+          $cond: {
+            if: {
+              $eq: ['$views', 0],
+            },
+            then: 0,
+            else: {
+              $divide: ['$clicks', '$views'],
+            },
+          },
+        },
+      };
+
+      if (!publisher && !placement && !topic) {
+        groupId = null;
+      } else {
+        groupId = {};
+        if (publisher) {
+          groupId.pubid = '$pubid';
+          $project.pubid = '$_id.pubid';
+        }
+        if (placement) {
+          groupId.pid = '$pid';
+          $project.pid = '$_id.pid';
+        }
+        if (topic) {
+          groupId.tid = '$tid';
+          $project.tid = '$_id.tid';
+        }
+      }
+
+      const pipeline = [];
+      pipeline.push({
+        $match: { day: { $gte: startDay, $lte: endDay } },
+      });
+      pipeline.push({
+        $group: {
+          _id: groupId,
+          views: { $sum: '$view' },
+          clicks: { $sum: '$click' },
+        },
+      });
+      pipeline.push({ $project });
+
       const result = await AnalyticsPlacement.aggregate(pipeline);
       return result[0] ? result[0] : {
-        placements: 0,
         views: 0,
         clicks: 0,
         ctr: 0,
