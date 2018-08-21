@@ -118,7 +118,13 @@ module.exports = {
         },
       });
 
-      return AnalyticsPlacement.aggregate(pipeline);
+      const result = await AnalyticsPlacement.aggregate(pipeline);
+      return result[0] ? result[0] : {
+        placements: 0,
+        views: 0,
+        clicks: 0,
+        ctr: 0,
+      };
     },
 
     publisherMetricBreakouts: async (root, { input }, { auth }) => {
