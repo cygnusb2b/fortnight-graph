@@ -247,9 +247,11 @@ module.exports = {
     /**
      *
      */
-    campaignHash: (root, { input }) => {
+    campaignHash: async (root, { input }, { auth }) => {
       const { advertiserId, hash } = input;
-      return Campaign.strictFindActiveOne({ advertiserId, pushId: hash });
+      const campaign = await Campaign.strictFindActiveOne({ advertiserId, pushId: hash });
+      auth.checkCampaignAccess(campaign.id);
+      return campaign;
     },
 
     /**
