@@ -1,3 +1,4 @@
+const moment = require('moment');
 const botDetector = require('./bot-detector');
 const Placement = require('../models/placement');
 const Campaign = require('../models/campaign');
@@ -154,6 +155,68 @@ module.exports = {
       cid: campaign.id,
       cre: creativeId,
       advid: campaign.advertiserId,
+    });
+  },
+
+  createDateRange(start, end) {
+    const dates = [];
+    let current = start;
+    while (current <= end) {
+      dates.push(moment(current));
+      current = moment(current).add(1, 'days');
+    }
+    return dates;
+  },
+
+  async runCampaignByDayReport(criteria, { startDate, endDate }) {
+    const defaultMetrics = {
+      views: 0,
+      clicks: 0,
+      ctr: 0,
+    };
+
+    const results = await AnalyticsCampaign.aggregate([
+      {
+        $match: {
+          day: { $gte: startDate, $lte: endDate },
+          ...criteria,
+        },
+      },
+      {
+        $group: {
+          _id: '$day',
+          views: { $sum: '$view' },
+          clicks: { $sum: '$click' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          day: '$_id',
+          metrics: {
+            views: '$views',
+            clicks: '$clicks',
+            ctr: {
+              $cond: {
+                if: { $eq: ['$views', 0] },
+                then: 0,
+                else: { $divide: ['$clicks', '$views'] },
+              },
+            },
+          },
+        },
+      },
+      {
+        $sort: { day: 1 },
+      },
+    ]);
+    const range = this.createDateRange(startDate, endDate);
+    const days = results.map(({ day }) => moment(day).format('YYYY-MM-DD'));
+
+    return range.map((date) => {
+      const day = moment(date).format('YYYY-MM-DD');
+      const index = days.findIndex(d => d === day);
+      return index !== -1 ? results[index] : { day: date.toDate(), metrics: defaultMetrics };
     });
   },
 };

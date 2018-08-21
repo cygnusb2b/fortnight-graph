@@ -10,6 +10,7 @@ const Publisher = require('../../models/publisher');
 const Image = require('../../models/image');
 const Placement = require('../../models/placement');
 const User = require('../../models/user');
+const analytics = require('../../services/analytics');
 const campaignDelivery = require('../../services/campaign-delivery');
 const contactNotifier = require('../../services/contact-notifier');
 
@@ -25,16 +26,6 @@ const getNotifyDefaults = async (advertiserId, user) => {
   const contact = await Contact.getOrCreateFor(user);
   notify.internal.push(contact.id);
   return notify;
-};
-
-const createDateRange = (start, end) => {
-  const dates = [];
-  let current = start;
-  while (current <= end) {
-    dates.push(moment(current));
-    current = moment(current).add(1, 'days');
-  }
-  return dates;
 };
 
 module.exports = {
@@ -120,56 +111,9 @@ module.exports = {
    *
    */
   CampaignReports: {
-    byDay: async (campaign, { startDate, endDate }) => {
-      const defaultMetrics = {
-        views: 0,
-        clicks: 0,
-        ctr: 0,
-      };
-
-      const results = await AnalyticsCampaign.aggregate([
-        {
-          $match: {
-            cid: campaign._id,
-            day: { $gte: startDate, $lte: endDate },
-          },
-        },
-        {
-          $group: {
-            _id: '$day',
-            views: { $sum: '$view' },
-            clicks: { $sum: '$click' },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            day: '$_id',
-            metrics: {
-              views: '$views',
-              clicks: '$clicks',
-              ctr: {
-                $cond: {
-                  if: { $eq: ['$views', 0] },
-                  then: 0,
-                  else: { $divide: ['$clicks', '$views'] },
-                },
-              },
-            },
-          },
-        },
-        {
-          $sort: { day: 1 },
-        },
-      ]);
-      const range = createDateRange(startDate, endDate);
-      const days = results.map(({ day }) => moment(day).format('YYYY-MM-DD'));
-
-      return range.map((date) => {
-        const day = moment(date).format('YYYY-MM-DD');
-        const index = days.findIndex(d => d === day);
-        return index !== -1 ? results[index] : { day: date.toDate(), metrics: defaultMetrics };
-      });
+    byDay: (campaign, { startDate, endDate }) => {
+      const criteria = { cid: campaign._id };
+      return analytics.runCampaignByDayReport(criteria, { startDate, endDate });
     },
   },
 
@@ -222,56 +166,9 @@ module.exports = {
    *
    */
   CampaignCreativeReports: {
-    byDay: async (creative, { startDate, endDate }) => {
-      const defaultMetrics = {
-        views: 0,
-        clicks: 0,
-        ctr: 0,
-      };
-
-      const results = await AnalyticsCampaign.aggregate([
-        {
-          $match: {
-            cre: creative._id,
-            day: { $gte: startDate, $lte: endDate },
-          },
-        },
-        {
-          $group: {
-            _id: '$day',
-            views: { $sum: '$view' },
-            clicks: { $sum: '$click' },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            day: '$_id',
-            metrics: {
-              views: '$views',
-              clicks: '$clicks',
-              ctr: {
-                $cond: {
-                  if: { $eq: ['$views', 0] },
-                  then: 0,
-                  else: { $divide: ['$clicks', '$views'] },
-                },
-              },
-            },
-          },
-        },
-        {
-          $sort: { day: 1 },
-        },
-      ]);
-      const range = createDateRange(startDate, endDate);
-      const days = results.map(({ day }) => moment(day).format('YYYY-MM-DD'));
-
-      return range.map((date) => {
-        const day = moment(date).format('YYYY-MM-DD');
-        const index = days.findIndex(d => d === day);
-        return index !== -1 ? results[index] : { day: date.toDate(), metrics: defaultMetrics };
-      });
+    byDay: (creative, { startDate, endDate }) => {
+      const criteria = { cre: creative._id };
+      return analytics.runCampaignByDayReport(criteria, { startDate, endDate });
     },
   },
 
