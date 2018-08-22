@@ -129,10 +129,8 @@ module.exports = {
 
     publisherMetricBreakouts: async (root, { input }, { auth }) => {
       auth.check();
-      const { startDay, endDay, breakouts } = input;
-      const { publisher, placement, topic } = breakouts;
+      const { startDay, endDay, breakout } = input;
 
-      let groupId;
       const $project = {
         _id: 0,
         views: 1,
@@ -150,22 +148,22 @@ module.exports = {
         },
       };
 
-      if (!publisher && !placement && !topic) {
-        groupId = null;
-      } else {
-        groupId = {};
-        if (publisher) {
-          groupId.pubid = '$pubid';
-          $project.pubid = '$_id.pubid';
-        }
-        if (placement) {
-          groupId.pid = '$pid';
-          $project.pid = '$_id.pid';
-        }
-        if (topic) {
-          groupId.tid = '$tid';
-          $project.tid = '$_id.tid';
-        }
+      let groupId;
+      switch (breakout) {
+        case 'publisher':
+          groupId = '$pubid';
+          $project.pubid = '$_id';
+          break;
+        case 'placement':
+          groupId = '$pid';
+          $project.pid = '$_id';
+          break;
+        case 'topic':
+          groupId = '$tid';
+          $project.tid = '$_id';
+          break;
+        default:
+          throw new Error(`The breakout '${breakout}' is not supported.`);
       }
 
       const pipeline = [];
@@ -181,12 +179,7 @@ module.exports = {
       });
       pipeline.push({ $project });
 
-      const result = await AnalyticsPlacement.aggregate(pipeline);
-      return result[0] ? result[0] : {
-        views: 0,
-        clicks: 0,
-        ctr: 0,
-      };
+      return AnalyticsPlacement.aggregate(pipeline);
     },
   },
 };

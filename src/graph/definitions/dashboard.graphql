@@ -30,11 +30,11 @@ type PublisherBreakoutMetrics {
 input PublisherMetricsInput {
   startDay: Date!
   endDay: Date!
-  breakouts: PublisherMetricsBreakoutInput!
+  breakout: PublisherMetricsBreakout!
 }
 
-input PublisherMetricsBreakoutInput {
-  publisher: Boolean!
-  placement: Boolean!
-  topic: Boolean!
+enum PublisherMetricsBreakout {
+  publisher
+  placement
+  topic
 }
