@@ -1,6 +1,6 @@
 {
   "name": "fortnight-graph",
-  "version": "1.0.0-rc.2.2",
+  "version": "1.0.0-rc.2.3",
   "main": "src/index.js",
   "repository": "https://github.com/cygnusb2b/fortnight-graph.git",
   "author": "Jacob Bare <jacob@limit0.io>",
