@@ -62,6 +62,8 @@ type Story implements UserAttribution & Timestampable {
   updatedAt: Date!
   createdBy: User!
   updatedBy: User!
+  metrics: StoryMetrics!
+  reports: StoryReports!
 }
 
 type StorySitemapItem {
@@ -77,6 +79,39 @@ type StorySitemapImage {
   id: String!
   loc: String!
   caption: String
+}
+
+type StoryReports {
+  byDay(startDate: Date!, endDate: Date!): [StoryReportByDay]!
+  acquisition: [StoryReportAcquisition]!
+  devices: [StoryReportDevices]!
+}
+
+type StoryReportByDay {
+  date(format: String!): String!
+  metrics: StoryMetrics!
+}
+
+type StoryReportAcquisition {
+  channelGrouping: String!
+  metrics: StoryMetrics!
+}
+
+type StoryReportDevices {
+  deviceCategory: String!
+  metrics: StoryMetrics!
+}
+
+type StoryMetrics {
+  pageviews: Int!
+  uniquePageviews: Int!
+  sessions: Int!
+  users: Int!
+  avgSessionDuration: Float!
+  bounceRate: Float!
+  timeOnPage: Float!
+  avgTimeOnPage: Float!
+  shares: Int!
 }
 
 type StoryConnection {

@@ -1,7 +1,6 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const moment = require('moment');
 const Advertiser = require('../../models/advertiser');
-const AnalyticsEvent = require('../../models/analytics/event');
 const CreativeService = require('../../services/campaign-creatives');
 const Campaign = require('../../models/campaign');
 const Story = require('../../models/story');
@@ -10,6 +9,7 @@ const Publisher = require('../../models/publisher');
 const Image = require('../../models/image');
 const Placement = require('../../models/placement');
 const User = require('../../models/user');
+const analytics = require('../../services/analytics');
 const campaignDelivery = require('../../services/campaign-delivery');
 const contactNotifier = require('../../services/contact-notifier');
 
@@ -58,55 +58,27 @@ module.exports = {
       const criteria = { _id: { $in: publisherIds } };
       return Publisher.paginate({ pagination, criteria, sort });
     },
-    metrics: async (campaign) => {
-      const pipeline = [];
-      pipeline.push({ $match: { cid: campaign._id } });
-      pipeline.push({
-        $project: {
-          cid: 1,
-          view: { $cond: [{ $eq: ['$e', 'view-js'] }, 1, 0] },
-          click: { $cond: [{ $eq: ['$e', 'click-js'] }, 1, 0] },
-          load: { $cond: [{ $eq: ['$e', 'load-js'] }, 1, 0] },
-        },
-      });
-      pipeline.push({
-        $group: {
-          _id: '$cid',
-          loads: { $sum: '$load' },
-          views: { $sum: '$view' },
-          clicks: { $sum: '$click' },
-        },
-      });
-      pipeline.push({
-        $project: {
-          _id: 0,
-          loads: 1,
-          views: 1,
-          clicks: 1,
-          ctr: {
-            $cond: {
-              if: {
-                $eq: ['$views', 0],
-              },
-              then: 0,
-              else: {
-                $divide: ['$clicks', '$views'],
-              },
-            },
-          },
-        },
-      });
-
-      const result = await AnalyticsEvent.aggregate(pipeline);
-      return result[0] ? result[0] : {
-        loads: 0,
-        views: 0,
-        clicks: 0,
-        ctr: 0,
-      };
-    },
+    metrics: campaign => analytics.retrieveMetrics({ cid: campaign._id }),
+    reports: campaign => campaign,
     createdBy: campaign => User.findById(campaign.createdById),
     updatedBy: campaign => User.findById(campaign.updatedById),
+  },
+
+  /**
+   *
+   */
+  CampaignReportByDay: {
+    day: ({ day }, { format }) => moment(day).format(format),
+  },
+
+  /**
+   *
+   */
+  CampaignReports: {
+    byDay: (campaign, { startDate, endDate }) => {
+      const criteria = { cid: campaign._id };
+      return analytics.runCampaignByDayReport(criteria, { startDate, endDate });
+    },
   },
 
   CampaignCriteria: {
@@ -115,6 +87,18 @@ module.exports = {
 
   CampaignCreative: {
     image: creative => Image.findById(creative.imageId),
+    metrics: creative => analytics.retrieveMetrics({ cre: creative._id }),
+    reports: creative => creative,
+  },
+
+  /**
+   *
+   */
+  CampaignCreativeReports: {
+    byDay: (creative, { startDate, endDate }) => {
+      const criteria = { cre: creative._id };
+      return analytics.runCampaignByDayReport(criteria, { startDate, endDate });
+    },
   },
 
   /**
@@ -147,9 +131,11 @@ module.exports = {
     /**
      *
      */
-    campaignHash: (root, { input }) => {
+    campaignHash: async (root, { input }, { auth }) => {
       const { advertiserId, hash } = input;
-      return Campaign.strictFindActiveOne({ advertiserId, pushId: hash });
+      const campaign = await Campaign.strictFindActiveOne({ advertiserId, pushId: hash });
+      auth.checkCampaignAccess(campaign.id);
+      return campaign;
     },
 
     /**

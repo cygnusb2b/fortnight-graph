@@ -10,21 +10,6 @@ const {
   userAttributionPlugin,
 } = require('../plugins');
 
-const validateBeacon = (v) => {
-  const results = v.match(/{{build-beacon}}/g);
-  if (!results) return false;
-  if (results.length > 1) return false;
-  return true;
-};
-
-const validateUABeacon = (v) => {
-  const results = v.match(/{{build-ua-beacon}}/g);
-  if (!results) return true; // Optional
-  // But if present, only allow one time.
-  if (results.length > 1) return false;
-  return true;
-};
-
 const validateContainerAttrs = (v) => {
   const results = v.match(/{{build-container-attributes}}/g);
   if (!results) return false;
@@ -54,18 +39,6 @@ const schema = new Schema({
       },
       {
         validator(v) {
-          return validateBeacon(v);
-        },
-        message: 'The {{build-beacon}} helper must be present, exactly one time.',
-      },
-      {
-        validator(v) {
-          return validateUABeacon(v);
-        },
-        message: 'The {{build-ua-beacon}} helper is optional, but can only be used once.',
-      },
-      {
-        validator(v) {
           return /{{#tracked-link href=href/g.test(v);
         },
         message: 'The {{#tracked-link href=href}}{{/tracked-link}} helper must be present.',
@@ -81,20 +54,6 @@ const schema = new Schema({
           return validateContainerAttrs(v);
         },
         message: 'The {{build-container-attributes}} helper must be present, exactly one time.',
-      },
-      {
-        validator(v) {
-          if (!v) return true;
-          return validateBeacon(v);
-        },
-        message: 'The {{build-beacon}} helper must be present, exactly one time.',
-      },
-      {
-        validator(v) {
-          if (!v) return true;
-          return validateUABeacon(v);
-        },
-        message: 'The {{build-ua-beacon}} helper is optional, but can only be used once.',
       },
       {
         validator(v) {
@@ -154,12 +113,9 @@ schema.statics.render = function render(source, data) {
 
 /**
  * Returns a handlebars template to use when no fallback is provided.
- *
- * @param {boolean} withUa Whether or not to include the UA beacon.
  */
-schema.statics.getFallbackFallback = function getFallbackFallback(withUA = false) {
-  const ua = withUA ? '{{build-ua-beacon}}' : '';
-  return `<div style="width:1px;height:1px;" {{build-container-attributes}}>{{build-beacon}}${ua}</div>`;
+schema.statics.getFallbackFallback = function getFallbackFallback() {
+  return '<div style="width:1px;height:1px;" {{build-container-attributes}}></div>';
 };
 
 schema.index({ name: 1, _id: 1 }, { unique: true });

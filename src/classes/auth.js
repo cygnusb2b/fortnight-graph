@@ -17,6 +17,11 @@ class Auth {
     return true;
   }
 
+  get sessionId() {
+    if (!this.session) return undefined;
+    return this.session.id;
+  }
+
   getError() {
     if (this.err) return this.err instanceof Error ? this.err : new Error(this.err);
     if (!this.session || !this.user) return new Error('No user or session was found.');

@@ -6,6 +6,7 @@ const {
   makeValidator,
   port,
   bool,
+  str,
   url,
 } = require('envalid');
 
@@ -35,8 +36,7 @@ const jsonfile = makeValidator((v) => {
   if (!v) throw new Error('Expected a non-empty string');
   try {
     const data = readFileSync(v, { encoding: 'utf8', flag: 'r' });
-    JSON.parse(data);
-    return v;
+    return JSON.parse(data);
   } catch (e) {
     throw new Error(`Invalid jsonfile: ${e.message}`);
   }
@@ -49,6 +49,8 @@ module.exports = cleanEnv(process.env, {
   APP_HOST: nonemptystr({ desc: 'The hostname where the server instance is running.' }),
   STORY_HOST: nonemptystr({ desc: 'The hostname where the story website instance is running.' }),
   GA_TRACKING_ID: nonemptystr({ desc: 'The Google analytics ID that stories/sponsored content will use for tracking' }),
+  GA_VIEW_ID: nonemptystr({ desc: 'The Google analytics view ID that the API will use when querying data.' }),
+  GOOGLE_SITE_VERIFICATION: str({ desc: 'The Google Webmaster Tools site verification meta value.', default: '' }),
   ELASTIC_HOST: url({ desc: 'The Elasticsearch DSN to connect to.' }),
   ELASTIC_INDEX_RECREATE: bool({ desc: 'Whether the Elasticsearch indexes should be re-created.', default: false }),
   IMGIX_URL: url({ desc: 'The Imgix URL for serving images.' }),

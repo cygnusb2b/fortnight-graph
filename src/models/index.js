@@ -1,6 +1,10 @@
 const Account = require('./account');
 const Advertiser = require('./advertiser');
+const AnalyticsAction = require('./analytics/action');
+const AnalyticsBot = require('./analytics/bot');
+const AnalyticsCampaign = require('./analytics/campaign');
 const AnalyticsEvent = require('./analytics/event');
+const AnalyticsPlacement = require('./analytics/placement');
 const Campaign = require('./campaign');
 const Contact = require('./contact');
 const Image = require('./image');
@@ -14,7 +18,11 @@ const User = require('./user');
 module.exports = {
   Account,
   Advertiser,
+  AnalyticsAction,
+  AnalyticsBot,
+  AnalyticsCampaign,
   AnalyticsEvent,
+  AnalyticsPlacement,
   Campaign,
   Contact,
   Image,

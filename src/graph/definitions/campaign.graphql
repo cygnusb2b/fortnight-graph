@@ -70,10 +70,23 @@ type Campaign implements UserAttribution & Timestampable {
   createdBy: User!
   updatedBy: User!
   metrics: CampaignMetrics!
+  reports: CampaignReports!
+}
+
+type CampaignReports {
+  byDay(startDate: Date!, endDate: Date!): [CampaignReportByDay]!
+}
+
+type CampaignCreativeReports {
+  byDay(startDate: Date!, endDate: Date!): [CampaignReportByDay]!
+}
+
+type CampaignReportByDay {
+  day(format: String!): String!
+  metrics: CampaignMetrics!
 }
 
 type CampaignMetrics {
-  loads: Int!
   views: Int!
   clicks: Int!
   ctr: Float!
@@ -85,6 +98,8 @@ type CampaignCreative {
   teaser: String
   active: Boolean!
   image: Image
+  metrics: CampaignMetrics!
+  reports: CampaignCreativeReports!
 }
 
 type CampaignCriteria {

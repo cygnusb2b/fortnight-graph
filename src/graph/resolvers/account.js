@@ -9,6 +9,7 @@ module.exports = {
   AccountSettings: {
     cname: () => env.STORY_HOST,
     googleAnalyticsId: () => env.GA_TRACKING_ID,
+    siteVerificationMeta: () => env.GOOGLE_SITE_VERIFICATION,
   },
 
   /**

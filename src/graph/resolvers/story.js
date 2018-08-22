@@ -6,6 +6,7 @@ const Campaign = require('../../models/campaign');
 const Publisher = require('../../models/publisher');
 const Story = require('../../models/story');
 const Image = require('../../models/image');
+const ga = require('../../services/google-analytics');
 
 const storySearchFilter = [
   {
@@ -18,7 +19,66 @@ const storySearchFilter = [
   },
 ];
 
+const getMetricStartDate = (publishedAt, startDate) =>
+  (startDate.valueOf() < publishedAt.valueOf() ? publishedAt : startDate);
+
+const quotaUser = ({ auth, ip }) => {
+  const { sessionId } = auth;
+  if (sessionId) return sessionId;
+  return ip;
+};
+
 module.exports = {
+  /**
+   *
+   */
+  StoryReports: {
+    byDay: (story, { startDate, endDate }, ctx) => {
+      const { publishedAt, status } = story;
+      if (status !== 'Published') {
+        return [];
+      }
+      return ga.storyReportByDay(story.id, {
+        quotaUser: quotaUser(ctx),
+        endDate,
+        startDate: getMetricStartDate(publishedAt, startDate),
+      });
+    },
+
+    acquisition: (story, args, ctx) => {
+      const { publishedAt, status } = story;
+      if (status !== 'Published') {
+        return [];
+      }
+      return ga.storyAcquisitionReport(story.id, {
+        quotaUser: quotaUser(ctx),
+        startDate: publishedAt,
+        endDate: new Date(),
+      });
+    },
+
+    devices: (story, args, ctx) => {
+      const { publishedAt, status } = story;
+      if (status !== 'Published') {
+        return [];
+      }
+      return ga.storyDeviceReport(story.id, {
+        quotaUser: quotaUser(ctx),
+        startDate: publishedAt,
+        endDate: new Date(),
+      });
+    },
+  },
+  /**
+   *
+   */
+  StoryReportByDay: {
+    date: ({ date }, { format }) => moment(date).format(format),
+  },
+
+  /**
+   *
+   */
   Story: {
     // @todo Determine if this should run a strict/active find.
     // Ultimately, deleting an advertiser should delete it's stories?
@@ -37,6 +97,19 @@ module.exports = {
     url: story => story.getUrl(),
     hash: story => story.pushId,
     path: story => story.getPath(),
+    metrics: async (story, args, ctx) => {
+      const { publishedAt, status } = story;
+      if (status !== 'Published') {
+        return ga.getDefaultMetricValues();
+      }
+      const report = await ga.storyReport(story.id, {
+        startDate: publishedAt,
+        endDate: new Date(),
+        quotaUser: quotaUser(ctx),
+      });
+      return report.metrics;
+    },
+    reports: story => story,
     ...userAttributionFields,
   },
 
@@ -92,8 +165,8 @@ module.exports = {
       const { id, preview } = input;
       const story = await Story.strictFindActiveById(id);
       if (preview) return story;
-      const { publishedAt } = story;
-      if (!publishedAt || publishedAt.valueOf() > Date.now()) {
+      const { status } = story;
+      if (status !== 'Published') {
         throw new Error(`No story found for ID '${id}'`);
       }
       return story;

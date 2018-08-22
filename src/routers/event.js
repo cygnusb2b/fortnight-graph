@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const noCacheEvents = require('../middleware/no-cache-events');
 const newrelic = require('../newrelic');
-const EventHandler = require('../services/event-handler');
+const analyticsService = require('../services/analytics');
 
 const emptyGif = Buffer.from('R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==', 'base64');
 
@@ -22,12 +22,10 @@ const send = (res, status, err) => {
 const trackEvent = (req, res) => {
   const { action } = req.params;
   // Track the event, but don't await so the response is fast.
-  EventHandler.track({
+  analyticsService.trackAction({
     action,
     fields: req.query,
     ua: req.get('User-Agent'),
-    ip: req.ip,
-    ref: req.get('Referer'),
   }).catch(newrelic.noticeError.bind(newrelic));
   send(res, 200);
 };
