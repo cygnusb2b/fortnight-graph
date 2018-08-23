@@ -49,7 +49,6 @@ const schema = new Schema({
 });
 
 schema.method('preAggregate', async function preAggregate() {
-  await this.validate();
   const now = new Date();
   const criteria = { ua: this.ua };
 

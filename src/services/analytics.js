@@ -19,7 +19,7 @@ module.exports = {
    */
   async trackAction({ action, fields, ua }) {
     // Validate action.
-    if (!['view', 'click'].includes(action)) throw new Error(`The provided action '${action}' is not supported.`);
+    if (!['view', 'click'].includes(action)) return;
 
     // Validate required fields.
     const { pid, cid, cre } = fields;
