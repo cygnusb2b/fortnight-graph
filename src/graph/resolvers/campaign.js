@@ -171,7 +171,7 @@ module.exports = {
      */
     campaignsStartingSoon: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      const start = moment().add(7, 'days').toDate();
+      const start = moment().add(14, 'days').toDate();
       const criteria = {
         deleted: false,
         'criteria.start': { $gte: new Date(), $lte: start },
@@ -184,7 +184,7 @@ module.exports = {
      */
     campaignsEndingSoon: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      const end = moment().add(7, 'days').toDate();
+      const end = moment().add(14, 'days').toDate();
       const criteria = {
         deleted: false,
         ready: true,
