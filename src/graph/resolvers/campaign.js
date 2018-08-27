@@ -60,6 +60,7 @@ module.exports = {
     },
     metrics: campaign => analytics.retrieveMetrics({ cid: campaign._id }),
     reports: campaign => campaign,
+    creatives: campaign => campaign.creatives.filter(cre => !cre.deleted),
     createdBy: campaign => User.findById(campaign.createdById),
     updatedBy: campaign => User.findById(campaign.updatedById),
   },

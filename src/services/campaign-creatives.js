@@ -85,7 +85,7 @@ module.exports = {
   async findFor(campaignId, creativeId) {
     const campaign = await Campaign.strictFindActiveById(campaignId);
     const creative = campaign.creatives.id(creativeId);
-    if (!creative) throw new Error('No creative was found for the provided ID.');
+    if (!creative || creative.deleted) throw new Error('No creative was found for the provided ID.');
     return creative;
   },
 
@@ -100,7 +100,7 @@ module.exports = {
 
     const creative = campaign.creatives.id(creativeId);
     if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
-    creative.remove();
+    creative.deleted = true;
     return campaign.save();
   },
 };

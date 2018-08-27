@@ -65,8 +65,8 @@ describe('services/campaign-creatives', function() {
       await expect(CampaignCreatives.removeFrom(campaign.id, creative.id)).to.eventually.be.an.instanceOf(Campaign);
 
       const found = await Campaign.findById(campaign.id);
-      expect(found.get('creatives').length).to.equal(length - 1);
-      expect(found.get('creatives').id(creative.id)).to.be.null;
+      expect(found.get('creatives').length).to.equal(length);
+      expect(found.get('creatives').id(creative.id).deleted).to.be.true;
     });
   });
 
