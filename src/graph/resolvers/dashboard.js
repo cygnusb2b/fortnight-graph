@@ -155,12 +155,15 @@ module.exports = {
           $project.pubid = '$_id';
           break;
         case 'placement':
-          groupId = '$pid';
-          $project.pid = '$_id';
+          groupId = { pid: '$pid', tid: '$tid', pubid: '$pubid' };
+          $project.pid = '$_id.pid';
+          $project.tid = '$_id.tid';
+          $project.pubid = '$_id.pubid';
           break;
         case 'topic':
-          groupId = '$tid';
-          $project.tid = '$_id';
+          groupId = { tid: '$tid', pubid: '$pubid' };
+          $project.tid = '$_id.tid';
+          $project.pubid = '$_id.pubid';
           break;
         default:
           throw new Error(`The breakout '${breakout}' is not supported.`);
