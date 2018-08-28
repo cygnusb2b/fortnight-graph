@@ -1,7 +1,8 @@
 type Query {
   dailyCampaignMetrics(day: Date!): DailyCampaignMetrics!
   dailyTotalMetrics(day: Date!): DailyTotalMetrics!
-  publisherMetricBreakouts(input: PublisherMetricsInput!): [PublisherBreakoutMetrics!]!
+  publisherMetricBreakouts(input: BreakoutMetricsInput!, sort: PublisherMetricsSortInput = {}): [PublisherBreakoutMetrics!]!
+  topicMetricBreakouts(input: BreakoutMetricsInput!, sort: TopicMetricsSortInput = {}): [TopicBreakoutMetrics!]!
 }
 
 type DailyCampaignMetrics {
@@ -19,22 +20,47 @@ type DailyTotalMetrics {
 }
 
 type PublisherBreakoutMetrics {
-  publisher: Publisher
-  placement: Placement
-  topic: Topic
+  publisherName: String!
   views: Int!
   clicks: Int!
   ctr: Float!
 }
 
-input PublisherMetricsInput {
-  startDay: Date!
-  endDay: Date!
-  breakout: PublisherMetricsBreakout!
+type TopicBreakoutMetrics {
+  topicName: String!
+  publisherName: String!
+  views: Int!
+  clicks: Int!
+  ctr: Float!
 }
 
-enum PublisherMetricsBreakout {
-  publisher
-  placement
-  topic
+input BreakoutMetricsInput {
+  startDay: Date!
+  endDay: Date!
+}
+
+input PublisherMetricsSortInput {
+  field: PublisherMetricsSortField!
+  order: Int! = -1
+}
+
+enum PublisherMetricsSortField {
+  publisherName
+  views
+  clicks
+  ctr
+}
+
+
+input TopicMetricsSortInput {
+  field: TopicMetricsSortField!
+  order: Int! = -1
+}
+
+enum TopicMetricsSortField {
+  topicName
+  publisherName
+  views
+  clicks
+  ctr
 }
