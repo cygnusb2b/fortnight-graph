@@ -57,6 +57,7 @@ const schema = new Schema({
 
 schema.index({ pubid: 1 });
 schema.index({ tid: 1 });
+schema.index({ pubid: 1, tid: 1 });
 schema.index({ pid: 1, day: 1 }, { unique: true });
 
 schema.method('preAggregate', async function preAggregate(action) {
