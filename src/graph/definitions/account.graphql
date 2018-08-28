@@ -21,6 +21,7 @@ type AccountSettings {
   id: String!
   cname: String
   reservePct: Int!
+  requiredCreatives: Int!
   googleAnalyticsId: String!
   siteVerificationMeta: String
 }
@@ -37,4 +38,5 @@ input AccountUpdatePayloadInput {
 
 input AccountUpdateSettingsInput {
   reservePct: Int!
+  requiredCreatives: Int!
 }

@@ -33,6 +33,7 @@ module.exports = {
       const { name, settings } = payload;
       account.name = name;
       account.set('settings.reservePct', settings.reservePct);
+      account.set('settings.requiredCreatives', settings.requiredCreatives);
       return account.save();
     },
   },
