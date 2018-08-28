@@ -30,7 +30,9 @@ module.exports = {
       auth.checkAdmin();
       const { id, payload } = input;
       const account = await Account.strictFindById(id);
-      account.set(payload);
+      const { name, settings } = payload;
+      account.name = name;
+      account.set('settings.reservePct', settings.reservePct);
       return account.save();
     },
   },
