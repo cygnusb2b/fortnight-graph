@@ -115,7 +115,7 @@ module.exports = {
     const story = await Story.findById(storyId, { body: 0 });
     const path = await story.getPath();
     return storyUrl(publisher.customUri || account.storyUri, path, {
-      pubid: publisherId,
+      pubid: publisher.id,
       utm_source: 'NativeX',
       utm_medium: 'banner',
       utm_campaign: campaign.id,

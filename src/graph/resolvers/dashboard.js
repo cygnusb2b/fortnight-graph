@@ -1,30 +1,10 @@
 const AnalyticsCampaign = require('../../models/analytics/campaign');
 const AnalyticsPlacement = require('../../models/analytics/placement');
 const Campaign = require('../../models/campaign');
-const Placement = require('../../models/placement');
 const Publisher = require('../../models/publisher');
-const Topic = require('../../models/topic');
 const campaignDelivery = require('../../services/campaign-delivery');
 
 module.exports = {
-  /**
-   *
-   */
-  PublisherBreakoutMetrics: {
-    publisher: ({ pubid }) => {
-      if (!pubid) return null;
-      return Publisher.findById({ _id: pubid });
-    },
-    placement: ({ pid }) => {
-      if (!pid) return null;
-      return Placement.findById({ _id: pid });
-    },
-    topic: ({ tid }) => {
-      if (!tid) return null;
-      return Topic.findById({ _id: tid });
-    },
-  },
-
   /**
    *
    */
@@ -127,59 +107,158 @@ module.exports = {
       };
     },
 
-    publisherMetricBreakouts: async (root, { input }, { auth }) => {
+    /**
+     *
+     */
+    publisherMetricBreakouts: async (root, { input, sort }, { auth }) => {
       auth.check();
-      const { startDay, endDay, breakout } = input;
+      const { startDay, endDay } = input;
 
-      const $project = {
-        _id: 0,
-        views: 1,
-        clicks: 1,
-        ctr: {
-          $cond: {
-            if: {
-              $eq: ['$views', 0],
-            },
-            then: 0,
-            else: {
-              $divide: ['$clicks', '$views'],
+      const pipeline = [
+        { $project: { _id: 1, name: 1 } },
+        {
+          $lookup: {
+            from: 'analytics-placements',
+            let: { publisherId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$pubid', '$$publisherId'] },
+                      { $gte: ['$day', startDay] },
+                      { $lte: ['$day', endDay] },
+                    ],
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: '$pubid',
+                  views: { $sum: '$view' },
+                  clicks: { $sum: '$click' },
+                },
+              },
+            ],
+            as: 'metrics',
+          },
+        },
+        {
+          $unwind: {
+            path: '$metrics',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            publisherName: '$name',
+            views: { $ifNull: ['$metrics.views', 0] },
+            clicks: { $ifNull: ['$metrics.clicks', 0] },
+            ctr: {
+              $cond: {
+                if: { $lt: ['$metrics.views', 1] },
+                then: 0,
+                else: { $divide: ['$metrics.clicks', '$metrics.views'] },
+              },
             },
           },
         },
-      };
+        { $sort: { [sort.field]: sort.order } },
+      ];
 
-      let groupId;
-      switch (breakout) {
-        case 'publisher':
-          groupId = '$pubid';
-          $project.pubid = '$_id';
-          break;
-        case 'placement':
-          groupId = '$pid';
-          $project.pid = '$_id';
-          break;
-        case 'topic':
-          groupId = '$tid';
-          $project.tid = '$_id';
-          break;
-        default:
-          throw new Error(`The breakout '${breakout}' is not supported.`);
-      }
+      return Publisher.aggregate(pipeline);
+    },
 
-      const pipeline = [];
-      pipeline.push({
-        $match: { day: { $gte: startDay, $lte: endDay } },
-      });
-      pipeline.push({
-        $group: {
-          _id: groupId,
-          views: { $sum: '$view' },
-          clicks: { $sum: '$click' },
+    /**
+     *
+     */
+    topicMetricBreakouts: async (root, { input, sort }, { auth }) => {
+      auth.check();
+      const { startDay, endDay } = input;
+
+      const pipeline = [
+        { $project: { _id: 1, name: 1 } },
+        {
+          $lookup: {
+            from: 'topics',
+            let: { publisherId: '$_id' },
+            pipeline: [
+              { $match: { $expr: { $eq: ['$publisherId', '$$publisherId'] } } },
+              { $project: { _id: 1, name: 1 } },
+            ],
+            as: 'topic',
+          },
         },
-      });
-      pipeline.push({ $project });
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            topic: {
+              $cond: {
+                if: { $gt: [{ $size: '$topic' }, 0] },
+                then: { $concatArrays: [[{ _id: false, name: '' }], '$topic'] },
+                else: [{ _id: false, name: '' }],
+              },
+            },
+          },
+        },
+        { $unwind: '$topic' },
+        {
+          $lookup: {
+            from: 'analytics-placements',
+            let: { publisherId: '$_id', topicId: '$topic._id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$pubid', '$$publisherId'] },
+                      { $eq: [{ $ifNull: ['$tid', false] }, '$$topicId'] },
+                      { $gte: ['$day', startDay] },
+                      { $lte: ['$day', endDay] },
+                    ],
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: { pubid: '$pubid', tid: '$tid' },
+                  views: { $sum: '$view' },
+                  clicks: { $sum: '$click' },
+                },
+              },
+            ],
+            as: 'metrics',
+          },
+        },
+        {
+          $unwind: {
+            path: '$metrics',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            publisherId: '$_id',
+            publisherName: '$name',
+            topicId: '$topic._id',
+            topicName: '$topic.name',
+            views: { $ifNull: ['$metrics.views', 0] },
+            clicks: { $ifNull: ['$metrics.clicks', 0] },
+            ctr: {
+              $cond: {
+                if: { $lt: ['$metrics.views', 1] },
+                then: 0,
+                else: { $divide: ['$metrics.clicks', '$metrics.views'] },
+              },
+            },
+          },
+        },
+        { $sort: { [sort.field]: sort.order } },
+      ];
 
-      return AnalyticsPlacement.aggregate(pipeline);
+      return Publisher.aggregate(pipeline);
     },
   },
 };

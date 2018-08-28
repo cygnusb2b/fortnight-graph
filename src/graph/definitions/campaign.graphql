@@ -60,6 +60,7 @@ type Campaign implements UserAttribution & Timestampable {
   requires: String
   deleted: Boolean!
   paused: Boolean!
+  requiredCreatives: Int!
   publishers(pagination: PaginationInput = {}, sort: PublisherSortInput = {}): PublisherConnection!
   url: String
   primaryImage: Image

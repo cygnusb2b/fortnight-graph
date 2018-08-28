@@ -30,6 +30,10 @@ const settingsSchema = new Schema({
   bcc: {
     type: String,
   },
+  requiredCreatives: {
+    type: Number,
+    default: 1,
+  },
   session: {
     type: sessionSchema,
     default() {

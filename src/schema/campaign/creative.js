@@ -15,6 +15,10 @@ const schema = new Schema({
     required: true,
     default: true,
   },
+  deleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 imagePlugin(schema, { fieldName: 'imageId' });

@@ -14,6 +14,7 @@ const {
   searchablePlugin,
   userAttributionPlugin,
 } = require('../../plugins');
+const accountService = require('../../services/account');
 
 const externalLinkSchema = new Schema({
   label: {
@@ -79,6 +80,10 @@ const schema = new Schema({
   creatives: [CreativeSchema],
   criteria: CriteriaSchema,
   externalLinks: [externalLinkSchema],
+  requiredCreatives: {
+    type: Number,
+    default: 1,
+  },
 }, { timestamps: true });
 
 setEntityFields(schema, 'name');
@@ -127,13 +132,16 @@ schema.method('getRequirements', async function getRequirements() {
     url,
     criteria,
     creatives,
+    requiredCreatives,
   } = this;
 
   const needs = [];
   const start = criteria.get('start');
   if (!start) needs.push('a start date');
   if (!criteria.get('placementIds.length')) needs.push('a placement');
-  if (!creatives.filter(cre => cre.active).length) needs.push('an active creative');
+  if (creatives.filter(cre => cre.active).length < requiredCreatives) {
+    needs.push(`at least ${requiredCreatives} active creative(s)`);
+  }
   if (storyId) {
     const story = await connection.model('story').findById(storyId);
     const storyNeed = 'an active story';
@@ -149,6 +157,14 @@ schema.method('getRequirements', async function getRequirements() {
     needs.push('a URL');
   }
   return needs.sort().join(', ');
+});
+
+schema.pre('validate', async function setRequiredCreatives() {
+  const account = await accountService.retrieve();
+  const requiredCreatives = account.get('settings.requiredCreatives');
+  if (this.isNew) {
+    this.requiredCreatives = requiredCreatives;
+  }
 });
 
 schema.pre('save', async function setAdvertiserForStory() {
@@ -175,6 +191,7 @@ schema.pre('save', async function setReady() {
 });
 
 schema.index({ advertiserId: 1 });
+schema.index({ 'creatives.deleted': 1 });
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ name: -1, _id: -1 }, { unique: true });
 schema.index({ updatedAt: 1, _id: 1 }, { unique: true });

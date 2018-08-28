@@ -60,6 +60,7 @@ module.exports = {
     },
     metrics: campaign => analytics.retrieveMetrics({ cid: campaign._id }),
     reports: campaign => campaign,
+    creatives: campaign => campaign.creatives.filter(cre => !cre.deleted),
     createdBy: campaign => User.findById(campaign.createdById),
     updatedBy: campaign => User.findById(campaign.updatedById),
   },
@@ -171,7 +172,7 @@ module.exports = {
      */
     campaignsStartingSoon: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      const start = moment().add(7, 'days').toDate();
+      const start = moment().add(14, 'days').toDate();
       const criteria = {
         deleted: false,
         'criteria.start': { $gte: new Date(), $lte: start },
@@ -184,7 +185,7 @@ module.exports = {
      */
     campaignsEndingSoon: (root, { pagination, sort }, { auth }) => {
       auth.check();
-      const end = moment().add(7, 'days').toDate();
+      const end = moment().add(14, 'days').toDate();
       const criteria = {
         deleted: false,
         ready: true,
