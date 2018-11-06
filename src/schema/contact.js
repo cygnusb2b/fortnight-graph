@@ -109,10 +109,21 @@ schema.pre('save', async function removeRelsOnDelete() {
   ]);
 });
 
-schema.statics.getOrCreateFor = async function getOrCreateFor({ email, givenName, familyName }) {
+schema.statics.getOrCreateFor = async function getOrCreateFor({
+  id,
+  email,
+  givenName,
+  familyName,
+}) {
   const existing = await this.findOne({ email });
   if (existing) return existing;
-  return this.create({ givenName, familyName, email });
+  return this.create({
+    givenName,
+    familyName,
+    email,
+    createdById: id,
+    updatedById: id,
+  });
 };
 
 schema.index({ email: 1, deleted: 1 }, { unique: true });
