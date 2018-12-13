@@ -1,27 +1,31 @@
-version: '3'
+version: '3.7'
 services:
   app:
+    init: true
     tty: true
-    build: .
+    image: node:8
+    working_dir: /app
+    entrypoint: node_modules/.bin/gulp
     ports:
       - "${GRAPH_APP_PORT-8100}:8100"
     volumes:
       - .:/app:cached
-      - node_modules:/app/node_modules
+      - ./node_modules:/app/node_modules:delegated
+      - yarn-cache:/.yarn-cache
     depends_on:
       - redis
       - mongo
       - elasticsearch
     restart: on-failure
-    entrypoint: node_modules/.bin/gulp
     environment:
+      YARN_CACHE_FOLDER: /.yarn-cache
       ACCOUNT_KEY: ${ACCOUNT_KEY-dev-tenant}
       BASE_URI: localhost:8100
       DEBUG: ${DEBUG}
       ELASTIC_HOST: http://elasticsearch:9200
       ELASTIC_INDEX_RECREATE: ${ELASTIC_INDEX_RECREATE-false}
       MONGOOSE_DEBUG: ${MONGOOSE_DEBUG-false}
-      MONGO_DSN: mongodb://mongo:27017/fortnight
+      MONGO_DSN: ${MONGO_DSN-mongodb://mongo:27017/fortnight}
       NODE_ENV: development
       PORT: 8100
       REDIS_DSN: redis://redis:6379/0
@@ -73,7 +77,7 @@ services:
     depends_on:
       - elasticsearch
 volumes:
-  node_modules: {}
   mongodb: {}
   esdata: {}
   esplug: {}
+  yarn-cache: {}
