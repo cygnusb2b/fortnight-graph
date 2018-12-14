@@ -64,4 +64,3 @@ module.exports = cleanEnv(process.env, {
   SENDGRID_API_KEY: nonemptystr({ desc: 'The SendGrid API key for sending email.' }),
   SENDGRID_FROM: nonemptystr({ desc: 'The from name to use when sending email via SendGrid, e.g. Foo <foo@bar.com>' }),
 });
-

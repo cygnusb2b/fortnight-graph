@@ -1,7 +1,7 @@
 const moment = require('moment');
+const { ObjectId } = require('mongoose').Types;
 const Campaign = require('../models/campaign');
 const Analytics = require('../models/analytics/event');
-const { ObjectId } = require('mongoose').Types;
 
 const createDateRange = (start, end) => {
   const dates = [];

@@ -19,8 +19,10 @@ const storySearchFilter = [
   },
 ];
 
-const getMetricStartDate = (publishedAt, startDate) =>
-  (startDate.valueOf() < publishedAt.valueOf() ? publishedAt : startDate);
+const getMetricStartDate = (publishedAt, startDate) => (startDate.valueOf() < publishedAt.valueOf()
+  ? publishedAt
+  : startDate
+);
 
 const quotaUser = ({ auth, ip }) => {
   const { sessionId } = auth;

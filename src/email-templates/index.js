@@ -1,10 +1,11 @@
 const Promise = require('bluebird');
+const fs = require('fs');
 const handlebars = require('../handlebars');
 const accountService = require('../services/account');
 
 const templates = {};
 
-const readFileAsync = Promise.promisify(require('fs').readFile);
+const readFileAsync = Promise.promisify(fs.readFile);
 
 module.exports = {
   readFileAsync,
