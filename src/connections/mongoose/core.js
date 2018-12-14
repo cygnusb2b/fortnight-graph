@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bluebird = require('bluebird');
 const env = require('../../env');
 const output = require('../../output');
+const { name, version } = require('../../../package.json');
 
 const {
   MONGO_DSN,
@@ -14,6 +15,8 @@ mongoose.Promise = bluebird;
 
 const connection = mongoose.createConnection(MONGO_DSN, {
   // autoIndex: env.NODE_ENV !== 'production',
+  appname: `${name} v${version}`,
+  bufferMaxEntries: 0, // Default -1
   ignoreUndefined: true,
   promiseLibrary: bluebird,
 });
