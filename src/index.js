@@ -4,6 +4,7 @@ require('./newrelic');
 const app = require('./app');
 const elastic = require('./elastic');
 const env = require('./env');
+const health = require('./health');
 const initElastic = require('./elastic/init');
 const mongoose = require('./connections/mongoose');
 const pkg = require('../package.json');
@@ -28,10 +29,11 @@ const boot = async () => {
     }), 'Redis', () => redis.options.url),
   ]);
 
-  // Create the terminus instance for graceful shutdown...
+  // Create the terminus instance for health checks and graceful shutdown...
   createTerminus(server, {
     timout: 1000,
     signals: ['SIGTERM', 'SIGINT', 'SIGHUP', 'SIGQUIT'],
+    healthChecks: { '/_health': health() },
     onSignal: () => {
       write('> Cleaning up...');
       return Promise.all([
