@@ -29,7 +29,7 @@
     "dev": {
       "install": "docker-compose -p fortnightgraph run --no-deps --entrypoint yarn app",
       "installPlugins": "docker-compose -p fortnightgraph run --no-deps elasticsearch-plugins",
-      "up": "docker-compose -p fortnightgraph up",
+      "up": "docker-compose -p fortnightgraph up app",
       "down": "docker-compose -p fortnightgraph down"
     },
     "test": {
