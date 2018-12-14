@@ -1,14 +1,16 @@
 const http = require('http');
 const { createTerminus } = require('@godaddy/terminus');
 require('./newrelic');
+const app = require('./app');
+const elastic = require('./elastic');
 const env = require('./env');
+const initElastic = require('./elastic/init');
+const mongoose = require('./connections/mongoose');
+const pkg = require('../package.json');
+const redis = require('./redis');
 const start = require('./start');
 const stop = require('./stop');
 const { write } = require('./output');
-const pkg = require('../package.json');
-const elastic = require('./elastic');
-const initElastic = require('./elastic/init');
-const { app, mongoose, redis } = require('./server');
 
 const { PORT, ELASTIC_HOST, ELASTIC_INDEX_RECREATE } = env;
 
