@@ -1,6 +1,6 @@
 const { Schema } = require('mongoose');
-const connection = require('../../connections/mongoose/instance');
 const validator = require('validator');
+const connection = require('../../connections/mongoose/instance');
 const CreativeSchema = require('./creative');
 const CriteriaSchema = require('./criteria');
 const { applyElasticPlugin, setEntityFields } = require('../../elastic/mongoose');

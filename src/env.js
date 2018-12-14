@@ -10,12 +10,6 @@ const {
   url,
 } = require('envalid');
 
-const mongodsn = makeValidator((v) => {
-  const opts = { protocols: ['mongodb'], require_tld: false, require_protocol: true };
-  if (isURL(v, opts)) return v;
-  throw new Error('Expected a Mongo DSN string with mongodb://');
-});
-
 const redisdsn = makeValidator((v) => {
   const opts = { protocols: ['redis'], require_tld: false, require_protocol: true };
   if (isURL(v, opts)) return v;
@@ -56,7 +50,7 @@ module.exports = cleanEnv(process.env, {
   IMGIX_URL: url({ desc: 'The Imgix URL for serving images.' }),
   GOOGLE_APPLICATION_CREDENTIALS: jsonfile({ desc: 'The location of the Google Cloud service account credentials file.' }),
   MONGOOSE_DEBUG: bool({ desc: 'Whether to enable Mongoose debugging.', default: false }),
-  MONGO_DSN: mongodsn({ desc: 'The MongoDB DSN to connect to.' }),
+  MONGO_DSN: nonemptystr({ desc: 'The MongoDB DSN to connect to.' }),
   NEW_RELIC_ENABLED: bool({ desc: 'Whether New Relic is enabled.', default: true, devDefault: false }),
   NEW_RELIC_LICENSE_KEY: nonemptystr({ desc: 'The license key for New Relic.', devDefault: '(unset)' }),
   DD_ENABLED: bool({ desc: 'Whether Datadog is enabled.', default: true, devDefault: false }),
@@ -70,4 +64,3 @@ module.exports = cleanEnv(process.env, {
   SENDGRID_API_KEY: nonemptystr({ desc: 'The SendGrid API key for sending email.' }),
   SENDGRID_FROM: nonemptystr({ desc: 'The from name to use when sending email via SendGrid, e.g. Foo <foo@bar.com>' }),
 });
-
