@@ -60,3 +60,5 @@ process.on('unhandledRejection', (e) => {
 
 write(`> Booting ${pkg.name} v${pkg.version}...`);
 boot().catch(e => setImmediate(() => { throw e; }));
+
+module.exports = server;
