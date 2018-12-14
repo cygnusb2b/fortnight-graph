@@ -100,7 +100,7 @@
     "eslint": "^4.16.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.0",
     "gulp-cached": "^1.1.1",
     "gulp-eslint": "^5.0.0",
     "mocha": "^5.0.0",
