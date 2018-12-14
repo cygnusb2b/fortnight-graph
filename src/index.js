@@ -2,58 +2,61 @@ const http = require('http');
 const { createTerminus } = require('@godaddy/terminus');
 require('./newrelic');
 const env = require('./env');
-const output = require('./output');
+const start = require('./start');
+const stop = require('./stop');
+const { write } = require('./output');
 const pkg = require('../package.json');
+const elastic = require('./elastic');
+const initElastic = require('./elastic/init');
 const { app, mongoose, redis } = require('./server');
 
-const { PORT } = env;
+const { PORT, ELASTIC_HOST, ELASTIC_INDEX_RECREATE } = env;
 
 const server = http.createServer(app);
 
 const boot = async () => {
   // Start any services that need to connect before the web server listens...
-  // These need retries...
   await Promise.all([
-    mongoose.core,
-    mongoose.instance,
-    new Promise((resolve, reject) => {
+    start(mongoose.core, 'MongoDB core', m => m.client.s.url),
+    start(mongoose.instance, 'MongoDB tenant', m => m.client.s.url),
+    start(elastic.connect().then(() => initElastic(elastic, ELASTIC_INDEX_RECREATE)), 'ElasticSearch', ELASTIC_HOST),
+    start(new Promise((resolve, reject) => {
       redis.on('connect', resolve);
       redis.on('error', reject);
-    }),
+    }), 'Redis', () => redis.options.url),
   ]);
 
-  /**
-   * @todo Update gulp to run lint/serve in parallel; handle elaticsearch
-   */
+  // Create the terminus instance for graceful shutdown...
   createTerminus(server, {
     timout: 1000,
     signals: ['SIGTERM', 'SIGINT', 'SIGHUP', 'SIGQUIT'],
     onSignal: () => {
-      output.write('> Cleaning up...');
+      write('> Cleaning up...');
       return Promise.all([
-        mongoose.core.close().then(() => output.write('> CORE MongoDB disconnected gracefully.')),
-        mongoose.instance.close().then(() => output.write('> INSTANCE MongoDB disconnected gracefully.')),
-        new Promise((resolve, reject) => {
+        stop(mongoose.core.close(), 'MongoDB core'),
+        stop(mongoose.instance.close(), 'MongoDB instance'),
+        stop(new Promise((resolve, reject) => {
           redis.on('end', resolve);
           redis.on('error', reject);
           redis.quit();
-        }).then(() => output.write('> Redis disconnected gracefully.')),
-      ]).catch(e => output.write('> CLEANUP ERRORS:', e));
+        }), 'Redis'),
+        stop(elastic.disconnect(), 'ElasticSearch'),
+      ]).catch(e => write('> CLEANUP ERRORS:', e));
     },
-    onShutdown: () => output.write('> Cleanup finished. Shutting down.'),
+    onShutdown: () => write('> Cleanup finished. Shutting down.'),
   });
 
   // Run the web server.
   server.listen(PORT, () => {
-    output.write(`> Ready on http://0.0.0.0:${PORT}`);
+    write(`> Ready on http://0.0.0.0:${PORT}`);
   });
 };
 
 // Simulate future NodeJS behavior by throwing unhandled Promise rejections.
 process.on('unhandledRejection', (e) => {
-  output.write('> Unhandled promise rejection. Throwing error...');
+  write('> Unhandled promise rejection. Throwing error...');
   throw e;
 });
 
-output.write(`> Booting ${pkg.name} v${pkg.version}...`);
+write(`> Booting ${pkg.name} v${pkg.version}...`);
 boot().catch(e => setImmediate(() => { throw e; }));
