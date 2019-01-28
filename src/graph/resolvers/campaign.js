@@ -399,8 +399,8 @@ module.exports = {
      *
      */
     campaignCreativeStatus: async (root, { input }, { auth }) => {
-      auth.check();
       const { campaignId, creativeId, active } = input;
+      auth.checkCampaignAccess(campaignId);
       return CreativeService.setStatusFor(campaignId, creativeId, active);
     },
 
