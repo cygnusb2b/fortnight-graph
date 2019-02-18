@@ -231,6 +231,15 @@ module.exports = {
    */
   Mutation: {
     /**
+     * Clones a story
+     */
+    cloneStory: async (root, { input }, { auth }) => {
+      const { id } = input;
+      const doc = await Story.strictFindActiveById(id);
+      return doc.clone(auth.user);
+    },
+
+    /**
      *
      */
     createStory: (root, { input }, { auth }) => {
