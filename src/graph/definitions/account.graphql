@@ -23,6 +23,7 @@ type AccountSettings {
   reservePct: Int!
   requiredCreatives: Int!
   googleAnalyticsId: String!
+  googleTagManagerId: String
   siteVerificationMeta: String
 }
 
@@ -39,4 +40,5 @@ input AccountUpdatePayloadInput {
 input AccountUpdateSettingsInput {
   reservePct: Int!
   requiredCreatives: Int!
+  googleTagManagerId: String
 }
