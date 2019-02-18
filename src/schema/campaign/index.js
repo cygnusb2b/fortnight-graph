@@ -126,6 +126,27 @@ schema.virtual('status').get(function getStatus() {
   return 'Scheduled';
 });
 
+schema.method('clone', async function clone(user) {
+  const Model = connection.model('campaign');
+  const { _doc } = this;
+  const input = {
+    ..._doc,
+    name: `${this.name} copy`,
+  };
+  ['id', '_id', 'pushId', 'createdAt', 'updatedAt', 'updatedBy', 'createdBy'].forEach(k => delete input[k]);
+
+  const doc = new Model(input);
+  doc.setUserContext(user);
+
+  if (doc.storyId) {
+    const toClone = await connection.model('story').strictFindActiveById(doc.storyId);
+    const story = await toClone.clone(user);
+    doc.set('storyId', story.id);
+  }
+  await doc.save();
+  return doc;
+});
+
 schema.method('getRequirements', async function getRequirements() {
   const {
     storyId,

@@ -16,6 +16,7 @@ type Mutation {
   createExistingStoryCampaign(input: CreateExistingStoryCampaignInput!): Campaign!
 
   updateCampaign(input: UpdateCampaignInput!): Campaign!
+  cloneCampaign(input: ModelIdInput!): Campaign!
   deleteCampaign(input: ModelIdInput!): String!
 
   assignCampaignValue(input: AssignCampaignValueInput!): Campaign!
