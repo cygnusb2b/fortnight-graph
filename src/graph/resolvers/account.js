@@ -47,7 +47,7 @@ module.exports = {
       account.name = name;
       account.set('settings.reservePct', settings.reservePct);
       account.set('settings.requiredCreatives', settings.requiredCreatives);
-      if (settings.googleTagManagerId) account.set('settings.googleTagManagerId', settings.googleTagManagerId);
+      account.set('settings.googleTagManagerId', settings.googleTagManagerId);
       return account.save();
     },
   },
