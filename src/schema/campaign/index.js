@@ -147,8 +147,7 @@ schema.method('clone', async function clone(user) {
       doc.set('storyId', story.id);
     }
   }
-  await doc.save();
-  return doc;
+  return doc.save();
 });
 
 schema.method('getRequirements', async function getRequirements() {
