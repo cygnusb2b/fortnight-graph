@@ -87,6 +87,20 @@ schema.virtual('status').get(function getStatus() {
   return 'Draft';
 });
 
+schema.method('clone', async function clone(user) {
+  const Model = connection.model('story');
+  const { _doc } = this;
+  const input = {
+    ..._doc,
+    title: `${this.title} copy`,
+  };
+  ['id', '_id', 'pushId', 'createdAt', 'updatedAt', 'updatedBy', 'createdBy'].forEach(k => delete input[k]);
+
+  const doc = new Model(input);
+  doc.setUserContext(user);
+  return doc.save();
+});
+
 schema.method('getPath', async function getPath() {
   const advertiser = await connection.model('advertiser').findById(this.advertiserId);
   return `story/${advertiser.slug}/${this.slug}/${this.id}`;

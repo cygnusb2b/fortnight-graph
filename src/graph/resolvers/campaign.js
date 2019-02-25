@@ -222,6 +222,16 @@ module.exports = {
    */
   Mutation: {
     /**
+     * Clones a campaign
+     */
+    cloneCampaign: async (root, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const doc = await Campaign.strictFindActiveById(id);
+      return doc.clone(auth.user);
+    },
+
+    /**
      *
      */
     deleteCampaign: async (root, { input }, { auth }) => {
