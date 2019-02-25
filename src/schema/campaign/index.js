@@ -137,16 +137,6 @@ schema.method('clone', async function clone(user) {
 
   const doc = new Model(input);
   doc.setUserContext(user);
-
-  if (doc.storyId) {
-    const toClone = await connection.model('story').strictFindById(doc.storyId);
-    if (toClone.deleted) {
-      doc.set('storyId', null);
-    } else {
-      const story = await toClone.clone(user);
-      doc.set('storyId', story.id);
-    }
-  }
   return doc.save();
 });
 
