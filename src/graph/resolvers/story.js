@@ -234,6 +234,7 @@ module.exports = {
      * Clones a story
      */
     cloneStory: async (root, { input }, { auth }) => {
+      auth.check();
       const { id } = input;
       const doc = await Story.strictFindActiveById(id);
       return doc.clone(auth.user);
