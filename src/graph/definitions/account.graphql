@@ -13,6 +13,7 @@ type Account {
   uri: String!
   storyUri: String!
   settings: AccountSettings!
+  globals: AccountGlobals!
   createdAt: Date
   updatedAt: Date
 }
@@ -22,8 +23,13 @@ type AccountSettings {
   cname: String
   reservePct: Int!
   requiredCreatives: Int!
-  googleAnalyticsId: String!
+  googleTagManagerId: String
   siteVerificationMeta: String
+}
+
+type AccountGlobals {
+  GTM_CONTAINER_ID: String!
+  GA_TRACKING_ID: String!
 }
 
 input UpdateAccountInput {
@@ -39,4 +45,5 @@ input AccountUpdatePayloadInput {
 input AccountUpdateSettingsInput {
   reservePct: Int!
   requiredCreatives: Int!
+  googleTagManagerId: String
 }

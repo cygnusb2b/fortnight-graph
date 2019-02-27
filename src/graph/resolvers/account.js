@@ -1,15 +1,28 @@
 const Account = require('../../models/account');
 const AccountService = require('../../services/account');
-const env = require('../../env');
+const {
+  STORY_HOST,
+  GTM_CONTAINER_ID,
+  GA_TRACKING_ID,
+  GOOGLE_SITE_VERIFICATION,
+} = require('../../env');
 
 module.exports = {
   /**
    *
    */
   AccountSettings: {
-    cname: () => env.STORY_HOST,
-    googleAnalyticsId: () => env.GA_TRACKING_ID,
-    siteVerificationMeta: () => env.GOOGLE_SITE_VERIFICATION,
+    cname: () => STORY_HOST,
+    siteVerificationMeta: () => GOOGLE_SITE_VERIFICATION,
+  },
+
+  AccountGlobals: {
+    GTM_CONTAINER_ID: () => GTM_CONTAINER_ID,
+    GA_TRACKING_ID: () => GA_TRACKING_ID,
+  },
+
+  Account: {
+    globals: () => ({}),
   },
 
   /**
@@ -34,6 +47,7 @@ module.exports = {
       account.name = name;
       account.set('settings.reservePct', settings.reservePct);
       account.set('settings.requiredCreatives', settings.requiredCreatives);
+      account.set('settings.googleTagManagerId', settings.googleTagManagerId);
       return account.save();
     },
   },

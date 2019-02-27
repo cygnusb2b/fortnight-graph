@@ -40,6 +40,7 @@ const settingsSchema = new Schema({
       return {};
     },
   },
+  googleTagManagerId: String,
 });
 
 settingsSchema.plugin(reservePctPlugin);
