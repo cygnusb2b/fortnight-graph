@@ -13,6 +13,8 @@ const Utils = require('../utils');
 const storyUrl = require('../utils/story-url');
 const accountService = require('./account');
 
+const { isArray } = Array;
+
 module.exports = {
   /**
    *
@@ -42,6 +44,7 @@ module.exports = {
       ready: true,
       paused: false,
       'criteria.start': { $lte: start },
+      creatives: { $elemMatch: { active: true, deleted: false } },
       $and: [
         {
           $or: [
@@ -291,11 +294,17 @@ module.exports = {
    * @return {?Creative}
    */
   async getCreativeFor(campaign) {
-    const count = campaign.get('creatives.length');
-    if (!count) return null;
-    const index = _.random(count - 1);
-    const creative = campaign.get(`creatives.${index}`);
-    if (!creative) return creative;
+    const creatives = campaign.get('creatives');
+    if (!isArray(creatives) || !creatives.length) return null;
+
+    // Filter out deleted or inactive creatives.
+    const eligible = creatives.filter(creative => !creative.deleted && creative.active);
+
+    // Attempt to return a single, random creative.
+    if (!eligible.length) return null;
+    const index = _.random(eligible.length - 1);
+    const creative = eligible[index];
+    if (!creative) return null;
 
     // Append the creative's image.
     const { imageId } = creative;
@@ -318,7 +327,7 @@ module.exports = {
       });
     }
     const creative = await this.getCreativeFor(campaign);
-    if (!creative || !creative.active) {
+    if (!creative) {
       // No creative found. Send fallback.
       return this.buildFallbackFor({
         template,
