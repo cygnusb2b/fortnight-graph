@@ -206,7 +206,7 @@ module.exports = {
     userAgent,
     ipAddress,
     num = 1,
-    vars = { custom: {} },
+    vars = { custom: {}, image: {} },
   } = {}) {
     const placement = await this.getPlacement({ placementId });
     const account = await accountService.retrieve();
@@ -231,6 +231,7 @@ module.exports = {
         campaign,
         placement,
         event,
+        vars,
       });
     }));
   },
@@ -404,6 +405,7 @@ module.exports = {
     campaign,
     placement,
     event,
+    vars,
   }) {
     if (!campaign.id) {
       return this.buildFallbackDataFor({ placement, event });
@@ -414,7 +416,7 @@ module.exports = {
     }
 
     if (creative.image) {
-      creative.image.src = await creative.image.getSrc(true);
+      creative.image.src = await creative.image.getSrc(true, vars.image);
     }
 
     return {
