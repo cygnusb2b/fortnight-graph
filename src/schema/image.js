@@ -65,11 +65,16 @@ schema.methods.getKey = async function getKey() {
   return `${key}/${this.id}/${this.filename}`;
 };
 
-schema.methods.getSrc = async function getSrc() {
+schema.methods.getSrc = async function getSrc(withFocalPoint) {
   // The image src, for use with `img` elements.
   // Generated from the imgix url, the encoded account key, the id, and the encoded filename.
   const { key } = await accountService.retrieve();
-  return `${IMGIX_URL}/${encodeURIComponent(key)}/${this.id}/${encodeURIComponent(this.filename)}`;
+  const src = `${IMGIX_URL}/${encodeURIComponent(key)}/${this.id}/${encodeURIComponent(this.filename)}`;
+  if (!withFocalPoint) return src;
+  // Append the focal point, if present.
+  const { focalPoint = {} } = this;
+  const { x = 0.5, y = 0.5 } = focalPoint;
+  return `${src}?format=auto&crop=focalPoint&fit=crop&fp-x=${x}&fp-y=${y}`;
 };
 
 module.exports = schema;
