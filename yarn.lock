@@ -18,6 +18,20 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
+"@base-cms/image@^0.9.22":
+  version "0.9.22"
+  resolved "https://registry.yarnpkg.com/@base-cms/image/-/image-0.9.22.tgz#dcc220c3702bf45f73c055085af0c38e9af20cfe"
+  integrity sha512-DnM4Mh3fOoiyjqIUNbHI3HYQXEiiopqM5g4v324wMwY01HxK7vQHK8/j6dlyUE7XkeexADbiGYq/ePxIKLMusA==
+  dependencies:
+    "@base-cms/inflector" "^0.9.0"
+
+"@base-cms/inflector@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@base-cms/inflector/-/inflector-0.9.0.tgz#a5ae8968c82369b176100b6c8b4d06220a104995"
+  integrity sha512-exkUC8BzB8Sfb/LP0uUu1/yxTctY3KjeCuXNXJ7LpSUbXIopTERu09d+A3zg3Cq9ljB0jDqFVrzmjO6La54ZYg==
+  dependencies:
+    inflected "^2.0.4"
+
 "@godaddy/terminus@^4.1.0":
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@godaddy/terminus/-/terminus-4.1.0.tgz#9f7883ed0a8444400d3f9b52f0b2b5fe68b28bd3"
@@ -2694,6 +2708,11 @@ ignore@^4.0.6:
 imurmurhash@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/imurmurhash/-/imurmurhash-0.1.4.tgz#9218b9b2b928a238b13dc4fb6b6d576f231453ea"
+
+inflected@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/inflected/-/inflected-2.0.4.tgz#323770961ccbe992a98ea930512e9a82d3d3ef77"
+  integrity sha512-HQPzFLTTUvwfeUH6RAGjD8cHS069mBqXG5n4qaxX7sJXBhVQrsGgF+0ZJGkSuN6a8pcUWB/GXStta11kKi/WvA==
 
 inflection@^1.12.0:
   version "1.12.0"
