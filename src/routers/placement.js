@@ -25,6 +25,35 @@ const handleError = (err, req, res) => {
   res.status(status).send(response);
 };
 
+const handleJsonError = (err, req, res) => {
+  const status = err.status || err.statusCode || 500;
+  const { message } = err;
+  res.status(status).json({ error: { status, message } });
+};
+
+router.get('/elements/:pid.json', (req, res) => {
+  const { pid } = req.params;
+  const {
+    n,
+    cv,
+  } = CampaignDelivery.parseOptions(req.query.opts);
+  const vars = { custom: cv };
+
+  const { NODE_ENV } = env;
+  const protocol = NODE_ENV === 'production' ? 'https' : req.protocol;
+
+  CampaignDelivery.elementsFor({
+    userAgent: req.get('User-Agent'),
+    ipAddress: req.ip,
+    requestURL: `${protocol}://${req.get('host')}`,
+    placementId: pid,
+    num: n,
+    vars,
+  }).then((ads) => {
+    res.json({ ads });
+  }).catch(err => handleJsonError(err, req, res));
+});
+
 router.get('/:pid.:ext', (req, res) => {
   const { pid, ext } = req.params;
   if (acceptable.includes(ext)) {
