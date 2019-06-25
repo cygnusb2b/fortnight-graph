@@ -127,7 +127,7 @@ The above example is for illustrative purposes. An actual request would be simil
 When URL encoded: `opts=%7B%22n%22%3A1%2C%22cv%22%3A%7B%22foo%22%3A%22bar%22%2C%22key%22%3A%22value%22%7D%2C%22mv%22%3A%7B%22foo%22%3A%22bar%22%2C%22key%22%3A%22value%22%7D%2C%22fv%22%3A%7B%22foo%22%3A%22bar%22%2C%22key%22%3A%22value%22%7D%7D`
 
 ### "Templateless" Placement Delivery
-You can also request ads for a placement without rendering an ad or fallback template. Instead, this endpoint will return a JSON object representing the elements of the ad or fallback position. It is up to the consuming application to properly render its own template with the proper tracking attributes. Requests can be made via `GET /placement/elements/{pid}.json?opts={}`.
+You can also request ads for a placement without rendering an ad or fallback template. Instead, this endpoint will return a JSON object representing the elements of the ad (if found), container attributes, and click tracking attributes. It is up to the consuming application to properly render its own template and tracking attributes. Requests can be made via `GET /placement/elements/{pid}.json?opts={}`.
 
 Request options must sent as a URL encoded, compact JSON string, assigned to the value of the `opts` query string. All fields are optional.
 
@@ -163,6 +163,69 @@ encodeURIComponent(JSON.stringify({
     w: 75,
   },
 }));
+```
+
+#### Sample Response Without an Ad
+```json
+{
+  "ads": [
+    {
+      "placementId": "5cdb1909f41dfb0001fb2fdf",
+      "hasCampaign": false,
+      "attributes": {
+        "container": {
+          "data-fortnight-action": "view",
+          "data-fortnight-fields": "%7B%22uuid%22%3A%221ec9a389-05a9-4a6f-b73c-042cfd3cfc1a%22%2C%22pid%22%3A%225cdb1909f41dfb0001fb2fdf%22%2C%22kv%22%3A%7B%7D%7D",
+          "data-fortnight-timestamp": 1561411437193
+        },
+        "link": {
+          "data-fortnight-action": "click",
+          "data-fortnight-fields": "%7B%22uuid%22%3A%221ec9a389-05a9-4a6f-b73c-042cfd3cfc1a%22%2C%22pid%22%3A%225cdb1909f41dfb0001fb2fdf%22%2C%22kv%22%3A%7B%7D%7D"
+        }
+      }
+    }
+  ]
+}
+```
+
+#### Sample Response With an Ad
+```json
+{
+  "ads": [
+    {
+      "placementId": "5cdb1909f41dfb0001fb2fdf",
+      "hasCampaign": true,
+      "attributes": {
+        "container": {
+          "data-fortnight-action": "view",
+          "data-fortnight-fields": "%7B%22uuid%22%3A%225419e57c-ae2e-4558-a480-14a87a9fa43c%22%2C%22pid%22%3A%225cdb1909f41dfb0001fb2fdf%22%2C%22kv%22%3A%7B%7D%7D",
+          "data-fortnight-timestamp": 1561469767859
+        },
+        "link": {
+          "data-fortnight-action": "click",
+          "data-fortnight-fields": "%7B%22uuid%22%3A%225419e57c-ae2e-4558-a480-14a87a9fa43c%22%2C%22pid%22%3A%225cdb1909f41dfb0001fb2fdf%22%2C%22kv%22%3A%7B%7D%7D"
+        }
+      },
+      "href": "https://www.waterworld.com/municipal/drinking-water/infrastructure-funding/article/14035021/epa-awards-2451000-to-minnesota-to-protect-public-drinking-water-systems",
+      "campaign": {
+        "id": "5d025dfce6eafd0001d5df63",
+        "name": "Endeavor Test Campaign",
+        "advertiserName": "Endeavor B2B",
+        "createdAt": 1560436220116,
+        "updatedAt": 1560436220116
+      },
+      "creative": {
+        "id": "5d025e5e4b58010001a246b2",
+        "title": "EPA awards $2,451,000 to Minnesota to protect public drinking water systems",
+        "teaser": "The funding will help protect 6,800 public water systems in Minnesota serving approximately 5.6 million people daily."
+      },
+      "image": {
+        "id": "5d113c7a16f0cf000106e469",
+        "src": "https://fortnight.imgix.net/ebm/5d113c7a16f0cf000106e469/beverage_bottle_drink_2101147.5d0965c10c2c8.png?crop=focalpoint&fit=crop&fp-x=0.52&fp-y=0.42"
+      }
+    }
+  ]
+}
 ```
 
 ### Campaign Status
