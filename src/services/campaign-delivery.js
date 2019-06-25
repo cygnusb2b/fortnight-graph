@@ -12,6 +12,8 @@ const Template = require('../models/template');
 const Utils = require('../utils');
 const storyUrl = require('../utils/story-url');
 const accountService = require('./account');
+const containerAttributes = require('../delivery/container-attributes');
+const trackedLinkAttributes = require('../delivery/tracked-link-attributes');
 
 const { isArray } = Array;
 
@@ -27,6 +29,13 @@ module.exports = {
     } catch (e) {
       return {};
     }
+  },
+
+  parseLimit(num) {
+    const limit = num > 0 ? parseInt(num, 10) : 1;
+    if (limit > 10) throw createError(400, 'You cannot return more than 10 ads in one request.');
+    if (limit > 1) throw createError(501, 'Requesting more than one ad in a request is not yet implemented.');
+    return limit;
   },
 
   /**
@@ -101,6 +110,27 @@ module.exports = {
     return this.selectCampaigns(campaigns, limit);
   },
 
+  async queryCampaignsFor({
+    placement,
+    account,
+    limit,
+    keyValues,
+  }) {
+    const rp = placement.get('reservePct');
+    const ap = account.get('settings.reservePct');
+    const reservePct = (rp || ap || 0) / 100;
+
+    const campaigns = Math.random() >= reservePct
+      ? await this.queryCampaigns({
+        startDate: new Date(),
+        placementId: placement.id,
+        keyValues,
+        limit,
+      }) : [];
+    this.fillWithFallbacks(campaigns, limit);
+    return campaigns;
+  },
+
   /**
    * Determines the URL for the campaign.
    *
@@ -140,13 +170,7 @@ module.exports = {
     return shuffled.slice(0, limit);
   },
 
-  /**
-   *
-   * @param {object} params
-   * @param {string} params.placementId
-   * @return {Promise}
-   */
-  async getPlacementAndTemplate({ placementId } = {}) {
+  async getPlacement({ placementId } = {}) {
     if (!placementId) throw createError(400, 'No placement ID was provided.');
 
     const placement = await Placement.findOne({ _id: placementId }, {
@@ -156,6 +180,17 @@ module.exports = {
       reservePct: 1,
     });
     if (!placement) throw createError(404, `No placement exists for ID '${placementId}'`);
+    return placement;
+  },
+
+  /**
+   *
+   * @param {object} params
+   * @param {string} params.placementId
+   * @return {Promise}
+   */
+  async getPlacementAndTemplate({ placementId } = {}) {
+    const placement = await this.getPlacement({ placementId });
 
     const template = await Template.findOne({ _id: placement.templateId }, {
       html: 1,
@@ -164,6 +199,41 @@ module.exports = {
     if (!template) throw createError(404, `No template exists for ID '${placement.templateId}'`);
 
     return { placement, template };
+  },
+
+  async elementsFor({
+    placementId,
+    userAgent,
+    ipAddress,
+    num = 1,
+    vars = { custom: {}, image: {} },
+  } = {}) {
+    const placement = await this.getPlacement({ placementId });
+    const account = await accountService.retrieve();
+
+    const limit = this.parseLimit(num);
+    const campaigns = await this.queryCampaignsFor({
+      account,
+      placement,
+      limit,
+      keyValues: vars.custom,
+    });
+
+    return Promise.all(campaigns.map((campaign) => {
+      const event = this.createRequestEvent({
+        cid: campaign.id,
+        pid: placement.id,
+        ua: userAgent,
+        kv: vars.custom,
+        ip: ipAddress,
+      });
+      return this.buildElementsFor({
+        campaign,
+        placement,
+        event,
+        vars,
+      });
+    }));
   },
 
   /**
@@ -186,22 +256,13 @@ module.exports = {
     const { placement, template } = await this.getPlacementAndTemplate({ placementId });
     const account = await accountService.retrieve();
 
-    const limit = num > 0 ? parseInt(num, 10) : 1;
-    if (limit > 10) throw createError(400, 'You cannot return more than 10 ads in one request.');
-    if (limit > 1) throw createError(501, 'Requesting more than one ad in a request is not yet implemented.');
-
-    const rp = placement.get('reservePct');
-    const ap = account.get('settings.reservePct');
-    const reservePct = (rp || ap || 0) / 100;
-
-    const campaigns = Math.random() >= reservePct
-      ? await this.queryCampaigns({
-        startDate: new Date(),
-        placementId: placement.id,
-        keyValues: vars.custom,
-        limit,
-      }) : [];
-    this.fillWithFallbacks(campaigns, limit);
+    const limit = this.parseLimit(num);
+    const campaigns = await this.queryCampaignsFor({
+      account,
+      placement,
+      limit,
+      keyValues: vars.custom,
+    });
 
     return Promise.all(campaigns.map((campaign) => {
       const event = this.createRequestEvent({
@@ -286,6 +347,34 @@ module.exports = {
     return ad;
   },
 
+  buildHTMLAttributes({ event }) {
+    const {
+      pid,
+      uuid,
+      kv,
+    } = event;
+    return {
+      container: containerAttributes({
+        pid,
+        uuid,
+        kv,
+      }),
+      link: trackedLinkAttributes({
+        pid,
+        uuid,
+        kv,
+      }),
+    };
+  },
+
+  buildFallbackDataFor({ placement, event }) {
+    return {
+      placementId: placement.id,
+      hasCampaign: false,
+      attributes: this.buildHTMLAttributes({ event }),
+    };
+  },
+
   /**
    * Rotates a campaign's creatives randomly.
    * Eventually could use some sort of weighting criteria.
@@ -310,6 +399,49 @@ module.exports = {
     const { imageId } = creative;
     if (imageId) creative.image = await Image.findById(imageId);
     return creative;
+  },
+
+  async buildElementsFor({
+    campaign,
+    placement,
+    event,
+    vars,
+  }) {
+    if (!campaign.id) {
+      return this.buildFallbackDataFor({ placement, event });
+    }
+    const creative = await this.getCreativeFor(campaign);
+    if (!creative) {
+      return this.buildFallbackDataFor({ placement, event });
+    }
+
+    if (creative.image) {
+      creative.image.src = await creative.image.getSrc(true, vars.image);
+    }
+
+    return {
+      placementId: placement.id,
+      hasCampaign: true,
+      attributes: this.buildHTMLAttributes({ event }),
+      href: await this.getClickUrl(campaign, placement, creative),
+      campaign: {
+        id: campaign.id,
+        name: campaign.name,
+        advertiserName: campaign.advertiserName,
+        createdAt: campaign.createdAt ? campaign.createdAt.getTime() : null,
+        updatedAt: campaign.updatedAt ? campaign.createdAt.getTime() : null,
+      },
+      creative: {
+        id: creative.id,
+        title: creative.title,
+        teaser: creative.teaser,
+      },
+      image: creative.image ? {
+        id: creative.image.id,
+        src: creative.image.src,
+        alt: creative.image.alt,
+      } : {},
+    };
   },
 
   async buildAdFor({

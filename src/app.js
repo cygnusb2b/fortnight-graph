@@ -3,11 +3,16 @@ const passport = require('passport');
 const cors = require('cors');
 const authStrategies = require('./auth-strategies');
 const loadRouters = require('./routers');
+const { TRUSTED_PROXIES } = require('./env');
 
 const app = express();
 const CORS = cors();
 
-app.set('trust proxy', 'loopback, linklocal, uniquelocal');
+const proxies = ['loopback', 'linklocal', 'uniquelocal'];
+if (TRUSTED_PROXIES) {
+  TRUSTED_PROXIES.split(',').map(p => p.trim()).filter(p => p).forEach(p => proxies.push(p));
+}
+app.set('trust proxy', proxies);
 app.disable('x-powered-by');
 
 // Set the auth strategies
