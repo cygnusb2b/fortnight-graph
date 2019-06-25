@@ -126,6 +126,45 @@ The above example is for illustrative purposes. An actual request would be simil
 `GET /placement/{pid}.html?opts={"n":1,"cv":{"foo":"bar","key":"value"},"mv":{"foo":"bar","key":"value"},"fv":{"foo":"bar","key":"value"}}`
 When URL encoded: `opts=%7B%22n%22%3A1%2C%22cv%22%3A%7B%22foo%22%3A%22bar%22%2C%22key%22%3A%22value%22%7D%2C%22mv%22%3A%7B%22foo%22%3A%22bar%22%2C%22key%22%3A%22value%22%7D%2C%22fv%22%3A%7B%22foo%22%3A%22bar%22%2C%22key%22%3A%22value%22%7D%7D`
 
+### "Templateless" Placement Delivery
+You can also request ads for a placement without rendering an ad or fallback template. Instead, this endpoint will return a JSON object representing the elements of the ad or fallback position. It is up to the consuming application to properly render its own template with the proper tracking attributes. Requests can be made via `GET /placement/elements/{pid}.json?opts={}`.
+
+Request options must sent as a URL encoded, compact JSON string, assigned to the value of the `opts` query string. All fields are optional.
+
+```js
+encodeURIComponent(JSON.stringify({
+  /**
+   * Optional.
+   * Specifies the number of campaigns that should be returned.
+   * The default value is `1` and cannot exceed `10` (a 400 response will be returned if the max is exceeded).
+   * The CSA will do its best to return the number requested, but is not guaranteed, based on inventory conditions.
+   */
+  n: 1,
+
+  /**
+   * Optional.
+   * The custom targting variables to send with the request - used for campaign targeting.
+   * Only custom variables that have been pre-defined in the system will be used.
+   * Any others will be ignored.
+   */
+  cv: {
+    foo: 'bar',
+    key: 'value',
+  },
+
+  /**
+   * Optional.
+   * Sets parameters (e.g. width, height, etc) to the creative's image.
+   * You cannont, however, override the focal point cropping options, as these are defined by the image itself.
+   */
+  image: {
+    // These mimic the options available from the Imgix API.
+    h: 75,
+    w: 75,
+  },
+}));
+```
+
 ### Campaign Status
 
 #### Flags
@@ -249,4 +288,3 @@ REST APIs, microservices, or databases."
 - [Mongoose](http://mongoosejs.com/docs/guide.html) - "elegant mongodb object modeling for node.js"
 - [Passport](http://www.passportjs.org/) - "Simple, unobtrusive authentication for Node.js"
 - [Bluebird](http://bluebirdjs.com/docs/getting-started.html) - "A full featured promise library with unmatched performance."
-
