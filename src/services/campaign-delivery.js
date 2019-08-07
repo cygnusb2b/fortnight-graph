@@ -347,7 +347,7 @@ module.exports = {
     return ad;
   },
 
-  buildHTMLAttributes({ event }) {
+  buildHTMLAttributes({ event, campaign, creative }) {
     const {
       pid,
       uuid,
@@ -358,11 +358,15 @@ module.exports = {
         pid,
         uuid,
         kv,
+        campaign,
+        creative,
       }),
       link: trackedLinkAttributes({
         pid,
         uuid,
         kv,
+        campaign,
+        creative,
       }),
     };
   },
@@ -422,7 +426,7 @@ module.exports = {
     return {
       placementId: placement.id,
       hasCampaign: true,
-      attributes: this.buildHTMLAttributes({ event }),
+      attributes: this.buildHTMLAttributes({ event, campaign, creative }),
       href: await this.getClickUrl(campaign, placement, creative),
       campaign: {
         id: campaign.id,
