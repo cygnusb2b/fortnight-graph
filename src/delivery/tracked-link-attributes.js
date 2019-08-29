@@ -7,6 +7,7 @@ module.exports = (data, flatten = false) => {
   const attrs = {
     'data-fortnight-action': 'click',
     'data-fortnight-fields': buildFields(fields),
+    'rel': 'nofollow'
   };
   if (!flatten) return attrs;
   return buildAttrs(attrs);
