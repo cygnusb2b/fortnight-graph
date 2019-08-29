@@ -23,6 +23,9 @@ handlebars.registerHelper('tracked-link', function trackedLink(context) {
   Object.keys(hash).forEach((name) => {
     if (!attrs[name]) attrs[name] = hash[name];
   });
+  if (hash.target && hash.target === '_blank') {
+    attrs.rel = attrs.rel ? `${attrs.rel} noopener` : 'noopener';
+  }
   return new handlebars.SafeString(`<a ${buildAttrs(attrs)}>${context.fn(this)}</a>`);
 });
 
