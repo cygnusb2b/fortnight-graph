@@ -8,6 +8,7 @@ module.exports = (data, flatten = false) => {
     'data-fortnight-action': 'click',
     'data-fortnight-fields': buildFields(fields),
   };
+  if (data.campaign) attrs.rel = 'nofollow';
   if (!flatten) return attrs;
   return buildAttrs(attrs);
 };
