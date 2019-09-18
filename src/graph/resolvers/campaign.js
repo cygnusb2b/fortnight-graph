@@ -88,7 +88,7 @@ module.exports = {
 
   CampaignCreative: {
     image: creative => Image.findById(creative.imageId),
-    metrics: creative => analytics.retrieveMetrics({ cre: creative._id }),
+    metrics: ({ _id: cre, cid }) => analytics.retrieveMetrics({ cre, cid }),
     reports: creative => creative,
   },
 
@@ -97,7 +97,7 @@ module.exports = {
    */
   CampaignCreativeReports: {
     byDay: (creative, { startDate, endDate }) => {
-      const criteria = { cre: creative._id };
+      const criteria = { cre: creative._id, cid: creative.cid };
       return analytics.runCampaignByDayReport(criteria, { startDate, endDate });
     },
   },
