@@ -86,6 +86,7 @@ module.exports = {
     const campaign = await Campaign.strictFindActiveById(campaignId);
     const creative = campaign.creatives.id(creativeId);
     if (!creative || creative.deleted) throw new Error('No creative was found for the provided ID.');
+    creative.campaignId = campaign._id;
     return creative;
   },
 
