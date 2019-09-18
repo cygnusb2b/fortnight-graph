@@ -88,7 +88,8 @@ module.exports = {
 
   CampaignCreative: {
     image: creative => Image.findById(creative.imageId),
-    metrics: ({ _id: cre, cid }) => analytics.retrieveMetrics({ cre, cid }),
+    metrics: creative => analytics
+      .retrieveMetrics({ cre: creative._id, cid: creative.campaignId }),
     reports: creative => creative,
   },
 
