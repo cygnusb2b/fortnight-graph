@@ -98,7 +98,7 @@ module.exports = {
    */
   CampaignCreativeReports: {
     byDay: (creative, { startDate, endDate }) => {
-      const criteria = { cre: creative._id, cid: creative.cid };
+      const criteria = { cre: creative._id, cid: creative.campaignId };
       return analytics.runCampaignByDayReport(criteria, { startDate, endDate });
     },
   },
