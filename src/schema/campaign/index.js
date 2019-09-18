@@ -134,6 +134,7 @@ schema.method('clone', async function clone(user) {
     name: `${this.name} copy`,
   };
   ['id', '_id', 'pushId', 'createdAt', 'updatedAt', 'updatedBy', 'createdBy'].forEach(k => delete input[k]);
+  input.creatives.forEach(cre => cre._id = undefined); // eslint-disable-line
 
   const doc = new Model(input);
   doc.setUserContext(user);
