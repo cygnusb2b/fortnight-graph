@@ -1,0 +1,17 @@
+{
+  "projects": {
+    "fortnight-graph": {
+      "schemaPath": "schema.graphql",
+      "extensions": {
+        "endpoints": {
+          "dev": {
+            "url": "http://0.0.0.0:8100/graph"
+          },
+          "production-ebm": {
+            "url": "https://ebm.native-x.io/graph"
+          }
+        }
+      }
+    }
+  }
+}
