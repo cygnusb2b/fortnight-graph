@@ -68,7 +68,7 @@ const build = async () => {
 
 const deploy = async ({ key, value, image: img }) => {
   log(`Deploying ${image}:${version} on Kubernertes`);
-  const { status } = await spawnSync('npx', ['@endeavorb2b/rancher2cli', 'dl', key, value, img]);
+  const { status } = await spawnSync('npx', ['@endeavorb2b/rancher2cli', 'dl', key, value, img, 'native-x']);
   if (status !== 0) error('Image deploy failed!');
 };
 
