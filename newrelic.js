@@ -1,4 +1,3 @@
-'use strict'
 /**
  * New Relic agent configuration.
  *
@@ -9,7 +8,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['Fortnight Graph'],
+  app_name: ['native-x/graphql'],
   /**
    * Your New Relic license key.
    */
@@ -20,15 +19,15 @@ exports.config = {
      * issues with the agent, 'info' and higher will impose the least overhead on
      * production applications.
      */
-    level: 'info'
+    level: 'info',
   },
   /**
    *  Alias that should be ignored by New Relic.
    */
-  rules : {
-    ignore : [
-      /^\/graph\?query={ping}/i
-    ]
+  rules: {
+    ignore: [
+      /^\/graph\?query={ping}/i,
+    ],
   },
   /**
    * When true, all request headers except for those listed in attributes.exclude
@@ -55,7 +54,7 @@ exports.config = {
       'response.headers.authorization',
       'response.headers.proxyAuthorization',
       'response.headers.setCookie*',
-      'response.headers.x*'
-    ]
-  }
-}
+      'response.headers.x*',
+    ],
+  },
+};
