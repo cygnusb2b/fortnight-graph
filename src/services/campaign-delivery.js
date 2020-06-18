@@ -422,6 +422,7 @@ module.exports = {
     if (creative.image) {
       creative.image.src = await creative.image.getSrc(true, vars.image);
     }
+    const { criteria } = campaign;
 
     return {
       placementId: placement.id,
@@ -434,6 +435,10 @@ module.exports = {
         advertiserName: campaign.advertiserName,
         createdAt: campaign.createdAt ? campaign.createdAt.getTime() : null,
         updatedAt: campaign.updatedAt ? campaign.createdAt.getTime() : null,
+        criteria: {
+          start: criteria && criteria.start ? criteria.start.getTime() : null,
+          end: criteria && criteria.end ? criteria.end.getTime() : null,
+        },
       },
       creative: {
         id: creative.id,
