@@ -12,6 +12,7 @@ _production-env: &production-env
 
 _production-job: &production-job
   stage: production
+  node_js: 10
   name: SERVICE_NAME
   script: scripts/deploy.js SERVICE_NAME
   install: skip
@@ -20,6 +21,7 @@ _production-job: &production-job
 
 # _staging-job: &staging-job
 #   stage: staging
+#   node_js: 10
 #   name: SERVICE_NAME
 #   script: scripts/deploy.js SERVICE_NAME
 #   install: skip
@@ -49,19 +51,15 @@ jobs:
       env:
         NODE_ENV: test
 
-    - stage: production-started
+    - <<: *production-job
+      stage: production-started
       name: Deployment Started
       script: npx @base-cms/website-deployment-tool notify-started
-      install: skip
-      env:
-        <<: *production-env
 
-    # - stage: staging-started
+    # - <<: *staging-job
+    #   stage: staging-started
     #   name: Deployment Started
     #   script: npx @base-cms/website-deployment-tool notify-started
-    #   install: skip
-    #   env:
-    #     <<: *staging-env
 
     #############################
     # vvv ADD SERVICES HERE vvv #
@@ -78,16 +76,12 @@ jobs:
     # ^^^ ADD SERVICES HERE ^^^ #
     #############################
 
-    - stage: production-finished
+    - <<: *production-job
+      stage: production-finished
       name: Deployment Finished
       script: npx @base-cms/website-deployment-tool notify-finished
-      install: skip
-      env:
-        <<: *production-env
 
-    # - stage: staging-finished
+    # - <<: *staging-job
+    #   stage: staging-finished
     #   name: Deployment Finished
     #   script: npx @base-cms/website-deployment-tool notify-finished
-    #   install: skip
-    #   env:
-    #     <<: *staging-env
