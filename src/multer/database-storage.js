@@ -4,13 +4,13 @@ const multerS3 = require('multer-s3');
 const s3 = require('../connections/s3');
 const Image = require('../models/image');
 
-const S3_BUCKECT = 'fortnight-materials';
+const { S3_BUCKET, S3_OBJECT_ACL } = require('../env');
 
 const uploadToS3 = (req, file, image) => new Promise((resolve, reject) => {
   const storage = multerS3({
     s3,
-    bucket: S3_BUCKECT,
-    acl: 'public-read',
+    bucket: S3_BUCKET,
+    acl: S3_OBJECT_ACL,
     contentType: multerS3.AUTO_CONTENT_TYPE,
     key: async (r, f, cb) => {
       const key = await image.getKey();
