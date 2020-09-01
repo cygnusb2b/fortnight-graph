@@ -4,6 +4,7 @@ const { spawnSync } = require('child_process');
 const https = require('https'); // eslint-disable-line import/newline-after-import
 
 const { DOCKER_USERNAME, DOCKER_PASSWORD, TRAVIS_TAG } = process.env;
+const DOCKER_ORG = process.env.DOCKER_ORG || 'basecms';
 const failed = () => spawnSync('npx', ['npx', '@base-cms/website-deployment-tool', 'notify-failed'], { stdio: 'inherit' });
 const { log } = console;
 
@@ -47,7 +48,7 @@ const shouldBuild = async (image) => {
 if (TRAVIS_TAG !== version) error(`Tagged version ${TRAVIS_TAG} differs from lerna version ${version}, aborting!`);
 
 const name = 'native-x-graphql';
-const image = `basecms/${name}-service`;
+const image = `${DOCKER_ORG}/${name}-service`;
 
 const docker = async (args = []) => {
   const { status } = await spawnSync('docker', args, { stdio: 'inherit' });
