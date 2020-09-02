@@ -46,15 +46,15 @@ module.exports = cleanEnv(process.env, {
   MONGO_DSN: nonemptystr({ desc: 'The MongoDB DSN to connect to.' }),
   NEW_RELIC_ENABLED: bool({ desc: 'Whether New Relic is enabled.', default: true, devDefault: false }),
   NEW_RELIC_LICENSE_KEY: nonemptystr({ desc: 'The license key for New Relic.', devDefault: '(unset)' }),
-  DD_ENABLED: bool({ desc: 'Whether Datadog is enabled.', default: true, devDefault: false }),
-  DD_TRACE_DEBUG: bool({ desc: 'Whether Datadog is enabled.', default: true, devDefault: false }),
-  DD_SERVICE_NAME: nonemptystr({ desc: 'The Datadog service name', default: 'nativex-graph' }),
-  DD_TRACE_AGENT_HOSTNAME: nonemptystr({ desc: 'The Datadog agent hostname', devDefault: 'datadog-agent' }),
-  DD_TRACE_AGENT_PORT: port({ desc: 'The Datadog agent port', default: 8126 }),
-  DD_ENV: nonemptystr({ desc: 'The Datadog environment key', default: process.env.NODE_ENV }),
   PORT: port({ desc: 'The port that express will run on.', default: 80 }),
   REDIS_DSN: redisdsn({ desc: 'The Redis DSN to connect to.' }),
   SENDGRID_API_KEY: nonemptystr({ desc: 'The SendGrid API key for sending email.' }),
   SENDGRID_FROM: nonemptystr({ desc: 'The from name to use when sending email via SendGrid, e.g. Foo <foo@bar.com>' }),
   TRUSTED_PROXIES: str({ desc: 'A comma seperated list of trusted proxy IP addresses.', default: '' }),
+
+  /**
+   * @see https://docs.datadoghq.com/tracing/setup/nodejs/#instrumentation for more options
+   */
+  DD_SERVICE: nonemptystr({ desc: 'The Datadog service name', default: 'nativex-graph' }),
+  DD_TRACE_ENABLED: bool({ desc: 'Whether Datadog is enabled.', default: false, devDefault: false }),
 });

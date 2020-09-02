@@ -32,6 +32,7 @@ services:
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
       SENDGRID_FROM: ${SENDGRID_FROM}
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS-[]}
+      DD_ENV: dev
   redis:
     image: redis:alpine
   mongo:
