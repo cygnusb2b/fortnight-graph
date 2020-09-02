@@ -2,14 +2,6 @@ language: node_js
 node_js: 8
 cache: yarn
 
-_production-env: &production-env
-  ENVIRONMENT: production
-  RANCHER_CLUSTERID: c-gxsr7
-
-# _staging-env: &staging-env
-#   ENVIRONMENT: staging
-#   RANCHER_CLUSTERID: c-rc5kp
-
 _production-job: &production-job
   stage: production
   node_js: 10
@@ -17,16 +9,7 @@ _production-job: &production-job
   script: scripts/deploy.js SERVICE_NAME
   install: skip
   env:
-    <<: *production-env
-
-# _staging-job: &staging-job
-#   stage: staging
-#   node_js: 10
-#   name: SERVICE_NAME
-#   script: scripts/deploy.js SERVICE_NAME
-#   install: skip
-#   env:
-#     <<: *staging-env
+    - "ENVIRONMENT=production"
 
 stages:
   - name: test
@@ -38,28 +21,16 @@ stages:
   - name: production-finished
     if: tag =~ /^v\d+\.\d+\.\d+$/
 
-  # - name: staging-started
-  #   if: tag is present
-  # - name: staging
-  #   if: tag is present
-  # - name: staging-finished
-  #   if: tag is present
-
 jobs:
   include:
     - stage: test
       env:
-        NODE_ENV: test
+        - "NODE_ENV=test"
 
     - <<: *production-job
       stage: production-started
       name: Deployment Started
       script: npx @base-cms/website-deployment-tool notify-started
-
-    # - <<: *staging-job
-    #   stage: staging-started
-    #   name: Deployment Started
-    #   script: npx @base-cms/website-deployment-tool notify-started
 
     #############################
     # vvv ADD SERVICES HERE vvv #
@@ -68,11 +39,8 @@ jobs:
     - <<: *production-job
       name: GraphQL Service
       script: scripts/deploy.js graphql
-    # - <<: *staging-job
-    #   name: GraphQL Service
-    #   script: scripts/deploy.js graphql
 
-    #############################
+      #############################
     # ^^^ ADD SERVICES HERE ^^^ #
     #############################
 
@@ -80,8 +48,3 @@ jobs:
       stage: production-finished
       name: Deployment Finished
       script: npx @base-cms/website-deployment-tool notify-finished
-
-    # - <<: *staging-job
-    #   stage: staging-finished
-    #   name: Deployment Finished
-    #   script: npx @base-cms/website-deployment-tool notify-finished
