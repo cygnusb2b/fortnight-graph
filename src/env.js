@@ -55,6 +55,6 @@ module.exports = cleanEnv(process.env, {
   /**
    * @see https://docs.datadoghq.com/tracing/setup/nodejs/#instrumentation for more options
    */
-  DD_SERVICE: nonemptystr({ desc: 'The Datadog service name', default: 'nativex-graph' }),
+  DD_SERVICE: nonemptystr({ desc: 'The Datadog service name', default: 'native-x-graph' }),
   DD_TRACE_ENABLED: bool({ desc: 'Whether Datadog is enabled.', default: false, devDefault: false }),
 });
