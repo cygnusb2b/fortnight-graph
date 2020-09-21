@@ -1,6 +1,6 @@
 {
   "name": "fortnight-graph",
-  "version": "1.2.5",
+  "version": "1.3.0",
   "main": "src/index.js",
   "repository": "https://github.com/cygnusb2b/fortnight-graph.git",
   "author": "Jacob Bare <jacob@limit0.io>",
@@ -10,10 +10,6 @@
     "pretest": "yarn run posttest && $npm_package_docker_test_install && $npm_package_docker_test_installPlugins",
     "posttest": "$npm_package_docker_test_down && $npm_package_docker_test_prune",
     "test": "$npm_package_docker_test_test",
-    "prestart": "$npm_package_docker_dev_install && $npm_package_docker_dev_installPlugins",
-    "start": "$npm_package_docker_dev_up",
-    "stop": "$npm_package_docker_dev_down",
-    "terminal": "docker exec -it fortnightgraph_app_1 /bin/bash",
     "prelint": "$npm_package_docker_test_install && $npm_package_docker_test_installPlugins",
     "lint": "$npm_package_docker_test_lint",
     "postlint": "$npm_package_docker_test_down",
@@ -26,12 +22,6 @@
     "coverage:run": "./node_modules/.bin/nyc yarn run test:ci"
   },
   "docker": {
-    "dev": {
-      "install": "docker-compose -p fortnightgraph run --no-deps --entrypoint yarn app",
-      "installPlugins": "docker-compose -p fortnightgraph run --no-deps elasticsearch-plugins",
-      "up": "docker-compose -p fortnightgraph up app",
-      "down": "docker-compose -p fortnightgraph down"
-    },
     "test": {
       "install": "docker-compose -p fortnightgraphtest -f test/docker-compose.yml run --no-deps --entrypoint yarn test",
       "installPlugins": "docker-compose -p fortnightgraphtest run --no-deps elasticsearch-plugins",
