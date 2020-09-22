@@ -22,7 +22,6 @@ const schema = new Schema({
   },
   externalId: {
     type: String,
-    required: false,
     trim: true,
   },
   website: {
