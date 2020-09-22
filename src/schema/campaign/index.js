@@ -50,9 +50,6 @@ const schema = new Schema({
     required: false,
     trim: false,
   },
-  advertiserExternalId: {
-    type: String,
-  },
   advertiserName: {
     type: String,
   },
@@ -190,13 +187,6 @@ schema.pre('save', async function setAdvertiserForStory() {
   if (this.isModified('storyId')) {
     const story = await connection.model('story').strictFindById(this.storyId, { advertiserId: 1 });
     this.advertiserId = story.advertiserId;
-  }
-});
-
-schema.pre('save', async function setAdvertiserExternalId() {
-  if (this.isModified('advertiserId') || !this.advertiserExternalId) {
-    const advertiser = await connection.model('advertiser').findOne({ _id: this.advertiserId }, { externalId: 1 });
-    this.advertiserExternalId = advertiser.externalId;
   }
 });
 
