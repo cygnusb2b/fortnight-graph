@@ -69,11 +69,11 @@ schema.pre('save', async function checkDelete() {
 });
 
 schema.pre('save', async function updateCampaigns() {
+  const Campaign = connection.model('campaign');
   if (this.isModified('name')) {
     // This isn't as efficient as calling `updateMany`, but the ElasticSearch
     // plugin will not fire properly otherwise.
     // As such, do not await the update.
-    const Campaign = connection.model('campaign');
     const campaigns = await Campaign.find({ advertiserId: this.id });
     campaigns.forEach((campaign) => {
       campaign.set('advertiserName', this.name);
@@ -86,6 +86,9 @@ schema.pre('save', async function updateCampaigns() {
       story.set('advertiserName', this.name);
       story.save();
     });
+  }
+  if (this.isModified('externalId')) {
+    await Campaign.updateMany({ advertiserId: this.id }, { advertiserExternalId: this.externalId });
   }
 });
 
