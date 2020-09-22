@@ -1,8 +1,10 @@
 const _ = require('lodash');
+const { get } = require('object-path');
 const createError = require('http-errors');
 const uuidv4 = require('uuid/v4');
 const AnalyticsEvent = require('../models/analytics/event');
 const BotDetector = require('../services/bot-detector');
+const Advertiser = require('../models/advertiser');
 const Campaign = require('../models/campaign');
 const Publisher = require('../models/publisher');
 const Image = require('../models/image');
@@ -380,6 +382,16 @@ module.exports = {
   },
 
   /**
+   * Returns the advertiser for the passed campaign
+   * @param {Campaign} campaign
+   * @return {?Advertiser}
+   */
+  getAdvertiserFor(campaign) {
+    if (!campaign || !campaign.advertiserId) return {};
+    return Advertiser.findById(campaign.advertiserId, ['name', 'pushId', 'website', 'externalId']);
+  },
+
+  /**
    * Rotates a campaign's creatives randomly.
    * Eventually could use some sort of weighting criteria.
    *
@@ -419,6 +431,11 @@ module.exports = {
       return this.buildFallbackDataFor({ placement, event });
     }
 
+    const { incAdv } = get(vars, 'flags', {});
+    const { advertiserName } = campaign;
+    const advertiser = await this.getAdvertiserFor(incAdv ? campaign : {});
+    const advertiserInfo = incAdv ? { advertiser } : { advertiserName };
+
     if (creative.image) {
       creative.image.src = await creative.image.getSrc(true, vars.image);
     }
@@ -432,8 +449,7 @@ module.exports = {
       campaign: {
         id: campaign.id,
         name: campaign.name,
-        advertiserName: campaign.advertiserName,
-        advertiserExternalId: campaign.advertiserExternalId,
+        ...advertiserInfo,
         createdAt: campaign.createdAt ? campaign.createdAt.getTime() : null,
         updatedAt: campaign.updatedAt ? campaign.updatedAt.getTime() : null,
         criteria: {
