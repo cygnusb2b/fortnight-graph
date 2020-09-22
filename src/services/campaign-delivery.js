@@ -433,6 +433,7 @@ module.exports = {
         id: campaign.id,
         name: campaign.name,
         advertiserName: campaign.advertiserName,
+        advertiserExternalId: campaign.advertiserExternalId,
         createdAt: campaign.createdAt ? campaign.createdAt.getTime() : null,
         updatedAt: campaign.updatedAt ? campaign.updatedAt.getTime() : null,
         criteria: {
