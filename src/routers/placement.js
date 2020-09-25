@@ -37,8 +37,9 @@ router.get('/elements/:pid.json', (req, res) => {
     n,
     cv,
     image,
+    flags,
   } = CampaignDelivery.parseOptions(req.query.opts);
-  const vars = { custom: cv, image };
+  const vars = { custom: cv, image, flags };
 
   const { NODE_ENV } = env;
   const protocol = NODE_ENV === 'production' ? 'https' : req.protocol;
