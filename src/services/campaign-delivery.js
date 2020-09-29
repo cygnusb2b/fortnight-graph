@@ -36,7 +36,6 @@ module.exports = {
   parseLimit(num) {
     const limit = num > 0 ? parseInt(num, 10) : 1;
     if (limit > 10) throw createError(400, 'You cannot return more than 10 ads in one request.');
-    if (limit > 1) throw createError(501, 'Requesting more than one ad in a request is not yet implemented.');
     return limit;
   },
 
