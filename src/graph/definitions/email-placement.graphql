@@ -1,3 +1,16 @@
+type Query {
+  allEmailPlacements(pagination: PaginationInput = {}, sort: EmailPlacementSortInput = {}): EmailPlacementConnection!
+  searchEmailPlacements(pagination: PaginationInput = {}, phrase: String!): EmailPlacementConnection!
+  autocompleteEmailPlacements(pagination: PaginationInput = {}, phrase: String!): EmailPlacementConnection!
+  emailPlacement(input: ModelIdInput!): EmailPlacement!
+}
+
+type Mutation {
+  createEmailPlacement(input: CreateEmailPlacementInput!): EmailPlacement!
+  updateEmailPlacement(input: UpdateEmailPlacementInput!): EmailPlacement!
+  deleteEmailPlacement(input: ModelIdInput!): String!
+}
+
 enum EmailPlacementSortField {
   name
   createdAt
@@ -7,7 +20,7 @@ enum EmailPlacementSortField {
 type EmailPlacement implements UserAttribution & Timestampable {
   id: String!
   name: String
-  deployment: EmailDeployment!
+  emailDeployment: EmailDeployment!
   updatedAt: Date
   createdAt: Date
   createdBy: User!
@@ -28,4 +41,18 @@ type EmailPlacementEdge {
 input EmailPlacementSortInput {
   field: EmailPlacementSortField! = createdAt
   order: Int! = -1
+}
+
+input EmailPlacementPayloadInput {
+  name: String
+  deploymentId: String!
+}
+
+input CreateEmailPlacementInput {
+  payload: EmailPlacementPayloadInput!
+}
+
+input UpdateEmailPlacementInput {
+  id: String!
+  payload: EmailPlacementPayloadInput!
 }
