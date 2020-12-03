@@ -7,6 +7,8 @@ const AnalyticsEvent = require('./analytics/event');
 const AnalyticsPlacement = require('./analytics/placement');
 const Campaign = require('./campaign');
 const Contact = require('./contact');
+const EmailDeployment = require('./email-deployment');
+const EmailPlacement = require('./email-placement');
 const Image = require('./image');
 const Placement = require('./placement');
 const Publisher = require('./publisher');
@@ -25,6 +27,8 @@ module.exports = {
   AnalyticsPlacement,
   Campaign,
   Contact,
+  EmailDeployment,
+  EmailPlacement,
   Image,
   Placement,
   Publisher,
