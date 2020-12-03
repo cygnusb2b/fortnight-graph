@@ -1,6 +1,7 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const userAttributionFields = require('./user-attribution');
 const EmailDeployment = require('../../models/email-deployment');
+const EmailPlacement = require('../../models/email-placement');
 const Publisher = require('../../models/publisher');
 
 module.exports = {
@@ -9,6 +10,10 @@ module.exports = {
    */
   EmailDeployment: {
     publisher: ({ publisherId }) => Publisher.findById(publisherId),
+    placements: async (deployment, { pagination, sort }) => {
+      const criteria = { deploymentId: deployment.id, deleted: false };
+      return EmailPlacement.paginate({ criteria, pagination, sort });
+    },
     ...userAttributionFields,
   },
 
