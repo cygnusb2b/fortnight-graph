@@ -1,0 +1,31 @@
+enum EmailPlacementSortField {
+  name
+  createdAt
+  updatedAt
+}
+
+type EmailPlacement implements UserAttribution & Timestampable {
+  id: String!
+  name: String
+  deployment: EmailDeployment!
+  updatedAt: Date
+  createdAt: Date
+  createdBy: User!
+  updatedBy: User!
+}
+
+type EmailPlacementConnection {
+  totalCount: Int!
+  edges: [EmailPlacementEdge]!
+  pageInfo: PageInfo!
+}
+
+type EmailPlacementEdge {
+  node: EmailPlacement!
+  cursor: Cursor!
+}
+
+input EmailPlacementSortInput {
+  field: EmailPlacementSortField! = createdAt
+  order: Int! = -1
+}

@@ -1,0 +1,60 @@
+type Query {
+  allEmailDeployments(pagination: PaginationInput = {}, sort: EmailDeploymentSortInput = {}): EmailDeploymentConnection!
+  searchEmailDeployments(pagination: PaginationInput = {}, phrase: String!): EmailDeploymentConnection!
+  autocompleteEmailDeployments(pagination: PaginationInput = {}, phrase: String!): EmailDeploymentConnection!
+  emailDeployment(input: ModelIdInput!): EmailDeployment!
+}
+
+type Mutation {
+  createEmailDeployment(input: CreateEmailDeploymentInput!): EmailDeployment!
+  deleteEmailDeployment(input: ModelIdInput!): String!
+  updateEmailDeployment(input: UpdateEmailDeploymentInput!): EmailDeployment!
+}
+
+enum EmailDeploymentSortField {
+  name
+  createdAt
+  updatedAt
+}
+
+type EmailDeployment implements UserAttribution & Timestampable {
+  id: String!
+  name: String!
+  publisher: Publisher!
+  placements(pagination: PaginationInput = {}, sort: EmailPlacementSortInput = {}): EmailPlacementConnection!
+
+  updatedAt: Date
+  createdAt: Date
+  createdBy: User!
+  updatedBy: User!
+}
+
+type EmailDeploymentConnection {
+  totalCount: Int!
+  edges: [EmailDeploymentEdge]!
+  pageInfo: PageInfo!
+}
+
+type EmailDeploymentEdge {
+  node: EmailDeployment!
+  cursor: Cursor!
+}
+
+input EmailDeploymentSortInput {
+  field: EmailDeploymentSortField! = createdAt
+  order: Int! = -1
+}
+
+input CreateEmailDeploymentInput {
+  payload: EmailDeploymentPayloadInput!
+}
+
+input EmailDeploymentPayloadInput {
+  name: String!
+  publisherId: String!
+}
+
+input UpdateEmailDeploymentInput {
+  id: String!
+  payload: EmailDeploymentPayloadInput!
+}
