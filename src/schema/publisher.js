@@ -95,6 +95,20 @@ schema.pre('save', async function updatePlacements() {
   }
 });
 
+schema.pre('save', async function updateEmailDeployments() {
+  if (this.isModified('name')) {
+    // This isn't as efficient as calling `updateMany`, but the ElasticSearch
+    // plugin will not fire properly otherwise.
+    // As such, do not await the update.
+    const EmailDeployment = connection.model('email-deployment');
+    const docs = await EmailDeployment.find({ publisherId: this.id });
+    docs.forEach((doc) => {
+      doc.set('publisherName', this.name);
+      doc.save();
+    });
+  }
+});
+
 schema.pre('save', async function updateTopics() {
   if (this.isModified('name')) {
     // This isn't as efficient as calling `updateMany`, but the ElasticSearch
