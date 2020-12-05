@@ -31,5 +31,17 @@ module.exports = {
       lineItem.setUserContext(auth.user);
       return lineItem.save();
     },
+
+    /**
+     *
+     */
+    deleteEmailLineItem: async (_, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      const lineItem = await EmailLineItem.strictFindActiveById(id);
+      lineItem.setUserContext(auth.user);
+      await lineItem.softDelete();
+      return 'ok';
+    },
   },
 };

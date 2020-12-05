@@ -1,5 +1,6 @@
 type Mutation {
   createEmailLineItem(input: CreateEmailLineItemMutationInput!): EmailLineItem!
+  deleteEmailLineItem(input: ModelIdInput!): String!
 }
 enum EmailLineItemSortField {
   createdAt
