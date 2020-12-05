@@ -63,6 +63,7 @@ type Campaign implements UserAttribution & Timestampable {
   paused: Boolean!
   requiredCreatives: Int!
   publishers(pagination: PaginationInput = {}, sort: PublisherSortInput = {}): PublisherConnection!
+  emailLineItems(pagination: PaginationInput = {}, sort: EmailLineItemSortInput = {}): EmailLineItemConnection!
   url: String
   primaryImage: Image
   creatives: [CampaignCreative]
