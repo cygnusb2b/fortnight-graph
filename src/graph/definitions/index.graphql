@@ -4,6 +4,7 @@
 # import * from 'contact.graphql'
 # import * from 'dashboard.graphql'
 # import * from 'email-deployment.graphql'
+# import * from 'email-line-item.graphql'
 # import * from 'email-placement.graphql'
 # import * from 'image.graphql'
 # import * from 'placement.graphql'

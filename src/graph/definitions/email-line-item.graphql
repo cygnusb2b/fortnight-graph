@@ -1,0 +1,58 @@
+enum EmailLineItemSortField {
+  createdAt
+  updatedAt
+}
+
+enum EmailLineItemDateTypeEnum {
+  range
+  days
+}
+
+enum EmailLineItemStatusEnum {
+  Deleted
+  Finished
+  Incomplete
+  Paused
+  Running
+  Scheduled
+}
+
+type EmailLineItem implements UserAttribution & Timestampable {
+  id: String!
+  campaign: Campaign!
+  placement: EmailPlacement!
+  dates: EmailLineItemDates!
+
+  status: EmailLineItemStatusEnum!
+  paused: Boolean!
+  ready: Boolean!
+  deleted: Boolean!
+
+  updatedAt: Date
+  createdAt: Date
+  createdBy: User!
+  updatedBy: User!
+}
+
+type EmailLineItemDates {
+  type: EmailLineItemDateTypeEnum
+  start: Date
+  end: Date
+  days: [Date]!
+}
+
+type EmailLineItemConnection {
+  totalCount: Int!
+  edges: [EmailLineItemEdge]!
+  pageInfo: PageInfo!
+}
+
+type EmailLineItemEdge {
+  node: EmailLineItem!
+  cursor: Cursor!
+}
+
+input EmailLineItemSortInput {
+  field: EmailLineItemSortField! = createdAt
+  order: Int! = -1
+}
