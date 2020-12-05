@@ -1,7 +1,10 @@
 type Mutation {
   createEmailLineItem(input: CreateEmailLineItemMutationInput!): EmailLineItem!
   deleteEmailLineItem(input: ModelIdInput!): String!
+  emailLineItemDateDays(input: EmailLineItemDateDaysMutationInput): EmailLineItem!
+  emailLineItemDateRange(input: EmailLineItemDateRangeMutationInput): EmailLineItem!
 }
+
 enum EmailLineItemSortField {
   createdAt
   updatedAt
@@ -59,6 +62,17 @@ type EmailLineItemEdge {
 input CreateEmailLineItemMutationInput {
   campaignId: String!
   emailPlacementId: String!
+}
+
+input EmailLineItemDateDaysMutationInput {
+  id: String!
+  days: [Date!]!
+}
+
+input EmailLineItemDateRangeMutationInput {
+  id: String!
+  start: Date!
+  end: Date!
 }
 
 input EmailLineItemSortInput {

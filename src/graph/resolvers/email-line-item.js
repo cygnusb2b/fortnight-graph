@@ -43,5 +43,43 @@ module.exports = {
       await lineItem.softDelete();
       return 'ok';
     },
+
+    /**
+     *
+     */
+    emailLineItemDateDays: async (_, { input }, { auth }) => {
+      auth.check();
+      const { id, days } = input;
+      const doc = await EmailLineItem.strictFindActiveById(id);
+      doc.setUserContext(auth.user);
+      doc.set({
+        dates: {
+          type: 'days',
+          days,
+          start: undefined,
+          end: undefined,
+        },
+      });
+      return doc.save();
+    },
+
+    /**
+     *
+     */
+    emailLineItemDateRange: async (_, { input }, { auth }) => {
+      auth.check();
+      const { id, start, end } = input;
+      const doc = await EmailLineItem.strictFindActiveById(id);
+      doc.setUserContext(auth.user);
+      doc.set({
+        dates: {
+          type: 'range',
+          days: undefined,
+          start,
+          end,
+        },
+      });
+      return doc.save();
+    },
   },
 };
