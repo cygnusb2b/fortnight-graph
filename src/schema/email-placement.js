@@ -41,8 +41,8 @@ schema.plugin(searchablePlugin, { fieldNames: ['name', 'deploymentName'] });
 
 schema.pre('save', async function checkDelete() {
   if (!this.isModified('deleted') || !this.deleted) return;
-  const campaigns = await connection.model('campaign').countActive({ 'emailCriteria.emailPlacementId': this.id });
-  if (campaigns) throw new Error('You cannot delete a placement that has related campaigns.');
+  const lineItems = await connection.model('email-line-item').countActive({ emailPlacementId: this.id });
+  if (lineItems) throw new Error('You cannot delete a placement that has related email line items.');
 });
 
 schema.pre('save', async function setDeploymentName() {

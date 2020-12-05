@@ -8,6 +8,7 @@ const AnalyticsPlacement = require('./analytics/placement');
 const Campaign = require('./campaign');
 const Contact = require('./contact');
 const EmailDeployment = require('./email-deployment');
+const EmailLineItem = require('./email-line-item');
 const EmailPlacement = require('./email-placement');
 const Image = require('./image');
 const Placement = require('./placement');
@@ -28,6 +29,7 @@ module.exports = {
   Campaign,
   Contact,
   EmailDeployment,
+  EmailLineItem,
   EmailPlacement,
   Image,
   Placement,
