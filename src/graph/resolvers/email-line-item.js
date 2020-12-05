@@ -1,6 +1,6 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const userAttributionFields = require('./user-attribution');
-const { Campaign, EmailPlacement } = require('../../models');
+const { Campaign, EmailLineItem, EmailPlacement } = require('../../models');
 
 module.exports = {
   /**
@@ -16,4 +16,20 @@ module.exports = {
    *
    */
   EmailLineItemConnection: paginationResolvers.connection,
+
+  /**
+   *
+   */
+  Mutation: {
+    /**
+     *
+     */
+    createEmailLineItem: (_, { input }, { auth }) => {
+      auth.check();
+      const { campaignId, emailPlacementId } = input;
+      const lineItem = new EmailLineItem({ campaignId, emailPlacementId });
+      lineItem.setUserContext(auth.user);
+      return lineItem.save();
+    },
+  },
 };

@@ -1,3 +1,6 @@
+type Mutation {
+  createEmailLineItem(input: CreateEmailLineItemMutationInput!): EmailLineItem!
+}
 enum EmailLineItemSortField {
   createdAt
   updatedAt
@@ -50,6 +53,11 @@ type EmailLineItemConnection {
 type EmailLineItemEdge {
   node: EmailLineItem!
   cursor: Cursor!
+}
+
+input CreateEmailLineItemMutationInput {
+  campaignId: String!
+  emailPlacementId: String!
 }
 
 input EmailLineItemSortInput {
