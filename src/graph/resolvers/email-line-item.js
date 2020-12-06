@@ -9,6 +9,7 @@ module.exports = {
   EmailLineItem: {
     campaign: ({ campaignId }) => Campaign.findById(campaignId),
     placement: ({ emailPlacementId }) => EmailPlacement.findById(emailPlacementId),
+    requires: lineItem => lineItem.getRequirements(),
     ...userAttributionFields,
   },
 

@@ -37,6 +37,7 @@ type EmailLineItem implements UserAttribution & Timestampable {
   dates: EmailLineItemDates!
 
   status: EmailLineItemStatusEnum!
+  requires: String
   paused: Boolean!
   ready: Boolean!
   deleted: Boolean!
