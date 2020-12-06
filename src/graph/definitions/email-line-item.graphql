@@ -70,6 +70,14 @@ input CreateEmailLineItemMutationInput {
   name: String!
   campaignId: String!
   emailPlacementId: String!
+  dates: CreateEmailLineItemDatesInput!
+}
+
+input CreateEmailLineItemDatesInput {
+  type: EmailLineItemDateTypeEnum!
+  start: Date
+  end: Date
+  days: [Date]
 }
 
 input EmailLineItemDateDaysMutationInput {

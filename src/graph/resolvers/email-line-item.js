@@ -27,8 +27,37 @@ module.exports = {
      */
     createEmailLineItem: (_, { input }, { auth }) => {
       auth.check();
-      const { name, campaignId, emailPlacementId } = input;
-      const lineItem = new EmailLineItem({ name, campaignId, emailPlacementId });
+      const {
+        name,
+        campaignId,
+        emailPlacementId,
+        dates,
+      } = input;
+
+      const {
+        type,
+        start,
+        end,
+        days,
+      } = dates;
+
+      const doc = {
+        name,
+        campaignId,
+        emailPlacementId,
+        dates: { type },
+      };
+
+      if (type === 'range') {
+        if (!start || !end) throw new Error('You must provide a start and end date.');
+        doc.dates.start = start;
+        doc.dates.end = end;
+      }
+      if (type === 'days') {
+        if (!Array.isArray(days) || !days.length) throw new Error('You must provide an array of days.');
+        doc.dates.days = days;
+      }
+      const lineItem = new EmailLineItem(doc);
       lineItem.setUserContext(auth.user);
       return lineItem.save();
     },
