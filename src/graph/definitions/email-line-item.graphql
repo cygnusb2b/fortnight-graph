@@ -6,6 +6,7 @@ type Mutation {
 }
 
 enum EmailLineItemSortField {
+  name
   createdAt
   updatedAt
 }
@@ -26,6 +27,7 @@ enum EmailLineItemStatusEnum {
 
 type EmailLineItem implements UserAttribution & Timestampable {
   id: String!
+  name: String!
   campaign: Campaign!
   placement: EmailPlacement!
   dates: EmailLineItemDates!
@@ -60,6 +62,7 @@ type EmailLineItemEdge {
 }
 
 input CreateEmailLineItemMutationInput {
+  name: String!
   campaignId: String!
   emailPlacementId: String!
 }

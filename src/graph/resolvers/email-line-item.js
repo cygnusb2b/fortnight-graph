@@ -26,8 +26,8 @@ module.exports = {
      */
     createEmailLineItem: (_, { input }, { auth }) => {
       auth.check();
-      const { campaignId, emailPlacementId } = input;
-      const lineItem = new EmailLineItem({ campaignId, emailPlacementId });
+      const { name, campaignId, emailPlacementId } = input;
+      const lineItem = new EmailLineItem({ name, campaignId, emailPlacementId });
       lineItem.setUserContext(auth.user);
       return lineItem.save();
     },

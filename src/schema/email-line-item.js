@@ -28,6 +28,11 @@ const datesSchema = new Schema({
 });
 
 const schema = new Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   ready: {
     type: Boolean,
     default: false,
@@ -127,6 +132,7 @@ schema.pre('save', async function setReady() {
 
 schema.index({ campaignId: 1, emailPlacementId: 1 });
 schema.index({ emailPlacementId: 1 });
+schema.index({ name: 1, _id: 1 });
 schema.index({ updatedAt: 1, _id: 1 });
 
 module.exports = schema;
