@@ -19,7 +19,8 @@ enum EmailPlacementSortField {
 
 type EmailPlacement implements UserAttribution & Timestampable {
   id: String!
-  name: String
+  name: String!
+  fullName: String!
   emailDeployment: EmailDeployment!
   updatedAt: Date
   createdAt: Date
