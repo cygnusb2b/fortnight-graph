@@ -28,6 +28,7 @@ type Publisher implements UserAttribution & Timestampable {
   placements(pagination: PaginationInput = {}, sort: PlacementSortInput = {}): PlacementConnection!
   campaigns(pagination: PaginationInput = {}, sort: CampaignSortInput = {}): CampaignConnection!
   emailDeployments(pagination: PaginationInput = {}, sort: EmailDeploymentSortInput = {}): EmailDeploymentConnection!
+  emailPlacements(pagination: PaginationInput = {}, sort: EmailPlacementSortInput = {}): EmailPlacementConnection!
   updatedAt: Date
   createdAt: Date
   createdBy: User!
