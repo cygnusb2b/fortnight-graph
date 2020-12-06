@@ -5,6 +5,8 @@ type Query {
 type Mutation {
   createEmailLineItem(input: CreateEmailLineItemMutationInput!): EmailLineItem!
   deleteEmailLineItem(input: ModelIdInput!): String!
+
+  emailLineItemDetails(input: EmailLineItemDetailsMutationInput!): EmailLineItem!
   emailLineItemDateDays(input: EmailLineItemDateDaysMutationInput): EmailLineItem!
   emailLineItemDateRange(input: EmailLineItemDateRangeMutationInput): EmailLineItem!
 }
@@ -89,6 +91,12 @@ input EmailLineItemDateRangeMutationInput {
   id: String!
   start: Date!
   end: Date!
+}
+
+input EmailLineItemDetailsMutationInput {
+  id: String!
+  name: String!
+  emailPlacementId: String!
 }
 
 input EmailLineItemSortInput {

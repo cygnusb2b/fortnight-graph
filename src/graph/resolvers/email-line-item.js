@@ -111,6 +111,21 @@ module.exports = {
       });
       return doc.save();
     },
+
+    /**
+     *
+     */
+    emailLineItemDetails: async (_, { input }, { auth }) => {
+      auth.check();
+      const { id, name, emailPlacementId } = input;
+      const doc = await EmailLineItem.strictFindActiveById(id);
+      doc.setUserContext(auth.user);
+      doc.set({
+        name,
+        emailPlacementId,
+      });
+      return doc.save();
+    },
   },
 
   /**
