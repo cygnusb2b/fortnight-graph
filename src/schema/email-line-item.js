@@ -110,7 +110,7 @@ schema.method('getRequirements', async function getRequirements() {
   }
 
   const campaignNeeds = 'an active campaign with at least one active creative';
-  const campaign = await connection.model('campaign').findOne({ campaignId: this.campaignId, deleted: false });
+  const campaign = await connection.model('campaign').findOne({ _id: this.campaignId, deleted: false });
   if (campaign) {
     const activeCreatives = isArray(campaign.creatives)
       ? campaign.creatives.filter(cre => cre.active)
