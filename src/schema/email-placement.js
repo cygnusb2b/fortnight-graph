@@ -15,12 +15,16 @@ const schema = new Schema({
     type: String,
     trim: true,
   },
+  publisherName: {
+    type: String,
+  },
   deploymentName: {
     type: String,
   },
 }, { timestamps: true });
 
 setEntityFields(schema, 'name');
+setEntityFields(schema, 'publisherName');
 setEntityFields(schema, 'deploymentName');
 applyElasticPlugin(schema, 'email-placements');
 
@@ -37,7 +41,7 @@ schema.plugin(deleteablePlugin, {
 schema.plugin(userAttributionPlugin);
 schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
-schema.plugin(searchablePlugin, { fieldNames: ['name', 'deploymentName'] });
+schema.plugin(searchablePlugin, { fieldNames: ['name', 'publisherName', 'deploymentName'] });
 
 schema.pre('save', async function checkDelete() {
   if (!this.isModified('deleted') || !this.deleted) return;
@@ -49,6 +53,13 @@ schema.pre('save', async function setDeploymentName() {
   if (this.isModified('deploymentId') || !this.deploymentName) {
     const deployment = await connection.model('email-deployment').findOne({ _id: this.deploymentId }, { name: 1 });
     this.deploymentName = deployment.name;
+  }
+});
+
+schema.pre('save', async function setPublisherName() {
+  if (this.isModified('publisherId') || !this.publisherName) {
+    const deployment = await connection.model('email-deployment').findOne({ _id: this.deploymentId }, { publisherName: 1 });
+    this.publisherName = deployment.publisherName;
   }
 });
 

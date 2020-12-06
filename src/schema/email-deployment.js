@@ -57,13 +57,14 @@ schema.pre('save', async function setPublisherName() {
 });
 
 schema.pre('save', async function updateEmailPlacements() {
-  if (this.isModified('name')) {
+  if (this.isModified('name') || this.isModified('publisherName')) {
     // This isn't as efficient as calling `updateMany`, but the ElasticSearch
     // plugin will not fire properly otherwise.
     // As such, do not await the update.
     const EmailPlacement = connection.model('email-placement');
     const docs = await EmailPlacement.find({ deploymentId: this.id });
     docs.forEach((doc) => {
+      doc.set('publisherName', this.publisherName);
       doc.set('deploymentName', this.name);
       doc.save();
     });
