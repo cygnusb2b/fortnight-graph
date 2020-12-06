@@ -125,7 +125,7 @@ schema.pre('save', async function setReady() {
   }
 });
 
-schema.index({ campaignId: 1, emailPlacementId: 1 }, { unique: true });
+schema.index({ campaignId: 1, emailPlacementId: 1 });
 schema.index({ emailPlacementId: 1 });
 schema.index({ updatedAt: 1, _id: 1 });
 
