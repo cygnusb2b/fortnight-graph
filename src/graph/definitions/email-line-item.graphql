@@ -44,7 +44,7 @@ type EmailLineItem implements UserAttribution & Timestampable {
 }
 
 type EmailLineItemDates {
-  type: EmailLineItemDateTypeEnum
+  type: EmailLineItemDateTypeEnum!
   start: Date
   end: Date
   days: [Date]!

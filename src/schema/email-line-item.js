@@ -24,6 +24,7 @@ const datesSchema = new Schema({
   },
   days: {
     type: [Date],
+    default: [],
   },
 });
 
