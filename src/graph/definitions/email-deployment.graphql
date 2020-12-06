@@ -20,6 +20,7 @@ enum EmailDeploymentSortField {
 type EmailDeployment implements UserAttribution & Timestampable {
   id: String!
   name: String!
+  fullName: String!
   publisher: Publisher!
   placements(pagination: PaginationInput = {}, sort: EmailPlacementSortInput = {}): EmailPlacementConnection!
 

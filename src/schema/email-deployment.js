@@ -16,6 +16,11 @@ const schema = new Schema({
     required: true,
     trim: true,
   },
+  fullName: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   publisherName: {
     type: String,
   },
@@ -40,6 +45,18 @@ schema.plugin(repositoryPlugin);
 schema.plugin(paginablePlugin);
 schema.plugin(searchablePlugin, { fieldNames: ['name', 'publisherName'] });
 
+schema.pre('validate', async function setPublisherName() {
+  if (this.isModified('publisherId') || !this.publisherName) {
+    const publisher = await connection.model('publisher').findOne({ _id: this.publisherId }, { name: 1 });
+    this.publisherName = publisher.name;
+  }
+});
+
+schema.pre('validate', function setFullName() {
+  const { name, publisherName } = this;
+  this.fullName = `${publisherName} > ${name}`;
+});
+
 schema.pre('save', async function checkDelete() {
   if (!this.isModified('deleted') || !this.deleted) return;
 
@@ -47,13 +64,6 @@ schema.pre('save', async function checkDelete() {
     connection.model('email-placement').countActive({ publisherId: this.id }),
   ]);
   if (emailPlacements) throw new Error('You cannot delete an email deployment that has related placements.');
-});
-
-schema.pre('save', async function setPublisherName() {
-  if (this.isModified('publisherId') || !this.publisherName) {
-    const publisher = await connection.model('publisher').findOne({ _id: this.publisherId }, { name: 1 });
-    this.publisherName = publisher.name;
-  }
 });
 
 schema.pre('save', async function updateEmailPlacements() {
