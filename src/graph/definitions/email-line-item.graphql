@@ -1,3 +1,7 @@
+type Query {
+  emailLineItem(input: ModelIdInput!): EmailLineItem!
+}
+
 type Mutation {
   createEmailLineItem(input: CreateEmailLineItemMutationInput!): EmailLineItem!
   deleteEmailLineItem(input: ModelIdInput!): String!

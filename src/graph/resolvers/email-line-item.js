@@ -82,4 +82,18 @@ module.exports = {
       return doc.save();
     },
   },
+
+  /**
+   *
+   */
+  Query: {
+    /**
+     *
+     */
+    emailLineItem: (_, { input }, { auth }) => {
+      auth.check();
+      const { id } = input;
+      return EmailLineItem.strictFindActiveById(id);
+    },
+  },
 };
