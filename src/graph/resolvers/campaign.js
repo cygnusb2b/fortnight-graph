@@ -304,7 +304,7 @@ module.exports = {
         title: story.title ? story.title.slice(0, 75) : undefined,
         teaser: story.teaser ? story.teaser.slice(0, 255) : undefined,
         imageId: story.primaryImageId,
-        active: story.title && story.teaser && story.imageId,
+        active: Boolean(story.title && story.teaser && story.imageId),
       });
       await campaign.save();
 
