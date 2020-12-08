@@ -133,6 +133,16 @@ schema.pre('save', async function setReady() {
 
 schema.index({ campaignId: 1, emailPlacementId: 1 });
 schema.index({ emailPlacementId: 1 });
+// for delivery
+schema.index({
+  'dates.days': 1,
+  'dates.start': 1,
+  'dates.end': 1,
+  emailPlacementId: 1,
+  ready: 1,
+  deleted: 1,
+  paused: 1,
+});
 schema.index({ name: 1, _id: 1 });
 schema.index({ updatedAt: 1, _id: 1 });
 

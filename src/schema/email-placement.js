@@ -68,7 +68,7 @@ schema.pre('save', async function checkDelete() {
   if (lineItems) throw new Error('You cannot delete a placement that has related email line items.');
 });
 
-schema.index({ deploymentId: 1 });
+schema.index({ deploymentId: 1, deleted: 1 });
 schema.index({ name: 1, _id: 1 }, { unique: true });
 schema.index({ updatedAt: 1, _id: 1 }, { unique: true });
 
