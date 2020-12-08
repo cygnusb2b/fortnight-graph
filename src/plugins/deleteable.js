@@ -25,8 +25,8 @@ module.exports = function deleteablePlugin(schema, options = {}) {
     return doc;
   });
 
-  schema.static('findActiveById', function findActiveById(id, fields) {
-    return this.findOne({ _id: id || null, deleted: false }, fields);
+  schema.static('findActiveById', function findActiveById(id, fields, opts) {
+    return this.findOne({ _id: id || null, deleted: false }, fields, opts);
   });
 
   schema.static('strictFindActiveOne', async function strictFindActiveOne(criteria, fields) {
