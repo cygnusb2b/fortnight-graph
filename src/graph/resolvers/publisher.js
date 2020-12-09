@@ -2,6 +2,8 @@ const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const userAttributionFields = require('./user-attribution');
 const AnalyticsPlacement = require('../../models/analytics/placement');
 const Campaign = require('../../models/campaign');
+const EmailDeployment = require('../../models/email-deployment');
+const EmailPlacement = require('../../models/email-placement');
 const Image = require('../../models/image');
 const Placement = require('../../models/placement');
 const Publisher = require('../../models/publisher');
@@ -26,6 +28,15 @@ module.exports = {
       const placementIds = placements.map(placement => placement.id);
       const criteria = { 'criteria.placementIds': { $in: placementIds }, deleted: false };
       return Campaign.paginate({ criteria, pagination, sort });
+    },
+    emailDeployments: async (publisher, { pagination, sort }) => {
+      const criteria = { publisherId: publisher.id, deleted: false };
+      return EmailDeployment.paginate({ criteria, pagination, sort });
+    },
+    emailPlacements: async (publisher, { pagination, sort }) => {
+      const deploymentIds = EmailDeployment.distinct('_id', { publisherId: publisher.id, deleted: false });
+      const criteria = { deploymentId: { $in: deploymentIds }, deleted: false };
+      return EmailPlacement.paginate({ criteria, pagination, sort });
     },
     metrics: async (publisher, { start, end }) => {
       const pipeline = [];

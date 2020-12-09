@@ -8,6 +8,9 @@ const advertiser = require('./advertiser');
 const campaign = require('./campaign');
 const contact = require('./contact');
 const dashboard = require('./dashboard');
+const emailDeployment = require('./email-deployment');
+const emailLineItem = require('./email-line-item');
+const emailPlacement = require('./email-placement');
 const image = require('./image');
 const placement = require('./placement');
 const publisher = require('./publisher');
@@ -23,6 +26,9 @@ module.exports = deepAssign(
   campaign,
   contact,
   dashboard,
+  emailDeployment,
+  emailLineItem,
+  emailPlacement,
   image,
   placement,
   publisher,

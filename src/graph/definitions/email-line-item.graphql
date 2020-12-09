@@ -1,0 +1,105 @@
+type Query {
+  emailLineItem(input: ModelIdInput!): EmailLineItem!
+}
+
+type Mutation {
+  createEmailLineItem(input: CreateEmailLineItemMutationInput!): EmailLineItem!
+  deleteEmailLineItem(input: ModelIdInput!): String!
+
+  emailLineItemDetails(input: EmailLineItemDetailsMutationInput!): EmailLineItem!
+  emailLineItemDateDays(input: EmailLineItemDateDaysMutationInput): EmailLineItem!
+  emailLineItemDateRange(input: EmailLineItemDateRangeMutationInput): EmailLineItem!
+}
+
+enum EmailLineItemSortField {
+  name
+  createdAt
+  updatedAt
+}
+
+enum EmailLineItemDateTypeEnum {
+  range
+  days
+}
+
+enum EmailLineItemStatusEnum {
+  Deleted
+  Finished
+  Incomplete
+  Paused
+  Running
+  Scheduled
+}
+
+type EmailLineItem implements UserAttribution & Timestampable {
+  id: String!
+  name: String!
+  campaign: Campaign!
+  placement: EmailPlacement!
+  dates: EmailLineItemDates!
+
+  status: EmailLineItemStatusEnum!
+  requires: String
+  paused: Boolean!
+  ready: Boolean!
+  deleted: Boolean!
+
+  updatedAt: Date
+  createdAt: Date
+  createdBy: User!
+  updatedBy: User!
+}
+
+type EmailLineItemDates {
+  type: EmailLineItemDateTypeEnum!
+  start: Date
+  end: Date
+  days: [Date]!
+}
+
+type EmailLineItemConnection {
+  totalCount: Int!
+  edges: [EmailLineItemEdge]!
+  pageInfo: PageInfo!
+}
+
+type EmailLineItemEdge {
+  node: EmailLineItem!
+  cursor: Cursor!
+}
+
+input CreateEmailLineItemMutationInput {
+  name: String!
+  campaignId: String!
+  emailPlacementId: String!
+  dates: CreateEmailLineItemDatesInput!
+}
+
+input CreateEmailLineItemDatesInput {
+  type: EmailLineItemDateTypeEnum!
+  start: Date
+  end: Date
+  days: [Date]
+}
+
+input EmailLineItemDateDaysMutationInput {
+  id: String!
+  days: [Date!]!
+}
+
+input EmailLineItemDateRangeMutationInput {
+  id: String!
+  start: Date!
+  end: Date!
+}
+
+input EmailLineItemDetailsMutationInput {
+  id: String!
+  name: String!
+  emailPlacementId: String!
+}
+
+input EmailLineItemSortInput {
+  field: EmailLineItemSortField! = createdAt
+  order: Int! = -1
+}

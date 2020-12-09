@@ -206,6 +206,11 @@ schema.pre('save', async function setReady() {
   }
 });
 
+schema.post('save', async function updateLineItems() {
+  const lineItems = await connection.model('email-line-item').find({ campaignId: this._id });
+  lineItems.forEach(lineItem => lineItem.save());
+});
+
 schema.index({ advertiserId: 1 });
 schema.index({ 'creatives.deleted': 1 });
 schema.index({ name: 1, _id: 1 }, { unique: true });

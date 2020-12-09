@@ -1,17 +1,20 @@
 const { paginationResolvers } = require('@limit0/mongoose-graphql-pagination');
 const moment = require('moment');
-const Advertiser = require('../../models/advertiser');
 const CreativeService = require('../../services/campaign-creatives');
-const Campaign = require('../../models/campaign');
-const Story = require('../../models/story');
-const Contact = require('../../models/contact');
-const Publisher = require('../../models/publisher');
-const Image = require('../../models/image');
-const Placement = require('../../models/placement');
-const User = require('../../models/user');
 const analytics = require('../../services/analytics');
 const campaignDelivery = require('../../services/campaign-delivery');
 const contactNotifier = require('../../services/contact-notifier');
+const {
+  Advertiser,
+  Campaign,
+  Story,
+  Contact,
+  Publisher,
+  Image,
+  Placement,
+  User,
+  EmailLineItem,
+} = require('../../models');
 
 const getNotifyDefaults = async (advertiserId, user) => {
   const advertiser = await Advertiser.strictFindById(advertiserId);
@@ -57,6 +60,10 @@ module.exports = {
       const publisherIds = await Placement.distinct('publisherId', { _id: { $in: placementIds }, deleted: false });
       const criteria = { _id: { $in: publisherIds } };
       return Publisher.paginate({ pagination, criteria, sort });
+    },
+    emailLineItems: async (campaign, { pagination, sort }) => {
+      const criteria = { campaignId: campaign.id };
+      return EmailLineItem.paginate({ pagination, criteria, sort });
     },
     metrics: campaign => analytics.retrieveMetrics({ cid: campaign._id }),
     reports: campaign => campaign,
@@ -297,7 +304,7 @@ module.exports = {
         title: story.title ? story.title.slice(0, 75) : undefined,
         teaser: story.teaser ? story.teaser.slice(0, 255) : undefined,
         imageId: story.primaryImageId,
-        active: story.title && story.teaser && story.imageId,
+        active: Boolean(story.title && story.teaser && story.imageId),
       });
       await campaign.save();
 

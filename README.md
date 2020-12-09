@@ -292,6 +292,14 @@ The following models _cannot_ be soft-deleted when... (note: by "active" we mean
 **Publisher**
 - An active Placement exists with `Placement.publisherId` equal to `Publisher.id`
 - An active Topic exists with `Topic.publisherId` equal to `Publisher.id`
+- An active Story exists with `Story.publisherId` equal to `Publisher.id`
+- An active Email Deployment exists with `EmailDeployment.publisherId` equal to `Publisher.id`
+
+**Email Deployment**
+- An active Email Placement exists with `EmailPlacement.deploymentId` equal to `EmailDeployment.id`
+
+**Email Placement**
+- An active Campaign exists with `Campaign.criteria.emailPlacementId` equal to `EmailPlacement.id`
 
 **Placement**
 - An active Campaign exists with `Campaign.criteria.placementIds` containing `Placement.id`

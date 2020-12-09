@@ -69,12 +69,16 @@ schema.plugin(searchablePlugin, { fieldNames: ['name'] });
 schema.pre('save', async function checkDelete() {
   if (!this.isModified('deleted') || !this.deleted) return;
 
-  const placements = await connection.model('placement').countActive({ publisherId: this.id });
+  const [placements, topics, stories, emailDeployments] = await Promise.all([
+    connection.model('placement').countActive({ publisherId: this.id }),
+    connection.model('topic').countActive({ publisherId: this.id }),
+    connection.model('story').countActive({ publisherId: this.id }),
+    connection.model('emailDeployment').countActive({ publisherId: this.id }),
+  ]);
   if (placements) throw new Error('You cannot delete a publisher that has related placements.');
-  const topics = await connection.model('topic').countActive({ publisherId: this.id });
   if (topics) throw new Error('You cannot delete a publisher that has related topics.');
-  const stories = await connection.model('story').countActive({ publisherId: this.id });
   if (stories) throw new Error('You cannot delete a publisher that has related stories.');
+  if (emailDeployments) throw new Error('You cannot delete a publisher that has related email deployments.');
 });
 
 schema.pre('save', async function updatePlacements() {
@@ -84,6 +88,20 @@ schema.pre('save', async function updatePlacements() {
     // As such, do not await the update.
     const Placement = connection.model('placement');
     const docs = await Placement.find({ publisherId: this.id });
+    docs.forEach((doc) => {
+      doc.set('publisherName', this.name);
+      doc.save();
+    });
+  }
+});
+
+schema.pre('save', async function updateEmailDeployments() {
+  if (this.isModified('name')) {
+    // This isn't as efficient as calling `updateMany`, but the ElasticSearch
+    // plugin will not fire properly otherwise.
+    // As such, do not await the update.
+    const EmailDeployment = connection.model('email-deployment');
+    const docs = await EmailDeployment.find({ publisherId: this.id });
     docs.forEach((doc) => {
       doc.set('publisherName', this.name);
       doc.save();
