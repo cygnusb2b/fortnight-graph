@@ -117,9 +117,9 @@ module.exports = {
     limit,
     keyValues,
   }) {
-    const rp = placement.get('reservePct');
+    const rp = parseInt(placement.get('reservePct'), 10);
     const ap = account.get('settings.reservePct');
-    const reservePct = (rp || ap || 0) / 100;
+    const reservePct = (Number.isInteger(rp) ? rp : (ap || 0)) / 100;
 
     const campaigns = Math.random() >= reservePct
       ? await this.queryCampaigns({
