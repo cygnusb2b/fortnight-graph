@@ -23,7 +23,7 @@ type Placement implements UserAttribution & Timestampable {
   publisher: Publisher!
   template: Template!
   topic: Topic
-  reservePct: Int!
+  reservePct: Int
   updatedAt: Date
   createdAt: Date
   createdBy: User!
@@ -82,5 +82,3 @@ input UpdatePlacementInput {
   id: String!
   payload: PlacementPayloadInput!
 }
-
-
