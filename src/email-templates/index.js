@@ -18,7 +18,7 @@ module.exports = {
       templates[key] = handlebars.compile(html);
     }
     const account = await accountService.retrieve();
-    const { advertiserId } = get(data, 'campaign');
+    const { advertiserId } = get(data, 'campaign') || {};
     const advertiser = advertiserId ? await Advertiser.findById(advertiserId) : undefined;
     return templates[key]({
       advertiser,
