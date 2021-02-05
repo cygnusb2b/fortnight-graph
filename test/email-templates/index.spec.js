@@ -24,6 +24,7 @@ describe('email-templates/index', function() {
     it('should return subsequent templates from cache', async function() {
       const promise = EmailTemplates.render('internal/campaign.created');
       const template = await promise;
+      expect(template).to.be.a('string');
       sinon.assert.notCalled(EmailTemplates.readFileAsync);
     });
   });
