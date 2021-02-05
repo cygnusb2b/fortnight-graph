@@ -37,13 +37,13 @@ module.exports = {
     const advertiser = await Advertiser.strictFindById(campaign.advertiserId);
     const subject = `A new campaign was created for ${advertiser.name}`;
     const to = await this.resolveAddresses(campaign.get('notify.internal'));
-    return to.length ? this.send({ to, subject, html }) : Promise.resolve();
+    return to.length ? this.send({ to, subject, html }) : null;
   },
 
   async sendExternalCampaignCreated({ campaign }) {
     const html = await emailTemplates.render('external/campaign.created', { campaign });
     const subject = 'A new campaign was created!';
     const to = await this.resolveAddresses(campaign.get('notify.external'));
-    return to.length ? this.send({ to, subject, html }) : Promise.resolve();
+    return to.length ? this.send({ to, subject, html }) : null;
   },
 };
