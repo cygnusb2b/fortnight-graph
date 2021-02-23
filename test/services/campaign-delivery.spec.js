@@ -7,20 +7,26 @@ const sandbox = sinon.createSandbox();
 
 describe('services/campaign-delivery', function() {
   describe('#calculateImpressionReserve', function() {
+    it('should return zero when no settings exist', function() {
+      const account = { get: () => null };
+      const placement = { get: () => null };
+      const reservePct = campaignDelivery.calculateImpressionReserve({ account, placement });
+      expect(reservePct).to.equal(0);
+    });
     it('should return the account setting when no placement setting exists', function() {
-      const account = { get: () => ({ settings: { reservePct: 30 } }) };
+      const account = { get: () => 30 };
       const placement = { get: () => null };
       const reservePct = campaignDelivery.calculateImpressionReserve({ account, placement });
       expect(reservePct).to.equal(0.3);
     });
     it('should return the placement setting when set to a number', function() {
-      const account = { get: () => ({ settings: { reservePct: 33 } }) };
+      const account = { get: () => 33 };
       const placement = { get: () => 10 };
       const reservePct = campaignDelivery.calculateImpressionReserve({ account, placement });
       expect(reservePct).to.equal(0.1);
     });
     it('should return the placement setting when set to zero', function() {
-      const account = { get: () => ({ settings: { reservePct: 33 } }) };
+      const account = { get: () => 33 };
       const placement = { get: () => 0 };
       const reservePct = campaignDelivery.calculateImpressionReserve({ account, placement });
       expect(reservePct).to.equal(0);
