@@ -111,15 +111,28 @@ module.exports = {
     return this.selectCampaigns(campaigns, limit);
   },
 
+  /**
+   * Returns the impression reserve based on the supplied placement and account settings
+   *
+   * @param placement The placement model
+   * @param account The account model
+   */
+  calculateImpressionReserve({
+    placement,
+    account,
+  }) {
+    const rp = parseInt(placement.get('reservePct'), 10);
+    const ap = account.get('settings.reservePct');
+    return (rp != null ? rp : (ap || 0)) / 100;
+  },
+
   async queryCampaignsFor({
     placement,
     account,
     limit,
     keyValues,
   }) {
-    const rp = parseInt(placement.get('reservePct'), 10);
-    const ap = account.get('settings.reservePct');
-    const reservePct = (rp != null ? rp : (ap || 0)) / 100;
+    const reservePct = this.calculateImpressionReserve({ placement, account });
 
     const campaigns = Math.random() >= reservePct
       ? await this.queryCampaigns({
