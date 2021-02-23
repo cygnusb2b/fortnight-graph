@@ -123,7 +123,7 @@ module.exports = {
   }) {
     const rp = parseInt(placement.get('reservePct'), 10);
     const ap = account.get('settings.reservePct');
-    return (rp != null ? rp : (ap || 0)) / 100;
+    return (Number.isInteger(rp) ? rp : (ap || 0)) / 100;
   },
 
   async queryCampaignsFor({
