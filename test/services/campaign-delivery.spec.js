@@ -19,6 +19,12 @@ describe('services/campaign-delivery', function() {
       const reservePct = campaignDelivery.calculateImpressionReserve({ account, placement });
       expect(reservePct).to.equal(0.3);
     });
+    it('should return the account setting when not set', function() {
+      const account = { get: () => 30 };
+      const placement = { get: () => undefined };
+      const reservePct = campaignDelivery.calculateImpressionReserve({ account, placement });
+      expect(reservePct).to.equal(0.3);
+    });
     it('should return the placement setting when set to a number', function() {
       const account = { get: () => 33 };
       const placement = { get: () => 10 };
