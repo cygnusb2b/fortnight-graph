@@ -34,7 +34,7 @@ const schema = new Schema({
     trim: true,
     validate: {
       validator(v) {
-        return `${v}`.contains('{{story.id}}') || `${v}`.contains('{{ story.id }}');
+        return `${v}`.includes('{{story.id}}') || `${v}`.includes('{{ story.id }}');
       },
       message: 'Invalid publisher story path: {VALUE} must contain "{{story.id}}"',
     },
