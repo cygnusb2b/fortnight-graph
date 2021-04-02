@@ -14,7 +14,6 @@ const {
   userAttributionPlugin,
 } = require('../plugins');
 const storyUrl = require('../utils/story-url');
-const accountService = require('../services/account');
 
 const schema = new Schema({
   title: {
@@ -112,9 +111,7 @@ schema.method('getPath', async function getPath() {
 });
 
 schema.method('getUrl', async function getUrl(params) {
-  const account = await accountService.retrieve();
-  const path = await this.getPath();
-  return storyUrl(account.storyUri, path, params);
+  return storyUrl(this, params);
 });
 
 schema.pre('save', async function checkDelete() {
