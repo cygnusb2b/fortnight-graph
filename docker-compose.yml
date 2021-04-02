@@ -22,7 +22,7 @@ services:
       ACCOUNT_KEY: ${ACCOUNT_KEY-dev-tenant}
       BASE_URI: localhost:8100
       DEBUG: ${DEBUG}
-      ELASTIC_HOST: http://elasticsearch:9200
+      ELASTIC_HOST: ${ELASTIC_HOST-http://elasticsearch:9200}
       ELASTIC_INDEX_RECREATE: ${ELASTIC_INDEX_RECREATE-false}
       MONGOOSE_DEBUG: ${MONGOOSE_DEBUG-false}
       MONGO_DSN: ${MONGO_DSN-mongodb://mongo:27017/fortnight}
