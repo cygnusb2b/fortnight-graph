@@ -1,5 +1,6 @@
 const { Schema } = require('mongoose');
 const slug = require('slug');
+const handlebars = require('../handlebars');
 const connection = require('../connections/mongoose/instance');
 const { applyElasticPlugin, setEntityFields } = require('../elastic/mongoose');
 const {
@@ -102,8 +103,12 @@ schema.method('clone', async function clone(user) {
 });
 
 schema.method('getPath', async function getPath() {
-  const advertiser = await connection.model('advertiser').findById(this.advertiserId);
-  return `story/${advertiser.slug}/${this.slug}/${this.id}`;
+  const [advertiser, publisher] = await Promise.all([
+    connection.model('advertiser').findById(this.advertiserId),
+    connection.model('publisher').findById(this.publisherId),
+  ]);
+  const template = handlebars.compile(publisher.storyPath);
+  return template({ advertiser, publisher, story: this });
 });
 
 schema.method('getUrl', async function getUrl(params) {
