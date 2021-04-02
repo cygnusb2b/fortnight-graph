@@ -111,7 +111,8 @@ schema.method('getPath', async function getPath() {
 });
 
 schema.method('getUrl', async function getUrl(params) {
-  return storyUrl(this, params);
+  const publisher = await connection.model('publisher').findById(this.publisherId);
+  return storyUrl(this, publisher, params);
 });
 
 schema.pre('save', async function checkDelete() {
