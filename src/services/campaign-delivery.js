@@ -158,10 +158,8 @@ module.exports = {
     if (!storyId) return url;
     // Campaign is linked to a story, generate using publiser or account host.
     const publisher = await Publisher.findById(publisherId, { domainName: 1 });
-    const account = await accountService.retrieve();
     const story = await Story.findById(storyId, { body: 0 });
-    const path = await story.getPath();
-    return storyUrl(publisher.customUri || account.storyUri, path, {
+    return storyUrl(story, publisher, {
       pubid: publisher.id,
       utm_source: 'NativeX',
       utm_medium: 'banner',

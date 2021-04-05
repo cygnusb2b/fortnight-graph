@@ -29,6 +29,17 @@ const schema = new Schema({
       message: 'Invalid domain name: {VALUE}',
     },
   },
+  storyPath: {
+    type: String,
+    trim: true,
+    validate: {
+      validator(v) {
+        return /{{\s*story\.id\s*}}/.test(v);
+      },
+      message: 'Invalid publisher story path: {VALUE} must contain "{{story.id}}"',
+    },
+    default: '/story/{{ advertiser.slug }}/{{ story.slug }}/{{ story.id }}',
+  },
   website: {
     type: String,
     required: true,
