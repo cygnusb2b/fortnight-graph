@@ -95,6 +95,7 @@ module.exports = {
 
   CampaignCreative: {
     image: creative => Image.findById(creative.imageId),
+    linkText: creative => creative.linkText || null,
     metrics: creative => analytics
       .retrieveMetrics({ cre: creative._id, cid: creative.campaignId }),
     reports: creative => creative,
