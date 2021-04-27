@@ -471,6 +471,7 @@ module.exports = {
         id: creative.id,
         title: creative.title,
         teaser: creative.teaser,
+        linkText: creative.linkText || null,
       },
       image: creative.image ? {
         id: creative.image.id,
