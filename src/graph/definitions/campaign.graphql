@@ -99,6 +99,7 @@ type CampaignCreative {
   id: String!
   title: String
   teaser: String
+  linkText: String
   active: Boolean!
   image: Image
   metrics: CampaignMetrics!
