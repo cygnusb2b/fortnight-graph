@@ -226,6 +226,7 @@ input CampaignCreativeImageInput {
 input AddCampaignCreativePayloadInput {
   title: String!
   teaser: String!
+  linkText: String
   active: Boolean!
   imageId: String!
 }

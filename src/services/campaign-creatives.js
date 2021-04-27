@@ -10,6 +10,7 @@ module.exports = {
   async createFor(campaignId, {
     title,
     teaser,
+    linkText,
     imageId,
     active,
   } = {}) {
@@ -18,6 +19,7 @@ module.exports = {
     creatives.push({
       title,
       teaser,
+      linkText,
       imageId,
       active,
     });
