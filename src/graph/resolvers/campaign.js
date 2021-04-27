@@ -428,8 +428,18 @@ module.exports = {
     campaignCreativeDetails: async (root, { input }, { auth }) => {
       const { campaignId, creativeId, payload } = input;
       auth.checkCampaignAccess(campaignId);
-      const { title, teaser, active } = payload;
-      return CreativeService.updateDetailsFor(campaignId, creativeId, { title, teaser, active });
+      const {
+        title,
+        teaser,
+        active,
+        linkText,
+      } = payload;
+      return CreativeService.updateDetailsFor(campaignId, creativeId, {
+        title,
+        teaser,
+        linkText,
+        active,
+      });
     },
 
     /**

@@ -244,6 +244,7 @@ input CampaignCreativeDetailsInput {
 input CampaignCreativeDetailsPayloadInput {
   title: String!
   teaser: String!
+  linkText: String
   active: Boolean!
 }
 
