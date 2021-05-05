@@ -95,6 +95,7 @@ module.exports = {
 
   CampaignCreative: {
     image: creative => Image.findById(creative.imageId),
+    linkText: creative => creative.linkText || null,
     metrics: creative => analytics
       .retrieveMetrics({ cre: creative._id, cid: creative.campaignId }),
     reports: creative => creative,
@@ -428,8 +429,18 @@ module.exports = {
     campaignCreativeDetails: async (root, { input }, { auth }) => {
       const { campaignId, creativeId, payload } = input;
       auth.checkCampaignAccess(campaignId);
-      const { title, teaser, active } = payload;
-      return CreativeService.updateDetailsFor(campaignId, creativeId, { title, teaser, active });
+      const {
+        title,
+        teaser,
+        active,
+        linkText,
+      } = payload;
+      return CreativeService.updateDetailsFor(campaignId, creativeId, {
+        title,
+        teaser,
+        linkText,
+        active,
+      });
     },
 
     /**

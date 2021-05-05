@@ -106,6 +106,7 @@ module.exports = {
         id: creative.id,
         title: creative.title,
         teaser: creative.teaser,
+        linkText: creative.linkText || null,
         href: await this.getClickUrl(campaign, deployment, creative),
         image: creative.image ? {
           id: creative.image.id,

@@ -10,6 +10,10 @@ const schema = new Schema({
     type: String,
     trim: true,
   },
+  linkText: {
+    type: String,
+    trim: true,
+  },
   active: {
     type: Boolean,
     required: true,

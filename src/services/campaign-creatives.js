@@ -10,6 +10,7 @@ module.exports = {
   async createFor(campaignId, {
     title,
     teaser,
+    linkText,
     imageId,
     active,
   } = {}) {
@@ -18,6 +19,7 @@ module.exports = {
     creatives.push({
       title,
       teaser,
+      linkText,
       imageId,
       active,
     });
@@ -32,13 +34,19 @@ module.exports = {
    * @param {string} payload.title
    * @return {Promise}
    */
-  async updateDetailsFor(campaignId, creativeId, { title, teaser, active } = {}) {
+  async updateDetailsFor(campaignId, creativeId, {
+    title,
+    teaser,
+    linkText,
+    active,
+  } = {}) {
     const campaign = await Campaign.strictFindActiveById(campaignId);
     const creative = campaign.creatives.id(creativeId);
     if (!creative) throw new Error('Unable to handle creative: no creative was found for the provided ID.');
     creative.set({
       title,
       teaser,
+      linkText,
       active,
     });
 

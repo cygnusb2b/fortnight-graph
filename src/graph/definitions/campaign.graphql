@@ -99,6 +99,7 @@ type CampaignCreative {
   id: String!
   title: String
   teaser: String
+  linkText: String
   active: Boolean!
   image: Image
   metrics: CampaignMetrics!
@@ -225,6 +226,7 @@ input CampaignCreativeImageInput {
 input AddCampaignCreativePayloadInput {
   title: String!
   teaser: String!
+  linkText: String
   active: Boolean!
   imageId: String!
 }
@@ -243,6 +245,7 @@ input CampaignCreativeDetailsInput {
 input CampaignCreativeDetailsPayloadInput {
   title: String!
   teaser: String!
+  linkText: String
   active: Boolean!
 }
 
