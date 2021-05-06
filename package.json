@@ -89,7 +89,7 @@
     "sendgrid": "^5.2.3",
     "shortid": "^2.2.8",
     "slug": "^0.9.1",
-    "ua-parser-js": "^0.7.17",
+    "ua-parser-js": "^0.7.24",
     "unique-push-id": "^1.0.2",
     "uuid": "^3.2.1",
     "uuid-parse": "^1.0.0",
