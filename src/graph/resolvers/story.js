@@ -196,6 +196,26 @@ module.exports = {
     /**
      *
      */
+    advertiserStories: async (root, { input, pagination, sort }) => {
+      const {
+        advertiserId,
+        publisherId,
+        excludeStoryIds,
+      } = input;
+      const criteria = {
+        deleted: false,
+        placeholder: false,
+        publishedAt: { $lte: new Date() },
+        advertiserId,
+        ...(publisherId && { publisherId }),
+        ...(excludeStoryIds && { _id: { $nin: excludeStoryIds } }),
+      };
+      return Story.paginate({ criteria, pagination, sort });
+    },
+
+    /**
+     *
+     */
     publishedStories: (root, { pagination, sort }) => {
       const criteria = {
         deleted: false,
