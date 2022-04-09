@@ -74,7 +74,7 @@
     "inflection": "^1.12.0",
     "jsonwebtoken": "^8.1.1",
     "lodash": "^4.17.19",
-    "moment": "^2.20.1",
+    "moment": "^2.29.2",
     "moment-timezone": "^0.5.21",
     "mongoose": "^5.1.2",
     "mongoose-elasticsearch-xp": "^5.4.1",
