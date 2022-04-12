@@ -1,5 +1,6 @@
 type Query {
   allStories(pagination: PaginationInput = {}, sort: StorySortInput = {}): StoryConnection!
+  advertiserStories(input: AdvertiserStoriesInput!, pagination: PaginationInput = {}, sort: StorySortInput = {}): StoryConnection!
   publishedStories(pagination: PaginationInput = {}, sort: StorySortInput = {}): StoryConnection!
   searchStories(pagination: PaginationInput = {}, phrase: String!): StoryConnection!
   autocompleteStories(pagination: PaginationInput = {}, phrase: String!): StoryConnection!
@@ -142,6 +143,12 @@ enum StoryTypeAheadField {
 input StoryHashInput {
   advertiserId: String!
   hash: String!
+}
+
+input AdvertiserStoriesInput {
+  advertiserId: String!
+  publisherId: String
+  excludeStoryIds: [String]
 }
 
 input PublishedStoryInput {
