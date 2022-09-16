@@ -20,6 +20,13 @@ const schema = new Schema({
     trim: true,
   },
   /**
+   * The IP address.
+   */
+  ip: {
+    type: String,
+    trim: true,
+  },
+  /**
    * Placement ID
    */
   pid: {

@@ -16,8 +16,14 @@ module.exports = {
    * @param {string} params.action The event action, e.g. `view` or `click`.
    * @param {object} params.fields The ad request fields, such as `pid` and `cid`.
    * @param {string} params.ua The request user agent string.
+   * @param {string} params.ip The request ip address.
    */
-  async trackAction({ action, fields, ua }) {
+  async trackAction({
+    action,
+    fields,
+    ua,
+    ip,
+  }) {
     // Validate action.
     if (!['view', 'click'].includes(action)) return;
 
@@ -52,6 +58,7 @@ module.exports = {
       await this.insertEvents({
         action,
         ua,
+        ip,
         placement,
         campaign,
         creativeId,
@@ -67,6 +74,7 @@ module.exports = {
   async insertEvents({
     action,
     ua,
+    ip,
     placement,
     campaign,
     creativeId,
@@ -76,6 +84,7 @@ module.exports = {
     const act = this.createAnalyticsAction({
       now,
       action,
+      ip,
       ua,
       placement,
       campaign,
@@ -116,6 +125,7 @@ module.exports = {
     now,
     action,
     ua,
+    ip,
     placement,
     campaign,
     creativeId,
@@ -123,6 +133,7 @@ module.exports = {
     return new AnalyticsAction({
       act: action,
       ua,
+      ip,
       pid: placement.id,
       cid: campaign ? campaign.id : undefined,
       cre: creativeId,
