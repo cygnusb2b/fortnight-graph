@@ -61,7 +61,7 @@
     "elasticsearch": "^15.0.0",
     "envalid": "^4.1.4",
     "escape-string-regexp": "^1.0.5",
-    "express": "^4.16.2",
+    "express": "^4.17.3",
     "faker": "^4.1.0",
     "googleapis": "^32.0.0",
     "graphql": "^0.13.2",
